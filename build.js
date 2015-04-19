@@ -20,7 +20,11 @@ function buildWebrtc() {
 }
 
 function syncWebrtc() {
-  process.env['PATH'] = root + '/third_party/depot_tools:' + process.env['PATH'];
+  if (process.os === 'win32') {
+    process.env['PATH'] = process.env['PATH'] + ';' + root + '\\third_party\\depot_tools\\
+  } else {
+    process.env['PATH'] = root + '/third_party/depot_tools:' + process.env['PATH'];
+  }
   
   if (!fs.existsSync(root + '/third_party/webrtc')) {
     fs.mkdirSync(root + '/third_party/webrtc');
