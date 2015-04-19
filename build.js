@@ -23,7 +23,7 @@ function syncWebrtc() {
   process.env['PATH'] = root + '/third_party/depot_tools:' + process.env['PATH'];
   
   if (!fs.existsSync(root + '/third_party/webrtc')) {
-    fs.mkdirSync(root + './third_party/webrtc');
+    fs.mkdirSync(root + '/third_party/webrtc');
     
     sh('fetch webrtc', {
       cwd: root + '/third_party/webrtc/',
@@ -70,7 +70,7 @@ function checkDepotTools() {
 }
 
 if (!fs.existsSync(root + '/third_party')) {
-  fs.mkdirSync(root + './third_party');
+  fs.mkdirSync(root + '/third_party');
 }
 
 checkDepotTools();
