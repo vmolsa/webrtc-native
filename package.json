@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "node-arraybuffer": "^1.0.4"
+  }
+}
