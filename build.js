@@ -1,13 +1,26 @@
 var fs = require('fs');
 var os = require('os');
 var sh = require('child_process').execSync;
-var root = process.cwd();
 
-var DEPOT_TOOLS = 'https://chromium.googlesource.com/chromium/tools/depot_tools.git';
+var root = process.cwd();
+var THIRD_PARTY = root + '/third_party/'; 
+var DEPOT_TOOLS_REPO = 'https://chromium.googlesource.com/chromium/tools/depot_tools.git';
+
+if (os.platform() == 'win32') {
+  THIRD_PARTY = root + '\\third_party\\';
+}
+
+var DEPOT_TOOLS = THIRD_PARTY + 'depot_tools';
+var WEBRTC = THIRD_PARTY + 'webrtc';
+var WEBRTC_SRC = WEBRTC + '/src/';
+
+if (os.platform() == 'win32') {
+  WEBRTC_SRC = WEBRTC + '\\src\\';
+}
 
 function buildWebrtc() {
   sh('ninja -C out/Release', {
-    cwd: root + '/third_party/webrtc/src/',
+    cwd: WEBRTC_SRC,
     env: process.env,
     stdio: 'inherit',
   });
@@ -20,24 +33,24 @@ function buildWebrtc() {
 }
 
 function syncWebrtc() {
-  if (process.os === 'win32') {
-    process.env['PATH'] = process.env['PATH'] + ';' + root + '\\third_party\\depot_tools\\
+  if (os.platform() === 'win32') {
+    process.env['PATH'] = process.env['PATH'] + ';' + DEPOT_TOOLS;
   } else {
-    process.env['PATH'] = root + '/third_party/depot_tools:' + process.env['PATH'];
+    process.env['PATH'] = DEPOT_TOOLS + ':' + process.env['PATH'];
   }
   
-  if (!fs.existsSync(root + '/third_party/webrtc')) {
-    fs.mkdirSync(root + '/third_party/webrtc');
+  if (!fs.existsSync(WEBRTC)) {
+    fs.mkdirSync(WEBRTC);
     
     sh('fetch webrtc', {
-      cwd: root + '/third_party/webrtc/',
+      cwd: WEBRTC,
       env: process.env,
       stdio: 'inherit',
     });
     
     if (os.platform() == 'linux') {
       sh('./build/install-build-deps.sh', {
-        cwd: root + '/third_party/webrtc/src/',
+        cwd: WEBRTC_SRC,
         env: process.env,
         stdio: 'inherit',
       });
@@ -49,7 +62,7 @@ function syncWebrtc() {
   }
   
   sh('gclient sync', {
-    cwd: root + '/third_party/webrtc/',
+    cwd: WEBRTC,
     env: process.env,
     stdio: 'inherit',
   });
@@ -58,9 +71,9 @@ function syncWebrtc() {
 }
 
 function checkDepotTools() {
-  if (!fs.existsSync(root + '/third_party/depot_tools')) {
-    sh('git clone ' + DEPOT_TOOLS, {
-      cwd: root + '/third_party/',
+  if (!fs.existsSync(DEPOT_TOOLS)) {
+    sh('git clone ' + DEPOT_TOOLS_REPO, {
+      cwd: THIRD_PARTY,
       env: process.env,
       stdio: 'inherit',
     });
@@ -73,8 +86,8 @@ function checkDepotTools() {
   syncWebrtc();
 }
 
-if (!fs.existsSync(root + '/third_party')) {
-  fs.mkdirSync(root + '/third_party');
+if (!fs.existsSync(THIRD_PARTY)) {
+  fs.mkdirSync(THIRD_PARTY);
 }
 
 checkDepotTools();
