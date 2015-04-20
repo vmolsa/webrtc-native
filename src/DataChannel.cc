@@ -516,12 +516,12 @@ void DataChannel::On(Event *event) {
     rtc::Buffer buffer = event->Unwrap<rtc::Buffer>();
     
     if (type == kDataChannelData) {
-      argv[0] = String::NewFromUtf8(isolate, buffer.data(), String::kNormalString, buffer.length());
+      argv[0] = String::NewFromUtf8(isolate, buffer.data(), String::kNormalString, buffer.size());
       argc = 1;
     } else {
       // TODO(): Wrapping rtc::Buffer to ArrayBuffer is not working properly?
       
-      std::string data(buffer.data(), buffer.length());
+      std::string data(buffer.data(), buffer.size());
       arrayBuffer = node::ArrayBuffer::New(isolate, data);                                
       argv[0] = arrayBuffer->ToArrayBuffer();
       argc = 1;

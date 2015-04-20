@@ -241,8 +241,7 @@ void PeerConnection::CreateOffer(const FunctionCallbackInfo<Value> &args) {
   }
   
   if (socket) {
-    //socket->CreateOffer(self->_offer.get(), NULL);
-    socket->CreateOffer(NULL, NULL);
+    socket->CreateOffer(self->_offer.get(), NULL);
   } else {
     isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
   }

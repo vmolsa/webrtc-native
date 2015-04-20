@@ -25,19 +25,28 @@
         'third_party/webrtc/src/third_party/jsoncpp/source/include',
         "<!(node -e \"require('node-arraybuffer')\")",
       ],
-      'xcode_settings': {
-        'OTHER_CFLAGS': [
-          '-std=gnu++0x',
-          '-Wno-c++0x-extensions',
-          '-Wno-c++11-extensions',
-        ]
-      },
       'conditions': [
+        ['OS=="linux"', {
+          'defines': [
+            'WEBRTC_POSIX=1',
+          ],
+          'cflags': [
+            '-std=gnu++0x',
+          ],
+        }],
         ['OS=="win"', {
           'defines': [
             'WEBRTC_WIN=1',
           ],
-        }, {
+        }],
+        ['OS=="mac"', {
+          'xcode_settings': {
+            'OTHER_CFLAGS': [
+              '-std=gnu++0x',
+              '-Wno-c++0x-extensions',
+              '-Wno-c++11-extensions',
+            ]
+          },        
           'defines': [
             'WEBRTC_POSIX=1',
           ],

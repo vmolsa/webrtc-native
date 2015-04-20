@@ -57,8 +57,21 @@ function syncWebrtc() {
     }
   }
   
-  if (os.platform() == 'darwin') {
-    process.env['GYP_DEFINES'] = 'clang=1';
+  switch (os.platform()) {
+    case 'darwin':
+      process.env['GYP_DEFINES'] = 'clang=1';
+      
+      break;
+    case 'win32':
+      process.env['DEPOT_TOOLS_WIN_TOOLCHAIN'] = 0;
+      
+      break;
+    case 'linux':
+      process.env['JAVA_HOME'] = '/usr/lib/jvm/java';
+      
+      break;
+    default:
+      break;
   }
   
   sh('gclient sync', {
@@ -77,10 +90,6 @@ function checkDepotTools() {
       env: process.env,
       stdio: 'inherit',
     });
-  }
-  
-  if (os.platform() == 'win32') {
-    process.env['DEPOT_TOOLS_WIN_TOOLCHAIN'] = 0;
   }
   
   syncWebrtc();
