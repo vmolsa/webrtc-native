@@ -48,4 +48,4 @@ function getLibs(path) {
 }
 
 getLibs(WEBRTC_OUT);
-fs.writeFileSync('./gen_libs.gyp', JSON.stringify(config));
+fs.writeFileSync('./gen_libs_' + os.platform() + '.gyp', JSON.stringify(config));

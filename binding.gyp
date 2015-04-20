@@ -33,10 +33,16 @@
           'cflags': [
             '-std=gnu++11',
           ],
+          'dependencies': [
+            'gen_libs_linux.gyp:webrtc-build',
+          ],
         }],
         ['OS=="win"', {
           'defines': [
             'WEBRTC_WIN=1',
+          ],
+          'dependencies': [
+            'gen_libs_win32.gyp:webrtc-build',
           ],
         }],
         ['OS=="mac"', {
@@ -48,10 +54,10 @@
             ]
           },        
           'defines': [
-            'WEBRTC_POSIX=1',
+            'WEBRTC_POSIX=1'
           ],
           'dependencies': [
-            'gen_libs_osx.gyp:webrtc-build',
+            'gen_libs_darwin.gyp:webrtc-build',
           ],
         }],
       ],
