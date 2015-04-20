@@ -60,7 +60,9 @@ function syncWebrtc() {
       
       break;
     case 'linux':
-      process.env['JAVA_HOME'] = '/usr/lib/jvm/java';
+      if (!process.env['JAVA_HOME']) {
+        process.env['JAVA_HOME'] = '/usr/lib/jvm/java';
+      }
       
       break;
     default:
