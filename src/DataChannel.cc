@@ -178,13 +178,14 @@ void DataChannel::Send(const v8::FunctionCallbackInfo<v8::Value>& args) {
       } else {
         if (args[0]->IsArrayBuffer() || args[0]->IsTypedArray()) {
           node::ArrayBuffer *container = node::ArrayBuffer::New(isolate, args[0]);
-          rtc::Buffer data(container->Data(), container->Length());
+          rtc::Buffer data(reinterpret_cast<const char*>(container->Data()), container->Length());
           webrtc::DataBuffer buffer(data, true);
           retval = socket->Send(buffer);
         } else {
           isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Invalid argument")));
         }
       }
+
     }
   }
   
