@@ -1,22 +1,19 @@
 var fs = require('fs');
 var os = require('os');
 var sh = require('child_process').execSync;
+var path = require('path')
 
 var root = process.cwd();
-var THIRD_PARTY = root + '/third_party/'; 
+var THIRD_PARTY = path.resolve(root, 'third_party'); 
 var DEPOT_TOOLS_REPO = 'https://chromium.googlesource.com/chromium/tools/depot_tools.git';
 
 if (os.platform() == 'win32') {
-  THIRD_PARTY = root + '\\third_party\\';
+  THIRD_PARTY = path.resolve(root, '..', 'third_party'); 
 }
 
-var DEPOT_TOOLS = THIRD_PARTY + 'depot_tools';
-var WEBRTC = THIRD_PARTY + 'webrtc';
-var WEBRTC_SRC = WEBRTC + '/src/';
-
-if (os.platform() == 'win32') {
-  WEBRTC_SRC = WEBRTC + '\\src\\';
-}
+var DEPOT_TOOLS = path.resolve(THIRD_PARTY, 'depot_tools');
+var WEBRTC = path.resolve(THIRD_PARTY, 'webrtc');
+var WEBRTC_SRC = path.resolve(WEBRTC, 'src');
 
 function buildWebrtc() {
   sh('ninja -C out/Release', {
@@ -32,12 +29,8 @@ function buildWebrtc() {
   });
 }
 
-function syncWebrtc() {
-  if (os.platform() === 'win32') {
-    process.env['PATH'] = process.env['PATH'] + ';' + DEPOT_TOOLS;
-  } else {
-    process.env['PATH'] = DEPOT_TOOLS + ':' + process.env['PATH'];
-  }
+function syncWebrtc() { 
+  process.env['PATH'] = process.env['PATH'] + path.delimiter + DEPOT_TOOLS;
   
   if (!fs.existsSync(WEBRTC)) {
     fs.mkdirSync(WEBRTC);

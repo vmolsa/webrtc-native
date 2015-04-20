@@ -31,7 +31,7 @@
             'WEBRTC_POSIX=1',
           ],
           'cflags': [
-            '-std=gnu++0x',
+            '-std=gnu++11',
           ],
         }],
         ['OS=="win"', {
@@ -50,6 +50,9 @@
           'defines': [
             'WEBRTC_POSIX=1',
           ],
+          'dependencies': [
+            'gen_libs_osx.gyp:webrtc-build',
+          ],
         }],
       ],
       'sources': [
@@ -57,9 +60,6 @@
         'src/PeerConnection.cc',
         'src/DataChannel.cc',
         'src/Observers.cc'
-      ],
-      'dependencies': [
-        'gen_libs.gyp:webrtc-build',
       ],
     },
   ],
