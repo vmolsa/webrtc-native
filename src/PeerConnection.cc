@@ -876,10 +876,6 @@ void PeerConnection::On(Event *event) {
       break;
   }
   
-  if (type == kPeerConnectionDataChannel) {
-    rtc::scoped_refptr<webrtc::DataChannelInterface> dc = event->Unwrap<rtc::scoped_refptr<webrtc::DataChannelInterface> >();
-  }
-
   if (!callback.IsEmpty() && callback->IsFunction()) {
     callback->Call(RTCWrap::This(isolate), argc, argv);
   } else if (isError) {
