@@ -1,8 +1,10 @@
 var fs = require('fs');
 var os = require('os');
+var path = require('path');
 
+var CONFIG = 'Debug';
 var LIB_TYPE = 'a';
-var WEBRTC_OUT = 'third_party/webrtc/src/out/Release';
+var WEBRTC_OUT = 'third_party/webrtc/src/out/' + CONFIG;
 
 var config = {
   targets: [{

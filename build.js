@@ -3,6 +3,7 @@ var os = require('os');
 var sh = require('child_process').execSync;
 var path = require('path')
 
+var CONFIG = 'Debug';
 var root = process.cwd();
 var THIRD_PARTY = path.resolve(root, 'third_party'); 
 var DEPOT_TOOLS_REPO = 'https://chromium.googlesource.com/chromium/tools/depot_tools.git';
@@ -16,7 +17,7 @@ var WEBRTC = path.resolve(THIRD_PARTY, 'webrtc');
 var WEBRTC_SRC = path.resolve(WEBRTC, 'src');
 
 function buildWebrtc() {
-  sh('ninja -C out/Release', {
+  sh('ninja -C ' + path.resolve(WEBRTC_SRC, 'out', CONFIG), {
     cwd: WEBRTC_SRC,
     env: process.env,
     stdio: 'inherit',
