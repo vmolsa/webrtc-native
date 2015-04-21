@@ -25,6 +25,14 @@
 
 #include "EventEmitter.h"
 
+namespace webrtc {
+class VideoCaptureModule;
+}  // namespace webrtc
+
+namespace cricket {
+class VideoRenderer;
+}  // namespace cricket
+
 namespace WebRTC {
   enum PeerConnectionEvent {
     kPeerConnectionCreateOffer = 1,
