@@ -92,6 +92,8 @@ void PeerConnectionObserver::OnDataChannel(webrtc::DataChannelInterface *channel
   _parent->Emit(kPeerConnectionDataChannel, dataChannel);
 }
 
+#ifndef USE_LIBWEBRTC
+
 void PeerConnectionObserver::OnAddStream(webrtc::MediaStreamInterface *stream) {
 
 }
@@ -99,6 +101,8 @@ void PeerConnectionObserver::OnAddStream(webrtc::MediaStreamInterface *stream) {
 void PeerConnectionObserver::OnRemoveStream(webrtc::MediaStreamInterface *stream) {
 
 }
+
+#endif
 
 void PeerConnectionObserver::OnRenegotiationNeeded() {
   _parent->Emit(kPeerConnectionRenegotiation);

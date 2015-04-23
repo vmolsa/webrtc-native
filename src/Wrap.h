@@ -6,8 +6,8 @@
 namespace WebRTC {
   class RTCWrap {
    public:
-    explicit RTCWrap() { }
-    virtual ~RTCWrap() { }
+    explicit RTCWrap();
+    virtual ~RTCWrap();
     
     inline void Wrap(v8::Isolate *isolate, v8::Local<v8::Object> obj) {
       if (obj.IsEmpty()) {

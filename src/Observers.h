@@ -14,24 +14,19 @@
 #include "webrtc/base/refcount.h"
 
 #include "talk/app/webrtc/jsep.h"
-#include "talk/media/devices/devicemanager.h"
 #include "talk/app/webrtc/mediaconstraintsinterface.h"
 #include "talk/app/webrtc/mediastreaminterface.h"
 #include "talk/app/webrtc/peerconnectionfactory.h"
 #include "talk/app/webrtc/peerconnectioninterface.h"
-#include "talk/app/webrtc/videosourceinterface.h"
 #include "talk/app/webrtc/test/fakeconstraints.h"
 #include "talk/app/webrtc/datachannelinterface.h"
 
-#include "EventEmitter.h"
+#ifndef USE_LIBWEBRTC
+  #include "talk/media/devices/devicemanager.h"
+  #include "talk/app/webrtc/videosourceinterface.h"
+#endif
 
-namespace webrtc {
-class VideoCaptureModule;
-}  // namespace webrtc
-
-namespace cricket {
-class VideoRenderer;
-}  // namespace cricket
+#include "EventEmitter.h" // NOLINT(build/include)
 
 namespace WebRTC {
   enum PeerConnectionEvent {
@@ -116,10 +111,13 @@ namespace WebRTC {
     void OnStateChange(webrtc::PeerConnectionObserver::StateType state) final;
     void OnIceCandidate(const webrtc::IceCandidateInterface* candidate) final;
     void OnDataChannel(webrtc::DataChannelInterface* channel) final;
+    void OnRenegotiationNeeded() final;
+
+#ifndef USE_LIBWEBRTC
     void OnAddStream(webrtc::MediaStreamInterface* stream) final;
     void OnRemoveStream(webrtc::MediaStreamInterface* stream) final;
-    void OnRenegotiationNeeded() final;
-    
+#endif
+
    protected:
     EventEmitter* _parent;
   };

@@ -15,58 +15,6 @@
           ],
         }
       ]
-    },  
-    {
-      'target_name': 'webrtc-native',
-      'include_dirs': [
-        'third_party/webrtc/src/',
-        'third_party/webrtc/src/webrtc',
-        'third_party/webrtc/src/webrtc/system_wrappers/interface',
-        'third_party/webrtc/src/third_party/jsoncpp/source/include',
-        "<!(node -e \"require('node-arraybuffer')\")",
-      ],
-      'conditions': [
-        ['OS=="linux"', {
-          'defines': [
-            'WEBRTC_POSIX=1',
-          ],
-          'cflags': [
-            '-std=gnu++11',
-          ],
-          'dependencies': [
-            'gen_libs_linux.gyp:webrtc-build',
-          ],
-        }],
-        ['OS=="win"', {
-          'defines': [
-            'WEBRTC_WIN=1',
-          ],
-          'dependencies': [
-            'gen_libs_win32.gyp:webrtc-build',
-          ],
-        }],
-        ['OS=="mac"', {
-          'xcode_settings': {
-            'OTHER_CFLAGS': [
-              '-std=gnu++0x',
-              '-Wno-c++0x-extensions',
-              '-Wno-c++11-extensions',
-            ]
-          },        
-          'defines': [
-            'WEBRTC_POSIX=1'
-          ],
-          'dependencies': [
-            'gen_libs_darwin.gyp:webrtc-build',
-          ],
-        }],
-      ],
-      'sources': [
-        'src/Module.cc',
-        'src/PeerConnection.cc',
-        'src/DataChannel.cc',
-        'src/Observers.cc'
-      ],
     },
   ],
 }

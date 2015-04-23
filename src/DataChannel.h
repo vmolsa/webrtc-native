@@ -3,11 +3,11 @@
 
 #include <v8.h>
 #include <node.h>
-#include <ArrayBuffer.h>
 
 #include "Observers.h"
 #include "EventEmitter.h"
 #include "Wrap.h"
+#include "ArrayBuffer.h"
 
 namespace WebRTC {
   class DataChannel : public RTCWrap, public EventEmitter {    

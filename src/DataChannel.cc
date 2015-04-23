@@ -178,14 +178,13 @@ void DataChannel::Send(const v8::FunctionCallbackInfo<v8::Value>& args) {
       } else {
         if (args[0]->IsArrayBuffer() || args[0]->IsTypedArray()) {
           node::ArrayBuffer *container = node::ArrayBuffer::New(isolate, args[0]);
-          rtc::Buffer data(reinterpret_cast<const char*>(container->Data()), container->Length());
+          rtc::Buffer data(container->Data(), container->Length());
           webrtc::DataBuffer buffer(data, true);
           retval = socket->Send(buffer);
         } else {
           isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Invalid argument")));
         }
       }
-
     }
   }
   
@@ -517,12 +516,20 @@ void DataChannel::On(Event *event) {
     rtc::Buffer buffer = event->Unwrap<rtc::Buffer>();
     
     if (type == kDataChannelData) {
+#ifndef USE_LIBWEBRTC
       argv[0] = String::NewFromUtf8(isolate, buffer.data(), String::kNormalString, buffer.size());
+#else
+      argv[0] = String::NewFromUtf8(isolate, buffer.data(), String::kNormalString, buffer.length());
+#endif
       argc = 1;
     } else {
       // TODO(): Wrapping rtc::Buffer to ArrayBuffer is not working properly?
-      
+
+#ifndef USE_LIBWEBRTC
       std::string data(buffer.data(), buffer.size());
+#else
+      std::string data(buffer.data(), buffer.length());
+#endif
       arrayBuffer = node::ArrayBuffer::New(isolate, data);                                
       argv[0] = arrayBuffer->ToArrayBuffer();
       argc = 1;

@@ -66,25 +66,8 @@ namespace WebRTC {
 
   class EventEmitter {    
    public:
-    EventEmitter() :
-      _running(false),
-      _closing(false)
-    {
-      uv_mutex_init(&_lock);
-      _async.data = this;
-    }
-    
-    virtual ~EventEmitter() {
-      EventEmitter::End();
-      
-      while (!_events.empty()) {
-        Event *event = _events.front();
-        _events.pop();
-        delete event;
-      }
-      
-      uv_mutex_destroy(&_lock); 
-    }
+    explicit EventEmitter();
+    virtual ~EventEmitter();
     
     inline void Start() {
       uv_mutex_lock(&_lock);
