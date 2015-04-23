@@ -10,7 +10,7 @@
       'product_extension': 'node',
       'includes': [
         'build/config.gypi',
-        'third_party/node/common.gypi',
+        'nodejs.gypi',
       ],
       'include_dirs': [
         '<(nodedir)/src',
@@ -75,6 +75,7 @@
           ],
           'msvs_settings': {
             'VCLinkerTool': {
+              'SubSystem': '2',
               'AdditionalOptions': [ '/ignore:4199' ],
             },
           },
@@ -91,7 +92,7 @@
             '-luuid.lib',
             '-lodbc32.lib',
             '-lDelayImp.lib',
-            '-l"<(nodedir)/<(host_arch)/node.lib"'
+            '-l"<(nodedir)/<(host_arch)/node.lib"',
           ],
         }],
         ['OS=="mac"', {

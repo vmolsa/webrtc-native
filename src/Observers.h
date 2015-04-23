@@ -24,6 +24,15 @@
 #ifndef USE_LIBWEBRTC
   #include "talk/media/devices/devicemanager.h"
   #include "talk/app/webrtc/videosourceinterface.h"
+
+namespace webrtc {
+  class VideoCaptureModule;
+};
+
+namespace cricket {
+  class VideoRenderer;
+};
+
 #endif
 
 #include "EventEmitter.h" // NOLINT(build/include)
