@@ -21,7 +21,7 @@ if (fs.existsSync(ROOT + path.sep + 'nodejs.gypi')) {
 fs.linkSync(NODEJS + path.sep + 'common.gypi', ROOT + path.sep + 'nodejs.gypi');
 
 var CONFIG = process.env['BUILDTYPE'] ? process.env['BUILDTYPE'] : 'Release';
-var USE_LIBWEBRTC = (os.platform() === 'darwin');
+var USE_LIBWEBRTC = (os.platform() === 'darwin' || process.env['USE_LIBWEBRTC'] === 1);
 var THIRD_PARTY = path.resolve(ROOT, 'third_party');
 var DEPOT_TOOLS_REPO = 'https://chromium.googlesource.com/chromium/tools/depot_tools.git';
 var LIBWEBRTC_REPO = 'https://github.com/js-platform/libwebrtc';
@@ -55,7 +55,13 @@ function syncWebrtc() {
         stdio: 'inherit',
       });
 
-      if (os.platform() !== 'win32') {
+      if (os.platform() == 'win32') {
+        sh('python update.py', {
+          cwd: path.resolve(WEBRTC_SRC, 'chromium', 'src', 'tools', 'clang', 'scripts'),
+          env: process.env,
+          stdio: 'inherit',
+        });
+      } else {
         sh('sh update.sh', {
           cwd: path.resolve(WEBRTC_SRC, 'chromium', 'src', 'tools', 'clang', 'scripts'),
           env: process.env,
