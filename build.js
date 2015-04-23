@@ -109,8 +109,6 @@ function syncWebrtc() {
       break;
     case 'win32':
       process.env['DEPOT_TOOLS_WIN_TOOLCHAIN'] = 0;
-      process.env['GYP_DEFINES'] += ' component=shared_library';
-      process.env['GYP_GENERATORS'] += 'msvs-ninja';
 
       break;
     case 'linux':
