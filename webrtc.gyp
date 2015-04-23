@@ -7,6 +7,7 @@
     {
       'target_name': 'webrtc-native',
       'type': 'loadable_module',
+      'product_extension': 'node',
       'includes': [
         'build/config.gypi',
         'third_party/node/common.gypi',
@@ -37,6 +38,8 @@
         ['USE_LIBWEBRTC==1', {
           'defines': [
             'USE_LIBWEBRTC',
+            '_LARGEFILE_SOURCE', 
+            '_FILE_OFFSET_BITS=64',
           ],
           'include_dirs': [
             '<(ROOT)/third_party/libwebrtc/',
@@ -67,6 +70,29 @@
           'defines': [
             'WEBRTC_WIN=1',
           ],
+          'msvs_disabled_warnings': [ 
+            4251,
+          ],
+          'msvs_settings': {
+            'VCLinkerTool': {
+              'AdditionalOptions': [ '/ignore:4199' ],
+            },
+          },
+          'libraries': [
+            '-lkernel32.lib',
+            '-luser32.lib',
+            '-lgdi32.lib',
+            '-lwinspool.lib',
+            '-lcomdlg32.lib',
+            '-ladvapi32.lib',
+            '-lshell32.lib',
+            '-lole32.lib',
+            '-loleaut32.lib',
+            '-luuid.lib',
+            '-lodbc32.lib',
+            '-lDelayImp.lib',
+            '-l"<(nodedir)/<(host_arch)/node.lib"'
+          ],
         }],
         ['OS=="mac"', {
           'xcode_settings': {
@@ -83,6 +109,8 @@
             '-undefined dynamic_lookup'
           ],
           'defines': [
+            '_LARGEFILE_SOURCE', 
+            '_FILE_OFFSET_BITS=64',
             '_DARWIN_USE_64_BIT_INODE=1',
             'WEBRTC_POSIX=1',
           ],

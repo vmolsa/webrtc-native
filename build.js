@@ -3,6 +3,8 @@ var os = require('os');
 var sh = require('child_process').execSync;
 var path = require('path')
 
+console.log(process.env);
+
 var root = process.cwd();
 var CONFIG = process.env['BUILDTYPE'] ? process.env['BUILDTYPE'] : 'Release';
 var USE_LIBWEBRTC = (os.platform() === 'darwin');
