@@ -1,6 +1,5 @@
 {
   'variables': {
-    'ROOT%': '.',
     'USE_LIBWEBRTC%': 0,
   },
   'targets': [
@@ -42,17 +41,17 @@
             '_FILE_OFFSET_BITS=64',
           ],
           'include_dirs': [
-            '<(ROOT)/third_party/libwebrtc/',
-            '<(ROOT)/third_party/libwebrtc/webrtc',
-            '<(ROOT)/third_party/libwebrtc/webrtc/system_wrappers/interface',
-            '<(ROOT)/third_party/libwebrtc/third_party/jsoncpp/source/include',
+            'third_party/libwebrtc/',
+            'third_party/libwebrtc/webrtc',
+            'third_party/libwebrtc/webrtc/system_wrappers/interface',
+            'third_party/libwebrtc/third_party/jsoncpp/source/include',
           ],
         }, {
           'include_dirs': [
-            '<(ROOT)/third_party/webrtc/src/',
-            '<(ROOT)/third_party/webrtc/src/webrtc',
-            '<(ROOT)/third_party/webrtc/src/webrtc/system_wrappers/interface',
-            '<(ROOT)/third_party/webrtc/src/third_party/jsoncpp/source/include',
+            'third_party/webrtc/src/',
+            'third_party/webrtc/src/webrtc',
+            'third_party/webrtc/src/webrtc/system_wrappers/interface',
+            'third_party/webrtc/src/third_party/jsoncpp/source/include',
           ],
         }],      
         ['OS=="linux"', {
@@ -92,7 +91,7 @@
             '-luuid.lib',
             '-lodbc32.lib',
             '-lDelayImp.lib',
-            '-l"<(nodedir)/<(host_arch)/node.lib"',
+            '-l"<(nodedir)\\<(host_arch)\\node"',
           ],
         }],
         ['OS=="mac"', {

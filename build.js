@@ -32,6 +32,8 @@ var WEBRTC = USE_LIBWEBRTC ? path.resolve(THIRD_PARTY, 'libwebrtc') : path.resol
 var WEBRTC_SRC = USE_LIBWEBRTC ? WEBRTC : path.resolve(WEBRTC, 'src');
 var WEBRTC_OUT = path.resolve(WEBRTC_SRC, 'out', CONFIG);
 
+process.env['GYP_DEFINES'] = process.env['GYP_DEFINES'] ? process.env['GYP_DEFINES'] : '';
+
 function buildWebrtc() {
   sh('ninja -C ' + path.resolve(WEBRTC_SRC, 'out', CONFIG), {
     cwd: WEBRTC_SRC,
@@ -101,11 +103,12 @@ function syncWebrtc() {
   
   switch (os.platform()) {
     case 'darwin':
-      process.env['GYP_DEFINES'] = 'USE_LIBWEBRTC=1';
+      process.env['GYP_DEFINES'] += 'USE_LIBWEBRTC=1';
       
       break;
     case 'win32':
       process.env['DEPOT_TOOLS_WIN_TOOLCHAIN'] = 0;
+      process.env['GYP_DEFINES'] += ' component=shared_library'
       
       break;
     case 'linux':
@@ -118,8 +121,9 @@ function syncWebrtc() {
       break;
   }
 
-  process.env['GYP_DEFINES'] += ' ROOT=' + ROOT;
-
+  process.env['GYP_DEFINES'] += ' target_arch=' + process.arch;
+  process.env['GYP_DEFINES'] += ' host_arch=' + process.arch;
+  
   sh('python ' + WEBRTC_SRC + path.sep + 'webrtc' + path.sep + 'build' + path.sep + 'gyp_webrtc webrtc.gyp', {
     cwd: ROOT,
     env: process.env,

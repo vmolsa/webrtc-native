@@ -26,6 +26,8 @@
 #ifndef NODEARRAYBUFFER_H
 #define NODEARRAYBUFFER_H
 
+#pragma warning( disable : 4267 )
+
 #include <v8.h>
 
 namespace node {

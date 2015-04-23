@@ -1,5 +1,7 @@
 #include "DataChannel.h"
 
+
+
 using namespace v8;
 using namespace WebRTC;
 
@@ -117,7 +119,7 @@ void DataChannel::New(const v8::FunctionCallbackInfo<v8::Value> &args) {
 Local<Value> DataChannel::New(Isolate *isolate, rtc::scoped_refptr<webrtc::DataChannelInterface> dataChannel) {
   EscapableHandleScope scope(isolate);
   
-  Local<Value> argv[0];
+  Local<Value> argv[1];
   Local<Function> instance = Local<Function>::New(isolate, DataChannel::constructor);
   
   if (instance.IsEmpty() || !dataChannel.get()) {

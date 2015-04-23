@@ -1,6 +1,8 @@
 #ifndef WEBRTCDATACHANNEL_H
 #define WEBRTCDATACHANNEL_H
 
+#pragma warning( disable : 4005 )
+
 #include <v8.h>
 #include <node.h>
 
