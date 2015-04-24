@@ -12,6 +12,7 @@
       'includes': [
         'build/config.gypi',
         'nodejs.gypi',
+        'webrtc.gypi',
       ],
       'include_dirs': [
         '<(nodedir)/src',

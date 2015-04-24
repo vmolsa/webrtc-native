@@ -30,3 +30,4 @@ node_modules
 out
 third_party
 nodejs.gypi
+webrtc.gypi

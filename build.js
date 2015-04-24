@@ -67,6 +67,12 @@ if (os.platform() == 'win32') {
   console.log('      Configuration: export USE_LIBWEBRTC=0');
 }
 
+if (fs.existsSync(ROOT + path.sep + 'webrtc.gypi')) {
+  fs.unlinkSync(ROOT + path.sep + 'webrtc.gypi');
+}
+
+fs.linkSync(WEBRTC_SRC + path.sep + 'build' + path.sep + 'common.gypi', ROOT + path.sep + 'webrtc.gypi');
+
 function linkNodeModule() {
   fs.linkSync(WEBRTC_OUT + '/webrtc-native.node', ROOT + '/build/' + CONFIG + '/webrtc-native.node');
 }
