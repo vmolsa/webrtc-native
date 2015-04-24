@@ -34,11 +34,11 @@ var WEBRTC_OUT = path.resolve(WEBRTC_SRC, 'out', CONFIG);
 var GYP_PATH = path.resolve(WEBRTC_SRC, 'tools', 'gyp', (os.platform() == 'win32' ? 'gyp.bat' : 'gyp'));
 
 if (process.env['BUILD_WEBRTC_SHARED'] == 1 || process.env['BUILD_WEBRTC_SHARED'] == 0) {
-  BUILD_WEBRTC_SHARED = process.env['BUILD_WEBRTC_SHARED'] ? true : false;
+  BUILD_WEBRTC_SHARED = process.env['BUILD_WEBRTC_SHARED'] == 1 ? true : false;
 }
 
 if (process.env['USE_LIBWEBRTC'] == 1 || process.env['USE_LIBWEBRTC'] == 0) {
-  USE_LIBWEBRTC = process.env['USE_LIBWEBRTC'] ? true : false;
+  USE_LIBWEBRTC = process.env['USE_LIBWEBRTC'] == 1 ? true : false;
 }
 
 process.env['GYP_DEFINES'] = process.env['GYP_DEFINES'] ? process.env['GYP_DEFINES'] : '';
