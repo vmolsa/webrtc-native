@@ -1,6 +1,8 @@
 {
   'variables': {
     'USE_LIBWEBRTC%': 0,
+    'BUILD_WEBRTC_SHARED%': 0,
+    'CONFIGURATION%': 'Release',
   },
   'targets': [
     {
@@ -14,14 +16,10 @@
       'include_dirs': [
         '<(nodedir)/src',
         '<(nodedir)/deps/uv/include',
-        '<(nodedir)/deps/v8/include',      
+        '<(nodedir)/deps/v8/include',
       ],
       'defines': [
         'BUILDING_NODE_EXTENSION',
-      ],
-      'dependencies': [
-        '<(DEPTH)/third_party/jsoncpp/jsoncpp.gyp:jsoncpp',
-        '<(DEPTH)/talk/libjingle.gyp:libjingle_peerconnection',
       ],
       'sources': [
         'src/BackTrace.cc',
@@ -34,6 +32,24 @@
         'src/Wrap.cc'
       ],
       'conditions': [
+        ['BUILD_WEBRTC_SHARED==1', {
+          'conditions': [
+            ['OS=="linux"', {
+              
+            }],
+            ['OS=="mac"', {
+              
+            }],
+            ['OS=="win"', {
+              
+            }],
+          ],
+        }, {
+          'dependencies': [
+            '<(DEPTH)/third_party/jsoncpp/jsoncpp.gyp:jsoncpp',
+            '<(DEPTH)/talk/libjingle.gyp:libjingle_peerconnection',
+          ],
+        }],
         ['USE_LIBWEBRTC==1', {
           'defines': [
             'USE_LIBWEBRTC',
@@ -53,7 +69,7 @@
             'third_party/webrtc/src/webrtc/system_wrappers/interface',
             'third_party/webrtc/src/third_party/jsoncpp/source/include',
           ],
-        }],      
+        }], 
         ['OS=="linux"', {
           'defines': [
             'WEBRTC_POSIX=1',
@@ -71,6 +87,8 @@
           ],
           'msvs_disabled_warnings': [ 
             4251,
+            4530,
+            2589,
           ],
           'msvs_settings': {
             'VCLinkerTool': {
@@ -90,7 +108,6 @@
             '-loleaut32.lib',
             '-luuid.lib',
             '-lodbc32.lib',
-            '-lDelayImp.lib',
             '-l"<(nodedir)\\<(host_arch)\\node"',
           ],
         }],

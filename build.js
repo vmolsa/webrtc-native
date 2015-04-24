@@ -21,27 +21,105 @@ if (fs.existsSync(ROOT + path.sep + 'nodejs.gypi')) {
 fs.linkSync(NODEJS + path.sep + 'common.gypi', ROOT + path.sep + 'nodejs.gypi');
 
 var CONFIG = process.env['BUILDTYPE'] ? process.env['BUILDTYPE'] : 'Release';
-var USE_LIBWEBRTC = (os.platform() === 'darwin' || process.env['USE_LIBWEBRTC'] === 1);
+var BUILD_WEBRTC_SHARED = (os.platform() == 'win32');
+var USE_LIBWEBRTC = (os.platform() == 'darwin');
 var THIRD_PARTY = path.resolve(ROOT, 'third_party');
 var DEPOT_TOOLS_REPO = 'https://chromium.googlesource.com/chromium/tools/depot_tools.git';
 var LIBWEBRTC_REPO = 'https://github.com/js-platform/libwebrtc';
-//var WEBRTC_BRANCH = 'branch-heads/43';
 
 var DEPOT_TOOLS = path.resolve(THIRD_PARTY, 'depot_tools');
 var WEBRTC = USE_LIBWEBRTC ? path.resolve(THIRD_PARTY, 'libwebrtc') : path.resolve(THIRD_PARTY, 'webrtc');
 var WEBRTC_SRC = USE_LIBWEBRTC ? WEBRTC : path.resolve(WEBRTC, 'src');
 var WEBRTC_OUT = path.resolve(WEBRTC_SRC, 'out', CONFIG);
+var GYP_PATH = path.resolve(WEBRTC_SRC, 'tools', 'gyp', (os.platform() == 'win32' ? 'gyp.bat' : 'gyp'));
+
+if (process.env['BUILD_WEBRTC_SHARED'] == 1 || process.env['BUILD_WEBRTC_SHARED'] == 0) {
+  BUILD_WEBRTC_SHARED = process.env['BUILD_WEBRTC_SHARED'] ? true : false;
+}
+
+if (process.env['USE_LIBWEBRTC'] == 1 || process.env['USE_LIBWEBRTC'] == 0) {
+  USE_LIBWEBRTC = process.env['USE_LIBWEBRTC'] ? true : false;
+}
 
 process.env['GYP_DEFINES'] = process.env['GYP_DEFINES'] ? process.env['GYP_DEFINES'] : '';
 
-function buildWebrtc() {
+console.log('Using Configuration:', 'BUILDTYPE =', CONFIG);
+console.log('Using Configuration:', 'BUILD_WEBRTC_SHARED =', BUILD_WEBRTC_SHARED);
+console.log('Using Configuration:', 'USE_LIBWEBRTC =', USE_LIBWEBRTC);
+
+if (process.env['GYP_DEFINES'] !== '') {
+  console.log('Using Configuration:', 'GYP_DEFINES =', process.env['GYP_DEFINES']);
+}
+
+if (os.platform() == 'win32') {
+  console.log('      Configuration: set BUILDTYPE=Debug');
+  console.log('      Configuration: set BUILDTYPE=Release');
+  console.log('      Configuration: set BUILD_WEBRTC_SHARED=1');
+  console.log('      Configuration: set BUILD_WEBRTC_SHARED=0');
+  console.log('      Configuration: set USE_LIBWEBRTC=1');
+  console.log('      Configuration: set USE_LIBWEBRTC=0');
+} else {
+  console.log('      Configuration: export BUILDTYPE=Debug');
+  console.log('      Configuration: export BUILDTYPE=Release');
+  console.log('      Configuration: export BUILD_WEBRTC_SHARED=1');
+  console.log('      Configuration: export BUILD_WEBRTC_SHARED=0');
+  console.log('      Configuration: set USE_LIBWEBRTC=1');
+  console.log('      Configuration: set USE_LIBWEBRTC=0');
+}
+
+function linkNodeModule() {
+  fs.linkSync(WEBRTC_OUT + '/webrtc-native.node', ROOT + '/build/' + CONFIG + '/webrtc-native.node');
+}
+
+function buildNodeModule() {
+  console.log('Building WebRTC Node Module');
+
+  sh('python ' + WEBRTC_SRC + path.sep + 'webrtc' + path.sep + 'build' + path.sep + 'gyp_webrtc webrtc.gyp', {
+    cwd: ROOT,
+    env: process.env,
+    stdio: 'inherit',
+  });
+
   sh('ninja -C ' + path.resolve(WEBRTC_SRC, 'out', CONFIG), {
     cwd: WEBRTC_SRC,
     env: process.env,
     stdio: 'inherit',
   });
 
-  fs.linkSync(WEBRTC_OUT + '/webrtc-native.node', ROOT + '/build/' + CONFIG + '/webrtc-native.node');
+  linkNodeModule();
+}
+
+function buildWebrtcShared() {
+  process.env['GYP_DEFINES'] += ' component=shared_library';
+  console.log('Building WebRTC Shared Library');
+
+  sh('python ' + WEBRTC_SRC + path.sep + 'webrtc' + path.sep + 'build' + path.sep + 'gyp_webrtc webrtc-shared.gyp', {
+    cwd: ROOT,
+    env: process.env,
+    stdio: 'inherit',
+  });
+
+  sh('ninja -C ' + path.resolve(WEBRTC_SRC, 'out', CONFIG), {
+    cwd: WEBRTC_SRC,
+    env: process.env,
+    stdio: 'inherit',
+  });
+
+  console.log(process.env['GYP_DEFINES']);
+
+  sh(GYP_PATH + ' --depth=. webrtc.gyp -f ninja -Goutput_dir=out', {
+    cwd: ROOT,
+    env: process.env,
+    stdio: 'inherit',
+  });
+
+  sh('ninja -C ' + path.resolve(ROOT, 'out', 'Default'), {
+    cwd: ROOT,
+    env: process.env,
+    stdio: 'inherit',
+  });
+
+  linkNodeModule();
 }
 
 function syncWebrtc() {
@@ -76,26 +154,6 @@ function syncWebrtc() {
         env: process.env,
         stdio: 'inherit',
       });
-
-      if (typeof (WEBRTC_BRANCH) == 'string' && WEBRTC_BRANCH !== 'origin') {
-        sh('gclient sync --with_branch_heads', {
-          cwd: WEBRTC,
-          env: process.env,
-          stdio: 'inherit',
-        });
-
-        sh('git checkout ' + WEBRTC_BRANCH, {
-          cwd: WEBRTC_SRC,
-          env: process.env,
-          stdio: 'inherit',
-        });
-      } else {
-        sh('gclient sync', {
-          cwd: WEBRTC,
-          env: process.env,
-          stdio: 'inherit',
-        });
-      }
     }
 
     if (os.platform() == 'linux') {
@@ -110,7 +168,6 @@ function syncWebrtc() {
   switch (os.platform()) {
     case 'darwin':
       process.env['GYP_DEFINES'] += ' clang=1';
-      process.env['GYP_DEFINES'] += ' USE_LIBWEBRTC=1';
 
       break;
     case 'win32':
@@ -127,16 +184,29 @@ function syncWebrtc() {
       break;
   }
 
-  process.env['GYP_DEFINES'] += ' target_arch=' + process.arch;
-  process.env['GYP_DEFINES'] += ' host_arch=' + process.arch;
+  if (os.platform() !== 'win32') {
+    process.env['GYP_DEFINES'] += ' target_arch=' + process.arch;
+    process.env['GYP_DEFINES'] += ' host_arch=' + process.arch;
+  }
 
-  sh('python ' + WEBRTC_SRC + path.sep + 'webrtc' + path.sep + 'build' + path.sep + 'gyp_webrtc webrtc.gyp', {
-    cwd: ROOT,
-    env: process.env,
-    stdio: 'inherit',
-  });
 
-  buildWebrtc();
+  process.env['GYP_DEFINES'] += USE_LIBWEBRTC ? ' USE_LIBWEBRTC=1' : ' USE_LIBWEBRTC=0';
+  process.env['GYP_DEFINES'] += BUILD_WEBRTC_SHARED ? ' BUILD_WEBRTC_SHARED=1' : ' BUILD_WEBRTC_SHARED=0';
+  process.env['GYP_DEFINES'] += ' CONFIGURATION=' + CONFIG;
+
+  if (!USE_LIBWEBRTC) {
+    sh('gclient sync', {
+      cwd: WEBRTC,
+      env: process.env,
+      stdio: 'inherit',
+    });
+  }
+
+  if (BUILD_WEBRTC_SHARED) {
+    buildWebrtcShared();
+  } else {
+    buildNodeModule();
+  }
 }
 
 function checkDepotTools() {
