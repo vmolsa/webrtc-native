@@ -63,8 +63,8 @@ if (os.platform() == 'win32') {
   console.log('      Configuration: export BUILDTYPE=Release');
   console.log('      Configuration: export BUILD_WEBRTC_SHARED=1');
   console.log('      Configuration: export BUILD_WEBRTC_SHARED=0');
-  console.log('      Configuration: set USE_LIBWEBRTC=1');
-  console.log('      Configuration: set USE_LIBWEBRTC=0');
+  console.log('      Configuration: export USE_LIBWEBRTC=1');
+  console.log('      Configuration: export USE_LIBWEBRTC=0');
 }
 
 function linkNodeModule() {
