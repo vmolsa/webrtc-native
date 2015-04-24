@@ -125,7 +125,7 @@ function buildWebrtcShared() {
 function syncWebrtc() {
   process.env['PATH'] = process.env['PATH'] + path.delimiter + DEPOT_TOOLS;
 
-  if (!fs.existsSync(WEBRTC)) {
+  if (!fs.existsSync(WEBRTC) || !fs.existsSync(WEBRTC_SRC)) {
     if (USE_LIBWEBRTC) {
       sh('git clone ' + LIBWEBRTC_REPO, {
         cwd: THIRD_PARTY,
