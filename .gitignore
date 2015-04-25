@@ -27,7 +27,7 @@ build
 # https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
 node_modules
 
-out
 third_party
+
+config.gypi
 nodejs.gypi
-webrtc.gypi

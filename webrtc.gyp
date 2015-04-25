@@ -1,19 +1,13 @@
 {
-  'variables': {
-    'USE_LIBWEBRTC%': 0,
-    'BUILD_WEBRTC_SHARED%': 0,
-    'CONFIGURATION%': 'Release',
-  },
+  'includes': [
+    'config.gypi',
+    #'nodejs.gypi',
+  ],
   'targets': [
     {
       'target_name': 'webrtc-native',
       'type': 'loadable_module',
       'product_extension': 'node',
-      'includes': [
-        'build/config.gypi',
-        'nodejs.gypi',
-        'webrtc.gypi',
-      ],
       'include_dirs': [
         '<(nodedir)/src',
         '<(nodedir)/deps/uv/include',
@@ -21,6 +15,20 @@
       ],
       'defines': [
         'BUILDING_NODE_EXTENSION',
+        'EXPAT_RELATIVE_PATH',
+        'FEATURE_ENABLE_VOICEMAIL',
+        'GTEST_RELATIVE_PATH',
+        'JSONCPP_RELATIVE_PATH',
+        'LOGGING=1',
+        'SRTP_RELATIVE_PATH',
+        'FEATURE_ENABLE_SSL',
+        'FEATURE_ENABLE_VOICEMAIL',
+        'FEATURE_ENABLE_PSTN',
+        'HAVE_SCTP',
+        'HAVE_SRTP',
+        'HAVE_WEBRTC_VIDEO',
+        'HAVE_WEBRTC_VOICE',
+        'LIBPEERCONNECTION_LIB=1'
       ],
       'sources': [
         'src/BackTrace.cc',
@@ -32,30 +40,14 @@
         'src/Observers.cc',
         'src/Wrap.cc'
       ],
+      'dependencies': [
+        '<(DEPTH)/third_party/jsoncpp/jsoncpp.gyp:jsoncpp',
+        '<(DEPTH)/talk/libjingle.gyp:libjingle_peerconnection',
+      ],
       'conditions': [
-        ['BUILD_WEBRTC_SHARED==1', {
-          'conditions': [
-            ['OS=="linux"', {
-              
-            }],
-            ['OS=="mac"', {
-              
-            }],
-            ['OS=="win"', {
-              
-            }],
-          ],
-        }, {
-          'dependencies': [
-            '<(DEPTH)/third_party/jsoncpp/jsoncpp.gyp:jsoncpp',
-            '<(DEPTH)/talk/libjingle.gyp:libjingle_peerconnection',
-          ],
-        }],
         ['USE_LIBWEBRTC==1', {
           'defines': [
             'USE_LIBWEBRTC',
-            '_LARGEFILE_SOURCE', 
-            '_FILE_OFFSET_BITS=64',
           ],
           'include_dirs': [
             'third_party/libwebrtc/',
@@ -73,7 +65,10 @@
         }], 
         ['OS=="linux"', {
           'defines': [
-            'WEBRTC_POSIX=1',
+            'LINUX',
+            'WEBRTC_LINUX',
+            '_LARGEFILE_SOURCE', 
+            '_FILE_OFFSET_BITS=64',
           ],
           'cflags': [
             '-std=gnu++11',
@@ -81,15 +76,32 @@
             '-Wno-deprecated-declarations',
             '-Wno-newline-eof',
           ],
+          'conditions': [
+            ['clang==1', {
+              'cflags': [
+                '-Wall',
+                '-Wextra',
+                '-Wimplicit-fallthrough',
+                '-Wmissing-braces',
+                '-Wreorder',
+                '-Wunused-variable',
+                '-Wno-address-of-array-temporary',
+                '-Wthread-safety',
+              ],
+              'cflags_cc': [
+                '-Wunused-private-field',
+              ],
+            }],
+          ],
         }],
         ['OS=="win"', {
           'defines': [
-            'WEBRTC_WIN=1',
+            'WEBRTC_WIN',
           ],
           'msvs_disabled_warnings': [ 
             4251,
             4530,
-            2589,
+            4702,
           ],
           'msvs_settings': {
             'VCLinkerTool': {
@@ -127,13 +139,36 @@
             '-undefined dynamic_lookup'
           ],
           'defines': [
+            'OSX',
+            'WEBRTC_MAC',
             '_LARGEFILE_SOURCE', 
             '_FILE_OFFSET_BITS=64',
             '_DARWIN_USE_64_BIT_INODE=1',
-            'WEBRTC_POSIX=1',
           ],
         }],
-      ],      
+        ['OS=="ios"', {
+          'defines': [
+            'IOS',
+            'WEBRTC_MAC',
+            'WEBRTC_IOS',
+          ],
+        }],
+        ['os_posix==1', {
+          'configurations': {
+            'Debug_Base': {
+              'defines': [
+                '_DEBUG',
+              ],
+            },
+          },
+          'defines': [
+            'HASH_NAMESPACE=__gnu_cxx',
+            'WEBRTC_POSIX',
+            'DISABLE_DYNAMIC_CAST',
+            '_REENTRANT',
+          ],
+        }],
+      ],    
     },
     {
       'target_name': 'All',
