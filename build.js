@@ -156,6 +156,8 @@ function syncWebrtc() {
 
   var configs = {
     variables: {
+      target_arch: process.arch,
+      host_arch: process.arch,
       nodedir: NODEJS,
       USE_LIBWEBRTC: USE_LIBWEBRTC ? 1 : 0,
       configuration: CONFIG,
