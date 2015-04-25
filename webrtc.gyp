@@ -12,6 +12,10 @@
         '<(nodedir)/src',
         '<(nodedir)/deps/uv/include',
         '<(nodedir)/deps/v8/include',
+        'third_party/webrtc/src/',
+        'third_party/webrtc/src/webrtc',
+        'third_party/webrtc/src/webrtc/system_wrappers/interface',
+        'third_party/webrtc/src/third_party/jsoncpp/source/include',
       ],
       'defines': [
         'BUILDING_NODE_EXTENSION',
@@ -29,12 +33,6 @@
         'HAVE_WEBRTC_VIDEO',
         'HAVE_WEBRTC_VOICE',
         'LIBPEERCONNECTION_LIB=1'
-      ],
-      'include_dirs': [
-        'third_party/webrtc/src/',
-        'third_party/webrtc/src/webrtc',
-        'third_party/webrtc/src/webrtc/system_wrappers/interface',
-        'third_party/webrtc/src/third_party/jsoncpp/source/include',
       ],
       'sources': [
         'src/BackTrace.cc',

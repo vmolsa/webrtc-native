@@ -31,6 +31,10 @@ var WEBRTC = path.resolve(THIRD_PARTY, 'webrtc');
 var WEBRTC_SRC = path.resolve(WEBRTC, 'src');
 var WEBRTC_OUT = path.resolve(WEBRTC_SRC, 'out', CONFIG);
 
+if (os.platform() == 'win32' && process.arch == 'x64') {
+  WEBRTC_OUT = path.resolve(WEBRTC_SRC, 'out', CONFIG + '_x64');
+}
+
 process.env['GYP_DEFINES'] = process.env['GYP_DEFINES'] ? process.env['GYP_DEFINES'] : '';
 
 console.log('Using Configuration:', 'BUILDTYPE =', CONFIG);
@@ -100,6 +104,7 @@ switch (os.platform()) {
 
 process.env['GYP_DEFINES'] += ' target_arch=' + process.arch;
 process.env['GYP_DEFINES'] += ' host_arch=' + process.arch;
+process.env['GYP_DEFINES'] += ' nodedir=' + NODEJS;
 
 // TODO(): src/build/landmines.py in third_party\webrtc\src\chromium is causing error on win32?
 
@@ -131,7 +136,7 @@ sh('python ' + WEBRTC_SRC + path.sep + 'webrtc' + path.sep + 'build' + path.sep 
   stdio: 'inherit',
 });
 
-sh('ninja -C ' + path.resolve(WEBRTC_SRC, 'out', CONFIG), {
+sh('ninja -C ' + WEBRTC_OUT, {
   cwd: WEBRTC_SRC,
   env: process.env,
   stdio: 'inherit',
