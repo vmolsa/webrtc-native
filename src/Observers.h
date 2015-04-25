@@ -138,8 +138,8 @@ namespace WebRTC {
    public:
     DataChannelObserver(EventEmitter *parent = 0);
     
-    virtual void OnStateChange() final;
-    virtual void OnMessage(const webrtc::DataBuffer& buffer) final;
+    void OnStateChange() final;
+    void OnMessage(const webrtc::DataBuffer& buffer) final;
     
    protected:
     EventEmitter* _parent;

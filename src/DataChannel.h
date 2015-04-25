@@ -20,7 +20,7 @@ namespace WebRTC {
     
    private:
     DataChannel();
-    virtual ~DataChannel();
+    ~DataChannel() final;
     
     static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
     static void Close(const v8::FunctionCallbackInfo<v8::Value>& args);
@@ -95,7 +95,7 @@ namespace WebRTC {
                            v8::Local<v8::Value> value, 
                            const v8::PropertyCallbackInfo<void> &info);
 
-    virtual void On(Event *event) final;
+    void On(Event *event) final;
     
     webrtc::DataChannelInterface *GetSocket() const;
     
