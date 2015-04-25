@@ -1,7 +1,7 @@
 {
   'includes': [
     'config.gypi',
-    #'nodejs.gypi',
+    'nodejs.gypi',
   ],
   'targets': [
     {
@@ -151,13 +151,6 @@
           ],
         }],
         ['os_posix==1', {
-          'configurations': {
-            'Debug_Base': {
-              'defines': [
-                '_DEBUG',
-              ],
-            },
-          },
           'defines': [
             'HASH_NAMESPACE=__gnu_cxx',
             'WEBRTC_POSIX',

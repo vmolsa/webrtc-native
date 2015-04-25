@@ -1,7 +1,5 @@
 #include "DataChannel.h"
 
-
-
 using namespace v8;
 using namespace WebRTC;
 
@@ -190,7 +188,7 @@ void DataChannel::Send(const v8::FunctionCallbackInfo<v8::Value>& args) {
     }
   }
   
-  return args.GetReturnValue().Set(Boolean::New(isolate, retval));
+  return args.GetReturnValue().Set(v8::Boolean::New(isolate, retval));
 }
 
 void DataChannel::GetId(v8::Local<v8::String> property, 
@@ -233,7 +231,7 @@ void DataChannel::GetOrdered(v8::Local<v8::String> property,
   Local<Value> retval;
   
   if (socket) {
-    retval = Boolean::New(isolate, socket->ordered());
+    retval = v8::Boolean::New(isolate, socket->ordered());
   }
   
   info.GetReturnValue().Set(retval);
@@ -348,7 +346,7 @@ void DataChannel::GetNegotiated(v8::Local<v8::String> property,
   Local<Value> retval;
   
   if (socket) {
-    retval = Boolean::New(isolate, socket->negotiated());
+    retval = v8::Boolean::New(isolate, socket->negotiated());
   }
   
   info.GetReturnValue().Set(retval);
@@ -363,7 +361,7 @@ void DataChannel::GetReliable(v8::Local<v8::String> property,
   Local<Value> retval;
   
   if (socket) {
-    retval = Boolean::New(isolate, socket->reliable());
+    retval = v8::Boolean::New(isolate, socket->reliable());
   }
   
   info.GetReturnValue().Set(retval);
