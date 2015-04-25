@@ -131,7 +131,9 @@
             'DYLIB_INSTALL_NAME_BASE': '@rpath',
           },
           'libraries': [ 
-            '-undefined dynamic_lookup'
+            '-undefined dynamic_lookup',
+            '-framework AppKit',
+            '-framework QTKit',
           ],
           'defines': [
             'OSX',
