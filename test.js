@@ -1,5 +1,25 @@
 var WEBRTC = require('./index.js');
 
+var config = {
+  iceServers: [
+    {
+      url: 'stun:stun.l.google.com:19302',
+    },
+  ],
+};
+
+var constraints = {
+  optional: [
+    {
+      DtlsSrtpKeyAgreement: true,
+    },
+  ],
+  mandatory: {
+    OfferToReceiveAudio: true,
+    OfferToReceiveVideo: true,
+  },
+};
+
 var totalChannels = 0;
 
 function RunTest(done) {
@@ -139,8 +159,8 @@ function RunTest(done) {
 
   function createPeers() {
     for (var instances = 0; instances < 1; instances++) {
-      var alice = new WEBRTC.RTCPeerConnection();
-      var bob = new WEBRTC.RTCPeerConnection();
+      var alice = new WEBRTC.RTCPeerConnection(config, constraints);
+      var bob = new WEBRTC.RTCPeerConnection(config, constraints);
 
       P2P(alice, bob);
       

@@ -30,6 +30,12 @@
         'HAVE_WEBRTC_VOICE',
         'LIBPEERCONNECTION_LIB=1'
       ],
+      'include_dirs': [
+        'third_party/webrtc/src/',
+        'third_party/webrtc/src/webrtc',
+        'third_party/webrtc/src/webrtc/system_wrappers/interface',
+        'third_party/webrtc/src/third_party/jsoncpp/source/include',
+      ],
       'sources': [
         'src/BackTrace.cc',
         'src/ArrayBuffer.cc',
@@ -44,25 +50,7 @@
         '<(DEPTH)/third_party/jsoncpp/jsoncpp.gyp:jsoncpp',
         '<(DEPTH)/talk/libjingle.gyp:libjingle_peerconnection',
       ],
-      'conditions': [
-        ['USE_LIBWEBRTC==1', {
-          'defines': [
-            'USE_LIBWEBRTC',
-          ],
-          'include_dirs': [
-            'third_party/libwebrtc/',
-            'third_party/libwebrtc/webrtc',
-            'third_party/libwebrtc/webrtc/system_wrappers/interface',
-            'third_party/libwebrtc/third_party/jsoncpp/source/include',
-          ],
-        }, {
-          'include_dirs': [
-            'third_party/webrtc/src/',
-            'third_party/webrtc/src/webrtc',
-            'third_party/webrtc/src/webrtc/system_wrappers/interface',
-            'third_party/webrtc/src/third_party/jsoncpp/source/include',
-          ],
-        }], 
+      'conditions': [ 
         ['OS=="linux"', {
           'defines': [
             'LINUX',
