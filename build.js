@@ -139,12 +139,14 @@ function syncWebrtc() {
       break;
   }
 
-  if (os.platform() !== 'win32') {
+  //if (os.platform() !== 'win32') {
     process.env['GYP_DEFINES'] += ' target_arch=' + process.arch;
     process.env['GYP_DEFINES'] += ' host_arch=' + process.arch;
-  }
+  //}
 
   if (!USE_LIBWEBRTC) {
+    // TODO(): src/build/landmines.py in third_party\webrtc\src\chromium is causing error on win32?
+
     sh('gclient sync', {
       cwd: WEBRTC,
       env: process.env,

@@ -102,13 +102,8 @@
             4251,
             4530,
             4702,
+            4199,
           ],
-          'msvs_settings': {
-            'VCLinkerTool': {
-              'SubSystem': '2',
-              'AdditionalOptions': [ '/ignore:4199' ],
-            },
-          },
           'libraries': [
             '-lkernel32.lib',
             '-luser32.lib',
@@ -121,7 +116,7 @@
             '-loleaut32.lib',
             '-luuid.lib',
             '-lodbc32.lib',
-            '-l"<(nodedir)\\<(host_arch)\\node"',
+            '-l"<(nodedir)\\<(target_arch)\\node"',
           ],
         }],
         ['OS=="mac"', {
