@@ -25,7 +25,6 @@ fs.linkSync(NODEJS + path.sep + 'common.gypi', ROOT + path.sep + 'nodejs.gypi');
 var CONFIG = process.env['BUILDTYPE'] ? process.env['BUILDTYPE'] : 'Release';
 var THIRD_PARTY = path.resolve(ROOT, 'third_party');
 var DEPOT_TOOLS_REPO = 'https://chromium.googlesource.com/chromium/tools/depot_tools.git';
-
 var DEPOT_TOOLS = path.resolve(THIRD_PARTY, 'depot_tools');
 var WEBRTC = path.resolve(THIRD_PARTY, 'webrtc');
 var WEBRTC_SRC = path.resolve(WEBRTC, 'src');
@@ -113,6 +112,10 @@ switch (os.platform()) {
 }
 
 // TODO(): src/build/landmines.py in third_party\webrtc\src\chromium is causing error on win32?
+
+process.env['GYP_DEFINES'] += ' target_arch=' + process.arch;
+process.env['GYP_DEFINES'] += ' host_arch=' + process.arch;
+process.env['GYP_DEFINES'] += ' nodedir=' + NODEJS;
 
 sh('gclient sync', {
   cwd: WEBRTC,
