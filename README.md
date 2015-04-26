@@ -33,6 +33,11 @@ var WebRTC = require('webrtc-native');
 
 - Not Implemented
 
+#### WebRTC.[getSources](http://simpl.info/getusermedia/sources/index.html)
+
+- Returns array of available device inputs
+- Not Implemented
+
 #### WebRTC.RTCGarbageCollect()
 
 Notify V8 Engine to attempt to free memory.
