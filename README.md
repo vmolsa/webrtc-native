@@ -1,5 +1,11 @@
 WebRTC for NodeJS
 
+# Build
+
+````
+node-gyp rebuild
+````
+
 # Prerequisite software
 ## Windows
 
