@@ -3,6 +3,25 @@ WebRTC for NodeJS
 This module is working only with latest NodeJS version. 
 If you are using another version of NodeJS then you should use [node-webrtc](https://github.com/js-platform/node-webrtc) project.
 
+# API
+
+[RTCPeerConnection](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection)
+[RTCDataChannel](https://developer.mozilla.org/en-US/docs/Web/API/RTCDataChannel)
+[MediaStream](https://developer.mozilla.org/en-US/docs/Web/API/MediaStream)
+[MediaStreamTrack](https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack)
+[getUserMedia](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/getUserMedia)
+
+````
+var WebRTC = require('webrtc-native');
+
+var RTCPeerConnection = WebRTC.RTCPeerConnection          // Partial Support
+var RTCIceCandidate = WebRTC.RTCIceCandidate              
+var RTCSessionDescription = WebRTC.RTCSessionDescription
+var MediaStream = WebRTC.MediaStream                      // Not Implemented
+var MediaStreamTrack = WebRTC.MediaStreamTrack            // Not Implemented
+var getUserMedia = WebRTC.getUserMedia                    // Not Implemented
+````
+
 # Build
 
 ````
