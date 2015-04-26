@@ -23,8 +23,8 @@
 *
 */
 
-#ifndef WEBRTCWRAP_H
-#define WEBRTCWRAP_H
+#ifndef WEBRTC_WRAP_H
+#define WEBRTC_WRAP_H
 
 #include <v8.h>
 

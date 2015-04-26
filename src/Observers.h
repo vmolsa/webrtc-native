@@ -23,8 +23,8 @@
 *
 */
 
-#ifndef WEBRTCOBSERVERS_H
-#define WEBRTCOBSERVERS_H
+#ifndef WEBRTC_OBSERVERS_H
+#define WEBRTC_OBSERVERS_H
 
 #include "webrtc/base/logging.h"
 #include "webrtc/system_wrappers/interface/ref_count.h"

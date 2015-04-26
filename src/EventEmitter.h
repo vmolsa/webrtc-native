@@ -23,8 +23,8 @@
 *
 */
 
-#ifndef WEBRTCEVENTEMITTER_H
-#define WEBRTCEVENTEMITTER_H
+#ifndef WEBRTC_EVENTEMITTER_H
+#define WEBRTC_EVENTEMITTER_H
 
 #include <queue>
 #include <string>

@@ -23,8 +23,8 @@
  *
  */
 
-#ifndef NODEARRAYBUFFER_H
-#define NODEARRAYBUFFER_H
+#ifndef NODE_ARRAYBUFFER_H
+#define NODE_ARRAYBUFFER_H
 
 #pragma warning( disable : 4267 )
 

@@ -23,8 +23,8 @@
 *
 */
 
-#ifndef WEBRTCDATACHANNEL_H
-#define WEBRTCDATACHANNEL_H
+#ifndef WEBRTC_DATACHANNEL_H
+#define WEBRTC_DATACHANNEL_H
 
 #pragma warning( disable : 4005 )
 
