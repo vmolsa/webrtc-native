@@ -20,7 +20,7 @@ var WebRTC = require('webrtc-native');
 
 - Partial Support
 
-#### WebRTC.[RTCIceCandidate](https://developer.mozilla.org/en-US/docs/Web/Events/icecandidate)
+#### WebRTC.[RTCIceCandidate](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnectionIceEvent)
 
 #### WebRTC.[RTCSessionDescription](https://developer.mozilla.org/en-US/docs/Web/API/RTCSessionDescription)
 
