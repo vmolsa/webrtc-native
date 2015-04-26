@@ -1,9 +1,9 @@
 # webrtc-native
 WebRTC for NodeJS
 
-## Prerequisite software
+# Prerequisite software
 
-# Windows
+## Windows
 
 You must build with Visual Studio 2013 Update 4, no other versions are supported.
 You must have Windows 7 x64 or later. x86 OSs are unsupported.
@@ -16,7 +16,7 @@ You must have Windows 7 x64 or later. x86 OSs are unsupported.
 
 [DirectX SDK](https://www.microsoft.com/en-us/download/details.aspx?id=6812)
 
-# OS X
+## OS X
 
 XCode 3.0 or higher
 
