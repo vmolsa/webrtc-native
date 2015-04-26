@@ -6,9 +6,13 @@ If you are using another version of NodeJS then you should use [node-webrtc](htt
 # API
 
 [RTCPeerConnection](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection)
+
 [RTCDataChannel](https://developer.mozilla.org/en-US/docs/Web/API/RTCDataChannel)
+
 [MediaStream](https://developer.mozilla.org/en-US/docs/Web/API/MediaStream)
+
 [MediaStreamTrack](https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack)
+
 [getUserMedia](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/getUserMedia)
 
 ````
