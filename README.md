@@ -1,5 +1,8 @@
 WebRTC for NodeJS
 
+This module is working only with latest NodeJS version. 
+If you are using another versions of NodeJS then you should use [node-webrtc](https://github.com/js-platform/node-webrtc) project.
+
 # Build
 
 ````
@@ -12,6 +15,7 @@ node-gyp rebuild
 ````
 You must build with Visual Studio 2013 Update 4, no other versions are supported.
 You must have Windows 7 x64 or later. x86 OSs are unsupported.
+You must run node-gyp with administrator privileges.
 ````
 [Git](http://git-scm.com/)
 
