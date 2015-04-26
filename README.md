@@ -11,29 +11,29 @@ If you are using another version of NodeJS then you should use [node-webrtc](htt
 var WebRTC = require('webrtc-native');
 ````
 
-### WebRTC.[RTCPeerConnection](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection)
+#### WebRTC.[RTCPeerConnection](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection)
 
 - Partial Support
 
-### WebRTC.[RTCIceCandidate](https://developer.mozilla.org/en-US/docs/Web/Events/icecandidate)
+#### WebRTC.[RTCIceCandidate](https://developer.mozilla.org/en-US/docs/Web/Events/icecandidate)
 
-### WebRTC.[RTCSessionDescription](https://developer.mozilla.org/en-US/docs/Web/API/RTCSessionDescription)
+#### WebRTC.[RTCSessionDescription](https://developer.mozilla.org/en-US/docs/Web/API/RTCSessionDescription)
 
-### WebRTC.[RTCDataChannel](https://developer.mozilla.org/en-US/docs/Web/API/RTCDataChannel)
+#### WebRTC.[RTCDataChannel](https://developer.mozilla.org/en-US/docs/Web/API/RTCDataChannel)
 
-### WebRTC.[MediaStream](https://developer.mozilla.org/en-US/docs/Web/API/MediaStream)
-
-- Not Implemented
-
-### WebRTC.[MediaStreamTrack](https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack)
+#### WebRTC.[MediaStream](https://developer.mozilla.org/en-US/docs/Web/API/MediaStream)
 
 - Not Implemented
 
-### WebRTC.[getUserMedia](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/getUserMedia)
+#### WebRTC.[MediaStreamTrack](https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack)
 
 - Not Implemented
 
-### WebRTC.RTCGarbageCollect()
+#### WebRTC.[getUserMedia](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/getUserMedia)
+
+- Not Implemented
+
+#### WebRTC.RTCGarbageCollect()
 
 Notify V8 Engine to attempt to free memory.
 
