@@ -23,6 +23,8 @@
 *
 */
 
+#pragma warning( disable : 4005 )
+
 #include <node.h>
 
 #include "PeerConnection.h"

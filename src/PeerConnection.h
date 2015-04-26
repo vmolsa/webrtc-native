@@ -26,8 +26,6 @@
 #ifndef WEBRTCPEERCONNECTION_H
 #define WEBRTCPEERCONNECTION_H
 
-#pragma warning( disable : 4005 )
-
 #include <v8.h>
 
 #include "Observers.h" 
