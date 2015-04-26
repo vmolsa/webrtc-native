@@ -40,7 +40,7 @@ var WebRTC = require('webrtc-native');
 
 #### WebRTC.RTCGarbageCollect()
 
-Notify V8 Engine to attempt to free memory.
+- Notify V8 Engine to attempt to free memory.
 
 # Build
 
