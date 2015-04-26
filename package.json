@@ -1,1 +1,27 @@
-{}
+{
+  "name": "webrtc-native",
+  "version": "0.0.1",
+  "description": "WebRTC for NodeJS",
+  "homepage": "https://github.com/vmolsa/webrtc-native",
+  "author": "https://github.com/vmolsa",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vmolsa/webrtc-native.git"
+  },
+  "bugs": {
+    "url": "https://github.com/vmolsa/webrtc-native/issues"
+  },
+  "keywords": [
+    "webrtc"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "gypfile": true,
+  "scripts": {
+    "install": "node-gyp rebuild"
+  },
+  "dependencies": {
+    "node-gyp": "^1.0.3"
+  },
+  "devDependencies": {}
+}
