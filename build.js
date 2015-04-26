@@ -19,15 +19,18 @@ if (os.platform() == 'win32') {
   NODEJS = path.resolve(process.env['HOME'], '.node-gyp', process.version.substring(1));
 }
 
-process.env['NODEDIR'] = NODEJS;
-
 if (fs.existsSync(ROOT + path.sep + 'nodejs.gypi')) {
   fs.unlinkSync(ROOT + path.sep + 'nodejs.gypi');
 }
 
 fs.linkSync(NODEJS + path.sep + 'common.gypi', ROOT + path.sep + 'nodejs.gypi');
 
-var CONFIG = process.env['BUILDTYPE'] ? process.env['BUILDTYPE'] : 'Release';
+var CONFIG = 'Release';
+
+if (fs.existsSync(ROOT + path.sep + 'build' + path.sep + 'Debug')) {
+  CONFIG = 'Debug';
+}
+
 var THIRD_PARTY = path.resolve(ROOT, 'third_party');
 var DEPOT_TOOLS_REPO = 'https://chromium.googlesource.com/chromium/tools/depot_tools.git';
 var DEPOT_TOOLS = path.resolve(THIRD_PARTY, 'depot_tools');
@@ -35,18 +38,8 @@ var WEBRTC = path.resolve(THIRD_PARTY, 'webrtc');
 var WEBRTC_SRC = path.resolve(WEBRTC, 'src');
 var WEBRTC_OUT = path.resolve(WEBRTC_SRC, 'out', CONFIG);
 
-if (os.platform() == 'win32') {
-  if (!process.env['BUILDTYPE']) {
-    if (fs.existsSync(ROOT + path.sep + 'build' + path.sep + 'Debug')) {
-      CONFIG = 'Debug';
-    } else {
-      CONFIG = 'Release';
-    }
-  }
-
-  if (process.arch == 'x64') {
-    WEBRTC_OUT = path.resolve(WEBRTC_SRC, 'out', CONFIG + '_x64');
-  }
+if (os.platform() == 'win32' && process.arch == 'x64') {
+  WEBRTC_OUT = path.resolve(WEBRTC_SRC, 'out', CONFIG + '_x64');
 }
 
 if (!SYNC) {
@@ -64,7 +57,7 @@ if (!SYNC) {
 process.env['GYP_DEFINES'] = process.env['GYP_DEFINES'] ? process.env['GYP_DEFINES'] : '';
 
 if (process.env['GYP_DEFINES'] !== '') {
-  console.log('Using Configuration:', 'GYP_DEFINES =', process.env['GYP_DEFINES']);
+  console.log('GYP_DEFINES =', process.env['GYP_DEFINES']);
 }
 
 if (!fs.existsSync(THIRD_PARTY)) {
@@ -122,22 +115,18 @@ switch (os.platform()) {
     break;
 }
 
-console.log('Using Configuration:', 'target_arch =', process.arch);
-console.log('Using Configuration:', 'host_arch =', process.arch);
-console.log('Using Configuration:', 'BUILDTYPE =', CONFIG);
-console.log('Using Configuration:', 'SKIP_SYNC =', SYNC ? false : true);
-console.log('Change Configuration:');
+console.log('target_arch =', process.arch);
+console.log('host_arch =', process.arch);
+console.log('configuration =', CONFIG);
+console.log('SKIP_SYNC =', SYNC ? false : true);
+console.log('Enable / Disable Sync: ');
 
 if (os.platform() == 'win32') {
-  console.log('       Configuration: set BUILDTYPE=Debug');
-  console.log('       Configuration: set BUILDTYPE=Release');
-  console.log('       Configuration: set SKIP_SYNC=1');
-  console.log('       Configuration: set SKIP_SYNC=0');
+  console.log('set SKIP_SYNC=1');
+  console.log('set SKIP_SYNC=0');
 } else {
-  console.log('       Configuration: export BUILDTYPE=Debug');
-  console.log('       Configuration: export BUILDTYPE=Release');
-  console.log('       Configuration: export SKIP_SYNC=1');
-  console.log('       Configuration: export SKIP_SYNC=0');
+  console.log('export SKIP_SYNC=1');
+  console.log('export SKIP_SYNC=0');
 }
 
 if (SYNC) {
