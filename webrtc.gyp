@@ -5,6 +5,7 @@
   ],
   'variables': {
     'configuration%': 'Release',
+    'build_tests%': 0,
   }, 
   'targets': [
     {
@@ -52,7 +53,7 @@
         '<(DEPTH)/talk/libjingle.gyp:libjingle_peerconnection',
       ],
       'conditions': [ 
-        ['configuration=="Debug"', {
+        ['build_tests==1', {
           'dependencies': [
             '<(DEPTH)/talk/libjingle_tests.gyp:*',
           ],

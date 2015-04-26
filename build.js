@@ -35,6 +35,12 @@ if (fs.existsSync(ROOT + path.sep + 'build' + path.sep + 'Debug')) {
   CONFIG = 'Debug';
 }
 
+var TESTS = (CONFIG == 'Debug') ? true : false;
+
+if (process.env['ENABLE_TESTS'] == 1 || process.env['ENABLE_TESTS'] == 0) {
+  TESTS = (process.env['ENABLE_TESTS'] == 1) ? true : false;
+}
+
 var THIRD_PARTY = path.resolve(ROOT, 'third_party');
 var DEPOT_TOOLS_REPO = 'https://chromium.googlesource.com/chromium/tools/depot_tools.git';
 var DEPOT_TOOLS = path.resolve(THIRD_PARTY, 'depot_tools');
@@ -100,6 +106,7 @@ process.env['GYP_DEFINES'] += ' target_arch=' + process.arch;
 process.env['GYP_DEFINES'] += ' host_arch=' + process.arch;
 process.env['GYP_DEFINES'] += ' nodedir=' + NODEJS;
 process.env['GYP_DEFINES'] += ' configuration=' + CONFIG;
+process.env['GYP_DEFINES'] += TESTS ? ' build_tests=1' : ' build_tests=0';
 
 switch (os.platform()) {
   case 'darwin':
@@ -124,14 +131,19 @@ console.log('target_arch =', process.arch);
 console.log('host_arch =', process.arch);
 console.log('configuration =', CONFIG);
 console.log('SKIP_SYNC =', SYNC ? false : true);
-console.log('Enable / Disable Sync: ');
+console.log('ENABLE_TESTS =', TESTS ? true : false);
+console.log('Enable / Disable Options: ');
 
 if (os.platform() == 'win32') {
   console.log('set SKIP_SYNC=1');
   console.log('set SKIP_SYNC=0');
+  console.log('set ENABLE_TESTS=1');
+  console.log('set ENABLE_TESTS=0');
 } else {
   console.log('export SKIP_SYNC=1');
   console.log('export SKIP_SYNC=0');
+  console.log('export ENABLE_TESTS=1');
+  console.log('export ENABLE_TESTS=0');
 }
 
 if (SYNC) {
@@ -174,4 +186,23 @@ if (fs.existsSync(WEBRTC_SRC)) {
   });
 
   fs.linkSync(WEBRTC_OUT + path.sep + 'webrtc-native.node', ROOT + path.sep + 'build' + path.sep + CONFIG + path.sep + 'webrtc-native.node');
+  
+  if (TESTS) {
+    console.log('Running WebRTC Unit Tests');
+    
+    var log = fs.openSync('test.log', 'w');
+    var unittest = 'libjingle_peerconnection_unittest';
+    
+    if (os.platform() == 'win32') {
+      unittest += '.exe';
+    }
+  
+    sh(WEBRTC_OUT + path.sep + unittest, {
+      cwd: WEBRTC_SRC,
+      env: process.env,
+      stdio: [ 'ignore', log, log ],
+    });
+  }
+  
+  console.log('Done! :)');
 }
