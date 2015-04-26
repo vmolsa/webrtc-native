@@ -41,7 +41,6 @@ var WebRTC = require('webrtc-native');
 #### WebRTC.[getSources](http://simpl.info/getusermedia/sources/index.html)
 
 - Returns array of available device inputs
-- Not Implemented
 
 #### WebRTC.RTCGarbageCollect()
 
