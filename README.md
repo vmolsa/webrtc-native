@@ -27,6 +27,10 @@ var getUserMedia = WebRTC.getUserMedia                    // Not Implemented
 var getSources = WebRTC.getSources                        // Not Implemented
 ````
 
+### WebRTC.RTCGarbageCollect()
+
+Notify V8 Engine to attempt to free memory.
+
 # Build
 
 ````
