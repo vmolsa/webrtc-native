@@ -11,39 +11,25 @@ If you are using another version of NodeJS then you should use [node-webrtc](htt
 var WebRTC = require('webrtc-native');
 ````
 
-### WebRTC.RTCPeerConnection
-
-[RTCPeerConnection](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection)
+### WebRTC.[RTCPeerConnection](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection)
 
 - Partial Support
 
-### WebRTC.RTCIceCandidate
+### WebRTC.[RTCIceCandidate](https://developer.mozilla.org/en-US/docs/Web/Events/icecandidate)
 
-[RTCIceCandidate](https://developer.mozilla.org/en-US/docs/Web/Events/icecandidate)
+### WebRTC.[RTCSessionDescription](https://developer.mozilla.org/en-US/docs/Web/API/RTCSessionDescription)
 
-### WebRTC.RTCSessionDescription
+### WebRTC.[RTCDataChannel](https://developer.mozilla.org/en-US/docs/Web/API/RTCDataChannel)
 
-[RTCSessionDescription](https://developer.mozilla.org/en-US/docs/Web/API/RTCSessionDescription)
-
-### WebRTC.RTCDataChannel
-
-[RTCDataChannel](https://developer.mozilla.org/en-US/docs/Web/API/RTCDataChannel)
-
-### WebRTC.MediaStream
-
-[MediaStream](https://developer.mozilla.org/en-US/docs/Web/API/MediaStream)
+### WebRTC.[MediaStream](https://developer.mozilla.org/en-US/docs/Web/API/MediaStream)
 
 - Not Implemented
 
-### WebRTC.MediaStreamTrack
-
-[MediaStreamTrack](https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack)
+### WebRTC.[MediaStreamTrack](https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack)
 
 - Not Implemented
 
-### WebRTC.getUserMedia
-
-[getUserMedia](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/getUserMedia)
+### WebRTC.[getUserMedia](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/getUserMedia)
 
 - Not Implemented
 
