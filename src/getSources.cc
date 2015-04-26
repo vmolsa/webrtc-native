@@ -54,6 +54,15 @@ void GetSources::GetDevices(const FunctionCallbackInfo<Value>& args) {
       }
     }
 
+    if (args.Length() == 1 && args[0]->IsFunction()) {
+      Local<Function> callback = Local<Function>::Cast(args[0]);
+
+      if (!callback.IsEmpty()) {
+        Handle<Value> argv[1] = { list };
+        callback->Call(args.This(), 1, argv);
+      }
+    }
+
     return args.GetReturnValue().Set(list);
   }
 
