@@ -1,6 +1,6 @@
 {
   'includes': [
-    'config.gypi',
+    'build/config.gypi',
     'nodejs.gypi',
   ],
   'targets': [

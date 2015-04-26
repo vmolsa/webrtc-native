@@ -31,8 +31,18 @@ var WEBRTC = path.resolve(THIRD_PARTY, 'webrtc');
 var WEBRTC_SRC = path.resolve(WEBRTC, 'src');
 var WEBRTC_OUT = path.resolve(WEBRTC_SRC, 'out', CONFIG);
 
-if (os.platform() == 'win32' && process.arch == 'x64') {
-  WEBRTC_OUT = path.resolve(WEBRTC_SRC, 'out', CONFIG + '_x64');
+if (os.platform() == 'win32') {
+  if (!process.env['BUILDTYPE']) {
+    if (fs.existsSync(ROOT + path.sep + 'build' + path.sep + 'Debug')) {
+      CONFIG = 'Debug';
+    } else {
+      CONFIG = 'Release';
+    }
+  }
+
+  if (process.arch == 'x64') {
+    WEBRTC_OUT = path.resolve(WEBRTC_SRC, 'out', CONFIG + '_x64');
+  }
 }
 
 process.env['GYP_DEFINES'] = process.env['GYP_DEFINES'] ? process.env['GYP_DEFINES'] : '';
@@ -102,10 +112,6 @@ switch (os.platform()) {
     break;
 }
 
-process.env['GYP_DEFINES'] += ' target_arch=' + process.arch;
-process.env['GYP_DEFINES'] += ' host_arch=' + process.arch;
-process.env['GYP_DEFINES'] += ' nodedir=' + NODEJS;
-
 // TODO(): src/build/landmines.py in third_party\webrtc\src\chromium is causing error on win32?
 
 sh('gclient sync', {
@@ -113,20 +119,6 @@ sh('gclient sync', {
   env: process.env,
   stdio: 'inherit',
 });
-
-var configs = {
-  variables: {
-    target_arch: process.arch,
-    host_arch: process.arch,
-    nodedir: NODEJS,
-  },
-};
-
-if (fs.existsSync(ROOT + path.sep + 'config.gypi')) {
-  fs.unlinkSync(ROOT + path.sep + 'config.gypi');
-}
-
-fs.writeFileSync(ROOT + path.sep + 'config.gypi', JSON.stringify(configs));
 
 console.log('Building WebRTC Node Module');
 
@@ -142,4 +134,4 @@ sh('ninja -C ' + WEBRTC_OUT, {
   stdio: 'inherit',
 });
 
-fs.linkSync(WEBRTC_OUT + '/webrtc-native.node', ROOT + '/build/' + CONFIG + '/webrtc-native.node');
+fs.linkSync(WEBRTC_OUT + path.sep + 'webrtc-native.node', ROOT + path.sep + 'build' + path.sep + CONFIG + path.sep + 'webrtc-native.node');
