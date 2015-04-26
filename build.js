@@ -23,6 +23,10 @@ if (fs.existsSync(ROOT + path.sep + 'nodejs.gypi')) {
   fs.unlinkSync(ROOT + path.sep + 'nodejs.gypi');
 }
 
+if (!fs.existsSync(ROOT + path.sep + 'build' + path.sep + 'config.gypi')) {
+  throw new Error('Run node-gyp rebuild instead of node build.js');
+}
+
 fs.linkSync(NODEJS + path.sep + 'common.gypi', ROOT + path.sep + 'nodejs.gypi');
 
 var CONFIG = 'Release';
