@@ -5,27 +5,47 @@ If you are using another version of NodeJS then you should use [node-webrtc](htt
 
 # API
 
-[RTCPeerConnection](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection)
-
-[RTCDataChannel](https://developer.mozilla.org/en-US/docs/Web/API/RTCDataChannel)
-
-[MediaStream](https://developer.mozilla.org/en-US/docs/Web/API/MediaStream)
-
-[MediaStreamTrack](https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack)
-
-[getUserMedia](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/getUserMedia)
+### Usage
 
 ````
 var WebRTC = require('webrtc-native');
-
-var RTCPeerConnection = WebRTC.RTCPeerConnection          // Partial Support
-var RTCIceCandidate = WebRTC.RTCIceCandidate              
-var RTCSessionDescription = WebRTC.RTCSessionDescription
-var MediaStream = WebRTC.MediaStream                      // Not Implemented
-var MediaStreamTrack = WebRTC.MediaStreamTrack            // Not Implemented
-var getUserMedia = WebRTC.getUserMedia                    // Not Implemented
-var getSources = WebRTC.getSources                        // Not Implemented
 ````
+
+### WebRTC.RTCPeerConnection
+
+[RTCPeerConnection](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection)
+
+- Partial Support
+
+### WebRTC.RTCIceCandidate
+
+[RTCIceCandidate](https://developer.mozilla.org/en-US/docs/Web/Events/icecandidate)
+
+### WebRTC.RTCSessionDescription
+
+[RTCSessionDescription](https://developer.mozilla.org/en-US/docs/Web/API/RTCSessionDescription)
+
+### WebRTC.RTCDataChannel
+
+[RTCDataChannel](https://developer.mozilla.org/en-US/docs/Web/API/RTCDataChannel)
+
+### WebRTC.MediaStream
+
+[MediaStream](https://developer.mozilla.org/en-US/docs/Web/API/MediaStream)
+
+- Not Implemented
+
+### WebRTC.MediaStreamTrack
+
+[MediaStreamTrack](https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack)
+
+- Not Implemented
+
+### WebRTC.getUserMedia
+
+[getUserMedia](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/getUserMedia)
+
+- Not Implemented
 
 ### WebRTC.RTCGarbageCollect()
 
