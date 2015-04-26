@@ -24,6 +24,7 @@ var RTCSessionDescription = WebRTC.RTCSessionDescription
 var MediaStream = WebRTC.MediaStream                      // Not Implemented
 var MediaStreamTrack = WebRTC.MediaStreamTrack            // Not Implemented
 var getUserMedia = WebRTC.getUserMedia                    // Not Implemented
+var getSources = WebRTC.getSources                        // Not Implemented
 ````
 
 # Build
