@@ -29,7 +29,6 @@
 #pragma warning( disable : 4005 )
 
 #include <v8.h>
-#include <node.h>
 
 #include "Observers.h" 
 #include "EventEmitter.h"

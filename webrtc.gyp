@@ -122,6 +122,7 @@
             '-framework QTKit',
           ],
           'defines': [
+            'USE_BACKTRACE',
             'OSX',
             'WEBRTC_MAC',
             '_LARGEFILE_SOURCE', 

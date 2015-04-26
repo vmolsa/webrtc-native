@@ -23,11 +23,10 @@
 *
 */
 
+#include <node.h>
+
 #include "PeerConnection.h"
 #include "DataChannel.h"
-
-#define USE_BACKTRACE 1
-
 #include "BackTrace.h"
 
 using namespace v8;

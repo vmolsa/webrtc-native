@@ -25,20 +25,37 @@
 
 #ifndef BACKTRACE_H
 #define BACKTRACE_H
-
 #ifdef USE_BACKTRACE
-#ifdef __APPLE_
+
+#include <stdio.h>
+#include <signal.h>
+#include <execinfo.h>
+#include <dlfcn.h>
+#include <cxxabi.h>
 
 class BackTrace {
  public:
+  static void Dump(const char *event = "NOEVENT", int skip = 1);
+  
+ private:
   explicit BackTrace();
   virtual ~BackTrace();
-};
+  
+  void Close();
+  
+  static void OnSegv(int sig);
+  static void OnBus(int sig);
+  static void OnAbort(int sig);
 
-static BackTrace landmine;
+ protected:
+  struct sigaction _segv;
+  struct sigaction _bus;
+  struct sigaction _abrt;
+  
+  static BackTrace landmine;
+};
 
 #else
 
-#endif
 #endif
 #endif

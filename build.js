@@ -5,6 +5,11 @@ var path = require('path');
 
 var ROOT = process.cwd();
 var NODEJS = '.';
+var SYNC = false;
+
+if (process.env['SKIP_SYNC'] == 1 || process.env['SKIP_SYNC'] == 0) {
+  SYNC = (process.env['SKIP_SYNC'] == 1) ? false : true;
+}
 
 if (os.platform() == 'win32') {
   process.chdir(path.resolve(ROOT, '..'));
@@ -44,20 +49,22 @@ if (os.platform() == 'win32') {
   }
 }
 
-process.env['GYP_DEFINES'] = process.env['GYP_DEFINES'] ? process.env['GYP_DEFINES'] : '';
+if (!SYNC) {
+  if (fs.existsSync(THIRD_PARTY + path.sep + 'webrtc_sync')) {
+    var stat = fs.statSync(THIRD_PARTY + path.sep + 'webrtc_sync');
 
-console.log('Using Configuration:', 'BUILDTYPE =', CONFIG);
+    if ((stat.mtime.getTime() - (new Date().getTime())) > 86400000) {
+      SYNC = true;
+    }
+  } else {
+    SYNC = true;
+  }
+}
+
+process.env['GYP_DEFINES'] = process.env['GYP_DEFINES'] ? process.env['GYP_DEFINES'] : '';
 
 if (process.env['GYP_DEFINES'] !== '') {
   console.log('Using Configuration:', 'GYP_DEFINES =', process.env['GYP_DEFINES']);
-}
-
-if (os.platform() == 'win32') {
-  console.log('      Configuration: set BUILDTYPE=Debug');
-  console.log('      Configuration: set BUILDTYPE=Release');
-} else {
-  console.log('      Configuration: export BUILDTYPE=Debug');
-  console.log('      Configuration: export BUILDTYPE=Release');
 }
 
 if (!fs.existsSync(THIRD_PARTY)) {
@@ -92,6 +99,10 @@ if (!fs.existsSync(WEBRTC) || !fs.existsSync(WEBRTC_SRC)) {
   }
 }
 
+process.env['GYP_DEFINES'] += ' target_arch=' + process.arch;
+process.env['GYP_DEFINES'] += ' host_arch=' + process.arch;
+process.env['GYP_DEFINES'] += ' nodedir=' + NODEJS;
+
 switch (os.platform()) {
   case 'darwin':
     process.env['GYP_DEFINES'] += ' clang=1';
@@ -111,30 +122,62 @@ switch (os.platform()) {
     break;
 }
 
-// TODO(): src/build/landmines.py in third_party\webrtc\src\chromium is causing error on win32?
+console.log('Using Configuration:', 'target_arch =', process.arch);
+console.log('Using Configuration:', 'host_arch =', process.arch);
+console.log('Using Configuration:', 'BUILDTYPE =', CONFIG);
+console.log('Using Configuration:', 'SKIP_SYNC =', SYNC ? false : true);
+console.log('Change Configuration:');
 
-process.env['GYP_DEFINES'] += ' target_arch=' + process.arch;
-process.env['GYP_DEFINES'] += ' host_arch=' + process.arch;
-process.env['GYP_DEFINES'] += ' nodedir=' + NODEJS;
+if (os.platform() == 'win32') {
+  console.log('       Configuration: set BUILDTYPE=Debug');
+  console.log('       Configuration: set BUILDTYPE=Release');
+  console.log('       Configuration: set SKIP_SYNC=1');
+  console.log('       Configuration: set SKIP_SYNC=0');
+} else {
+  console.log('       Configuration: export BUILDTYPE=Debug');
+  console.log('       Configuration: export BUILDTYPE=Release');
+  console.log('       Configuration: export SKIP_SYNC=1');
+  console.log('       Configuration: export SKIP_SYNC=0');
+}
 
-sh('gclient sync', {
-  cwd: WEBRTC,
-  env: process.env,
-  stdio: 'inherit',
-});
+if (SYNC) {
+  try {
+    sh('gclient sync', {
+      cwd: WEBRTC,
+      env: process.env,
+      stdio: 'inherit',
+    });
+  } catch (error) {
+    // TODO(): src/build/landmines.py in third_party\webrtc\src\chromium is causing error on win32?
+    
+    if (os.platform() == 'win32') {
+      sh('gclient sync', {
+        cwd: WEBRTC,
+        env: process.env,
+        stdio: 'inherit',
+      });
+    } else {
+      throw error;
+    }
+  }
+  
+  fs.closeSync(fs.openSync(THIRD_PARTY + path.sep + 'webrtc_sync', 'w'));
+}
 
-console.log('Building WebRTC Node Module');
+if (fs.existsSync(WEBRTC_SRC)) {
+  console.log('Building WebRTC Node Module');
 
-sh('python ' + WEBRTC_SRC + path.sep + 'webrtc' + path.sep + 'build' + path.sep + 'gyp_webrtc webrtc.gyp', {
-  cwd: ROOT,
-  env: process.env,
-  stdio: 'inherit',
-});
+  sh('python ' + WEBRTC_SRC + path.sep + 'webrtc' + path.sep + 'build' + path.sep + 'gyp_webrtc webrtc.gyp', {
+    cwd: ROOT,
+    env: process.env,
+    stdio: 'inherit',
+  });
 
-sh('ninja -C ' + WEBRTC_OUT, {
-  cwd: WEBRTC_SRC,
-  env: process.env,
-  stdio: 'inherit',
-});
+  sh('ninja -C ' + WEBRTC_OUT, {
+    cwd: WEBRTC_SRC,
+    env: process.env,
+    stdio: 'inherit',
+  });
 
-fs.linkSync(WEBRTC_OUT + path.sep + 'webrtc-native.node', ROOT + path.sep + 'build' + path.sep + CONFIG + path.sep + 'webrtc-native.node');
+  fs.linkSync(WEBRTC_OUT + path.sep + 'webrtc-native.node', ROOT + path.sep + 'build' + path.sep + CONFIG + path.sep + 'webrtc-native.node');
+}

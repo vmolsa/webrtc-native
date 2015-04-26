@@ -23,20 +23,14 @@
 *
 */
 
-#include "BackTrace.h"
 #ifdef USE_BACKTRACE
-#ifdef __APPLE__
-#include <stdio.h>
-#include <signal.h>
-#include <execinfo.h>
-#include <dlfcn.h>
-#include <cxxabi.h>
+#include "BackTrace.h"
 
-static struct sigaction actsegv, actbus, actabrt;
+BackTrace BackTrace::landmine;
 
-inline static void ShowBacktrace(const char *event) {
+void BackTrace::Dump(const char *event, int skip) {
   void *stack[50] = {0};
-  int count = 0, cur = 0, skip = 2;
+  int count = 0, cur = 0;
   
   count = backtrace(stack, sizeof(stack));
   
@@ -68,53 +62,52 @@ inline static void ShowBacktrace(const char *event) {
   }
 }
 
-inline static void CloseBacktrace() {
-  actsegv.sa_handler = SIG_DFL;
-  actbus.sa_handler = SIG_DFL;
-  actabrt.sa_handler = SIG_DFL;
+void BackTrace::Close() {
+  _segv.sa_handler = SIG_DFL;
+  _bus.sa_handler = SIG_DFL;
+  _abrt.sa_handler = SIG_DFL;
   
-  sigaction(SIGSEGV, &actsegv, 0);
-  sigaction(SIGBUS, &actbus, 0);
-  sigaction(SIGABRT, &actabrt, 0);
+  sigaction(SIGSEGV, &_segv, 0);
+  sigaction(SIGBUS, &_bus, 0);
+  sigaction(SIGABRT, &_abrt, 0);
 }
 
-inline static void onSegv(int sig) {
-  ShowBacktrace("SIGSEGV");
-  CloseBacktrace();
+void BackTrace::OnSegv(int sig) {
+  BackTrace::Dump("SIGSEGV", 2);
+  landmine.Close();
 }
 
-inline static void onBus(int sig) {
-  ShowBacktrace("SIGBUS");
-  CloseBacktrace();
+void BackTrace::OnBus(int sig) {
+  BackTrace::Dump("SIGBUS", 2);
+  landmine.Close();
 }
 
-inline static void onAbort(int sig) {
-  ShowBacktrace("SIGABRT");
-  CloseBacktrace();
+void BackTrace::OnAbort(int sig) {
+  BackTrace::Dump("SIGABRT", 2);
+  landmine.Close();
 }
 
 BackTrace::BackTrace() {
-  sigemptyset(&actsegv.sa_mask);
-  sigemptyset(&actbus.sa_mask);
-  sigemptyset(&actabrt.sa_mask);
+  sigemptyset(&_segv.sa_mask);
+  sigemptyset(&_bus.sa_mask);
+  sigemptyset(&_abrt.sa_mask);
 
-  actsegv.sa_flags = 0;
-  actsegv.sa_handler = onSegv;
+  _segv.sa_flags = 0;
+  _segv.sa_handler = BackTrace::OnSegv;
 
-  actbus.sa_flags = 0;
-  actbus.sa_handler = onBus;
+  _bus.sa_flags = 0;
+  _bus.sa_handler = BackTrace::OnBus;
 
-  actabrt.sa_flags = 0;
-  actabrt.sa_handler = onAbort; 
+  _abrt.sa_flags = 0;
+  _abrt.sa_handler = BackTrace::OnAbort; 
 
-  sigaction(SIGSEGV, &actsegv, 0);
-  sigaction(SIGBUS, &actbus, 0);
-  sigaction(SIGABRT, &actabrt, 0);
+  sigaction(SIGSEGV, &_segv, 0);
+  sigaction(SIGBUS, &_bus, 0);
+  sigaction(SIGABRT, &_abrt, 0);
 }
 
 BackTrace::~BackTrace() {
-  CloseBacktrace();
+  BackTrace::Close();
 }
 
-#endif
 #endif
