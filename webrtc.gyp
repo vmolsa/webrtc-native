@@ -3,6 +3,9 @@
     'build/config.gypi',
     'nodejs.gypi',
   ],
+  'variables': {
+    'configuration%': 'Release',
+  }, 
   'targets': [
     {
       'target_name': 'webrtc-native',
@@ -49,6 +52,11 @@
         '<(DEPTH)/talk/libjingle.gyp:libjingle_peerconnection',
       ],
       'conditions': [ 
+        ['configuration=="Debug"', {
+          'dependencies': [
+            '<(DEPTH)/talk/libjingle_tests.gyp:*',
+          ],
+        }],
         ['OS=="linux"', {
           'defines': [
             'LINUX',

@@ -114,7 +114,10 @@ void PeerConnectionObserver::OnStateChange(webrtc::PeerConnectionObserver::State
 
 void PeerConnectionObserver::OnDataChannel(webrtc::DataChannelInterface *channel) {
   rtc::scoped_refptr<webrtc::DataChannelInterface> dataChannel = channel;
-  _parent->Emit(kPeerConnectionDataChannel, dataChannel);
+  
+  if (dataChannel.get()) {
+    _parent->Emit(kPeerConnectionDataChannel, dataChannel);
+  }
 }
 
 void PeerConnectionObserver::OnAddStream(webrtc::MediaStreamInterface *stream) {
