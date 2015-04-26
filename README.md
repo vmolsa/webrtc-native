@@ -1,4 +1,4 @@
-WebRTC for NodeJS
+[WebRTC](http://en.wikipedia.org/wiki/WebRTC) for NodeJS
 
 This module is working only with latest NodeJS version. 
 If you are using another version of NodeJS then you should use [node-webrtc](https://github.com/js-platform/node-webrtc) project.
