@@ -30,6 +30,7 @@
 #include "PeerConnection.h"
 #include "DataChannel.h"
 #include "BackTrace.h"
+#include "getSources.h"
 
 using namespace v8;
 
@@ -101,6 +102,7 @@ void WebrtcModuleInit(Handle<Object> exports) {
   
   WebRTC::PeerConnection::Init(exports);
   WebRTC::DataChannel::Init();
+  WebRTC::GetSources::Init(exports);
   
   exports->Set(String::NewFromUtf8(isolate, "RTCGarbageCollect"), 
                FunctionTemplate::New(isolate, RTCGarbageCollect)->GetFunction());

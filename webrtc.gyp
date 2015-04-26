@@ -46,6 +46,7 @@
         'src/PeerConnection.cc',
         'src/DataChannel.cc',
         'src/Observers.cc',
+        'src/getSources.cc',
         'src/Wrap.cc'
       ],
       'dependencies': [

@@ -30,7 +30,13 @@
 #include "Observers.h" 
 
 namespace WebRTC {
-  
+  class GetSources {
+    public:
+      static void Init(v8::Handle<v8::Object> exports);
+
+    private: 
+      static void GetDevices(const v8::FunctionCallbackInfo<v8::Value>& args);
+  };
 };
 
 #endif
