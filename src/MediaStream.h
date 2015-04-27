@@ -88,6 +88,8 @@ namespace WebRTC {
     v8::Persistent<v8::Function> _onremovetrack;
     v8::Persistent<v8::Function> _onended;
 
+    rtc::scoped_refptr<webrtc::MediaStreamInterface> _stream;
+
     static v8::Persistent<v8::Function> constructor;
   };
 };

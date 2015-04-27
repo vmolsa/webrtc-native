@@ -93,6 +93,8 @@ Local<Value> MediaStream::New(Isolate *isolate, rtc::scoped_refptr<webrtc::Media
   Local<Object> ret = instance->NewInstance(0, argv);
   MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, ret);
 
+  self->_stream = mediaStream;
+
   // TODO(): Implement This
 
   return scope.Escape(ret);
