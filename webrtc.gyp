@@ -46,7 +46,7 @@
         'src/PeerConnection.cc',
         'src/DataChannel.cc',
         'src/Observers.cc',
-        'src/getSources.cc',
+        'src/GetSources.cc',
         'src/MediaStream.cc',
         'src/Wrap.cc'
       ],

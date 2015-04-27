@@ -30,7 +30,7 @@
 #include "PeerConnection.h"
 #include "DataChannel.h"
 #include "BackTrace.h"
-#include "getSources.h"
+#include "GetSources.h"
 #include "MediaStream.h"
 
 using namespace v8;

@@ -23,7 +23,7 @@
 *
 */
 
-#include "getSources.h"
+#include "GetSources.h"
 
 using namespace v8;
 using namespace WebRTC;
