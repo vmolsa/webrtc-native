@@ -121,11 +121,19 @@ void PeerConnectionObserver::OnDataChannel(webrtc::DataChannelInterface *channel
 }
 
 void PeerConnectionObserver::OnAddStream(webrtc::MediaStreamInterface *stream) {
+  rtc::scoped_refptr<webrtc::MediaStreamInterface> mediaStream = stream;
 
+  if (mediaStream.get()) {
+    _parent->Emit(kPeerConnectionAddStream, mediaStream);
+  }
 }
 
 void PeerConnectionObserver::OnRemoveStream(webrtc::MediaStreamInterface *stream) {
+  rtc::scoped_refptr<webrtc::MediaStreamInterface> mediaStream = stream;
 
+  if (mediaStream.get()) {
+    _parent->Emit(kPeerConnectionRemoveStream, mediaStream);
+  }
 }
 
 void PeerConnectionObserver::OnRenegotiationNeeded() {
