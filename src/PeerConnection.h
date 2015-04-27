@@ -33,7 +33,7 @@
 #include "Wrap.h"
 
 namespace WebRTC {
-  class PeerConnection : public RTCWrap, public EventEmitter {    
+  class PeerConnection : public RTCWrap, public EventEmitter {
    public:
     static void Init(v8::Handle<v8::Object> exports);
     
@@ -75,6 +75,9 @@ namespace WebRTC {
                                        
     static void GetOnAddStream(v8::Local<v8::String> property, 
                                const v8::PropertyCallbackInfo<v8::Value> &info);
+
+    static void GetOnRemoveStream(v8::Local<v8::String> property,
+                                  const v8::PropertyCallbackInfo<v8::Value> &info);
     
     static void ReadOnly(v8::Local<v8::String> property, 
                          v8::Local<v8::Value> value, 
@@ -99,6 +102,10 @@ namespace WebRTC {
     static void SetOnAddStream(v8::Local<v8::String> property, 
                                v8::Local<v8::Value> value, 
                                const v8::PropertyCallbackInfo<void> &info);
+
+    static void SetOnRemoveStream(v8::Local<v8::String> property,
+                                  v8::Local<v8::Value> value,
+                                  const v8::PropertyCallbackInfo<void> &info);
                                
     void On(Event *event) final;
     
@@ -114,6 +121,7 @@ namespace WebRTC {
     v8::Persistent<v8::Function> _ondatachannel;
     v8::Persistent<v8::Function> _onnegotiationneeded;
     v8::Persistent<v8::Function> _onaddstream;
+    v8::Persistent<v8::Function> _onremovestream;
     
     v8::Persistent<v8::Function> _offerCallback;
     v8::Persistent<v8::Function> _offerErrorCallback;

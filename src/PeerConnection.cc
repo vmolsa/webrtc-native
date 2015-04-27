@@ -25,6 +25,7 @@
 
 #include "PeerConnection.h"
 #include "DataChannel.h"
+#include "MediaStream.h"
 
 using namespace v8;
 using namespace WebRTC;
@@ -88,6 +89,10 @@ void PeerConnection::Init(Handle<Object> exports) {
   tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "onaddstream"),
                                        PeerConnection::GetOnAddStream,
                                        PeerConnection::SetOnAddStream);
+
+  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "onremovestream"),
+                                       PeerConnection::GetOnRemoveStream,
+                                       PeerConnection::SetOnRemoveStream);
 
   constructor.Reset(isolate, tpl->GetFunction());
   exports->Set(String::NewFromUtf8(isolate, "RTCPeerConnection"), tpl->GetFunction());
@@ -682,6 +687,14 @@ void PeerConnection::GetOnAddStream(Local<String> property,
   info.GetReturnValue().Set(Local<Function>::New(isolate, self->_onaddstream));
 }
 
+void PeerConnection::GetOnRemoveStream(Local<String> property,
+                                       const PropertyCallbackInfo<Value> &info)
+{
+  Isolate *isolate = info.GetIsolate();
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, info.Holder());
+  info.GetReturnValue().Set(Local<Function>::New(isolate, self->_onremovestream));
+}
+
 void PeerConnection::ReadOnly(Local<String> property, 
                               Local<Value> value, 
                               const PropertyCallbackInfo<void> &info) 
@@ -757,6 +770,21 @@ void PeerConnection::SetOnAddStream(Local<String> property,
     self->_onaddstream.Reset(isolate, Local<Function>::Cast(value));
   } else {
     self->_onaddstream.Reset();
+  }
+}
+
+void PeerConnection::SetOnRemoveStream(Local<String> property,
+                                       Local<Value> value,
+                                       const PropertyCallbackInfo<void> &info)
+{
+  Isolate *isolate = info.GetIsolate();
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, info.Holder());
+
+  if (!value.IsEmpty() && value->IsFunction()) {
+    self->_onremovestream.Reset(isolate, Local<Function>::Cast(value));
+  }
+  else {
+    self->_onremovestream.Reset();
   }
 }
 
@@ -873,7 +901,7 @@ void PeerConnection::On(Event *event) {
       
       break;
     case kPeerConnectionIceChange:
-    
+      
       break;
     case kPeerConnectionIceGathering:
     
@@ -890,10 +918,15 @@ void PeerConnection::On(Event *event) {
       
       break;
     case kPeerConnectionAddStream:
-    
+      callback = Local<Function>::New(isolate, _onaddstream);
+
+      argv[0] = MediaStream::New(isolate, event->Unwrap<rtc::scoped_refptr<webrtc::MediaStreamInterface> >());
+      argc = 1;
+
       break;
     case kPeerConnectionRemoveStream:
-    
+      callback = Local<Function>::New(isolate, _onremovestream);
+      
       break;
     case kPeerConnectionRenegotiation:
       callback = Local<Function>::New(isolate, _onnegotiationneeded);
