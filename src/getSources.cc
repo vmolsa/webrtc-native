@@ -10,17 +10,16 @@ void GetSources::Init(Handle<Object> exports) {
   exports->Set(String::NewFromUtf8(isolate, "getSources"), FunctionTemplate::New(isolate, GetSources::GetDevices)->GetFunction());
 }
 
-void GetSources::GetDevices(const FunctionCallbackInfo<Value>& args) {
-  Isolate *isolate = args.GetIsolate();
-  HandleScope scope(isolate);
+Local<Value> GetSources::GetDevices(Isolate *isolate) {
+  EscapableHandleScope scope(isolate);
+  Local<Array> list = Array::New(isolate);
+  uint32_t index = 0;
 
-  std::vector<cricket::Device> audio_devs;
-  std::vector<cricket::Device> video_devs;
   rtc::scoped_ptr<cricket::DeviceManagerInterface> manager(cricket::DeviceManagerFactory::Create());
 
   if (manager->Init()) {
-    Local<Array> list = Array::New(isolate);
-    uint32_t index = 0;
+    std::vector<cricket::Device> audio_devs;
+    std::vector<cricket::Device> video_devs;
 
     if (manager->GetAudioInputDevices(&audio_devs)) {
       std::vector<cricket::Device>::iterator audio_it;
@@ -53,19 +52,24 @@ void GetSources::GetDevices(const FunctionCallbackInfo<Value>& args) {
         index++;
       }
     }
-
-    if (args.Length() == 1 && args[0]->IsFunction()) {
-      Local<Function> callback = Local<Function>::Cast(args[0]);
-
-      if (!callback.IsEmpty()) {
-        Handle<Value> argv[1] = { list };
-        callback->Call(args.This(), 1, argv);
-      }
-    }
-
-    return args.GetReturnValue().Set(list);
   }
 
-  Local<Value> empty = Null(isolate);
-  args.GetReturnValue().Set(empty);
+  return scope.Escape(list);
+}
+
+void GetSources::GetDevices(const FunctionCallbackInfo<Value>& args) {
+  Isolate *isolate = args.GetIsolate();
+  HandleScope scope(isolate);
+
+  if (args.Length() == 1 && args[0]->IsFunction()) {
+    Local<Function> callback = Local<Function>::Cast(args[0]);
+
+    Local<Value> argv[1] = { 
+      GetSources::GetDevices(isolate)
+    };
+
+    if (!callback.IsEmpty()) {
+      callback->Call(args.This(), 1, argv);
+    }
+  }
 }

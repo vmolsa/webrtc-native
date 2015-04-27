@@ -34,6 +34,8 @@ namespace WebRTC {
     public:
       static void Init(v8::Handle<v8::Object> exports);
 
+      static v8::Local<v8::Value> GetDevices(v8::Isolate *isolate);
+
     private: 
       static void GetDevices(const v8::FunctionCallbackInfo<v8::Value>& args);
   };
