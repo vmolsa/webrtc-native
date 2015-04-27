@@ -31,6 +31,7 @@
 #include "DataChannel.h"
 #include "BackTrace.h"
 #include "GetSources.h"
+#include "GetUserMedia.h"
 #include "MediaStream.h"
 
 using namespace v8;
@@ -104,6 +105,7 @@ void WebrtcModuleInit(Handle<Object> exports) {
   WebRTC::PeerConnection::Init(exports);
   WebRTC::DataChannel::Init();
   WebRTC::GetSources::Init(exports);
+  WebRTC::GetUserMedia::Init(exports);
   WebRTC::MediaStream::Init();
   
   exports->Set(String::NewFromUtf8(isolate, "RTCGarbageCollect"), 

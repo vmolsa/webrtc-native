@@ -47,6 +47,7 @@
         'src/DataChannel.cc',
         'src/Observers.cc',
         'src/GetSources.cc',
+        'src/GetUserMedia.cc',
         'src/MediaStream.cc',
         'src/Wrap.cc'
       ],
