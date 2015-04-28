@@ -1,4 +1,4 @@
-var WEBRTC = require('./index.js');
+var WEBRTC = require('../');
 
 var config = {
   iceServers: [
