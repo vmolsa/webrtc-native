@@ -34,7 +34,7 @@ namespace WebRTC {
     explicit RTCWrap();
     virtual ~RTCWrap();
     
-    inline void Wrap(v8::Isolate *isolate, v8::Local<v8::Object> obj) {
+    inline void Wrap(v8::Isolate *isolate, v8::Local<v8::Object> obj, const char *className = "RTCWrap") {
       if (obj.IsEmpty()) {
         _obj.ClearWeak();
         _obj.Reset();       
@@ -43,7 +43,7 @@ namespace WebRTC {
         _obj.SetWeak(this, RTCWrap::onDispose);
         _obj.MarkIndependent();
 
-        obj->SetHiddenValue(v8::String::NewFromUtf8(isolate, "RTCWrap"), 
+        obj->SetHiddenValue(v8::String::NewFromUtf8(isolate, className),
                             v8::External::New(isolate, this));
       }
     }
@@ -57,9 +57,9 @@ namespace WebRTC {
       return static_cast<T*>(this);
     }
     
-    template<class T> inline static T* Unwrap(v8::Isolate *isolate, v8::Local<v8::Object> obj) {
+    template<class T> inline static T* Unwrap(v8::Isolate *isolate, v8::Local<v8::Object> obj, const char *className = "RTCWrap") {
       if (!obj.IsEmpty()) {
-        v8::Local<v8::Value> ptr = obj->GetHiddenValue(v8::String::NewFromUtf8(isolate, "RTCWrap"));
+        v8::Local<v8::Value> ptr = obj->GetHiddenValue(v8::String::NewFromUtf8(isolate, className));
         
         if (!ptr.IsEmpty() && ptr->IsExternal()) {
           v8::Local<v8::External> ext = v8::Local<v8::External>::Cast(ptr);
