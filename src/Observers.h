@@ -84,6 +84,10 @@ namespace WebRTC {
     kDataChannelBinary,
     kDataChannelData,
   };
+
+  enum MediaStreamEvent {
+    kMediaStreamChanged
+  };
   
   class OfferObserver : public webrtc::CreateSessionDescriptionObserver {
    public:
@@ -161,6 +165,19 @@ namespace WebRTC {
     void OnStateChange() final;
     void OnMessage(const webrtc::DataBuffer& buffer) final;
     
+   protected:
+    EventEmitter* _parent;
+  };
+
+  class MediaStreamObserver :
+    public webrtc::ObserverInterface,
+    public rtc::RefCountInterface
+  {
+   public:
+     MediaStreamObserver(EventEmitter *parent = 0);
+
+     void OnChanged() final;
+
    protected:
     EventEmitter* _parent;
   };

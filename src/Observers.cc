@@ -168,3 +168,10 @@ void DataChannelObserver::OnMessage(const webrtc::DataBuffer& buffer) {
     _parent->Emit(kDataChannelData, buffer.data);
   }
 }
+
+MediaStreamObserver::MediaStreamObserver(EventEmitter *parent) :
+  _parent(parent) { }
+
+void MediaStreamObserver::OnChanged() {
+  _parent->Emit(kMediaStreamChanged);
+}
