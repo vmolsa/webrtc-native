@@ -91,7 +91,7 @@ Local<Value> MediaStream::New(Isolate *isolate, rtc::scoped_refptr<webrtc::Media
   }
 
   Local<Object> ret = instance->NewInstance(0, argv);
-  MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, ret);
+  MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, ret, "MediaStream");
 
   self->_stream = mediaStream;
 
@@ -114,7 +114,7 @@ void MediaStream::New(const FunctionCallbackInfo<Value>& args) {
 
   if (args.IsConstructCall()) {
     MediaStream* mediaStream = new MediaStream();
-    mediaStream->Wrap(isolate, args.This());
+    mediaStream->Wrap(isolate, args.This(), "MediaStream");
     return args.GetReturnValue().Set(args.This());
   }
 
@@ -123,42 +123,42 @@ void MediaStream::New(const FunctionCallbackInfo<Value>& args) {
 
 void MediaStream::AddTrack(const FunctionCallbackInfo<Value>& args) {
   //Isolate *isolate = args.GetIsolate();
-  //MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, args.This());
+  //MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, args.This(), "MediaStream");
 
   // TODO(): Implement This
 }
 
 void MediaStream::Clone(const FunctionCallbackInfo<Value>& args) {
   //Isolate *isolate = args.GetIsolate();
-  //MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, args.This());
+  //MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, args.This(), "MediaStream");
 
   // TODO(): Implement This
 }
 
 void MediaStream::GetTrackById(const FunctionCallbackInfo<Value>& args) {
   //Isolate *isolate = args.GetIsolate();
-  //MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, args.This());
+  //MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, args.This(), "MediaStream");
 
   // TODO(): Implement This
 }
 
 void MediaStream::GetAudioTracks(const FunctionCallbackInfo<Value>& args) {
   //Isolate *isolate = args.GetIsolate();
-  //MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, args.This());
+  //MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, args.This(), "MediaStream");
 
   // TODO(): Implement This
 }
 
 void MediaStream::GetVideoTracks(const FunctionCallbackInfo<Value>& args) {
   //Isolate *isolate = args.GetIsolate();
-  //MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, args.This());
+  //MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, args.This(), "MediaStream");
 
   // TODO(): Implement This
 }
 
 void MediaStream::RemoveTrack(const FunctionCallbackInfo<Value>& args) {
   //Isolate *isolate = args.GetIsolate();
-  //MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, args.This());
+  //MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, args.This(), "MediaStream");
 
   // TODO(): Implement This
 }
@@ -167,7 +167,7 @@ void MediaStream::GetEnded(Local<String> property,
                            const PropertyCallbackInfo<Value> &info)
 {
   //Isolate *isolate = args.GetIsolate();
-  //MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, args.This());
+  //MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, args.This(), "MediaStream");
 
   // TODO(): Implement This
 }
@@ -175,7 +175,7 @@ void MediaStream::GetId(Local<String> property,
                         const PropertyCallbackInfo<Value> &info)
 {
   //Isolate *isolate = args.GetIsolate();
-  //MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, args.This());
+  //MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, args.This(), "MediaStream");
 
   // TODO(): Implement This
 }
@@ -184,7 +184,7 @@ void MediaStream::GetOnAddTrack(Local<String> property,
                                 const PropertyCallbackInfo<Value> &info)
 {
   Isolate *isolate = info.GetIsolate();
-  MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, info.Holder());
+  MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, info.Holder(), "MediaStream");
   info.GetReturnValue().Set(Local<Function>::New(isolate, self->_onaddtrack));
 }
 
@@ -192,7 +192,7 @@ void MediaStream::GetOnRemoveTrack(Local<String> property,
                                    const PropertyCallbackInfo<Value> &info)
 {
   Isolate *isolate = info.GetIsolate();
-  MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, info.Holder());
+  MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, info.Holder(), "MediaStream");
   info.GetReturnValue().Set(Local<Function>::New(isolate, self->_onremovetrack));
 }
 
@@ -200,7 +200,7 @@ void MediaStream::GetOnEnded(Local<String> property,
                              const PropertyCallbackInfo<Value> &info)
 {
   Isolate *isolate = info.GetIsolate();
-  MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, info.Holder());
+  MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, info.Holder(), "MediaStream");
   info.GetReturnValue().Set(Local<Function>::New(isolate, self->_onended));
 }
 
@@ -216,7 +216,7 @@ void MediaStream::SetOnAddTrack(Local<String> property,
                                 const PropertyCallbackInfo<void> &info)
 {
   Isolate *isolate = info.GetIsolate();
-  MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, info.Holder());
+  MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, info.Holder(), "MediaStream");
 
   if (!value.IsEmpty() && value->IsFunction()) {
     self->_onaddtrack.Reset(isolate, Local<Function>::Cast(value));
@@ -231,7 +231,7 @@ void MediaStream::SetOnRemoveTrack(Local<String> property,
                                    const PropertyCallbackInfo<void> &info)
 {
   Isolate *isolate = info.GetIsolate();
-  MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, info.Holder());
+  MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, info.Holder(), "MediaStream");
 
   if (!value.IsEmpty() && value->IsFunction()) {
     self->_onremovetrack.Reset(isolate, Local<Function>::Cast(value));
@@ -246,7 +246,7 @@ void MediaStream::SetOnEnded(Local<String> property,
                              const PropertyCallbackInfo<void> &info)
 {
   Isolate *isolate = info.GetIsolate();
-  MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, info.Holder());
+  MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, info.Holder(), "MediaStream");
 
   if (!value.IsEmpty() && value->IsFunction()) {
     self->_onended.Reset(isolate, Local<Function>::Cast(value));
