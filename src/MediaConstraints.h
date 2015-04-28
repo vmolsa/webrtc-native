@@ -52,7 +52,7 @@ namespace WebRTC {
 
    private:
     explicit MediaConstraints();
-    ~MediaConstraints() final;
+    ~MediaConstraints() override;
 
    protected:
     bool _audio;
