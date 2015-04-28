@@ -40,10 +40,13 @@ void GetUserMedia::OpenMedia(const FunctionCallbackInfo<Value> &args) {
   Isolate* isolate = args.GetIsolate();
   HandleScope scope(isolate);
 
-  Local<Object> constraints;  // TODO(): Required? -> Throw Error
-  Local<Function> onsuccess;  // TODO(): Required? -> Throw Error 
-  Local<Function> onerror;    // TODO(): Required? -> Throw Error
+  Local<Object> constraints;  // TODO(): Required? -> IsEmpty() -> Throw Error
+  Local<Function> onsuccess;  // TODO(): Required? -> IsEmpty() -> Throw Error 
+  Local<Function> onerror;    // TODO(): Required? -> IsEmpty() -> Throw Error
 
+  const char *error = 0;
+  bool use_audio = false;
+  bool use_video = false;
   bool echo = true;
 
   uint32_t min_width = 320;
@@ -77,16 +80,39 @@ void GetUserMedia::OpenMedia(const FunctionCallbackInfo<Value> &args) {
     Local<Value> audio_value = constraints->Get(String::NewFromUtf8(isolate, "audio"));
     Local<Value> video_value = constraints->Get(String::NewFromUtf8(isolate, "video"));
 
-    if (!audio_value.IsEmpty() && audio_value->IsObject()) {
-      Local<Object> audio_obj = Local<Object>::Cast(audio_value);
+    if (!audio_value.IsEmpty()) {
+      if (audio_value->IsObject()) {
+        Local<Object> audio_obj = Local<Object>::Cast(audio_value);
 
+        // TODO(): Walk through arguments
+
+      } else if (audio_value->IsTrue()) {
+        use_audio = true;
+      }
     }
 
-    if (!video_value.IsEmpty() && video_value->IsObject()) {
-      Local<Object> video_obj = Local<Object>::Cast(video_value);
+    if (!video_value.IsEmpty()) {
+      if (video_value->IsObject()) {
+        Local<Object> video_obj = Local<Object>::Cast(video_value);
 
+        // TODO(): Walk through arguments
+
+      }
+      else if (video_value->IsTrue()) {
+        use_video = true;
+      }
     }
   }
 
-  // TODO(): Implement This
+  if (use_audio || use_video) {
+    rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory = webrtc::CreatePeerConnectionFactory();
+
+    
+  }
+
+  if (error) {
+
+  } else {
+
+  }
 }
