@@ -927,6 +927,9 @@ void PeerConnection::On(Event *event) {
     case kPeerConnectionRemoveStream:
       callback = Local<Function>::New(isolate, _onremovestream);
       
+      argv[0] = MediaStream::New(isolate, event->Unwrap<rtc::scoped_refptr<webrtc::MediaStreamInterface> >());
+      argc = 1;
+
       break;
     case kPeerConnectionRenegotiation:
       callback = Local<Function>::New(isolate, _onnegotiationneeded);

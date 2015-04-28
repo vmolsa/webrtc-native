@@ -93,8 +93,10 @@ Local<Value> MediaStream::New(Isolate *isolate, rtc::scoped_refptr<webrtc::Media
   Local<Object> ret = instance->NewInstance(0, argv);
   MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, ret, "MediaStream");
 
+  self->Start();
   self->_stream = mediaStream;
   self->_stream->RegisterObserver(self->_observer.get());
+  self->Emit(kMediaStreamChanged);
 
   return scope.Escape(ret);
 }
@@ -270,5 +272,11 @@ void MediaStream::SetOnEnded(Local<String> property,
 }
 
 void MediaStream::On(Event *event) {
+  MediaStreamEvent type = event->Type<MediaStreamEvent>();
 
+  if (type != kMediaStreamChanged) {
+    return;
+  }
+
+  EventEmitter::Stop();
 }
