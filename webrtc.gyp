@@ -49,6 +49,7 @@
         'src/GetSources.cc',
         'src/GetUserMedia.cc',
         'src/MediaStream.cc',
+        'src/MediaConstraints.cc',
         'src/Wrap.cc'
       ],
       'dependencies': [
