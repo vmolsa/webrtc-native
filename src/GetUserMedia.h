@@ -34,7 +34,7 @@ namespace WebRTC {
     static void Init(v8::Handle<v8::Object> exports);
 
    private:
-    static void OpenMedia(const v8::FunctionCallbackInfo<v8::Value> &args);
+    static void GetMediaStream(const v8::FunctionCallbackInfo<v8::Value> &args);
   };
 };
 
