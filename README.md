@@ -36,7 +36,7 @@ var WebRTC = require('webrtc-native');
 
 #### WebRTC.[getUserMedia](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/getUserMedia)
 
-- Not Implemented
+- Partial Support
 
 #### WebRTC.[getSources](http://simpl.info/getusermedia/sources/index.html)
 
