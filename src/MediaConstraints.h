@@ -52,16 +52,16 @@ namespace WebRTC {
 
    private:
     explicit MediaConstraints();
-    virtual ~MediaConstraints();
+    ~MediaConstraints() final;
 
    protected:
-     bool _audio;
-     bool _video;
+    bool _audio;
+    bool _video;
 
-     std::string _audioId;
-     std::string _videoId;
+    std::string _audioId;
+    std::string _videoId;
 
-     webrtc::FakeConstraints _conf;
+    webrtc::FakeConstraints _conf;
   };
 };
 
