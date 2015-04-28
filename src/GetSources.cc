@@ -35,6 +35,81 @@ void GetSources::Init(Handle<Object> exports) {
   exports->Set(String::NewFromUtf8(isolate, "getSources"), FunctionTemplate::New(isolate, GetSources::GetDevices)->GetFunction());
 }
 
+rtc::scoped_refptr<webrtc::AudioTrackInterface> GetSources::GetAudioSource() {
+  rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory = webrtc::CreatePeerConnectionFactory();
+  rtc::scoped_refptr<webrtc::AudioTrackInterface> track;
+
+  if (factory.get()) {
+    rtc::scoped_refptr<webrtc::AudioSourceInterface> src = factory->CreateAudioSource(0); // TODO(): Add MediaConstraintsInterface 
+    track = factory->CreateAudioTrack("audio", src);
+  }
+
+  return track;
+}
+
+rtc::scoped_refptr<webrtc::AudioTrackInterface> GetSources::GetAudioSource(const std::string id) {
+  // TODO(): CreateAudioSource(cricket::AudioCapturer*, MediaConstraintsInterface) Missing?
+  return GetSources::GetAudioSource();
+}
+
+rtc::scoped_refptr<webrtc::VideoTrackInterface> GetSources::GetVideoSource() {
+  rtc::scoped_ptr<cricket::DeviceManagerInterface> manager(cricket::DeviceManagerFactory::Create());
+  rtc::scoped_refptr<webrtc::VideoTrackInterface> track;
+  cricket::VideoCapturer *cap = 0;
+
+  if (manager->Init()) {
+    std::vector<cricket::Device> video_devs;
+
+    if (!manager->GetVideoCaptureDevices(&video_devs)) {
+      std::vector<cricket::Device>::iterator video_it = video_devs.begin();
+      
+      for (video_it = video_devs.begin(); video_it != video_devs.end(); video_it++) {
+        cap = manager->CreateVideoCapturer(*video_it);
+
+        if (cap) {
+          break;
+        }
+      }
+    }
+  }
+
+  if (cap) {
+    rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory = webrtc::CreatePeerConnectionFactory();
+
+    if (factory.get()) {
+      rtc::scoped_refptr<webrtc::VideoSourceInterface> src = factory->CreateVideoSource(cap, 0); // TODO(): Add MediaConstraintsInterface 
+      track = factory->CreateVideoTrack("video", src);
+    }
+  }
+
+  return track;
+}
+
+rtc::scoped_refptr<webrtc::VideoTrackInterface> GetSources::GetVideoSource(const std::string id) {
+  rtc::scoped_ptr<cricket::DeviceManagerInterface> manager(cricket::DeviceManagerFactory::Create());
+  rtc::scoped_refptr<webrtc::VideoTrackInterface> track;
+  cricket::VideoCapturer *cap = 0;
+
+  if (manager->Init()) {
+    cricket::Device video_dev;
+
+    if (!manager->GetVideoCaptureDevice(id, &video_dev)) {
+      cap = manager->CreateVideoCapturer(video_dev);
+    }
+  }
+
+  if (cap) {
+    rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory = webrtc::CreatePeerConnectionFactory();
+
+    if (factory.get()) {
+      rtc::scoped_refptr<webrtc::VideoSourceInterface> src = factory->CreateVideoSource(cap, 0); // TODO(): Add MediaConstraintsInterface 
+      track = factory->CreateVideoTrack("video", src);
+    }
+  }
+
+  return track;
+}
+
 Local<Value> GetSources::GetDevices(Isolate *isolate) {
   EscapableHandleScope scope(isolate);
   Local<Array> list = Array::New(isolate);

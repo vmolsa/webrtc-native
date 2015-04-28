@@ -31,13 +31,19 @@
 
 namespace WebRTC {
   class GetSources {
-    public:
-      static void Init(v8::Handle<v8::Object> exports);
+   public:
+    static void Init(v8::Handle<v8::Object> exports);
 
-      static v8::Local<v8::Value> GetDevices(v8::Isolate *isolate);
+    static rtc::scoped_refptr<webrtc::AudioTrackInterface> GetAudioSource();
+    static rtc::scoped_refptr<webrtc::AudioTrackInterface> GetAudioSource(const std::string id);
 
-    private: 
-      static void GetDevices(const v8::FunctionCallbackInfo<v8::Value>& args);
+    static rtc::scoped_refptr<webrtc::VideoTrackInterface> GetVideoSource();
+    static rtc::scoped_refptr<webrtc::VideoTrackInterface> GetVideoSource(const std::string id);
+
+    static v8::Local<v8::Value> GetDevices(v8::Isolate *isolate);
+
+   private:
+    static void GetDevices(const v8::FunctionCallbackInfo<v8::Value>& args);
   };
 };
 
