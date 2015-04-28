@@ -38,6 +38,9 @@ namespace WebRTC {
     static void Init();
     static v8::Local<v8::Value> New(v8::Isolate *isolate,
                                     rtc::scoped_refptr<webrtc::MediaStreamInterface> mediaStream);
+
+    static rtc::scoped_refptr<webrtc::MediaStreamInterface> Unwrap(v8::Isolate *isolate, v8::Local<v8::Object> obj);
+
    private:
     MediaStream();
     ~MediaStream() final;
@@ -88,6 +91,7 @@ namespace WebRTC {
     v8::Persistent<v8::Function> _onremovetrack;
     v8::Persistent<v8::Function> _onended;
 
+    rtc::scoped_refptr<MediaStreamObserver> _observer;
     rtc::scoped_refptr<webrtc::MediaStreamInterface> _stream;
 
     static v8::Persistent<v8::Function> constructor;

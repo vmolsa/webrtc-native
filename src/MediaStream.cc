@@ -94,18 +94,21 @@ Local<Value> MediaStream::New(Isolate *isolate, rtc::scoped_refptr<webrtc::Media
   MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, ret, "MediaStream");
 
   self->_stream = mediaStream;
-
-  // TODO(): Implement This
+  self->_stream->RegisterObserver(self->_observer.get());
 
   return scope.Escape(ret);
 }
 
 MediaStream::MediaStream() {
-  
+  _observer = new rtc::RefCountedObject<MediaStreamObserver>(this);
 }
 
 MediaStream::~MediaStream() {
+  if (_stream.get()) {
+    _stream->UnregisterObserver(_observer.get());
+  }
 
+  EventEmitter::End();
 }
 
 void MediaStream::New(const FunctionCallbackInfo<Value>& args) {
@@ -119,6 +122,16 @@ void MediaStream::New(const FunctionCallbackInfo<Value>& args) {
   }
 
   isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
+}
+
+rtc::scoped_refptr<webrtc::MediaStreamInterface> MediaStream::Unwrap(Isolate *isolate, Local<Object> obj) {
+  MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, obj, "MediaStream");
+
+  if (self) {
+    return self->_stream;
+  }
+
+  return 0;
 }
 
 void MediaStream::AddTrack(const FunctionCallbackInfo<Value>& args) {
