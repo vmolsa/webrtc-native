@@ -54,6 +54,12 @@ void PeerConnection::Init(Handle<Object> exports) {
                                 
   tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "createDataChannel"),
                                 FunctionTemplate::New(isolate, PeerConnection::CreateDataChannel));
+
+  tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "addStream"),
+                                                    FunctionTemplate::New(isolate, PeerConnection::AddStream));
+
+  tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "removeStream"),
+                                                    FunctionTemplate::New(isolate, PeerConnection::RemoveStream));
                                 
   tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "close"),
                                 FunctionTemplate::New(isolate, PeerConnection::Close));
@@ -490,6 +496,44 @@ void PeerConnection::CreateDataChannel(const FunctionCallbackInfo<Value>& args) 
   }
   
   isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
+}
+
+void PeerConnection::AddStream(const v8::FunctionCallbackInfo<v8::Value>& args) {
+  Isolate *isolate = args.GetIsolate();
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, args.This());
+  rtc::scoped_refptr<webrtc::MediaStreamInterface> mediaStream = MediaStream::Unwrap(isolate, args[0]);
+
+  if (mediaStream.get()) {
+    webrtc::PeerConnectionInterface *socket = self->GetSocket();
+
+    if (socket) {
+      if (!socket->AddStream(mediaStream)) {
+        isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "AddStream Failed")));
+      }
+    } else {
+      isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
+    }
+  } else {
+    isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Invalid MediaStream Object")));
+  }
+}
+
+void PeerConnection::RemoveStream(const v8::FunctionCallbackInfo<v8::Value>& args) {
+  Isolate *isolate = args.GetIsolate();
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, args.This());
+  rtc::scoped_refptr<webrtc::MediaStreamInterface> mediaStream = MediaStream::Unwrap(isolate, args[0]);
+
+  if (mediaStream.get()) {
+    webrtc::PeerConnectionInterface *socket = self->GetSocket();
+
+    if (socket) {
+      socket->RemoveStream(mediaStream);
+    } else {
+      isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
+    }
+  } else {
+    isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Invalid MediaStream Object")));
+  }
 }
 
 void PeerConnection::Close(const FunctionCallbackInfo<Value>& args) {
