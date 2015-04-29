@@ -61,9 +61,9 @@ void GetUserMedia::GetMediaStream(const FunctionCallbackInfo<Value> &args) {
           rtc::scoped_refptr<webrtc::AudioTrackInterface> audio_track;
 
           if (audioId.empty()) {
-            audio_track = GetSources::GetAudioSource();
+            audio_track = GetSources::GetAudioSource(constraints);
           } else {
-            audio_track = GetSources::GetAudioSource(audioId);
+            audio_track = GetSources::GetAudioSource(audioId, constraints);
           }
 
           if (audio_track.get()) {
@@ -79,10 +79,10 @@ void GetUserMedia::GetMediaStream(const FunctionCallbackInfo<Value> &args) {
           rtc::scoped_refptr<webrtc::VideoTrackInterface> video_track;
 
           if (videoId.empty()) {
-            video_track = GetSources::GetVideoSource();
+            video_track = GetSources::GetVideoSource(constraints);
           }
           else {
-            video_track = GetSources::GetVideoSource(videoId);
+            video_track = GetSources::GetVideoSource(videoId, constraints);
           }
 
           if (video_track.get()) {
