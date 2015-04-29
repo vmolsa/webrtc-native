@@ -39,7 +39,8 @@ namespace WebRTC {
     static v8::Local<v8::Value> New(v8::Isolate *isolate,
                                     rtc::scoped_refptr<webrtc::MediaStreamInterface> mediaStream);
 
-    static rtc::scoped_refptr<webrtc::MediaStreamInterface> Unwrap(v8::Isolate *isolate, v8::Local<v8::Object> obj);
+    static rtc::scoped_refptr<webrtc::MediaStreamInterface> Unwrap(v8::Isolate *isolate, v8::Local<v8::Object> value);
+    static rtc::scoped_refptr<webrtc::MediaStreamInterface> Unwrap(v8::Isolate *isolate, v8::Local<v8::Value> value);
 
    private:
     MediaStream();

@@ -126,11 +126,22 @@ void MediaStream::New(const FunctionCallbackInfo<Value>& args) {
   isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
 }
 
-rtc::scoped_refptr<webrtc::MediaStreamInterface> MediaStream::Unwrap(Isolate *isolate, Local<Object> obj) {
-  MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, obj, "MediaStream");
+rtc::scoped_refptr<webrtc::MediaStreamInterface> MediaStream::Unwrap(Isolate *isolate, Local<Object> value) {
+  if (!value.IsEmpty()) {
+    MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, value, "MediaStream");
 
-  if (self) {
-    return self->_stream;
+    if (self) {
+      return self->_stream;
+    }
+  }
+
+  return 0;
+}
+
+rtc::scoped_refptr<webrtc::MediaStreamInterface> MediaStream::Unwrap(Isolate *isolate, Local<Value> value) {
+  if (!value.IsEmpty() && value->IsObject()) {
+    Local<Object> stream = Local<Object>::Cast(value);
+    return MediaStream::Unwrap(isolate, stream);
   }
 
   return 0;
