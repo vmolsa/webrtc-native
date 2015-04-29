@@ -95,6 +95,8 @@ void GetUserMedia::GetMediaStream(const FunctionCallbackInfo<Value> &args) {
         }
       }
     }
+  } else {
+    error = "No Stream Inputs";
   }
 
   Handle<Value> argv[1];
