@@ -170,8 +170,9 @@ PeerConnection::~PeerConnection() {
 
 webrtc::PeerConnectionInterface *PeerConnection::GetSocket() {  
   if (!_socket.get()) {
-    EventEmitter::Start();
-    _socket = _factory->CreatePeerConnection(_servers, &_constraints->ToConstraints(), NULL, NULL, _peer.get());
+    EventEmitter::Start();    
+    webrtc::FakeConstraints constraints = _constraints->ToConstraints();
+    _socket = _factory->CreatePeerConnection(_servers, &constraints, NULL, NULL, _peer.get());
   }
    
   return _socket.get();
