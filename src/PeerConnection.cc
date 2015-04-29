@@ -101,10 +101,7 @@ void PeerConnection::Init(Handle<Object> exports) {
 Persistent<Function> PeerConnection::constructor;
 
 PeerConnection::PeerConnection(const Local<Object> &configuration,
-                               const Local<Object> &constraints) :
-  _useDTLS(true),
-  _useAudio(false),
-  _useVideo(false)
+                               const Local<Object> &constraints)
 {  
   Isolate *isolate = Isolate::GetCurrent();
     
@@ -145,44 +142,9 @@ PeerConnection::PeerConnection(const Local<Object> &configuration,
       }
     }
   }
-  
-  if (!constraints.IsEmpty()) {
-    Local<Value> optional_value = constraints->Get(String::NewFromUtf8(isolate, "optional"));
-    
-    if (!optional_value.IsEmpty() && optional_value->IsArray()) {
-      Local<Array> options = Local<Array>::Cast(optional_value);
-      
-      for (unsigned int index = 0; index < options->Length(); index++) {
-        Local<Value> option_value = options->Get(index);
-        
-        if (!option_value.IsEmpty() && option_value->IsObject()) {
-          Local<Object> option = Local<Object>::Cast(option_value);
-          Local<Value> DtlsSrtpKeyAgreement = option->Get(String::NewFromUtf8(isolate, "DtlsSrtpKeyAgreement"));
-          
-          if (!DtlsSrtpKeyAgreement.IsEmpty() && DtlsSrtpKeyAgreement->IsFalse()) {
-            _useDTLS = false;
-          }
-        }
-      }
-    }
 
-    Local<Value> mandatory_value = constraints->Get(String::NewFromUtf8(isolate, "mandatory"));
-    
-    if (!mandatory_value.IsEmpty() && mandatory_value->IsObject()) {
-      Local<Object> mandatory = Local<Object>::Cast(mandatory_value);
-      Local<Value> OfferToReceiveAudio = mandatory->Get(String::NewFromUtf8(isolate, "OfferToReceiveAudio"));
-      Local<Value> OfferToReceiveVideo = mandatory->Get(String::NewFromUtf8(isolate, "OfferToReceiveVideo"));
+  _constraints = MediaConstraints::New(isolate, constraints);
 
-      if (!OfferToReceiveAudio.IsEmpty() && OfferToReceiveAudio->IsTrue()) {
-        _useAudio = true;
-      }
-      
-      if (!OfferToReceiveVideo.IsEmpty() && OfferToReceiveVideo->IsTrue()) {
-        _useVideo = true;
-      }
-    }
-  }
-  
   _offer = new rtc::RefCountedObject<OfferObserver>(this);
   _answer = new rtc::RefCountedObject<AnswerObserver>(this);
   _local = new rtc::RefCountedObject<LocalDescriptionObserver>(this);
@@ -209,14 +171,7 @@ PeerConnection::~PeerConnection() {
 webrtc::PeerConnectionInterface *PeerConnection::GetSocket() {  
   if (!_socket.get()) {
     EventEmitter::Start();
-    
-    webrtc::FakeConstraints constraints;
-
-    constraints.SetMandatory(webrtc::MediaConstraintsInterface::kOfferToReceiveAudio, _useAudio ? "true" : "false");
-    constraints.SetMandatory(webrtc::MediaConstraintsInterface::kOfferToReceiveVideo, _useVideo ? "true" : "false");
-    constraints.SetMandatory(webrtc::MediaConstraintsInterface::kEnableDtlsSrtp, _useDTLS ? "true" : "false");
-
-    _socket = _factory->CreatePeerConnection(_servers, &constraints, NULL, NULL, _peer.get());
+    _socket = _factory->CreatePeerConnection(_servers, &_constraints->ToConstraints(), NULL, NULL, _peer.get());
   }
    
   return _socket.get();

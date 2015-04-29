@@ -30,6 +30,7 @@
 
 #include "Observers.h" 
 #include "EventEmitter.h"
+#include "MediaConstraints.h"
 #include "Wrap.h"
 
 namespace WebRTC {
@@ -145,6 +146,7 @@ namespace WebRTC {
     rtc::scoped_refptr<webrtc::PeerConnectionInterface> _socket;
     rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> _factory;
     
+    rtc::scoped_refptr<MediaConstraints> _constraints;
     webrtc::PeerConnectionInterface::IceServers _servers;
   };
 };

@@ -36,11 +36,8 @@ namespace WebRTC {
 
    public:
     static rtc::scoped_refptr<MediaConstraints> New();
-    static rtc::scoped_refptr<MediaConstraints> New(const v8::Local<v8::Object> &constraints);
-    static rtc::scoped_refptr<MediaConstraints> New(const v8::Local<v8::Value> &constraints);
-
-    void UseAudio(bool enable = false);
-    void UseVideo(bool enable = false);
+    static rtc::scoped_refptr<MediaConstraints> New(v8::Isolate *isolate, const v8::Local<v8::Object> &constraints);
+    static rtc::scoped_refptr<MediaConstraints> New(v8::Isolate *isolate, const v8::Local<v8::Value> &constraints);
 
     bool UseAudio() const;
     bool UseVideo() const;
@@ -53,6 +50,11 @@ namespace WebRTC {
    private:
     explicit MediaConstraints();
     ~MediaConstraints() override;
+
+    void AddOptional(std::string key, v8::Local<v8::Value> value);
+    void AddOptional(std::string key, const char *value);
+    void SetMandatory(std::string key, v8::Local<v8::Value> value);
+    void SetMandatory(std::string key, const char *value);
 
    protected:
     bool _audio;

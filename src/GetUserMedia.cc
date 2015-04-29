@@ -27,6 +27,7 @@
 #include "GetSources.h"
 #include "MediaStream.h"
 #include "Observers.h"
+#include "MediaConstraints.h"
 
 using namespace v8;
 using namespace WebRTC;
@@ -43,57 +44,20 @@ void GetUserMedia::GetMediaStream(const FunctionCallbackInfo<Value> &args) {
   Isolate* isolate = args.GetIsolate();
   HandleScope scope(isolate);
 
-  Local<Object> constraints;
-
+  rtc::scoped_refptr<MediaConstraints> constraints = MediaConstraints::New(isolate, args[0]);
   const char *error = 0;
-  bool use_audio = false;
-  bool use_video = false;
 
-  std::string audioId;
-  std::string videoId;
-  
-  if (args.Length() >= 1 && args[0]->IsObject()) {
-    constraints = Local<Object>::Cast(args[0]);
-  }
+  std::string audioId = constraints->AudioId();
+  std::string videoId = constraints->VideoId();
 
-  if (!constraints.IsEmpty()) {
-    Local<Value> audio_value = constraints->Get(String::NewFromUtf8(isolate, "audio"));
-    Local<Value> video_value = constraints->Get(String::NewFromUtf8(isolate, "video"));
-
-    if (!audio_value.IsEmpty()) {
-      if (audio_value->IsObject()) {
-        Local<Object> audio_obj = Local<Object>::Cast(audio_value);
-        use_audio = true;
-
-        // TODO(): Walk through arguments
-
-      } else if (audio_value->IsTrue()) {
-        use_audio = true;
-      }
-    }
-
-    if (!video_value.IsEmpty()) {
-      if (video_value->IsObject()) {
-        Local<Object> video_obj = Local<Object>::Cast(video_value);
-        use_video = true;
-
-        // TODO(): Walk through arguments
-
-      }
-      else if (video_value->IsTrue()) {
-        use_video = true;
-      }
-    }
-  }
-
-  if (use_audio || use_video) {
+  if (constraints->UseAudio() || constraints->UseVideo()) {
     rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory = webrtc::CreatePeerConnectionFactory();
 
     if (factory.get()) {
       stream = factory->CreateLocalMediaStream("stream");
 
       if (stream.get()) {
-        if (use_audio) {
+        if (constraints->UseAudio()) {
           rtc::scoped_refptr<webrtc::AudioTrackInterface> audio_track;
 
           if (audioId.empty()) {
@@ -111,7 +75,7 @@ void GetUserMedia::GetMediaStream(const FunctionCallbackInfo<Value> &args) {
           }
         }
 
-        if (use_video) {
+        if (constraints->UseVideo()) {
           rtc::scoped_refptr<webrtc::VideoTrackInterface> video_track;
 
           if (videoId.empty()) {
