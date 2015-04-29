@@ -36,8 +36,6 @@ var WebRTC = require('webrtc-native');
 
 #### WebRTC.[getUserMedia](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/getUserMedia)
 
-- Partial Support
-
 #### WebRTC.[getSources](http://simpl.info/getusermedia/sources/index.html)
 
 - Returns array of available device inputs
