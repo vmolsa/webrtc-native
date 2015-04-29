@@ -27,18 +27,19 @@
 #define WEBRTC_GETSOURCES_H
 
 #include <v8.h>
-#include "Observers.h" 
+#include "Observers.h"
+#include "MediaConstraints.h"
 
 namespace WebRTC {
   class GetSources {
    public:
     static void Init(v8::Handle<v8::Object> exports);
 
-    static rtc::scoped_refptr<webrtc::AudioTrackInterface> GetAudioSource();
-    static rtc::scoped_refptr<webrtc::AudioTrackInterface> GetAudioSource(const std::string id);
+    static rtc::scoped_refptr<webrtc::AudioTrackInterface> GetAudioSource(const rtc::scoped_refptr<MediaConstraints> &constraints);
+    static rtc::scoped_refptr<webrtc::AudioTrackInterface> GetAudioSource(const std::string id, const rtc::scoped_refptr<MediaConstraints> &constraints);
 
-    static rtc::scoped_refptr<webrtc::VideoTrackInterface> GetVideoSource();
-    static rtc::scoped_refptr<webrtc::VideoTrackInterface> GetVideoSource(const std::string id);
+    static rtc::scoped_refptr<webrtc::VideoTrackInterface> GetVideoSource(const rtc::scoped_refptr<MediaConstraints> &constraints);
+    static rtc::scoped_refptr<webrtc::VideoTrackInterface> GetVideoSource(const std::string id, const rtc::scoped_refptr<MediaConstraints> &constraints);
 
     static v8::Local<v8::Value> GetDevices(v8::Isolate *isolate);
 
