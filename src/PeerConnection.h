@@ -115,10 +115,6 @@ namespace WebRTC {
     webrtc::PeerConnectionInterface *GetSocket();
     
    protected:
-    bool _useDTLS;
-    bool _useAudio;
-    bool _useVideo;
-    
     v8::Persistent<v8::Function> _onsignalingstatechange;
     v8::Persistent<v8::Function> _onicecandidate;
     v8::Persistent<v8::Function> _ondatachannel;
@@ -144,7 +140,7 @@ namespace WebRTC {
     rtc::scoped_refptr<AnswerObserver> _answer;
     rtc::scoped_refptr<LocalDescriptionObserver> _local;
     rtc::scoped_refptr<RemoteDescriptionObserver> _remote;
-    rtc::scoped_refptr<PeerConnectionObserver> _peer;   
+    rtc::scoped_refptr<PeerConnectionObserver> _peer;
     rtc::scoped_refptr<webrtc::PeerConnectionInterface> _socket;
     rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> _factory;
     

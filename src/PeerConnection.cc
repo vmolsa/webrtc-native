@@ -27,6 +27,9 @@
 #include "DataChannel.h"
 #include "MediaStream.h"
 
+#include "talk/app/webrtc/test/fakedtlsidentityservice.h"
+#include "talk/app/webrtc/fakeportallocatorfactory.h"
+
 using namespace v8;
 using namespace WebRTC;
 
@@ -157,7 +160,7 @@ PeerConnection::PeerConnection(const Local<Object> &configuration,
   _remote = new rtc::RefCountedObject<RemoteDescriptionObserver>(this);
   _peer = new rtc::RefCountedObject<PeerConnectionObserver>(this);
   
-  _factory = webrtc::CreatePeerConnectionFactory();  
+  _factory = webrtc::CreatePeerConnectionFactory(rtc::Thread::Current(), rtc::Thread::Current(), NULL, NULL, NULL);
 }
 
 PeerConnection::~PeerConnection() {
@@ -176,7 +179,7 @@ PeerConnection::~PeerConnection() {
 
 webrtc::PeerConnectionInterface *PeerConnection::GetSocket() {  
   if (!_socket.get()) {
-    EventEmitter::Start();    
+    EventEmitter::Start();
     webrtc::FakeConstraints constraints = _constraints->ToConstraints();
     _socket = _factory->CreatePeerConnection(_servers, &constraints, NULL, NULL, _peer.get());
   }
@@ -233,7 +236,8 @@ void PeerConnection::CreateOffer(const FunctionCallbackInfo<Value> &args) {
   }
   
   if (socket) {
-    socket->CreateOffer(self->_offer.get(), NULL);
+    webrtc::FakeConstraints constraints = self->_constraints->ToConstraints();
+    socket->CreateOffer(self->_offer.get(), &constraints);
   } else {
     isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
   }
@@ -257,7 +261,8 @@ void PeerConnection::CreateAnswer(const FunctionCallbackInfo<Value> &args) {
   }
   
   if (socket) {
-    socket->CreateAnswer(self->_answer.get(), NULL);
+    webrtc::FakeConstraints constraints = self->_constraints->ToConstraints();
+    socket->CreateAnswer(self->_answer.get(), &constraints);
   } else {
     isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
   }
