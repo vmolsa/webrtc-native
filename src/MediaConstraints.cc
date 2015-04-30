@@ -103,9 +103,15 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(Isolate *isolate, con
     Local<Object> mandatory = Local<Object>::Cast(mandatory_value);
     Local<Value> OfferToReceiveAudio = mandatory->Get(String::NewFromUtf8(isolate, "OfferToReceiveAudio"));
     Local<Value> OfferToReceiveVideo = mandatory->Get(String::NewFromUtf8(isolate, "OfferToReceiveVideo"));
+    Local<Value> VoiceActivityDetection = mandatory->Get(String::NewFromUtf8(isolate, "VoiceActivityDetection"));
+    Local<Value> IceRestart = mandatory->Get(String::NewFromUtf8(isolate, "IceRestart"));
+    Local<Value> googUseRtpMUX = mandatory->Get(String::NewFromUtf8(isolate, "googUseRtpMUX"));
 
     self->SetMandatory(webrtc::MediaConstraintsInterface::kOfferToReceiveAudio, OfferToReceiveAudio);
     self->SetMandatory(webrtc::MediaConstraintsInterface::kOfferToReceiveVideo, OfferToReceiveVideo);
+    self->SetMandatory(webrtc::MediaConstraintsInterface::kVoiceActivityDetection, VoiceActivityDetection);
+    self->SetMandatory(webrtc::MediaConstraintsInterface::kIceRestart, IceRestart);
+    self->SetMandatory(webrtc::MediaConstraintsInterface::kUseRtpMux, googUseRtpMUX);
   }
 
   Local<Value> audio_value = constraints->Get(String::NewFromUtf8(isolate, "audio"));
