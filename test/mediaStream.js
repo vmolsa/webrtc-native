@@ -13,7 +13,7 @@ var constraints = {
   video: true,
   optional: [
     {
-      DtlsSrtpKeyAgreement: true,
+      DtlsSrtpKeyAgreement: false,
     },
   ],
   mandatory: {
@@ -94,14 +94,14 @@ function P2P(alice, bob) {
     });
   };
 
-  alice.onaddstream = function (stream) {
+  alice.onaddstream = function(stream) {
     if (stream) {
       console.log('Alice got mediaStream');
     }
   };
 
   bob.onaddstream = function(stream) {
-    if(stream) {
+    if (stream) {
       console.log('Bob got mediaStream');
     }
   };
