@@ -39,11 +39,10 @@ using namespace v8;
 class WebrtcInit {
  public:
   explicit WebrtcInit() {
-    
     rtc::InitializeSSL(); 
   }
   
-  ~WebrtcInit() {    
+  ~WebrtcInit() {
     rtc::CleanupSSL();
   }
 };
