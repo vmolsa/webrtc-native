@@ -220,7 +220,9 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(Isolate *isolate, con
 void MediaConstraints::AddOptional(std::string key, Local<Value> value) {
   if (!value.IsEmpty()) {
     if (value->IsTrue() || value->IsFalse()) {
-      MediaConstraints::AddOptional(key, value->IsTrue() ? "true" : "false");
+      MediaConstraints::AddOptional(key, value->IsTrue() ? 
+                                    webrtc::MediaConstraintsInterface::kValueTrue : 
+                                    webrtc::MediaConstraintsInterface::kValueFalse);
     }
 
     // TODO(): IsNumber()
@@ -234,7 +236,9 @@ void MediaConstraints::AddOptional(std::string key, const char *value) {
 void MediaConstraints::SetMandatory(std::string key, Local<Value> value) {
   if (!value.IsEmpty()) {
     if (value->IsTrue() || value->IsFalse()) {
-      MediaConstraints::SetMandatory(key, value->IsTrue() ? "true" : "false");
+      MediaConstraints::SetMandatory(key, value->IsTrue() ? 
+                                     webrtc::MediaConstraintsInterface::kValueTrue : 
+                                     webrtc::MediaConstraintsInterface::kValueFalse);
     }
   }
 }
