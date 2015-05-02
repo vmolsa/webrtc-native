@@ -4,6 +4,7 @@
     'nodejs.gypi',
   ],
   'variables': {
+    'third_party%': 'third_party',    
     'configuration%': 'Release',
     'build_tests%': 0,
   }, 
@@ -177,12 +178,33 @@
     },
     {
       'target_name': 'webrtc-peerconnection-test',
-      'type': 'executable',
-      'sources': [
-        'src/PeerConnectionTest.cc',
-      ],
-      'dependencies': [
-        'webrtc-module',
+      'conditions': [ 
+        ['build_tests==1', {
+          'type': 'executable',
+          'sources': [
+            'src/PeerConnectionTest.cc',
+          ],
+          'dependencies': [
+            'webrtc-module',
+          ],
+          'conditions': [
+            ['OS!="win"', {
+              'dependencies': [
+                'uv.gyp:*',
+              ],
+              'include_dirs': [
+                '<(third_party)/libuv/include',
+              ],
+              'libraries': [
+                '<(third_party)/libuv/.libs/libuv.a',
+                '-lpthread',
+                '-ldl',
+              ],
+            }],
+          ],          
+        }, {
+          'type': 'none',
+        }],
       ],
     },
     {
@@ -190,7 +212,6 @@
       'type': 'none',
       'dependencies': [
         'webrtc-native',
-        
       ],
       'conditions': [ 
         ['build_tests==1', {

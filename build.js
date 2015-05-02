@@ -102,6 +102,7 @@ if (!fs.existsSync(WEBRTC) || !fs.existsSync(WEBRTC_SRC)) {
   }
 }
 
+process.env['GYP_DEFINES'] += ' third_party=' + THIRD_PARTY;
 process.env['GYP_DEFINES'] += ' target_arch=' + process.arch;
 process.env['GYP_DEFINES'] += ' host_arch=' + process.arch;
 process.env['GYP_DEFINES'] += ' nodedir=' + NODEJS;
