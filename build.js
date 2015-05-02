@@ -188,19 +188,18 @@ if (fs.existsSync(WEBRTC_SRC)) {
   fs.linkSync(WEBRTC_OUT + path.sep + 'webrtc-native.node', ROOT + path.sep + 'build' + path.sep + CONFIG + path.sep + 'webrtc-native.node');
   
   if (TESTS) {
-    console.log('Running WebRTC Unit Tests');
-    
-    var log = fs.openSync('test.log', 'w');
-    var unittest = 'libjingle_peerconnection_unittest';
+    console.log('Running WebRTC Tests');
+
+    var peerconnection = 'webrtc-peerconnection-test';
     
     if (os.platform() == 'win32') {
-      unittest += '.exe';
+      peerconnection += '.exe';
     }
   
-    sh(WEBRTC_OUT + path.sep + unittest, {
+    sh(WEBRTC_OUT + path.sep + peerconnection, {
       cwd: WEBRTC_SRC,
       env: process.env,
-      stdio: [ 'ignore', log, log ],
+      stdio: 'inherit',
     });
   }
   

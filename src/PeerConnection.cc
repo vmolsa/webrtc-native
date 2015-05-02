@@ -170,8 +170,6 @@ PeerConnection::~PeerConnection() {
     if (state != webrtc::PeerConnectionInterface::kClosed) {
       _socket->Close();
     }
-    
-    _socket.release();
   }
   
   EventEmitter::End();
