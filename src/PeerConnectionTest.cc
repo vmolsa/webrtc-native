@@ -43,7 +43,9 @@ PeerConnection::PeerConnection() :
   _remote = new rtc::RefCountedObject<RemoteDescriptionObserver>(this);
   _peer = new rtc::RefCountedObject<PeerConnectionObserver>(this);
 
-  _factory = webrtc::CreatePeerConnectionFactory(rtc::Thread::Current(), rtc::Thread::Current(), NULL, NULL, NULL);
+  _constraints.SetMandatory(webrtc::MediaConstraintsInterface::kOfferToReceiveAudio, webrtc::MediaConstraintsInterface::kValueFalse);
+  _constraints.SetMandatory(webrtc::MediaConstraintsInterface::kOfferToReceiveVideo, webrtc::MediaConstraintsInterface::kValueFalse);
+  _constraints.AddOptional(webrtc::MediaConstraintsInterface::kEnableDtlsSrtp, webrtc::MediaConstraintsInterface::kValueTrue);
 }
 
 PeerConnection::~PeerConnection() {
@@ -61,10 +63,16 @@ PeerConnection::~PeerConnection() {
 }
 
 webrtc::PeerConnectionInterface *PeerConnection::GetSocket() {
+  rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory;
+
   if (!_socket.get()) {
     EventEmitter::Start();
-    webrtc::FakeConstraints constraints;
-    _socket = _factory->CreatePeerConnection(_servers, &constraints, NULL, NULL, _peer.get());
+
+    factory = webrtc::CreatePeerConnectionFactory(rtc::Thread::Current(), rtc::Thread::Current(), NULL, NULL, NULL);
+
+    if (factory.get()) {
+      _socket = factory->CreatePeerConnection(_servers, &_constraints, 0, 0, _peer.get());
+    }
   }
 
   return _socket.get();
@@ -78,16 +86,14 @@ void PeerConnection::CreateOffer(SdpCallback callback) {
   webrtc::PeerConnectionInterface *socket = PeerConnection::GetSocket();
   _onoffer = callback;
   
-  webrtc::FakeConstraints constraints;
-  socket->CreateOffer(_offer.get(), &constraints);
+  socket->CreateOffer(_offer.get(), &_constraints);
 }
 
 void PeerConnection::CreateAnswer(SdpCallback callback) {
   webrtc::PeerConnectionInterface *socket = PeerConnection::GetSocket();
   _onanswer = callback;
 
-  webrtc::FakeConstraints constraints;
-  socket->CreateAnswer(_answer.get(), &constraints);
+  socket->CreateAnswer(_answer.get(), &_constraints);
 }
 
 void PeerConnection::SetLocalDescription(const std::string &data, Callback callback) {
