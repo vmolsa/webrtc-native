@@ -159,8 +159,6 @@ PeerConnection::PeerConnection(const Local<Object> &configuration,
   _local = new rtc::RefCountedObject<LocalDescriptionObserver>(this);
   _remote = new rtc::RefCountedObject<RemoteDescriptionObserver>(this);
   _peer = new rtc::RefCountedObject<PeerConnectionObserver>(this);
-  
-  _factory = webrtc::CreatePeerConnectionFactory(rtc::Thread::Current(), rtc::Thread::Current(), NULL, NULL, NULL);
 }
 
 PeerConnection::~PeerConnection() {
@@ -175,11 +173,16 @@ PeerConnection::~PeerConnection() {
   EventEmitter::End();
 }
 
-webrtc::PeerConnectionInterface *PeerConnection::GetSocket() {  
+webrtc::PeerConnectionInterface *PeerConnection::GetSocket() {
+  rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory;
+
   if (!_socket.get()) {
-    EventEmitter::Start();
-    webrtc::FakeConstraints constraints = _constraints->ToConstraints();
-    _socket = _factory->CreatePeerConnection(_servers, &constraints, NULL, NULL, _peer.get());
+    factory = webrtc::CreatePeerConnectionFactory(rtc::Thread::Current(), rtc::Thread::Current(), NULL, NULL, NULL);
+
+    if (factory.get()) {
+      EventEmitter::Start();
+      _socket = factory->CreatePeerConnection(_servers, _constraints->ToConstraints(), NULL, NULL, _peer.get());
+    }
   }
    
   return _socket.get();
@@ -234,8 +237,7 @@ void PeerConnection::CreateOffer(const FunctionCallbackInfo<Value> &args) {
   }
   
   if (socket) {
-    webrtc::FakeConstraints constraints = self->_constraints->ToConstraints();
-    socket->CreateOffer(self->_offer.get(), &constraints);
+    socket->CreateOffer(self->_offer.get(), self->_constraints->ToConstraints());
   } else {
     isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
   }
@@ -259,8 +261,7 @@ void PeerConnection::CreateAnswer(const FunctionCallbackInfo<Value> &args) {
   }
   
   if (socket) {
-    webrtc::FakeConstraints constraints = self->_constraints->ToConstraints();
-    socket->CreateAnswer(self->_answer.get(), &constraints);
+    socket->CreateAnswer(self->_answer.get(), self->_constraints->ToConstraints());
   } else {
     isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
   }
