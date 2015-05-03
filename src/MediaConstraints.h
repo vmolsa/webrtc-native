@@ -45,7 +45,7 @@ namespace WebRTC {
     std::string AudioId() const;
     std::string VideoId() const;
 
-    const webrtc::FakeConstraints ToConstraints() const;
+    const webrtc::FakeConstraints *ToConstraints() const;
 
    private:
     explicit MediaConstraints();
@@ -63,7 +63,7 @@ namespace WebRTC {
     std::string _audioId;
     std::string _videoId;
 
-    webrtc::FakeConstraints _conf;
+    webrtc::FakeConstraints* _conf;
   };
 };
 

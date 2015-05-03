@@ -32,11 +32,11 @@ MediaConstraints::MediaConstraints() :
   _audio(false),
   _video(false)
 {
-
+  _conf = new webrtc::FakeConstraints();
 }
 
 MediaConstraints::~MediaConstraints() {
-
+  delete _conf;
 }
 
 rtc::scoped_refptr<MediaConstraints> MediaConstraints::New() {
@@ -230,7 +230,7 @@ void MediaConstraints::AddOptional(std::string key, Local<Value> value) {
 }
 
 void MediaConstraints::AddOptional(std::string key, const char *value) {
-  _conf.AddOptional(key, value);
+  _conf->AddOptional(key, value);
 }
 
 void MediaConstraints::SetMandatory(std::string key, Local<Value> value) {
@@ -244,7 +244,7 @@ void MediaConstraints::SetMandatory(std::string key, Local<Value> value) {
 }
 
 void MediaConstraints::SetMandatory(std::string key, const char *value) {
-  _conf.SetMandatory(key, value);
+  _conf->SetMandatory(key, value);
 }
 
 bool MediaConstraints::UseAudio() const {
@@ -263,6 +263,6 @@ std::string MediaConstraints::VideoId() const {
   return _videoId;
 }
 
-const webrtc::FakeConstraints MediaConstraints::ToConstraints() const {
+const webrtc::FakeConstraints *MediaConstraints::ToConstraints() const {
   return _conf;
 }
