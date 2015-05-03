@@ -56,7 +56,7 @@ if (!SYNC) {
   if (fs.existsSync(THIRD_PARTY + path.sep + 'webrtc_sync')) {
     var stat = fs.statSync(THIRD_PARTY + path.sep + 'webrtc_sync');
 
-    if ((stat.mtime.getTime() - (new Date().getTime())) > 86400000) {
+    if (((new Date().getTime()) - stat.mtime.getTime()) > 86400000) {
       SYNC = true;
     }
   } else {
