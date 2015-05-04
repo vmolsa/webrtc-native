@@ -14,6 +14,7 @@
       'type': 'static_library',
       'dependencies': [
         '<(DEPTH)/third_party/jsoncpp/jsoncpp.gyp:jsoncpp',
+        '<(DEPTH)/webrtc/webrtc.gyp:*',
         '<(DEPTH)/talk/libjingle.gyp:libjingle_peerconnection',
       ],
       'conditions': [ 
