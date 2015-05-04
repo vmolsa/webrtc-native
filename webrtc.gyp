@@ -4,7 +4,8 @@
     'nodejs.gypi',
   ],
   'variables': {
-    'third_party%': 'third_party',    
+    'include_tests%': 0,
+    'third_party%': 'third_party',
     'configuration%': 'Release',
     'build_tests%': 0,
   }, 
@@ -14,7 +15,7 @@
       'type': 'static_library',
       'dependencies': [
         '<(DEPTH)/third_party/jsoncpp/jsoncpp.gyp:jsoncpp',
-        '<(DEPTH)/webrtc/webrtc.gyp:*',
+        '<(DEPTH)/webrtc/webrtc.gyp:webrtc_all',
         '<(DEPTH)/talk/libjingle.gyp:libjingle_peerconnection',
       ],
       'conditions': [ 
