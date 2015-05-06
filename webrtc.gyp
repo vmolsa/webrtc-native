@@ -15,13 +15,12 @@
       'type': 'static_library',
       'dependencies': [
         '<(DEPTH)/third_party/jsoncpp/jsoncpp.gyp:jsoncpp',
-        '<(DEPTH)/webrtc/webrtc.gyp:webrtc_all',
         '<(DEPTH)/talk/libjingle.gyp:libjingle_peerconnection',
       ],
       'conditions': [ 
         ['build_tests==1', {
           'dependencies': [
-            #'<(DEPTH)/talk/libjingle_tests.gyp:*',
+            '<(DEPTH)/talk/libjingle_tests.gyp:*',
           ],
         }],
       ],
