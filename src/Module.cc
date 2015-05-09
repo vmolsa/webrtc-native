@@ -33,6 +33,7 @@
 #include "GetSources.h"
 #include "GetUserMedia.h"
 #include "MediaStream.h"
+#include "MediaStreamTrack.h"
 
 using namespace v8;
 
@@ -106,6 +107,7 @@ void WebrtcModuleInit(Handle<Object> exports) {
   WebRTC::GetSources::Init(exports);
   WebRTC::GetUserMedia::Init(exports);
   WebRTC::MediaStream::Init();
+  WebRTC::MediaStreamTrack::Init();
   
   exports->Set(String::NewFromUtf8(isolate, "RTCGarbageCollect"), 
                FunctionTemplate::New(isolate, RTCGarbageCollect)->GetFunction());

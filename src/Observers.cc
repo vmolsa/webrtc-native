@@ -175,3 +175,10 @@ MediaStreamObserver::MediaStreamObserver(EventEmitter *parent) :
 void MediaStreamObserver::OnChanged() {
   _parent->Emit(kMediaStreamChanged);
 }
+
+MediaStreamTrackObserver::MediaStreamTrackObserver(EventEmitter *parent) :
+  _parent(parent) { }
+
+void MediaStreamTrackObserver::OnChanged() {
+  _parent->Emit(kMediaStreamTrackChanged);
+}

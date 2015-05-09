@@ -24,6 +24,7 @@
 */
 
 #include "MediaStream.h"
+#include "MediaStreamTrack.h"
 
 using namespace v8;
 using namespace WebRTC;

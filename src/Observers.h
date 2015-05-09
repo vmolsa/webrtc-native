@@ -97,6 +97,10 @@ namespace WebRTC {
   enum MediaStreamEvent {
     kMediaStreamChanged
   };
+
+  enum MediaStreamTrackEvent {
+    kMediaStreamTrackChanged
+  };
   
   class OfferObserver : public webrtc::CreateSessionDescriptionObserver {
    public:
@@ -186,6 +190,19 @@ namespace WebRTC {
      MediaStreamObserver(EventEmitter *parent = 0);
 
      void OnChanged() final;
+
+   protected:
+    EventEmitter* _parent;
+  };
+
+  class MediaStreamTrackObserver :
+    public webrtc::ObserverInterface,
+    public rtc::RefCountInterface
+  {
+   public:
+    MediaStreamTrackObserver(EventEmitter *parent = 0);
+
+    void OnChanged() final;
 
    protected:
     EventEmitter* _parent;

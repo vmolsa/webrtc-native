@@ -167,6 +167,7 @@
         'src/GetSources.cc',
         'src/GetUserMedia.cc',
         'src/MediaStream.cc',
+        'src/MediaStreamTrack.cc',
         'src/MediaConstraints.cc',
         'src/Wrap.cc'
       ],
