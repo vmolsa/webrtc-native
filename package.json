@@ -17,11 +17,19 @@
   "license": "MIT",
   "main": "index.js",
   "gypfile": true,
+  "engines": {
+    "node": ">=0.12.x"
+  },
   "scripts": {
-    "install": "node-gyp rebuild"
+    "install": "node-gyp rebuild",
+    "test": "node test/all.js"
   },
   "dependencies": {
     "node-gyp": "^1.0.3"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "minimist": "^1.1.1",
+    "simple-peer": "^5.4.3",
+    "tape": "^4.0.0"
+  }
 }
