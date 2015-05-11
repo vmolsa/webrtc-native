@@ -47,12 +47,91 @@ namespace WebRTC {
     ~MediaStreamTrack() final;
 
     static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
+    static void GetConstraints(const v8::FunctionCallbackInfo<v8::Value>& args);
+    static void ApplyConstraints(const v8::FunctionCallbackInfo<v8::Value>& args);
+    static void GetSettings(const v8::FunctionCallbackInfo<v8::Value>& args);
+    static void GetCapabilities(const v8::FunctionCallbackInfo<v8::Value>& args);
+    static void Clone(const v8::FunctionCallbackInfo<v8::Value>& args);
+    static void Stop(const v8::FunctionCallbackInfo<v8::Value>& args);
+
+    static void GetEnabled(v8::Local<v8::String> property,
+                           const v8::PropertyCallbackInfo<v8::Value> &info);
+
+    static void GetId(v8::Local<v8::String> property,
+                      const v8::PropertyCallbackInfo<v8::Value> &info);
+
+    static void GetKind(v8::Local<v8::String> property,
+                        const v8::PropertyCallbackInfo<v8::Value> &info);
+
+    static void GetLabel(v8::Local<v8::String> property,
+                         const v8::PropertyCallbackInfo<v8::Value> &info);
+
+    static void GetMuted(v8::Local<v8::String> property,
+                         const v8::PropertyCallbackInfo<v8::Value> &info);
+
+    static void GetReadOnly(v8::Local<v8::String> property,
+                            const v8::PropertyCallbackInfo<v8::Value> &info);
+
+    static void GetReadyState(v8::Local<v8::String> property,
+                              const v8::PropertyCallbackInfo<v8::Value> &info);
+
+    static void GetRemote(v8::Local<v8::String> property,
+                          const v8::PropertyCallbackInfo<v8::Value> &info);
+
+    static void GetOnStarted(v8::Local<v8::String> property,
+                             const v8::PropertyCallbackInfo<v8::Value> &info);
+
+    static void GetOnMute(v8::Local<v8::String> property,
+                          const v8::PropertyCallbackInfo<v8::Value> &info);
+
+    static void GetOnUnMute(v8::Local<v8::String> property,
+                            const v8::PropertyCallbackInfo<v8::Value> &info);
+
+    static void GetOnOverConstrained(v8::Local<v8::String> property,
+                                     const v8::PropertyCallbackInfo<v8::Value> &info);
+
+    static void GetOnEnded(v8::Local<v8::String> property,
+                           const v8::PropertyCallbackInfo<v8::Value> &info);
+
+    static void ReadOnly(v8::Local<v8::String> property,
+                         v8::Local<v8::Value> value,
+                         const v8::PropertyCallbackInfo<void> &info);
+
+    static void SetEnabled(v8::Local<v8::String> property,
+                           v8::Local<v8::Value> value,
+                           const v8::PropertyCallbackInfo<void> &info);
+
+    static void SetOnStarted(v8::Local<v8::String> property,
+                             v8::Local<v8::Value> value,
+                             const v8::PropertyCallbackInfo<void> &info);
+
+    static void SetOnMute(v8::Local<v8::String> property,
+                          v8::Local<v8::Value> value,
+                          const v8::PropertyCallbackInfo<void> &info);
+
+    static void SetOnUnMute(v8::Local<v8::String> property,
+                            v8::Local<v8::Value> value,
+                            const v8::PropertyCallbackInfo<void> &info);
+
+    static void SetOnOverConstrained(v8::Local<v8::String> property,
+                                     v8::Local<v8::Value> value,
+                                     const v8::PropertyCallbackInfo<void> &info);
+
+    static void SetOnEnded(v8::Local<v8::String> property,
+                           v8::Local<v8::Value> value,
+                           const v8::PropertyCallbackInfo<void> &info);
 
     void On(Event *event) final;
 
    protected:
     rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> _track;
     rtc::scoped_refptr<MediaStreamTrackObserver> _observer;
+
+    v8::Persistent<v8::Function> _onstarted;
+    v8::Persistent<v8::Function> _onmute;
+    v8::Persistent<v8::Function> _onunmute;
+    v8::Persistent<v8::Function> _onoverconstrained;
+    v8::Persistent<v8::Function> _onended;
 
     static v8::Persistent<v8::Function> constructor;
   };
