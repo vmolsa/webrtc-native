@@ -18,8 +18,6 @@ var WebRTC = require('webrtc-native');
 
 #### WebRTC.[RTCPeerConnection](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection)
 
-- Partial Support
-
 #### WebRTC.[RTCIceCandidate](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnectionIceEvent)
 
 #### WebRTC.[RTCSessionDescription](https://developer.mozilla.org/en-US/docs/Web/API/RTCSessionDescription)
@@ -27,8 +25,6 @@ var WebRTC = require('webrtc-native');
 #### WebRTC.[RTCDataChannel](https://developer.mozilla.org/en-US/docs/Web/API/RTCDataChannel)
 
 #### WebRTC.[MediaStream](https://developer.mozilla.org/en-US/docs/Web/API/MediaStream)
-
-- Not Implemented
 
 #### WebRTC.[MediaStreamTrack](https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack)
 
