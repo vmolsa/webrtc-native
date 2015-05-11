@@ -53,6 +53,9 @@ namespace WebRTC {
     static void CreateDataChannel(const v8::FunctionCallbackInfo<v8::Value>& args);
     static void AddStream(const v8::FunctionCallbackInfo<v8::Value>& args);
     static void RemoveStream(const v8::FunctionCallbackInfo<v8::Value>& args);
+    static void GetLocalStreams(const v8::FunctionCallbackInfo<v8::Value>& args);
+    static void GetRemoteStreams(const v8::FunctionCallbackInfo<v8::Value>& args);
+    static void GetStreamById(const v8::FunctionCallbackInfo<v8::Value>& args);
     static void Close(const v8::FunctionCallbackInfo<v8::Value>& args);
     
     static void GetSignalingState(v8::Local<v8::String> property, 

@@ -63,7 +63,16 @@ void PeerConnection::Init(Handle<Object> exports) {
 
   tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "removeStream"),
                                                     FunctionTemplate::New(isolate, PeerConnection::RemoveStream));
-                                
+ 
+  tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "getLocalStreams"),
+                                                    FunctionTemplate::New(isolate, PeerConnection::GetLocalStreams));
+
+  tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "getRemoteStreams"),
+                                                    FunctionTemplate::New(isolate, PeerConnection::GetRemoteStreams));
+
+  tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "getStreamById"),
+                                                    FunctionTemplate::New(isolate, PeerConnection::GetStreamById));
+
   tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "close"),
                                 FunctionTemplate::New(isolate, PeerConnection::Close));
                                 
@@ -538,6 +547,89 @@ void PeerConnection::RemoveStream(const v8::FunctionCallbackInfo<v8::Value>& arg
   } else {
     isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Invalid MediaStream Object")));
   }
+}
+
+void PeerConnection::GetLocalStreams(const v8::FunctionCallbackInfo<v8::Value>& args) {
+  Isolate *isolate = args.GetIsolate();
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, args.This());
+  webrtc::PeerConnectionInterface *socket = self->GetSocket();
+
+  if (socket) {
+    rtc::scoped_refptr<webrtc::StreamCollectionInterface> local = socket->local_streams();
+
+    if (local.get()) {
+      Local<Array> list = Array::New(isolate);
+      uint32_t index = 0;
+      size_t count;
+
+      for (count = 0; count < local->count(); count++) {
+        list->Set(index, MediaStream::New(isolate, local->at(count)));
+      }
+
+      return args.GetReturnValue().Set(list);
+    }
+  }
+    
+  isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
+}
+
+void PeerConnection::GetRemoteStreams(const v8::FunctionCallbackInfo<v8::Value>& args) {
+  Isolate *isolate = args.GetIsolate();
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, args.This());
+  webrtc::PeerConnectionInterface *socket = self->GetSocket();
+
+  if (socket) {
+    rtc::scoped_refptr<webrtc::StreamCollectionInterface> remote = socket->remote_streams();
+
+    if (remote.get()) {
+      Local<Array> list = Array::New(isolate);
+      uint32_t index = 0;
+      size_t count;
+
+      for (count = 0; count < remote->count(); count++) {
+        list->Set(index, MediaStream::New(isolate, remote->at(count)));
+      }
+
+      return args.GetReturnValue().Set(list);
+    }
+  }
+
+  isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
+}
+
+void PeerConnection::GetStreamById(const v8::FunctionCallbackInfo<v8::Value>& args) {
+  Isolate *isolate = args.GetIsolate();
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, args.This());
+  webrtc::PeerConnectionInterface *socket = self->GetSocket();
+
+  if (socket) {
+    if (args.Length() >= 1 && args[0]->IsString()) {
+      v8::String::Utf8Value idValue(args[0]->ToString());
+      std::string id(*idValue);
+
+      rtc::scoped_refptr<webrtc::StreamCollectionInterface> local = socket->local_streams();
+      rtc::scoped_refptr<webrtc::StreamCollectionInterface> remote = socket->remote_streams();
+      rtc::scoped_refptr<webrtc::MediaStreamInterface> stream;
+
+      if (local.get()) {
+        stream = local->find(id);
+      }
+
+      if (remote.get() && !stream.get()) {
+        stream = remote->find(id);
+      }
+
+      if (stream.get()) {
+        return args.GetReturnValue().Set(MediaStream::New(isolate, stream));
+      } else {
+        return args.GetReturnValue().Set(Null(isolate));
+      }
+    } else {
+      isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Invalid Argument")));
+    }
+  }
+
+  isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
 }
 
 void PeerConnection::Close(const FunctionCallbackInfo<Value>& args) {
