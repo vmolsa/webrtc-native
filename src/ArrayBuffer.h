@@ -26,7 +26,9 @@
 #ifndef NODE_ARRAYBUFFER_H
 #define NODE_ARRAYBUFFER_H
 
-#pragma warning( disable : 4267 )
+#ifdef WIN32
+  #pragma warning( disable : 4267 )
+#endif
 
 #include <v8.h>
 
