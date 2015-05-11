@@ -94,12 +94,16 @@ namespace WebRTC {
     explicit EventEmitter();
     virtual ~EventEmitter();
     
-    inline void Start() {
+    inline void Start(bool unref = false) {
       uv_mutex_lock(&_lock);
 
       if (!_running) {
         uv_async_init(uv_default_loop(), &_async, reinterpret_cast<uv_async_cb>(EventEmitter::onAsync));
         _running = true;
+
+        if (unref) {
+          uv_unref(reinterpret_cast<uv_handle_t*>(&_async));
+        }
       }
 
       uv_mutex_unlock(&_lock);
@@ -110,7 +114,7 @@ namespace WebRTC {
 
       if (_running) {
         if (_events.empty()) {
-          uv_close((uv_handle_t*) &_async, NULL);
+          uv_close(reinterpret_cast<uv_handle_t*>(&_async), NULL);
           _running = false;
         } else {
           _closing = true;
@@ -125,7 +129,7 @@ namespace WebRTC {
       uv_mutex_lock(&_lock);
 
       if (_running) {
-        uv_close((uv_handle_t*) &_async, NULL);
+        uv_close(reinterpret_cast<uv_handle_t*>(&_async), NULL);
         _running = false;
       }
 
