@@ -94,7 +94,6 @@ Local<Value> MediaStream::New(Isolate *isolate, rtc::scoped_refptr<webrtc::Media
   Local<Object> ret = instance->NewInstance(0, argv);
   MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, ret, "MediaStream");
 
-  self->Start();
   self->_stream = mediaStream;
   self->_stream->RegisterObserver(self->_observer.get());
   self->Emit(kMediaStreamChanged);
@@ -106,6 +105,7 @@ MediaStream::MediaStream() :
   _ended(true)
 {
   _observer = new rtc::RefCountedObject<MediaStreamObserver>(this);
+  EventEmitter::Start(true);
 }
 
 MediaStream::~MediaStream() {
@@ -428,5 +428,14 @@ void MediaStream::On(Event *event) {
     return;
   }
 
-  EventEmitter::Stop();
+  if (_stream.get()) {
+    webrtc::AudioTrackVector audio_list = _stream->GetAudioTracks();
+    webrtc::VideoTrackVector video_list = _stream->GetVideoTracks();
+
+    if (!audio_list.empty() || !video_list.empty()) {
+      _ended = false;
+    } else {
+      _ended = true;
+    }
+  }
 }
