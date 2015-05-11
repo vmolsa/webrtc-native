@@ -60,15 +60,11 @@ rtc::scoped_refptr<webrtc::VideoTrackInterface> GetSources::GetVideoSource(const
   if (manager->Init()) {
     std::vector<cricket::Device> video_devs;
 
-    if (!manager->GetVideoCaptureDevices(&video_devs)) {
+    if (manager->GetVideoCaptureDevices(&video_devs)) {
       std::vector<cricket::Device>::iterator video_it = video_devs.begin();
       
-      for (video_it = video_devs.begin(); video_it != video_devs.end(); video_it++) {
+      for (video_it = video_devs.begin(); !cap && video_it != video_devs.end(); video_it++) {
         cap = manager->CreateVideoCapturer(*video_it);
-
-        if (cap) {
-          break;
-        }
       }
     }
   }
