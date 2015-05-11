@@ -1,5 +1,7 @@
 {
   'includes': [
+    'third_party/webrtc/src/webrtc/build/common.gypi',
+    'third_party/webrtc/src/talk/build/common.gypi',
     'build/config.gypi',
     'nodejs.gypi',
   ],
@@ -29,32 +31,11 @@
           '<(nodedir)/src',
           '<(nodedir)/deps/uv/include',
           '<(nodedir)/deps/v8/include',
-          'third_party/webrtc/src/',
-          'third_party/webrtc/src/webrtc',
-          'third_party/webrtc/src/webrtc/system_wrappers/interface',
-          'third_party/webrtc/src/third_party/jsoncpp/source/include',
-        ],
-        'defines': [
-          'EXPAT_RELATIVE_PATH',
-          'FEATURE_ENABLE_VOICEMAIL',
-          'GTEST_RELATIVE_PATH',
-          'JSONCPP_RELATIVE_PATH',
-          'LOGGING=1',
-          'SRTP_RELATIVE_PATH',
-          'FEATURE_ENABLE_SSL',
-          'FEATURE_ENABLE_VOICEMAIL',
-          'FEATURE_ENABLE_PSTN',
-          'HAVE_SCTP',
-          'HAVE_SRTP',
-          'HAVE_WEBRTC_VIDEO',
-          'HAVE_WEBRTC_VOICE',
-          'LIBPEERCONNECTION_LIB=1'
+          '<(DEPTH)/third_party/jsoncpp/source/include',
         ],
         'conditions': [ 
           ['OS=="linux"', {
             'defines': [
-              'LINUX',
-              'WEBRTC_LINUX',
               '_LARGEFILE_SOURCE', 
               '_FILE_OFFSET_BITS=64',
             ],
@@ -83,14 +64,12 @@
             ],
           }],
           ['OS=="win"', {
-            'defines': [
-              'WEBRTC_WIN',
-            ],
             'msvs_disabled_warnings': [ 
               4251,
               4530,
               4702,
               4199,
+              4201,
             ],
             'libraries': [
               '-lkernel32.lib',
@@ -125,26 +104,9 @@
             ],
             'defines': [
               'USE_BACKTRACE',
-              'OSX',
-              'WEBRTC_MAC',
               '_LARGEFILE_SOURCE', 
               '_FILE_OFFSET_BITS=64',
               '_DARWIN_USE_64_BIT_INODE=1',
-            ],
-          }],
-          ['OS=="ios"', {
-            'defines': [
-              'IOS',
-              'WEBRTC_MAC',
-              'WEBRTC_IOS',
-            ],
-          }],
-          ['os_posix==1', {
-            'defines': [
-              'HASH_NAMESPACE=__gnu_cxx',
-              'WEBRTC_POSIX',
-              'DISABLE_DYNAMIC_CAST',
-              '_REENTRANT',
             ],
           }],
         ],
@@ -203,7 +165,7 @@
                 '-ldl',
               ],
             }],
-          ],          
+          ],
         }, {
           'type': 'none',
         }],
