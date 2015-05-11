@@ -94,6 +94,7 @@ Local<Value> MediaStream::New(Isolate *isolate, rtc::scoped_refptr<webrtc::Media
   Local<Object> ret = instance->NewInstance(0, argv);
   MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, ret, "MediaStream");
 
+  self->Start();
   self->_stream = mediaStream;
   self->_stream->RegisterObserver(self->_observer.get());
   self->Emit(kMediaStreamChanged);
@@ -152,6 +153,7 @@ rtc::scoped_refptr<webrtc::MediaStreamInterface> MediaStream::Unwrap(Isolate *is
 
 void MediaStream::AddTrack(const FunctionCallbackInfo<Value>& args) {
   Isolate *isolate = args.GetIsolate();
+  //MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, args.This(), "MediaStream");
   rtc::scoped_refptr<webrtc::MediaStreamInterface> stream = MediaStream::Unwrap(isolate, args.This());
   bool retval = false;
 
@@ -161,12 +163,12 @@ void MediaStream::AddTrack(const FunctionCallbackInfo<Value>& args) {
 
       if (track.get()) {
         std::string kind = track->kind();
+        //self->Start();
 
         if (kind.compare("audio") == 0) {
           rtc::scoped_refptr<webrtc::AudioTrackInterface> audio(static_cast<webrtc::AudioTrackInterface*>(track.get()));
           retval = stream->AddTrack(audio);
-        }
-        else {
+        } else {
           rtc::scoped_refptr<webrtc::VideoTrackInterface> video(static_cast<webrtc::VideoTrackInterface*>(track.get()));
           retval = stream->AddTrack(video);
         }
@@ -428,6 +430,7 @@ void MediaStream::On(Event *event) {
   Local<Value> onended_argv[1];
 
   if (type != kMediaStreamChanged) {
+    isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
     return;
   }
 
@@ -443,6 +446,8 @@ void MediaStream::On(Event *event) {
       if (!_audio_tracks.empty() || !_video_tracks.empty()) {
         onended = Local<Function>::New(isolate, _onended);
       }
+
+      //EventEmitter::Stop();
     }
 
     if (audio_list.size() != _audio_tracks.size()) {

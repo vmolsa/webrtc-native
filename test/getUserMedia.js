@@ -45,8 +45,3 @@ WEBRTC.getUserMedia({
   audio: true,
   video: true,
 }, onSuccess, onError);
-
-
-setTimeout(function() {
-
-}, 1000);
