@@ -28,6 +28,10 @@ function onSuccess(stream) {
       setTimeout(function () {
         stream.addTrack(track);
       }, 200);
+
+      setTimeout(function () {
+        stream.removeTrack(track);
+      }, 1000);
     });
 
     var video_list = stream.getVideoTracks();
