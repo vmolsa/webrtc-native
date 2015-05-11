@@ -94,6 +94,7 @@
                 '-Wno-c++11-extensions',
                 '-Wno-deprecated-declarations',
                 '-Wno-newline-eof',
+                '-Wno-unknown-pragmas',
               ],
               'DYLIB_INSTALL_NAME_BASE': '@rpath',
             },
