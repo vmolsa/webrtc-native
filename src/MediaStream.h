@@ -87,6 +87,8 @@ namespace WebRTC {
     void On(Event *event) final;
 
    protected:
+     bool _ended;
+
     v8::Persistent<v8::Function> _onaddtrack;
     v8::Persistent<v8::Function> _onremovetrack;
     v8::Persistent<v8::Function> _onended;

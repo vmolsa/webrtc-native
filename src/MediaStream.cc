@@ -102,7 +102,9 @@ Local<Value> MediaStream::New(Isolate *isolate, rtc::scoped_refptr<webrtc::Media
   return scope.Escape(ret);
 }
 
-MediaStream::MediaStream() {
+MediaStream::MediaStream() :
+  _ended(true)
+{
   _observer = new rtc::RefCountedObject<MediaStreamObserver>(this);
 }
 
@@ -149,62 +151,201 @@ rtc::scoped_refptr<webrtc::MediaStreamInterface> MediaStream::Unwrap(Isolate *is
 }
 
 void MediaStream::AddTrack(const FunctionCallbackInfo<Value>& args) {
-  //Isolate *isolate = args.GetIsolate();
-  //MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, args.This(), "MediaStream");
+  Isolate *isolate = args.GetIsolate();
+  rtc::scoped_refptr<webrtc::MediaStreamInterface> stream = MediaStream::Unwrap(isolate, args.This());
+  bool retval = false;
 
-  // TODO(): Implement This
-}
+  if (stream.get()) {
+    if (args.Length() >= 1 && args[0]->IsObject()) {
+      rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track = MediaStreamTrack::Unwrap(isolate, args[0]);
 
-void MediaStream::Clone(const FunctionCallbackInfo<Value>& args) {
-  //Isolate *isolate = args.GetIsolate();
-  //MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, args.This(), "MediaStream");
+      if (track.get()) {
+        std::string kind = track->kind();
 
-  // TODO(): Implement This
-}
+        if (kind.compare("audio") == 0) {
+          rtc::scoped_refptr<webrtc::AudioTrackInterface> audio(static_cast<webrtc::AudioTrackInterface*>(track.get()));
+          retval = stream->AddTrack(audio);
+        }
+        else {
+          rtc::scoped_refptr<webrtc::VideoTrackInterface> video(static_cast<webrtc::VideoTrackInterface*>(track.get()));
+          retval = stream->AddTrack(video);
+        }
+      }
+    }
+  }
+  else {
+    isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
+  }
 
-void MediaStream::GetTrackById(const FunctionCallbackInfo<Value>& args) {
-  //Isolate *isolate = args.GetIsolate();
-  //MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, args.This(), "MediaStream");
-
-  // TODO(): Implement This
-}
-
-void MediaStream::GetAudioTracks(const FunctionCallbackInfo<Value>& args) {
-  //Isolate *isolate = args.GetIsolate();
-  //MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, args.This(), "MediaStream");
-
-  // TODO(): Implement This
-}
-
-void MediaStream::GetVideoTracks(const FunctionCallbackInfo<Value>& args) {
-  //Isolate *isolate = args.GetIsolate();
-  //MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, args.This(), "MediaStream");
-
-  // TODO(): Implement This
+  args.GetReturnValue().Set(v8::Boolean::New(isolate, retval));
 }
 
 void MediaStream::RemoveTrack(const FunctionCallbackInfo<Value>& args) {
-  //Isolate *isolate = args.GetIsolate();
-  //MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, args.This(), "MediaStream");
+  Isolate *isolate = args.GetIsolate();
+  rtc::scoped_refptr<webrtc::MediaStreamInterface> stream = MediaStream::Unwrap(isolate, args.This());
+  bool retval = false;
 
-  // TODO(): Implement This
+  if (stream.get()) {
+    if (args.Length() >= 1 && args[0]->IsObject()) {
+      rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track = MediaStreamTrack::Unwrap(isolate, args[0]);
+
+      if (track.get()) {
+        std::string kind = track->kind();
+
+        if (kind.compare("audio") == 0) {
+          rtc::scoped_refptr<webrtc::AudioTrackInterface> audio(static_cast<webrtc::AudioTrackInterface*>(track.get()));
+          retval = stream->RemoveTrack(audio);
+        } else {
+          rtc::scoped_refptr<webrtc::VideoTrackInterface> video(static_cast<webrtc::VideoTrackInterface*>(track.get()));
+          retval = stream->RemoveTrack(video);
+        }
+      }
+    }
+  } else {
+    isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
+  }
+
+  args.GetReturnValue().Set(v8::Boolean::New(isolate, retval));
+}
+
+void MediaStream::Clone(const FunctionCallbackInfo<Value>& args) {
+  Isolate *isolate = args.GetIsolate();
+  rtc::scoped_refptr<webrtc::MediaStreamInterface> self = MediaStream::Unwrap(isolate, args.This());
+  rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory = webrtc::CreatePeerConnectionFactory();
+  rtc::scoped_refptr<webrtc::MediaStreamInterface> stream;
+
+  if (self.get() && factory.get()) {
+    stream = factory->CreateLocalMediaStream("stream");
+
+    if (stream.get()) {
+      webrtc::AudioTrackVector audio_list = self->GetAudioTracks();
+      std::vector<rtc::scoped_refptr<webrtc::AudioTrackInterface> >::iterator audio_it;
+
+      for (audio_it = audio_list.begin(); audio_it != audio_list.end(); audio_it++) {
+        rtc::scoped_refptr<webrtc::AudioTrackInterface> track(*audio_it);
+
+        if (track.get()) {
+          stream->AddTrack(track.get());
+        }
+      }
+
+      webrtc::VideoTrackVector video_list = self->GetVideoTracks();
+      std::vector<rtc::scoped_refptr<webrtc::VideoTrackInterface> >::iterator video_it;
+
+      for (video_it = video_list.begin(); video_it != video_list.end(); video_it++) {
+        rtc::scoped_refptr<webrtc::VideoTrackInterface> track(*video_it);
+
+        if (track.get()) {
+          stream->AddTrack(track.get());
+        }
+      }
+
+      return args.GetReturnValue().Set(MediaStream::New(isolate, stream));
+    }
+  }
+  
+  isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
+}
+
+void MediaStream::GetTrackById(const FunctionCallbackInfo<Value>& args) {
+  Isolate *isolate = args.GetIsolate();
+  rtc::scoped_refptr<webrtc::MediaStreamInterface> stream = MediaStream::Unwrap(isolate, args.This());
+
+  if (stream.get()) {
+    if (args.Length() >= 1 && args[0]->IsString()) {
+      v8::String::Utf8Value idValue(args[0]->ToString());
+      std::string id(*idValue);
+
+      rtc::scoped_refptr<webrtc::AudioTrackInterface> audio = stream->FindAudioTrack(id);
+
+      if (audio.get()) {
+        return args.GetReturnValue().Set(MediaStreamTrack::New(isolate, audio.get()));
+      }
+
+      rtc::scoped_refptr<webrtc::VideoTrackInterface> video = stream->FindVideoTrack(id);
+
+      if (video.get()) {
+        return args.GetReturnValue().Set(MediaStreamTrack::New(isolate, video.get()));
+      }
+    }
+
+    Local<Value> empty = Null(isolate);
+    args.GetReturnValue().Set(empty);
+  } else {
+    isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
+  }
+}
+
+void MediaStream::GetAudioTracks(const FunctionCallbackInfo<Value>& args) {
+  Isolate *isolate = args.GetIsolate();
+  rtc::scoped_refptr<webrtc::MediaStreamInterface> self = MediaStream::Unwrap(isolate, args.This());
+
+  if (self.get()) {
+    webrtc::AudioTrackVector audio_list = self->GetAudioTracks();
+    std::vector<rtc::scoped_refptr<webrtc::AudioTrackInterface> >::iterator audio_it;
+    Local<Array> list = Array::New(isolate);
+    uint32_t index = 0;
+
+    for (audio_it = audio_list.begin(); audio_it != audio_list.end(); audio_it++) {
+      rtc::scoped_refptr<webrtc::AudioTrackInterface> track(*audio_it);
+
+      if (track.get()) {
+        list->Set(index, MediaStreamTrack::New(isolate, track.get()));
+        index++;
+      }
+    }
+
+    args.GetReturnValue().Set(list);
+  } else {
+    isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
+  }
+}
+
+void MediaStream::GetVideoTracks(const FunctionCallbackInfo<Value>& args) {
+  Isolate *isolate = args.GetIsolate();
+  rtc::scoped_refptr<webrtc::MediaStreamInterface> self = MediaStream::Unwrap(isolate, args.This());
+
+  if (self.get()) {
+    webrtc::VideoTrackVector video_list = self->GetVideoTracks();
+    std::vector<rtc::scoped_refptr<webrtc::VideoTrackInterface> >::iterator video_it;
+    Local<Array> list = Array::New(isolate);
+    uint32_t index = 0;
+
+    for (video_it = video_list.begin(); video_it != video_list.end(); video_it++) {
+      rtc::scoped_refptr<webrtc::VideoTrackInterface> track(*video_it);
+
+      if (track.get()) {
+        list->Set(index, MediaStreamTrack::New(isolate, track.get()));
+        index++;
+      }
+    }
+
+    args.GetReturnValue().Set(list);
+  } else {
+    isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
+  }
 }
 
 void MediaStream::GetEnded(Local<String> property,
                            const PropertyCallbackInfo<Value> &info)
 {
-  //Isolate *isolate = args.GetIsolate();
-  //MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, args.This(), "MediaStream");
-
-  // TODO(): Implement This
+  Isolate *isolate = info.GetIsolate();
+  MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, info.Holder(), "MediaStream");
+  info.GetReturnValue().Set(v8::Boolean::New(isolate, self->_ended));
 }
+
 void MediaStream::GetId(Local<String> property,
                         const PropertyCallbackInfo<Value> &info)
 {
-  //Isolate *isolate = args.GetIsolate();
-  //MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, args.This(), "MediaStream");
-
-  // TODO(): Implement This
+  Isolate *isolate = info.GetIsolate();
+  rtc::scoped_refptr<webrtc::MediaStreamInterface> stream = MediaStream::Unwrap(isolate, info.Holder());
+  
+  if (stream.get()) {
+    std::string label = stream->label();
+    info.GetReturnValue().Set(String::NewFromUtf8(isolate, label.c_str()));
+  } else {
+    isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
+  }
 }
 
 void MediaStream::GetOnAddTrack(Local<String> property,
@@ -247,8 +388,7 @@ void MediaStream::SetOnAddTrack(Local<String> property,
 
   if (!value.IsEmpty() && value->IsFunction()) {
     self->_onaddtrack.Reset(isolate, Local<Function>::Cast(value));
-  }
-  else {
+  } else {
     self->_onaddtrack.Reset();
   }
 }
@@ -262,8 +402,7 @@ void MediaStream::SetOnRemoveTrack(Local<String> property,
 
   if (!value.IsEmpty() && value->IsFunction()) {
     self->_onremovetrack.Reset(isolate, Local<Function>::Cast(value));
-  }
-  else {
+  } else {
     self->_onremovetrack.Reset();
   }
 }
@@ -277,8 +416,7 @@ void MediaStream::SetOnEnded(Local<String> property,
 
   if (!value.IsEmpty() && value->IsFunction()) {
     self->_onended.Reset(isolate, Local<Function>::Cast(value));
-  }
-  else {
+  } else {
     self->_onended.Reset();
   }
 }
