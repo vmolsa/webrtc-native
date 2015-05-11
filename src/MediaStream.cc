@@ -422,7 +422,10 @@ void MediaStream::SetOnEnded(Local<String> property,
 }
 
 void MediaStream::On(Event *event) {
+  Isolate *isolate = Isolate::GetCurrent();
   MediaStreamEvent type = event->Type<MediaStreamEvent>();
+  Local<Function> onended;
+  Local<Value> onended_argv[1];
 
   if (type != kMediaStreamChanged) {
     return;
@@ -436,6 +439,178 @@ void MediaStream::On(Event *event) {
       _ended = false;
     } else {
       _ended = true;
+
+      if (!_audio_tracks.empty() || !_video_tracks.empty()) {
+        onended = Local<Function>::New(isolate, _onended);
+      }
     }
+
+    if (audio_list.size() != _audio_tracks.size()) {
+      std::vector<rtc::scoped_refptr<webrtc::AudioTrackInterface> >::iterator last_audio, cur_audio;
+
+      if (audio_list.size() > _audio_tracks.size()) {
+        for (cur_audio = audio_list.begin(); cur_audio != audio_list.end(); cur_audio++) {
+          rtc::scoped_refptr<webrtc::AudioTrackInterface> cur_track(*cur_audio);
+          std::string cur_id;
+          bool found = false;
+
+          if (cur_track.get()) {
+            cur_id = cur_track->id();
+          }
+
+          if (_audio_tracks.size()) {
+            for (last_audio = _audio_tracks.begin(); last_audio != _audio_tracks.end(); last_audio++) {
+              rtc::scoped_refptr<webrtc::AudioTrackInterface> last_track(*last_audio);
+              std::string last_id;
+
+              if (last_track.get()) {
+                last_id = last_track->id();
+              }
+
+              if (cur_id.compare(last_id) == 0) {
+                found = true;
+                break;
+              }
+            }
+          }
+
+          if (!found) {
+            Local<Function> callback = Local<Function>::New(isolate, _onaddtrack);
+            Local<Value> argv[] = {
+              MediaStreamTrack::New(isolate, cur_track.get())
+            };
+
+            if (!callback.IsEmpty() && callback->IsFunction()) {
+              callback->Call(RTCWrap::This(isolate), 1, argv);
+            }
+          }
+        }
+      } else {
+        for (cur_audio = _audio_tracks.begin(); cur_audio != _audio_tracks.end(); cur_audio++) {
+          rtc::scoped_refptr<webrtc::AudioTrackInterface> cur_track(*cur_audio);
+          std::string cur_id;
+          bool found = false;
+
+          if (cur_track.get()) {
+            cur_id = cur_track->id();
+          }
+
+          if (audio_list.size()) {
+            for (last_audio = audio_list.begin(); last_audio != audio_list.end(); last_audio++) {
+              rtc::scoped_refptr<webrtc::AudioTrackInterface> last_track(*last_audio);
+              std::string last_id;
+
+              if (last_track.get()) {
+                last_id = last_track->id();
+              }
+
+              if (cur_id.compare(last_id) == 0) {
+                found = true;
+                break;
+              }
+            }
+          }
+
+          if (!found) {
+            Local<Function> callback = Local<Function>::New(isolate, _onremovetrack);
+            Local<Value> argv[] = {
+              MediaStreamTrack::New(isolate, cur_track.get())
+            };
+
+            if (!callback.IsEmpty() && callback->IsFunction()) {
+              callback->Call(RTCWrap::This(isolate), 1, argv);
+            }
+          }
+        }
+      }
+
+      _audio_tracks = audio_list;
+    }
+
+    if (video_list.size() != _video_tracks.size()) {
+      std::vector<rtc::scoped_refptr<webrtc::VideoTrackInterface> >::iterator last_video, cur_video;
+
+      if (video_list.size() > _video_tracks.size()) {
+        for (cur_video = video_list.begin(); cur_video != video_list.end(); cur_video++) {
+          rtc::scoped_refptr<webrtc::VideoTrackInterface> cur_track(*cur_video);
+          std::string cur_id;
+          bool found = false;
+
+          if (cur_track.get()) {
+            cur_id = cur_track->id();
+          }
+
+          if (_video_tracks.size()) {
+            for (last_video = _video_tracks.begin(); last_video != _video_tracks.end(); last_video++) {
+              rtc::scoped_refptr<webrtc::VideoTrackInterface> last_track(*last_video);
+              std::string last_id;
+
+              if (last_track.get()) {
+                last_id = last_track->id();
+              }
+
+              if (cur_id.compare(last_id) == 0) {
+                found = true;
+                break;
+              }
+            }
+          }
+
+          if (!found) {
+            Local<Function> callback = Local<Function>::New(isolate, _onaddtrack);
+            Local<Value> argv[] = {
+              MediaStreamTrack::New(isolate, cur_track.get())
+            };
+
+            if (!callback.IsEmpty() && callback->IsFunction()) {
+              callback->Call(RTCWrap::This(isolate), 1, argv);
+            }
+          }
+        }
+      } else {
+        for (cur_video = _video_tracks.begin(); cur_video != _video_tracks.end(); cur_video++) {
+          rtc::scoped_refptr<webrtc::VideoTrackInterface> cur_track(*cur_video);
+          std::string cur_id;
+          bool found = false;
+
+          if (cur_track.get()) {
+            cur_id = cur_track->id();
+          }
+
+          if (video_list.size()) {
+            for (last_video = video_list.begin(); last_video != video_list.end(); last_video++) {
+              rtc::scoped_refptr<webrtc::VideoTrackInterface> last_track(*last_video);
+              std::string last_id;
+
+              if (last_track.get()) {
+                last_id = last_track->id();
+              }
+
+              if (cur_id.compare(last_id) == 0) {
+                found = true;
+                break;
+              }
+            }
+          }
+
+          if (!found) {
+            Local<Function> callback = Local<Function>::New(isolate, _onremovetrack);
+            Local<Value> argv[] = {
+              MediaStreamTrack::New(isolate, cur_track.get())
+            };
+
+            if (!callback.IsEmpty() && callback->IsFunction()) {
+              callback->Call(RTCWrap::This(isolate), 1, argv);
+            }
+          }
+        }
+      }
+
+      _video_tracks = video_list;
+    }
+  }
+
+  if (!onended.IsEmpty() && onended->IsFunction()) {
+    onended->Call(RTCWrap::This(isolate), 0, onended_argv);
   }
 }

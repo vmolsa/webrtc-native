@@ -96,6 +96,9 @@ namespace WebRTC {
     rtc::scoped_refptr<MediaStreamObserver> _observer;
     rtc::scoped_refptr<webrtc::MediaStreamInterface> _stream;
 
+    webrtc::AudioTrackVector _audio_tracks;
+    webrtc::VideoTrackVector _video_tracks;
+
     static v8::Persistent<v8::Function> constructor;
   };
 };
