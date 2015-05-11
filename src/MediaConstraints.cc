@@ -90,7 +90,7 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(Isolate *isolate, con
         self->AddOptional(webrtc::MediaConstraintsInterface::kCpuOveruseThreshold, googCpuOveruseThreshold);
         self->AddOptional(webrtc::MediaConstraintsInterface::kCpuOveruseEncodeUsage, googCpuOveruseEncodeUsage);
         self->AddOptional(webrtc::MediaConstraintsInterface::kHighStartBitrate, googHighStartBitrate);
-        self->AddOptional(webrtc::MediaConstraintsInterface::kHighBitrate, googHighStartBitrate);
+        self->AddOptional(webrtc::MediaConstraintsInterface::kHighBitrate, googHighBitrate);
         self->AddOptional(webrtc::MediaConstraintsInterface::kVeryHighBitrate, googVeryHighBitrate);
         self->AddOptional(webrtc::MediaConstraintsInterface::kPayloadPadding, googPayloadPadding);
       }
