@@ -73,8 +73,8 @@ namespace node {
         v8::Local<v8::Value> ptr = arrayBuffer->GetHiddenValue(v8::String::NewFromUtf8(isolate, "node::ArrayBuffer"));
 
         if (ptr.IsEmpty()) {
-          v8::ArrayBuffer::Contents content = arrayBuffer->Externalize();
-          return ArrayBuffer::New(isolate, content.Data(), content.ByteLength());
+          v8::Local<v8::Value> uintArray = v8::Uint8Array::New(arrayBuffer, 0, arrayBuffer->ByteLength());
+          return ArrayBuffer::New(isolate, uintArray);
         } else {          
           v8::Local<v8::External> ext = v8::Local<v8::External>::Cast(ptr);
           return static_cast<ArrayBuffer*>(ext->Value());
