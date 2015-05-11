@@ -29,10 +29,10 @@
 using namespace WebRTC;
 
 PeerConnection::PeerConnection(const char *id) :
-  _id(id),
   OnIceCandidate(0),
   OnNegotiationNeeded(0),
   OnDataChannel(0),
+  _id(0),
   _onoffer(0),
   _onanswer(0),
   _onlocal(0),
