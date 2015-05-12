@@ -120,7 +120,11 @@ switch (os.platform()) {
     break;
   case 'linux':
     if (!process.env['JAVA_HOME']) {
-      process.env['JAVA_HOME'] = '/usr/lib/jvm/java';
+      if (fs.existsSync('/usr/lib/jvm/java')) {
+        process.env['JAVA_HOME'] = '/usr/lib/jvm/java';
+      } else {
+        process.env['JAVA_HOME'] = '/usr/lib/jvm/default-java';
+      }
     }
 
     break;
