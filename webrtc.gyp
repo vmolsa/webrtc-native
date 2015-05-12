@@ -16,6 +16,8 @@
       'target_name': 'webrtc-module',
       'type': 'static_library',
       'dependencies': [
+        '<(DEPTH)/third_party/libsrtp/libsrtp.gyp:libsrtp',
+        '<(DEPTH)/third_party/libyuv/libyuv.gyp:libyuv',
         '<(DEPTH)/third_party/jsoncpp/jsoncpp.gyp:jsoncpp',
         '<(DEPTH)/talk/libjingle.gyp:libjingle_peerconnection',
       ],
@@ -31,7 +33,9 @@
           '<(nodedir)/src',
           '<(nodedir)/deps/uv/include',
           '<(nodedir)/deps/v8/include',
+          '<(DEPTH)/third_party/libyuv/include',
           '<(DEPTH)/third_party/jsoncpp/source/include',
+          '<(DEPTH)/third_party/libsrtp/srtp'
         ],
         'conditions': [ 
           ['OS=="linux"', {
