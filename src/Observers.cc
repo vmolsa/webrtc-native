@@ -31,6 +31,8 @@ OfferObserver::OfferObserver(EventEmitter *parent) :
   _parent(parent) { }
 
 void OfferObserver::OnSuccess(webrtc::SessionDescriptionInterface* desc) {
+  LOG(LS_INFO) << "OfferObserver::OnSuccess()";
+  
   Json::StyledWriter writer;
   Json::Value msg;
   std::string sdp;
@@ -44,6 +46,7 @@ void OfferObserver::OnSuccess(webrtc::SessionDescriptionInterface* desc) {
 }
 
 void OfferObserver::OnFailure(const std::string &error) {
+  LOG(LS_ERROR) << "OfferObserver::OnFailure(" << error.c_str() << ")";
   _parent->Emit(kPeerConnectionCreateOfferError, error);
 }
 
@@ -51,6 +54,8 @@ AnswerObserver::AnswerObserver(EventEmitter *parent) :
   _parent(parent) { }
    
 void AnswerObserver::OnSuccess(webrtc::SessionDescriptionInterface* desc) {
+  LOG(LS_INFO) << "AnswerObserver::OnSuccess()";
+  
   Json::StyledWriter writer;
   Json::Value msg;
   std::string sdp;
@@ -64,6 +69,7 @@ void AnswerObserver::OnSuccess(webrtc::SessionDescriptionInterface* desc) {
 }
 
 void AnswerObserver::OnFailure(const std::string &error) {
+  LOG(LS_ERROR) << "AnswerObserver::OnFailure(" << error.c_str() << ")";
   _parent->Emit(kPeerConnectionCreateAnswerError, error);
 }
 
@@ -71,10 +77,12 @@ LocalDescriptionObserver::LocalDescriptionObserver(EventEmitter *parent) :
   _parent(parent) { }
     
 void LocalDescriptionObserver::OnSuccess() {
+  LOG(LS_INFO) << "LocalDescriptionObserver::OnSuccess()";
   _parent->Emit(kPeerConnectionSetLocalDescription);
 }
 
 void LocalDescriptionObserver::OnFailure(const std::string &error) {
+  LOG(LS_ERROR) << "LocalDescriptionObserver::OnFailure(" << error.c_str() << ")";
   _parent->Emit(kPeerConnectionSetLocalDescriptionError, error);
 }
 
@@ -82,10 +90,12 @@ RemoteDescriptionObserver::RemoteDescriptionObserver(EventEmitter *parent) :
   _parent(parent) { }
     
 void RemoteDescriptionObserver::OnSuccess() {
+  LOG(LS_INFO) << "RemoteDescriptionObserver::OnSuccess()";
   _parent->Emit(kPeerConnectionSetRemoteDescription);
 }
 
 void RemoteDescriptionObserver::OnFailure(const std::string &error) {
+  LOG(LS_ERROR) << "RemoteDescriptionObserver::OnFailure(" << error.c_str() << ")";
   _parent->Emit(kPeerConnectionSetRemoteDescriptionError, error);
 }
 
@@ -93,6 +103,7 @@ PeerConnectionObserver::PeerConnectionObserver(EventEmitter *parent) :
   _parent(parent) { }
 
 void PeerConnectionObserver::OnSignalingChange(webrtc::PeerConnectionInterface::SignalingState state) {
+  LOG(LS_INFO) << "PeerConnectionObserver::OnSignalingChange()";
   _parent->Emit(kPeerConnectionSignalChange);
   
   if (state == webrtc::PeerConnectionInterface::kClosed) {
@@ -101,18 +112,21 @@ void PeerConnectionObserver::OnSignalingChange(webrtc::PeerConnectionInterface::
 }
 
 void PeerConnectionObserver::OnIceConnectionChange(webrtc::PeerConnectionInterface::IceConnectionState state) {
+  LOG(LS_INFO) << "PeerConnectionObserver::OnIceConnectionChange()";
   _parent->Emit(kPeerConnectionIceChange);
 }
 
 void PeerConnectionObserver::OnIceGatheringChange(webrtc::PeerConnectionInterface::IceGatheringState state) {
+  LOG(LS_INFO) << "PeerConnectionObserver::OnIceGatheringChange()";
   _parent->Emit(kPeerConnectionIceGathering);
 }
 
 void PeerConnectionObserver::OnStateChange(webrtc::PeerConnectionObserver::StateType state) {
-
+  LOG(LS_INFO) << "PeerConnectionObserver::OnStateChange()";
 }
 
 void PeerConnectionObserver::OnDataChannel(webrtc::DataChannelInterface *channel) {
+  LOG(LS_INFO) << "PeerConnectionObserver::OnDataChannel()";
   rtc::scoped_refptr<webrtc::DataChannelInterface> dataChannel = channel;
   
   if (dataChannel.get()) {
@@ -121,6 +135,7 @@ void PeerConnectionObserver::OnDataChannel(webrtc::DataChannelInterface *channel
 }
 
 void PeerConnectionObserver::OnAddStream(webrtc::MediaStreamInterface *stream) {
+  LOG(LS_INFO) << "PeerConnectionObserver::OnAddStream()";
   rtc::scoped_refptr<webrtc::MediaStreamInterface> mediaStream = stream;
 
   if (mediaStream.get()) {
@@ -129,6 +144,7 @@ void PeerConnectionObserver::OnAddStream(webrtc::MediaStreamInterface *stream) {
 }
 
 void PeerConnectionObserver::OnRemoveStream(webrtc::MediaStreamInterface *stream) {
+  LOG(LS_INFO) << "PeerConnectionObserver::OnRemoveStream()";
   rtc::scoped_refptr<webrtc::MediaStreamInterface> mediaStream = stream;
 
   if (mediaStream.get()) {
@@ -137,10 +153,13 @@ void PeerConnectionObserver::OnRemoveStream(webrtc::MediaStreamInterface *stream
 }
 
 void PeerConnectionObserver::OnRenegotiationNeeded() {
+  LOG(LS_INFO) << "PeerConnectionObserver::OnRenegotiationNeeded()";
   _parent->Emit(kPeerConnectionRenegotiation);
 }
 
 void PeerConnectionObserver::OnIceCandidate(const webrtc::IceCandidateInterface* candidate) {
+  LOG(LS_INFO) << "PeerConnectionObserver::OnIceCandidate()";
+  
   Json::StyledWriter writer;
   Json::Value msg;
   std::string sdp;
@@ -158,10 +177,13 @@ DataChannelObserver::DataChannelObserver(EventEmitter *parent) :
   _parent(parent) { }
   
 void DataChannelObserver::OnStateChange() {
+  LOG(LS_INFO) << "DataChannelObserver::OnStateChange()";
   _parent->Emit(kDataChannelStateChange);
 }
 
 void DataChannelObserver::OnMessage(const webrtc::DataBuffer& buffer) {
+  LOG(LS_INFO) << "DataChannelObserver::OnMessage()";
+  
   if (buffer.binary) {
     _parent->Emit(kDataChannelBinary, buffer.data);
   } else {
@@ -173,6 +195,7 @@ MediaStreamObserver::MediaStreamObserver(EventEmitter *parent) :
   _parent(parent) { }
 
 void MediaStreamObserver::OnChanged() {
+  LOG(LS_INFO) << "MediaStreamObserver::OnChanged()";
   _parent->Emit(kMediaStreamChanged);
 }
 
@@ -180,5 +203,6 @@ MediaStreamTrackObserver::MediaStreamTrackObserver(EventEmitter *parent) :
   _parent(parent) { }
 
 void MediaStreamTrackObserver::OnChanged() {
+  LOG(LS_INFO) << "MediaStreamTrackObserver::OnChanged()";
   _parent->Emit(kMediaStreamTrackChanged);
 }

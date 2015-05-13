@@ -27,7 +27,6 @@
 #define WEBRTC_OBSERVERS_H
 
 #include "webrtc/base/logging.h"
-#include "webrtc/system_wrappers/interface/ref_count.h"
 #include "webrtc/base/json.h"
 #include "webrtc/base/basictypes.h"
 #include "webrtc/base/common.h"
@@ -49,13 +48,11 @@
 #include "talk/app/webrtc/test/fakeconstraints.h"
 #include "talk/app/webrtc/fakeportallocatorfactory.h"
 #include "talk/app/webrtc/datachannelinterface.h"
-#include "talk/media/base/fakevideocapturer.h"
 #include "talk/app/webrtc/videosourceinterface.h"
 #include "talk/app/webrtc/videosource.h"
 
 #include "talk/media/sctp/sctpdataengine.h"
 #include "talk/media/devices/devicemanager.h"
-
 #include "talk/session/media/mediasession.h"
 
 namespace webrtc {
