@@ -203,7 +203,7 @@ void DataChannel::Send(const v8::FunctionCallbackInfo<v8::Value>& args) {
       } else {
         if (args[0]->IsArrayBuffer() || args[0]->IsTypedArray()) {
           node::ArrayBuffer *container = node::ArrayBuffer::New(isolate, args[0]);
-          rtc::Buffer data(container->Data(), container->Length());
+          rtc::Buffer data(reinterpret_cast<char *>(container->Data()), container->Length());
           webrtc::DataBuffer buffer(data, true);
           retval = socket->Send(buffer);
         } else {
@@ -539,13 +539,13 @@ void DataChannel::On(Event *event) {
   } else {
     callback = Local<Function>::New(isolate, _onmessage);
     rtc::Buffer buffer = event->Unwrap<rtc::Buffer>();
-    
+
     if (type == kDataChannelData) {
-      argv[0] = String::NewFromUtf8(isolate, buffer.data(), String::kNormalString, buffer.size());
+      argv[0] = String::NewFromUtf8(isolate, reinterpret_cast<char *>(buffer.data()), String::kNormalString, buffer.size());
       argc = 1;
     } else {
       // TODO(): Wrapping rtc::Buffer to ArrayBuffer is not working properly?
-      std::string data(buffer.data(), buffer.size());
+      std::string data(reinterpret_cast<char *>(buffer.data()), buffer.size());
 
       arrayBuffer = node::ArrayBuffer::New(isolate, data);                                
       argv[0] = arrayBuffer->ToArrayBuffer();
