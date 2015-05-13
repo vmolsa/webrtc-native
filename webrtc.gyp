@@ -157,8 +157,18 @@
           },
           'conditions': [
             ['OS=="win"', {
+              'include_dirs': [
+                '<(nodedir)/deps/uv/include',
+              ],
               'libraries': [
                 '-l"<(nodedir)\\<(target_arch)\\node"',
+              ],
+              'msvs_disabled_warnings': [ 
+                4251,
+                4530,
+                4702,
+                4199,
+                4201,
               ],
             }, {
               'dependencies': [
