@@ -66,10 +66,12 @@ void BackTrace::Close() {
   _segv.sa_handler = SIG_DFL;
   _bus.sa_handler = SIG_DFL;
   _abrt.sa_handler = SIG_DFL;
+  _ill.sa_handler = SIG_DFL;
   
   sigaction(SIGSEGV, &_segv, 0);
   sigaction(SIGBUS, &_bus, 0);
   sigaction(SIGABRT, &_abrt, 0);
+  sigaction(SIGILL, &_ill, 0);
 }
 
 void BackTrace::OnSegv(int sig) {
@@ -87,10 +89,16 @@ void BackTrace::OnAbort(int sig) {
   landmine.Close();
 }
 
+void BackTrace::OnIll(int sig) {
+  BackTrace::Dump("SIGILL", 2);
+  landmine.Close();
+}
+
 BackTrace::BackTrace() {
   sigemptyset(&_segv.sa_mask);
   sigemptyset(&_bus.sa_mask);
   sigemptyset(&_abrt.sa_mask);
+  sigemptyset(&_ill.sa_mask);
 
   _segv.sa_flags = 0;
   _segv.sa_handler = BackTrace::OnSegv;
@@ -100,10 +108,14 @@ BackTrace::BackTrace() {
 
   _abrt.sa_flags = 0;
   _abrt.sa_handler = BackTrace::OnAbort; 
+  
+  _ill.sa_flags = 0;
+  _ill.sa_handler = BackTrace::OnIll; 
 
   sigaction(SIGSEGV, &_segv, 0);
   sigaction(SIGBUS, &_bus, 0);
   sigaction(SIGABRT, &_abrt, 0);
+  sigaction(SIGILL, &_ill, 0);
 }
 
 BackTrace::~BackTrace() {

@@ -46,11 +46,13 @@ class BackTrace {
   static void OnSegv(int sig);
   static void OnBus(int sig);
   static void OnAbort(int sig);
+  static void OnIll(int sig);
 
  protected:
   struct sigaction _segv;
   struct sigaction _bus;
   struct sigaction _abrt;
+  struct sigaction _ill;
   
   static BackTrace landmine;
 };
