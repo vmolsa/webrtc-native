@@ -11,7 +11,7 @@
           'inputs': [],
           'outputs': [''],
           'action': [
-            'node', 'build.js'
+            'node', 'scripts/build.js'
           ],
         }
       ]
