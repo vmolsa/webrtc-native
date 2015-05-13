@@ -79,6 +79,8 @@ namespace WebRTC {
     rtc::scoped_refptr<RemoteDescriptionObserver> _remote;
     rtc::scoped_refptr<PeerConnectionObserver> _peer;
     rtc::scoped_refptr<webrtc::PeerConnectionInterface> _socket;
+    rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> _factory;
+    rtc::scoped_refptr<webrtc::FakePortAllocatorFactory> _port;
     webrtc::FakeConstraints _constraints;
 
     webrtc::PeerConnectionInterface::IceServers _servers;
