@@ -189,9 +189,7 @@ if (fs.existsSync(WEBRTC_SRC)) {
   fs.linkSync(WEBRTC_OUT + path.sep + 'webrtc-native.node', ROOT + path.sep + 'build' + path.sep + CONFIG + path.sep + 'webrtc-native.node');
   
   if (TESTS) {
-    console.log('Running WebRTC Tests');
-
-    var peerconnection = 'webrtc-peerconnection-test';
+    var peerconnection = 'webrtc-gtest';
     
     if (os.platform() == 'win32') {
       peerconnection += '.exe';
