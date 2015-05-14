@@ -132,6 +132,8 @@
           'sources': [
             '<(DEPTH)/talk/app/webrtc/peerconnectioninterface_unittest.cc',
             '<(DEPTH)/talk/app/webrtc/datachannel_unittest.cc',
+            '<(DEPTH)/talk/session/media/mediasession_unittest.cc',
+            '<(DEPTH)/talk/app/webrtc/webrtcsession_unittest.cc',
             '<(DEPTH)/webrtc/base/unittest_main.cc',
             'GTest.cc',
             'PeerConnectionTest.cc',
