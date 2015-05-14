@@ -132,10 +132,11 @@ class WebRTCNative : public testing::Test {
 TEST_F(WebRTCNative, RunTest) {
   uv_timer_start(&timeout, onTimeout, 10000, 0);
   
-  aliceDataChannel = alice->CreateDataChannel();
-  aliceDataChannel->RegisterObserver(aliceDataChannelObserver.get());
-  
+  //aliceDataChannel = alice->CreateDataChannel();
+  //aliceDataChannel->RegisterObserver(aliceDataChannelObserver.get());
+
+  EXPECT_TRUE(alice->AddStreams());
+
   uv_run(uv_default_loop(), UV_RUN_DEFAULT);
-  
   EXPECT_EQ(0, exit_status);
 }
