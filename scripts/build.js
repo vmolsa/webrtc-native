@@ -1,6 +1,7 @@
 var fs = require('fs');
 var os = require('os');
 var sh = require('child_process').execSync;
+var spawn = require('child_process').spawn;
 var path = require('path');
 
 var ROOT = process.cwd();
@@ -52,6 +53,65 @@ if (os.platform() == 'win32' && process.arch == 'x64') {
   WEBRTC_OUT = path.resolve(WEBRTC_SRC, 'out', CONFIG + '_x64');
 }
 
+function build() {
+  if (fs.existsSync(WEBRTC_SRC)) {
+    console.log('Building WebRTC Node Module');
+
+    sh('python ' + WEBRTC_SRC + path.sep + 'webrtc' + path.sep + 'build' + path.sep + 'gyp_webrtc src' + path.sep + 'webrtc.gyp', {
+      cwd: ROOT,
+      env: process.env,
+      stdio: 'inherit',
+    });
+
+    sh('ninja -C ' + WEBRTC_OUT, {
+      cwd: WEBRTC_SRC,
+      env: process.env,
+      stdio: 'inherit',
+    });
+
+    fs.linkSync(WEBRTC_OUT + path.sep + 'webrtc-native.node', ROOT + path.sep + 'build' + path.sep + CONFIG + path.sep + 'webrtc-native.node');
+
+    if (TESTS) {
+      var peerconnection = 'webrtc-gtest';
+
+      if (os.platform() == 'win32') {
+        peerconnection += '.exe';
+      }
+
+      sh(WEBRTC_OUT + path.sep + peerconnection, {
+        cwd: WEBRTC_SRC,
+        env: process.env,
+        stdio: 'inherit',
+      });
+    }
+
+    console.log('Done! :)');
+  }
+}
+
+function sync(rerun) {
+  var gclient_path = path.resolve(DEPOT_TOOLS, (os.platform() == 'win32') ? 'gclient.bat' : 'gclient');
+
+  var res = spawn(gclient_path, ['sync'], {
+    cwd: WEBRTC,
+    env: process.env,
+    stdio: 'inherit',
+  });
+
+  res.on('close', function (code) {
+    if (!code) {
+      fs.closeSync(fs.openSync(THIRD_PARTY + path.sep + 'webrtc_sync', 'w'));
+      return build();
+    }
+
+    if (os.platform() == 'win32' && !rerun) {
+      return sync(true);
+    }
+
+    process.exit(1);
+  });
+}
+
 if (!SYNC) {
   if (fs.existsSync(THIRD_PARTY + path.sep + 'webrtc_sync')) {
     var stat = fs.statSync(THIRD_PARTY + path.sep + 'webrtc_sync');
@@ -87,31 +147,13 @@ process.env['PATH'] = process.env['PATH'] + path.delimiter + DEPOT_TOOLS;
 if (!fs.existsSync(WEBRTC) || !fs.existsSync(WEBRTC_SRC)) {
   fs.mkdirSync(WEBRTC);
 
-  try {
-    sh('fetch webrtc', {
-      cwd: WEBRTC,
-      env: process.env,
-      stdio: 'inherit',
-    });
-  } catch (ignored) {
-    if (os.platform() == 'win32') {
-      // TODO(): src/build/landmines.py in third_party\webrtc\src\chromium is causing error on win32?
+  sh('fetch webrtc', {
+    cwd: WEBRTC,
+    env: process.env,
+    stdio: 'inherit',
+  });
 
-      sh('fetch webrtc', {
-        cwd: WEBRTC,
-        env: process.env,
-        stdio: 'inherit',
-      });
-    }
-  }
-
-  if (os.platform() == 'linux') {
-    sh('./build/install-build-deps.sh', {
-      cwd: WEBRTC_SRC,
-      env: process.env,
-      stdio: 'inherit',
-    });
-  }
+  // TODO(): apt-get install
 }
 
 process.env['GYP_DEFINES'] += ' third_party=' + THIRD_PARTY;
@@ -164,59 +206,7 @@ if (os.platform() == 'win32') {
 }
 
 if (SYNC) {
-  try {
-    sh('gclient sync', {
-      cwd: WEBRTC,
-      env: process.env,
-      stdio: 'inherit',
-    });
-  } catch (error) {
-    // TODO(): src/build/landmines.py in third_party\webrtc\src\chromium is causing error on win32?
-    
-    if (os.platform() == 'win32') {
-      sh('gclient sync', {
-        cwd: WEBRTC,
-        env: process.env,
-        stdio: 'inherit',
-      });
-    } else {
-      throw error;
-    }
-  }
-  
-  fs.closeSync(fs.openSync(THIRD_PARTY + path.sep + 'webrtc_sync', 'w'));
-}
-
-if (fs.existsSync(WEBRTC_SRC)) {
-  console.log('Building WebRTC Node Module');
-
-  sh('python ' + WEBRTC_SRC + path.sep + 'webrtc' + path.sep + 'build' + path.sep + 'gyp_webrtc src' + path.sep + 'webrtc.gyp', {
-    cwd: ROOT,
-    env: process.env,
-    stdio: 'inherit',
-  });
-
-  sh('ninja -C ' + WEBRTC_OUT, {
-    cwd: WEBRTC_SRC,
-    env: process.env,
-    stdio: 'inherit',
-  });
-
-  fs.linkSync(WEBRTC_OUT + path.sep + 'webrtc-native.node', ROOT + path.sep + 'build' + path.sep + CONFIG + path.sep + 'webrtc-native.node');
-  
-  if (TESTS) {
-    var peerconnection = 'webrtc-gtest';
-    
-    if (os.platform() == 'win32') {
-      peerconnection += '.exe';
-    }
-  
-    sh(WEBRTC_OUT + path.sep + peerconnection, {
-      cwd: WEBRTC_SRC,
-      env: process.env,
-      stdio: 'inherit',
-    });
-  }
-  
-  console.log('Done! :)');
+  sync(false);
+} else {
+  build();
 }
