@@ -58,6 +58,8 @@ namespace WebRTC {
 
     void Close();
 
+    bool AddStreams();
+
    private:
      PeerConnection(const char *id = "Peer");
      ~PeerConnection() override;

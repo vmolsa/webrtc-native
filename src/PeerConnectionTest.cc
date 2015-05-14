@@ -201,6 +201,27 @@ void PeerConnection::Close() {
   EventEmitter::End();
 }
 
+bool PeerConnection::AddStreams() {
+  webrtc::PeerConnectionInterface *socket = PeerConnection::GetSocket();
+
+  std::string streamlabel = "stream";
+  std::string audiolabel = "audio";
+  std::string videolabel = "video";
+
+  rtc::scoped_refptr<webrtc::MediaStreamInterface> stream(_factory->CreateLocalMediaStream(streamlabel));
+  rtc::scoped_refptr<webrtc::AudioTrackInterface> audio_track(_factory->CreateAudioTrack(audiolabel, static_cast<webrtc::AudioSourceInterface*>(NULL)));
+  rtc::scoped_refptr<webrtc::VideoTrackInterface> video_track(_factory->CreateVideoTrack(videolabel, NULL));
+
+  stream->AddTrack(audio_track.get());
+  stream->AddTrack(video_track.get());
+
+  if (socket) {
+    return socket->AddStream(stream);
+  }
+
+  return false;
+}
+
 void PeerConnection::On(Event *event) {
   PeerConnectionEvent type = event->Type<PeerConnectionEvent>();
   rtc::scoped_refptr<PeerConnection> self(this);
