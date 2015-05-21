@@ -48,15 +48,33 @@ var DEPOT_TOOLS = path.resolve(THIRD_PARTY, 'depot_tools');
 var WEBRTC = path.resolve(THIRD_PARTY, 'webrtc');
 var WEBRTC_SRC = path.resolve(WEBRTC, 'src');
 var WEBRTC_OUT = path.resolve(WEBRTC_SRC, 'out', CONFIG);
+var FETCH = path.resolve(DEPOT_TOOLS, (os.platform() == 'win32') ? 'fetch.bat' : 'fetch');
+var GCLIENT = path.resolve(DEPOT_TOOLS, (os.platform() == 'win32') ? 'gclient.bat' : 'gclient');
 
 if (os.platform() == 'win32' && process.arch == 'x64') {
   WEBRTC_OUT = path.resolve(WEBRTC_SRC, 'out', CONFIG + '_x64');
 }
 
+function test() {
+  if (TESTS) {
+    var peerconnection = 'webrtc-gtest';
+
+    if (os.platform() == 'win32') {
+      peerconnection += '.exe';
+    }
+
+    sh(WEBRTC_OUT + path.sep + peerconnection, {
+      cwd: WEBRTC_SRC,
+      env: process.env,
+      stdio: 'inherit',
+    });
+  }
+
+  console.log('Done! :)');
+}
+
 function build() {
   if (fs.existsSync(WEBRTC_SRC)) {
-    console.log('Building WebRTC Node Module');
-
     sh('python ' + WEBRTC_SRC + path.sep + 'webrtc' + path.sep + 'build' + path.sep + 'gyp_webrtc src' + path.sep + 'webrtc.gyp', {
       cwd: ROOT,
       env: process.env,
@@ -70,29 +88,28 @@ function build() {
     });
 
     fs.linkSync(WEBRTC_OUT + path.sep + 'webrtc-native.node', ROOT + path.sep + 'build' + path.sep + CONFIG + path.sep + 'webrtc-native.node');
-
-    if (TESTS) {
-      var peerconnection = 'webrtc-gtest';
-
-      if (os.platform() == 'win32') {
-        peerconnection += '.exe';
-      }
-
-      sh(WEBRTC_OUT + path.sep + peerconnection, {
-        cwd: WEBRTC_SRC,
-        env: process.env,
-        stdio: 'inherit',
-      });
-    }
-
-    console.log('Done! :)');
+    test();
   }
 }
 
-function sync(rerun) {
-  var gclient_path = path.resolve(DEPOT_TOOLS, (os.platform() == 'win32') ? 'gclient.bat' : 'gclient');
+function sync() {
+  if (!SYNC) {
+    if (fs.existsSync(THIRD_PARTY + path.sep + 'webrtc_sync')) {
+      var stat = fs.statSync(THIRD_PARTY + path.sep + 'webrtc_sync');
 
-  var res = spawn(gclient_path, ['sync'], {
+      if (((new Date().getTime()) - stat.mtime.getTime()) > 86400000) {
+        SYNC = true;
+      }
+    } else {
+      SYNC = true;
+    }
+  }
+
+  if (!SYNC) {
+    return build();
+  }
+
+  var res = spawn(GCLIENT, ['sync'], {
     cwd: WEBRTC,
     env: process.env,
     stdio: 'inherit',
@@ -104,109 +121,111 @@ function sync(rerun) {
       return build();
     }
 
-    if (os.platform() == 'win32' && !rerun) {
-      return sync(true);
-    }
-
     process.exit(1);
   });
 }
 
-if (!SYNC) {
-  if (fs.existsSync(THIRD_PARTY + path.sep + 'webrtc_sync')) {
-    var stat = fs.statSync(THIRD_PARTY + path.sep + 'webrtc_sync');
+function configure() {
+  // TODO(): apt-get install
 
-    if (((new Date().getTime()) - stat.mtime.getTime()) > 86400000) {
-      SYNC = true;
-    }
+  process.env['GYP_DEFINES'] += ' third_party=' + THIRD_PARTY;
+  process.env['GYP_DEFINES'] += ' target_arch=' + process.arch;
+  process.env['GYP_DEFINES'] += ' host_arch=' + process.arch;
+  process.env['GYP_DEFINES'] += ' nodedir=' + NODEJS;
+  process.env['GYP_DEFINES'] += ' configuration=' + CONFIG;
+  process.env['GYP_DEFINES'] += TESTS ? ' build_tests=1 include_tests=0' : ' build_tests=0 include_tests=0';
+
+  switch (os.platform()) {
+    case 'darwin':
+      process.env['GYP_DEFINES'] += ' clang=1';
+
+      break;
+    case 'win32':
+      process.env['DEPOT_TOOLS_WIN_TOOLCHAIN'] = 0;
+
+      break;
+    case 'linux':
+      if (!process.env['JAVA_HOME']) {
+        if (fs.existsSync('/usr/lib/jvm/java')) {
+          process.env['JAVA_HOME'] = '/usr/lib/jvm/java';
+        } else {
+          process.env['JAVA_HOME'] = '/usr/lib/jvm/default-java';
+        }
+      }
+
+      break;
+    default:
+      break;
+  }
+
+  console.log('target_arch =', process.arch);
+  console.log('host_arch =', process.arch);
+  console.log('configuration =', CONFIG);
+  console.log('SKIP_SYNC =', SYNC ? false : true);
+  console.log('ENABLE_TESTS =', TESTS ? true : false);
+  console.log('Enable / Disable Options: ');
+
+  if (os.platform() == 'win32') {
+    console.log('set SKIP_SYNC=1');
+    console.log('set SKIP_SYNC=0');
+    console.log('set ENABLE_TESTS=1');
+    console.log('set ENABLE_TESTS=0');
   } else {
-    SYNC = true;
+    console.log('export SKIP_SYNC=1');
+    console.log('export SKIP_SYNC=0');
+    console.log('export ENABLE_TESTS=1');
+    console.log('export ENABLE_TESTS=0');
+  }
+
+  sync();
+}
+
+function fetch(rerun) {
+  if (!fs.existsSync(WEBRTC) || !fs.existsSync(WEBRTC_SRC)) {
+    if (!fs.existsSync(WEBRTC)) {
+      fs.mkdirSync(WEBRTC);
+    }
+
+    var res = spawn(FETCH, ['webrtc'], {
+      cwd: WEBRTC,
+      env: process.env,
+      stdio: 'inherit',
+    });
+
+    res.on('close', function (code) {
+      if (!code) {
+        return configure();
+      }
+
+      if (os.platform() == 'win32' && !rerun) {
+        return fetch(true);
+      }
+
+      process.exit(1);
+    });
+  } else {
+    configure();
   }
 }
 
-process.env['GYP_DEFINES'] = process.env['GYP_DEFINES'] ? process.env['GYP_DEFINES'] : '';
+function prep() {
+  process.env['GYP_DEFINES'] = process.env['GYP_DEFINES'] ? process.env['GYP_DEFINES'] : '';
 
-if (process.env['GYP_DEFINES'] !== '') {
-  console.log('GYP_DEFINES =', process.env['GYP_DEFINES']);
+  if (!fs.existsSync(THIRD_PARTY)) {
+    fs.mkdirSync(THIRD_PARTY);
+  }
+
+  if (!fs.existsSync(DEPOT_TOOLS)) {
+    sh('git clone ' + DEPOT_TOOLS_REPO, {
+      cwd: THIRD_PARTY,
+      env: process.env,
+      stdio: 'inherit',
+    });
+  }
+
+  process.env['PATH'] = process.env['PATH'] + path.delimiter + DEPOT_TOOLS;
+
+  fetch(false);
 }
 
-if (!fs.existsSync(THIRD_PARTY)) {
-  fs.mkdirSync(THIRD_PARTY);
-}
-
-if (!fs.existsSync(DEPOT_TOOLS)) {
-  sh('git clone ' + DEPOT_TOOLS_REPO, {
-    cwd: THIRD_PARTY,
-    env: process.env,
-    stdio: 'inherit',
-  });
-}
-
-process.env['PATH'] = process.env['PATH'] + path.delimiter + DEPOT_TOOLS;
-
-if (!fs.existsSync(WEBRTC) || !fs.existsSync(WEBRTC_SRC)) {
-  fs.mkdirSync(WEBRTC);
-
-  sh('fetch webrtc', {
-    cwd: WEBRTC,
-    env: process.env,
-    stdio: 'inherit',
-  });
-
-  // TODO(): apt-get install
-}
-
-process.env['GYP_DEFINES'] += ' third_party=' + THIRD_PARTY;
-process.env['GYP_DEFINES'] += ' target_arch=' + process.arch;
-process.env['GYP_DEFINES'] += ' host_arch=' + process.arch;
-process.env['GYP_DEFINES'] += ' nodedir=' + NODEJS;
-process.env['GYP_DEFINES'] += ' configuration=' + CONFIG;
-process.env['GYP_DEFINES'] += TESTS ? ' build_tests=1 include_tests=0' : ' build_tests=0 include_tests=0';
-
-switch (os.platform()) {
-  case 'darwin':
-    process.env['GYP_DEFINES'] += ' clang=1';
-
-    break;
-  case 'win32':
-    process.env['DEPOT_TOOLS_WIN_TOOLCHAIN'] = 0;
-
-    break;
-  case 'linux':
-    if (!process.env['JAVA_HOME']) {
-      if (fs.existsSync('/usr/lib/jvm/java')) {
-        process.env['JAVA_HOME'] = '/usr/lib/jvm/java';
-      } else {
-        process.env['JAVA_HOME'] = '/usr/lib/jvm/default-java';
-      }
-    }
-
-    break;
-  default:
-    break;
-}
-
-console.log('target_arch =', process.arch);
-console.log('host_arch =', process.arch);
-console.log('configuration =', CONFIG);
-console.log('SKIP_SYNC =', SYNC ? false : true);
-console.log('ENABLE_TESTS =', TESTS ? true : false);
-console.log('Enable / Disable Options: ');
-
-if (os.platform() == 'win32') {
-  console.log('set SKIP_SYNC=1');
-  console.log('set SKIP_SYNC=0');
-  console.log('set ENABLE_TESTS=1');
-  console.log('set ENABLE_TESTS=0');
-} else {
-  console.log('export SKIP_SYNC=1');
-  console.log('export SKIP_SYNC=0');
-  console.log('export ENABLE_TESTS=1');
-  console.log('export ENABLE_TESTS=0');
-}
-
-if (SYNC) {
-  sync(false);
-} else {
-  build();
-}
+prep();
