@@ -9,7 +9,6 @@
     'include_tests%': 0,
     'third_party%': 'third_party',
     'configuration%': 'Release',
-    'build_tests%': 0,
   }, 
   'targets': [
     {
@@ -17,6 +16,7 @@
       'type': 'loadable_module',
       'product_extension': 'node',
       'sources': [
+        'Core.cc',
         'BackTrace.cc',
         'EventEmitter.cc',
         'Observers.cc',
@@ -125,86 +125,10 @@
       ],      
     },
     {
-      'target_name': 'webrtc-gtest',
-      'conditions': [ 
-        ['build_tests==1', {
-          'type': 'executable',
-          'sources': [
-            '<(DEPTH)/talk/app/webrtc/peerconnectioninterface_unittest.cc',
-            '<(DEPTH)/talk/app/webrtc/datachannel_unittest.cc',
-            '<(DEPTH)/talk/session/media/mediasession_unittest.cc',
-            '<(DEPTH)/talk/app/webrtc/webrtcsession_unittest.cc',
-            '<(DEPTH)/webrtc/base/unittest_main.cc',
-            'GTest.cc',
-            'PeerConnectionTest.cc',
-            'BackTrace.cc',
-            'EventEmitter.cc',
-            'Observers.cc',
-          ],
-          'dependencies': [
-            '<(DEPTH)/testing/gtest.gyp:gtest',
-            '<(DEPTH)/webrtc/common.gyp:webrtc_common',
-            '<(DEPTH)/webrtc/webrtc.gyp:webrtc_all',
-            '<(DEPTH)/third_party/libsrtp/libsrtp.gyp:libsrtp',
-            '<(DEPTH)/third_party/jsoncpp/jsoncpp.gyp:jsoncpp',
-            '<(DEPTH)/third_party/libyuv/libyuv.gyp:libyuv',
-            '<(DEPTH)/talk/libjingle.gyp:libjingle_peerconnection',
-          ],
-          'export_dependent_settings': [
-            '<(DEPTH)/testing/gtest.gyp:gtest',
-          ],
-          'xcode_settings': {
-            'OTHER_CFLAGS': [
-              '-Wno-newline-eof',
-              '-Wno-unknown-pragmas',
-            ],
-          },
-          'conditions': [
-            ['OS=="win"', {
-              'include_dirs': [
-                '<(nodedir)/deps/uv/include',
-              ],
-              'libraries': [
-                '-l"<(nodedir)\\<(target_arch)\\node"',
-              ],
-              'msvs_disabled_warnings': [ 
-                4251,
-                4530,
-                4702,
-                4199,
-                4201,
-              ],
-            }, {
-              'dependencies': [
-                'uv.gyp:*',
-              ],
-              'include_dirs': [
-                '<(third_party)/libuv/include',
-              ],
-              'libraries': [
-                '<(third_party)/libuv/.libs/libuv.a',
-                '-lpthread',
-                '-ldl',
-              ],
-            }],
-          ],
-        }, {
-          'type': 'none',
-        }],
-      ],
-    },    
-    {
       'target_name': 'All',
       'type': 'none',
       'dependencies': [
         'webrtc-native',
-      ],
-      'conditions': [ 
-        ['build_tests==1', {
-          'dependencies': [
-            'webrtc-gtest',
-          ],
-        }],
       ],
     },
   ],
