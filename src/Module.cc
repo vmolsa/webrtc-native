@@ -27,6 +27,7 @@
 
 #include <node.h>
 
+#include "Core.h"
 #include "PeerConnection.h"
 #include "DataChannel.h"
 #include "BackTrace.h"
@@ -36,19 +37,6 @@
 #include "MediaStreamTrack.h"
 
 using namespace v8;
-
-class WebrtcInit {
- public:
-  explicit WebrtcInit() {
-    rtc::InitializeSSL(); 
-  }
-  
-  ~WebrtcInit() {
-    rtc::CleanupSSL();
-  }
-};
-
-WebrtcInit WebrtcMain;
 
 void RTCGarbageCollect(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = args.GetIsolate();
@@ -98,10 +86,15 @@ void RTCSessionDescription(const FunctionCallbackInfo<Value>& args) {
   }
 }
 
+void WebrtcModuleDispose(void *arg) {
+  WebRTC::Core::Dispose();
+}
+
 void WebrtcModuleInit(Handle<Object> exports) {
   Isolate* isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
   
+  WebRTC::Core::Init();
   WebRTC::PeerConnection::Init(exports);
   WebRTC::DataChannel::Init();
   WebRTC::GetSources::Init(exports);
@@ -117,6 +110,8 @@ void WebrtcModuleInit(Handle<Object> exports) {
                
   exports->Set(String::NewFromUtf8(isolate, "RTCSessionDescription"), 
                FunctionTemplate::New(isolate, RTCSessionDescription)->GetFunction());
+
+  node::AtExit(WebrtcModuleDispose);
 }
 
 NODE_MODULE(webrtc, WebrtcModuleInit)
