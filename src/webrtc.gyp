@@ -107,6 +107,7 @@
               '-Wno-deprecated-declarations',
               '-Wno-newline-eof',
               '-Wno-unknown-pragmas',
+              '-Wno-unused-result',
             ],
             'DYLIB_INSTALL_NAME_BASE': '@rpath',
           },
