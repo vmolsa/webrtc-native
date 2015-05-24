@@ -26,6 +26,7 @@
 #include "PeerConnection.h"
 #include "DataChannel.h"
 #include "MediaStream.h"
+#include "Core.h"
 
 #include "talk/app/webrtc/test/fakedtlsidentityservice.h"
 #include "talk/app/webrtc/fakeportallocatorfactory.h"
@@ -183,12 +184,10 @@ PeerConnection::~PeerConnection() {
 }
 
 webrtc::PeerConnectionInterface *PeerConnection::GetSocket() {
-  rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory;
-
   if (!_socket.get()) {
-    factory = webrtc::CreatePeerConnectionFactory(rtc::Thread::Current(), rtc::Thread::Current(), NULL, NULL, NULL);
+    webrtc::PeerConnectionFactoryInterface *factory = Core::GetFactory();
 
-    if (factory.get()) {
+    if (factory) {
       EventEmitter::Start();
       _socket = factory->CreatePeerConnection(_servers, _constraints->ToConstraints(), NULL, NULL, _peer.get());
     }
