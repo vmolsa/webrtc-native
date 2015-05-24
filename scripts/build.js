@@ -8,10 +8,6 @@ var ROOT = process.cwd();
 var NODEJS = '.';
 var SYNC = false;
 
-if (process.env['SKIP_SYNC'] == 1 || process.env['SKIP_SYNC'] == 0) {
-  SYNC = (process.env['SKIP_SYNC'] == 1) ? false : true;
-}
-
 if (os.platform() == 'win32') {
   process.chdir(path.resolve(ROOT, '..'));
   ROOT = process.cwd();
@@ -36,12 +32,6 @@ if (fs.existsSync(ROOT + path.sep + 'build' + path.sep + 'Debug')) {
   CONFIG = 'Debug';
 }
 
-var TESTS = (CONFIG == 'Debug') ? true : false;
-
-if (process.env['ENABLE_TESTS'] == 1 || process.env['ENABLE_TESTS'] == 0) {
-  TESTS = (process.env['ENABLE_TESTS'] == 1) ? true : false;
-}
-
 var THIRD_PARTY = path.resolve(ROOT, 'third_party');
 var DEPOT_TOOLS_REPO = 'https://chromium.googlesource.com/chromium/tools/depot_tools.git';
 var DEPOT_TOOLS = path.resolve(THIRD_PARTY, 'depot_tools');
@@ -53,24 +43,6 @@ var GCLIENT = path.resolve(DEPOT_TOOLS, (os.platform() == 'win32') ? 'gclient.ba
 
 if (os.platform() == 'win32' && process.arch == 'x64') {
   WEBRTC_OUT = path.resolve(WEBRTC_SRC, 'out', CONFIG + '_x64');
-}
-
-function test() {
-  if (TESTS) {
-    var peerconnection = 'webrtc-gtest';
-
-    if (os.platform() == 'win32') {
-      peerconnection += '.exe';
-    }
-
-    sh(WEBRTC_OUT + path.sep + peerconnection, {
-      cwd: WEBRTC_SRC,
-      env: process.env,
-      stdio: 'inherit',
-    });
-  }
-
-  console.log('Done! :)');
 }
 
 function build() {
@@ -88,7 +60,7 @@ function build() {
     });
 
     fs.linkSync(WEBRTC_OUT + path.sep + 'webrtc-native.node', ROOT + path.sep + 'build' + path.sep + CONFIG + path.sep + 'webrtc-native.node');
-    test();
+    console.log('Done! :)');
   }
 }
 
@@ -126,14 +98,11 @@ function sync() {
 }
 
 function configure() {
-  // TODO(): apt-get install
-
   process.env['GYP_DEFINES'] += ' third_party=' + THIRD_PARTY;
   process.env['GYP_DEFINES'] += ' target_arch=' + process.arch;
   process.env['GYP_DEFINES'] += ' host_arch=' + process.arch;
   process.env['GYP_DEFINES'] += ' nodedir=' + NODEJS;
   process.env['GYP_DEFINES'] += ' configuration=' + CONFIG;
-  process.env['GYP_DEFINES'] += TESTS ? ' build_tests=1 include_tests=0' : ' build_tests=0 include_tests=0';
 
   switch (os.platform()) {
     case 'darwin':
@@ -161,21 +130,6 @@ function configure() {
   console.log('target_arch =', process.arch);
   console.log('host_arch =', process.arch);
   console.log('configuration =', CONFIG);
-  console.log('SKIP_SYNC =', SYNC ? false : true);
-  console.log('ENABLE_TESTS =', TESTS ? true : false);
-  console.log('Enable / Disable Options: ');
-
-  if (os.platform() == 'win32') {
-    console.log('set SKIP_SYNC=1');
-    console.log('set SKIP_SYNC=0');
-    console.log('set ENABLE_TESTS=1');
-    console.log('set ENABLE_TESTS=0');
-  } else {
-    console.log('export SKIP_SYNC=1');
-    console.log('export SKIP_SYNC=0');
-    console.log('export ENABLE_TESTS=1');
-    console.log('export ENABLE_TESTS=0');
-  }
 
   sync();
 }
@@ -224,8 +178,9 @@ function prep() {
   }
 
   process.env['PATH'] = process.env['PATH'] + path.delimiter + DEPOT_TOOLS;
-
   fetch(false);
 }
+
+// TODO(): apt-get install
 
 prep();
