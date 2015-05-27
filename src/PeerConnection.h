@@ -85,6 +85,12 @@ namespace WebRTC {
     static void GetOnRemoveStream(v8::Local<v8::String> property,
                                   const v8::PropertyCallbackInfo<v8::Value> &info);
     
+    static void GetLocalDescription(v8::Local<v8::String> property,
+                                    const v8::PropertyCallbackInfo<v8::Value> &info);
+
+    static void GetRemoteDescription(v8::Local<v8::String> property,
+                                     const v8::PropertyCallbackInfo<v8::Value> &info);
+    
     static void ReadOnly(v8::Local<v8::String> property, 
                          v8::Local<v8::Value> value, 
                          const v8::PropertyCallbackInfo<void> &info);
@@ -136,6 +142,9 @@ namespace WebRTC {
     
     v8::Persistent<v8::Function> _remoteCallback;
     v8::Persistent<v8::Function> _remoteErrorCallback;
+    
+    v8::Persistent<v8::Object> _localsdp;
+    v8::Persistent<v8::Object> _remotesdp;   
     
     static v8::Persistent<v8::Function> constructor;
     

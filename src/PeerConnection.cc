@@ -87,7 +87,15 @@ void PeerConnection::Init(Handle<Object> exports) {
                                        
   tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "iceGatheringState"),
                                        PeerConnection::GetIceGatheringState,
-                                       PeerConnection::ReadOnly);                                    
+                                       PeerConnection::ReadOnly);
+                                       
+  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "localDescription"),
+                                       PeerConnection::GetLocalDescription,
+                                       PeerConnection::ReadOnly);
+                                       
+  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "remoteDescription"),
+                                       PeerConnection::GetRemoteDescription,
+                                       PeerConnection::ReadOnly);
   
   tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "onsignalingstatechange"),
                                        PeerConnection::GetOnSignalingStateChange,
@@ -282,9 +290,9 @@ void PeerConnection::SetLocalDescription(const FunctionCallbackInfo<Value> &args
   const char *error = "Invalid SessionDescription";
 
   if (!args[0].IsEmpty() && args[0]->IsObject()) {
-    Local<Object> desc = Local<Object>::Cast(args[0]);
-    Local<Value> type_value = desc->Get(String::NewFromUtf8(isolate, "type"));
-    Local<Value> sdp_value = desc->Get(String::NewFromUtf8(isolate, "sdp"));
+    Local<Object> desc_obj = Local<Object>::Cast(args[0]);
+    Local<Value> type_value = desc_obj->Get(String::NewFromUtf8(isolate, "type"));
+    Local<Value> sdp_value = desc_obj->Get(String::NewFromUtf8(isolate, "sdp"));
     
     if (!type_value.IsEmpty() && type_value->IsString()) {
       if (!sdp_value.IsEmpty() && sdp_value->IsString()) {
@@ -307,6 +315,7 @@ void PeerConnection::SetLocalDescription(const FunctionCallbackInfo<Value> &args
         
         if (desc) {
           if (socket) {
+            self->_localsdp.Reset(isolate, desc_obj);
             socket->SetLocalDescription(self->_local.get(), desc);
             error = 0;
           } else {
@@ -338,9 +347,9 @@ void PeerConnection::SetRemoteDescription(const FunctionCallbackInfo<Value> &arg
   const char *error = "Invalid SessionDescription";
   
   if (!args[0].IsEmpty() && args[0]->IsObject()) {
-    Local<Object> desc = Local<Object>::Cast(args[0]);
-    Local<Value> type_value = desc->Get(String::NewFromUtf8(isolate, "type"));
-    Local<Value> sdp_value = desc->Get(String::NewFromUtf8(isolate, "sdp"));
+    Local<Object> desc_obj = Local<Object>::Cast(args[0]);
+    Local<Value> type_value = desc_obj->Get(String::NewFromUtf8(isolate, "type"));
+    Local<Value> sdp_value = desc_obj->Get(String::NewFromUtf8(isolate, "sdp"));
     
     if (!type_value.IsEmpty() && type_value->IsString()) {
       if (!sdp_value.IsEmpty() && sdp_value->IsString()) {
@@ -363,6 +372,7 @@ void PeerConnection::SetRemoteDescription(const FunctionCallbackInfo<Value> &arg
         
         if (desc) {
           if (socket) {
+            self->_remotesdp.Reset(isolate, desc_obj);
             socket->SetRemoteDescription(self->_remote.get(), desc);
             error = 0;
           } else {
@@ -470,12 +480,20 @@ void PeerConnection::CreateDataChannel(const FunctionCallbackInfo<Value>& args) 
     Local<Value> protocol_value = config_obj->Get(String::NewFromUtf8(isolate, "protocol"));
     Local<Value> id_value = config_obj->Get(String::NewFromUtf8(isolate, "id"));
 
-    if (!reliable_value.IsEmpty() && reliable_value->IsTrue()) {
-      config.reliable = true;
+    if (!reliable_value.IsEmpty()) {
+      if (reliable_value->IsTrue()) {
+        config.reliable = true;
+      } else {
+        config.reliable = false;
+      }
     }
     
-    if (!ordered_value.IsEmpty() && ordered_value->IsFalse()) {
-      config.ordered = false;
+    if (!ordered_value.IsEmpty()) {
+      if (ordered_value->IsTrue()) {
+        config.ordered = true;
+      } else {
+        config.ordered = false;
+      }
     }
     
     if (!maxRetransmitTime_value.IsEmpty() && maxRetransmitTime_value->IsInt32()) {
@@ -758,6 +776,22 @@ void PeerConnection::GetOnIceCandidate(Local<String> property,
   info.GetReturnValue().Set(Local<Function>::New(isolate, self->_onicecandidate));
 }
 
+void PeerConnection::GetLocalDescription(Local<String> property, 
+                                         const PropertyCallbackInfo<Value> &info)
+{
+  Isolate *isolate = info.GetIsolate();
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, info.Holder());
+  info.GetReturnValue().Set(Local<Object>::New(isolate, self->_localsdp));
+}
+
+void PeerConnection::GetRemoteDescription(Local<String> property, 
+                                          const PropertyCallbackInfo<Value> &info)
+{
+  Isolate *isolate = info.GetIsolate();
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, info.Holder());
+  info.GetReturnValue().Set(Local<Object>::New(isolate, self->_remotesdp));
+}
+
 void PeerConnection::GetOnDataChannel(Local<String> property, 
                                       const PropertyCallbackInfo<Value> &info)
 {
@@ -952,6 +986,7 @@ void PeerConnection::On(Event *event) {
       
       _localCallback.Reset();
       _localErrorCallback.Reset();
+      _localsdp.Reset();
       
       isError = true;
       data = event->Unwrap<std::string>();
@@ -971,6 +1006,7 @@ void PeerConnection::On(Event *event) {
       
       _remoteCallback.Reset();
       _remoteErrorCallback.Reset();
+      _remotesdp.Reset();
       
       isError = true;
       data = event->Unwrap<std::string>();
