@@ -13,7 +13,7 @@ var constraints = {
   video: true,
   optional: [
     {
-      DtlsSrtpKeyAgreement: false,
+      DtlsSrtpKeyAgreement: true,
     },
   ],
   mandatory: {
