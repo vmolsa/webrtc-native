@@ -64,6 +64,16 @@ function build() {
   }
 }
 
+function checkout() {
+  sh('git checkout remotes/branch-heads/43', {
+    cwd: WEBRTC_SRC,
+    env: process.env,
+    stdio: 'inherit',
+  });
+
+  build();
+}
+
 function sync() {
   if (!SYNC) {
     if (fs.existsSync(THIRD_PARTY + path.sep + 'webrtc_sync')) {
@@ -78,7 +88,7 @@ function sync() {
   }
 
   if (!SYNC) {
-    return build();
+    return checkout();
   }
 
   var res = spawn(GCLIENT, ['sync'], {
@@ -90,7 +100,7 @@ function sync() {
   res.on('close', function (code) {
     if (!code) {
       fs.closeSync(fs.openSync(THIRD_PARTY + path.sep + 'webrtc_sync', 'w'));
-      return build();
+      return checkout();
     }
 
     process.exit(1);
