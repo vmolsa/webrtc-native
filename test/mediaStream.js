@@ -116,6 +116,11 @@ function onSuccess(stream) {
   if (stream) {
     console.log('Alice: new mediaStream');
     alice.addStream(stream);
+
+    setTimeout(function () {
+      alice.close();
+      bob.close();
+    }, 10000);
   }
 }
 
