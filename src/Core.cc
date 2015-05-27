@@ -32,24 +32,43 @@
 
 using namespace WebRTC;
 
+rtc::Thread *_signal, *_worker;
 rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> _factory;
 rtc::scoped_ptr<cricket::DeviceManagerInterface> _manager;
-uv_check_t _msg;
+//uv_check_t _msg;
 
+/*
 static void ProcessMessages(uv_check_t* handle) {
   rtc::Thread::Current()->ProcessMessages(0);
 }
+*/
+
+class ProcessMessages : public rtc::Runnable {
+ public:
+  virtual void Run(rtc::Thread* thread) {
+    thread->ProcessMessages(rtc::ThreadManager::kForever);
+  }
+};
 
 void Core::Init() {
+  ProcessMessages task;
+  
 #ifdef WIN32
   rtc::EnsureWinsockInit();
 #endif
-  uv_check_init(uv_default_loop(), &_msg);
-  uv_check_start(&_msg, ProcessMessages);
-  uv_unref(reinterpret_cast<uv_handle_t*>(&_msg));
+  //uv_check_init(uv_default_loop(), &_msg);
+  //uv_check_start(&_msg, ProcessMessages);
+  //uv_unref(reinterpret_cast<uv_handle_t*>(&_msg));
 
   rtc::InitializeSSL();
-  _factory = webrtc::CreatePeerConnectionFactory();
+  
+  _signal = new rtc::Thread();
+  _worker = new rtc::Thread();
+  
+  _signal->Start(&task);
+  _worker->Start(&task);
+  
+  _factory = webrtc::CreatePeerConnectionFactory(_signal, _worker, NULL, NULL, NULL);
   _manager.reset(cricket::DeviceManagerFactory::Create());
 
   if (!_manager->Init()) {
@@ -58,7 +77,7 @@ void Core::Init() {
 }
 
 void Core::Dispose() {
-  uv_check_stop(&_msg);
+  //uv_check_stop(&_msg);  
   _factory.release();
 
   if (_manager.get()) {
@@ -66,6 +85,12 @@ void Core::Dispose() {
   }
 
   _manager.release();
+  
+  _signal->Stop();
+  _worker->Stop();
+  
+  delete _signal;
+  delete _worker;
 }
 
 webrtc::PeerConnectionFactoryInterface* Core::GetFactory() {
