@@ -15,8 +15,8 @@ var constraints = {
     },
   ],
   mandatory: {
-    OfferToReceiveAudio: true,
-    OfferToReceiveVideo: true,
+    OfferToReceiveAudio: false,
+    OfferToReceiveVideo: false,
   },
 };
 
