@@ -148,10 +148,14 @@ function sctpTest() {
   alice.ondatachannel(alice.createDataChannel('TestChannel', sctpDataChannelConfig), function(channel) {  
     channel.send('Hello Bob!');
 
+    setTimeout(function () {
+      channel.close();
+    }, 1000);
+
     setTimeout(function() {
       alice.close();
       bob.close();
-    }, 1000);
+    }, 5000);
   });
 }
 
@@ -186,6 +190,10 @@ function rtpTest() {
   alice.ondatachannel(alice.createDataChannel('TestChannel', rtpDataChannelConfig), function(channel) {  
     channel.send('Hello Bob!');
 
+    setTimeout(function () {
+      channel.close();
+    }, 1000);
+
     setTimeout(function() {
       alice.close();
       bob.close();
@@ -193,7 +201,7 @@ function rtpTest() {
       setTimeout(function() {
         sctpTest();
       }, 1000);
-    }, 1000);
+    }, 5000);
   });
 }
 
