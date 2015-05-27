@@ -35,13 +35,6 @@ using namespace WebRTC;
 rtc::Thread *_signal, *_worker;
 rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> _factory;
 rtc::scoped_ptr<cricket::DeviceManagerInterface> _manager;
-//uv_check_t _msg;
-
-/*
-static void ProcessMessages(uv_check_t* handle) {
-  rtc::Thread::Current()->ProcessMessages(0);
-}
-*/
 
 class ProcessMessages : public rtc::Runnable {
  public:
@@ -56,10 +49,6 @@ void Core::Init() {
 #ifdef WIN32
   rtc::EnsureWinsockInit();
 #endif
-  //uv_check_init(uv_default_loop(), &_msg);
-  //uv_check_start(&_msg, ProcessMessages);
-  //uv_unref(reinterpret_cast<uv_handle_t*>(&_msg));
-
   rtc::InitializeSSL();
   
   _signal = new rtc::Thread();
@@ -76,8 +65,7 @@ void Core::Init() {
   }
 }
 
-void Core::Dispose() {
-  //uv_check_stop(&_msg);  
+void Core::Dispose() { 
   _factory.release();
 
   if (_manager.get()) {
@@ -100,3 +88,12 @@ webrtc::PeerConnectionFactoryInterface* Core::GetFactory() {
 cricket::DeviceManagerInterface* Core::GetManager() {
   return _manager.get();
 }
+
+rtc::Thread *Core::GetWorker() {
+  return _worker;
+}
+
+rtc::Thread *Core::GetSignal() {
+  return _signal;
+}
+
