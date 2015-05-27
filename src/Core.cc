@@ -60,6 +60,11 @@ void Core::Init() {
 void Core::Dispose() {
   uv_check_stop(&_msg);
   _factory.release();
+
+  if (_manager.get()) {
+    _manager->Terminate();
+  }
+
   _manager.release();
 }
 
