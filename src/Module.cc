@@ -38,6 +38,16 @@
 
 using namespace v8;
 
+void SetDebug(const FunctionCallbackInfo<Value>& args) {
+  if (args.Length() && !args[0].IsEmpty()) {
+    if (args[0]->IsTrue()) {
+      rtc::LogMessage::LogToDebug(rtc::LS_VERBOSE);
+    } else {
+      rtc::LogMessage::LogToDebug(rtc::LS_ERROR + 1);
+    }
+  }
+}
+
 void RTCGarbageCollect(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = args.GetIsolate();
   isolate->LowMemoryNotification();
@@ -110,6 +120,9 @@ void WebrtcModuleInit(Handle<Object> exports) {
                
   exports->Set(String::NewFromUtf8(isolate, "RTCSessionDescription"), 
                FunctionTemplate::New(isolate, RTCSessionDescription)->GetFunction());
+
+  exports->Set(String::NewFromUtf8(isolate, "setDebug"),
+               FunctionTemplate::New(isolate, SetDebug)->GetFunction());
 
   node::AtExit(WebrtcModuleDispose);
 }
