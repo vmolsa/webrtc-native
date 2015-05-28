@@ -31,13 +31,9 @@ using namespace WebRTC;
 MediaConstraints::MediaConstraints() :
   _audio(false),
   _video(false)
-{
-  _conf = new webrtc::FakeConstraints();
-}
+{ }
 
-MediaConstraints::~MediaConstraints() {
-  delete _conf;
-}
+MediaConstraints::~MediaConstraints() { }
 
 rtc::scoped_refptr<MediaConstraints> MediaConstraints::New() {
   return new rtc::RefCountedObject<MediaConstraints>();
@@ -77,22 +73,22 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(Isolate *isolate, con
         Local<Value> googVeryHighBitrate = option->Get(String::NewFromUtf8(isolate, "googVeryHighBitrate"));
         Local<Value> googPayloadPadding = option->Get(String::NewFromUtf8(isolate, "googPayloadPadding"));
 
-        self->AddOptional(webrtc::MediaConstraintsInterface::kEnableDtlsSrtp, DtlsSrtpKeyAgreement);
-        self->AddOptional(webrtc::MediaConstraintsInterface::kEnableRtpDataChannels, RtpDataChannels);
-        self->AddOptional(webrtc::MediaConstraintsInterface::kEnableDscp, googDscp);
-        self->AddOptional(webrtc::MediaConstraintsInterface::kEnableIPv6, googIPv6);
-        self->AddOptional(webrtc::MediaConstraintsInterface::kEnableVideoSuspendBelowMinBitrate, googSuspendBelowMinBitrate);
-        self->AddOptional(webrtc::MediaConstraintsInterface::kNumUnsignalledRecvStreams, googNumUnsignalledRecvStreams);
-        self->AddOptional(webrtc::MediaConstraintsInterface::kCombinedAudioVideoBwe, googCombinedAudioVideoBwe);
-        self->AddOptional(webrtc::MediaConstraintsInterface::kScreencastMinBitrate, googScreencastMinBitrate);
-        self->AddOptional(webrtc::MediaConstraintsInterface::kCpuOveruseDetection, googCpuOveruseDetection);
-        self->AddOptional(webrtc::MediaConstraintsInterface::kCpuUnderuseThreshold, googCpuUnderuseThreshold);
-        self->AddOptional(webrtc::MediaConstraintsInterface::kCpuOveruseThreshold, googCpuOveruseThreshold);
-        self->AddOptional(webrtc::MediaConstraintsInterface::kCpuOveruseEncodeUsage, googCpuOveruseEncodeUsage);
-        self->AddOptional(webrtc::MediaConstraintsInterface::kHighStartBitrate, googHighStartBitrate);
-        self->AddOptional(webrtc::MediaConstraintsInterface::kHighBitrate, googHighBitrate);
-        self->AddOptional(webrtc::MediaConstraintsInterface::kVeryHighBitrate, googVeryHighBitrate);
-        self->AddOptional(webrtc::MediaConstraintsInterface::kPayloadPadding, googPayloadPadding);
+        self->SetOptional(webrtc::MediaConstraintsInterface::kEnableDtlsSrtp, DtlsSrtpKeyAgreement);
+        self->SetOptional(webrtc::MediaConstraintsInterface::kEnableRtpDataChannels, RtpDataChannels);
+        self->SetOptional(webrtc::MediaConstraintsInterface::kEnableDscp, googDscp);
+        self->SetOptional(webrtc::MediaConstraintsInterface::kEnableIPv6, googIPv6);
+        self->SetOptional(webrtc::MediaConstraintsInterface::kEnableVideoSuspendBelowMinBitrate, googSuspendBelowMinBitrate);
+        self->SetOptional(webrtc::MediaConstraintsInterface::kNumUnsignalledRecvStreams, googNumUnsignalledRecvStreams);
+        self->SetOptional(webrtc::MediaConstraintsInterface::kCombinedAudioVideoBwe, googCombinedAudioVideoBwe);
+        self->SetOptional(webrtc::MediaConstraintsInterface::kScreencastMinBitrate, googScreencastMinBitrate);
+        self->SetOptional(webrtc::MediaConstraintsInterface::kCpuOveruseDetection, googCpuOveruseDetection);
+        self->SetOptional(webrtc::MediaConstraintsInterface::kCpuUnderuseThreshold, googCpuUnderuseThreshold);
+        self->SetOptional(webrtc::MediaConstraintsInterface::kCpuOveruseThreshold, googCpuOveruseThreshold);
+        self->SetOptional(webrtc::MediaConstraintsInterface::kCpuOveruseEncodeUsage, googCpuOveruseEncodeUsage);
+        self->SetOptional(webrtc::MediaConstraintsInterface::kHighStartBitrate, googHighStartBitrate);
+        self->SetOptional(webrtc::MediaConstraintsInterface::kHighBitrate, googHighBitrate);
+        self->SetOptional(webrtc::MediaConstraintsInterface::kVeryHighBitrate, googVeryHighBitrate);
+        self->SetOptional(webrtc::MediaConstraintsInterface::kPayloadPadding, googPayloadPadding);
       }
     }
   }
@@ -142,16 +138,16 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(Isolate *isolate, con
             Local<Value> googTypingNoiseDetection = option->Get(String::NewFromUtf8(isolate, "googTypingNoiseDetection"));
             Local<Value> googAudioMirroring = option->Get(String::NewFromUtf8(isolate, "googAudioMirroring"));
 
-            self->AddOptional(webrtc::MediaConstraintsInterface::kEchoCancellation, googEchoCancellation);
-            self->AddOptional(webrtc::MediaConstraintsInterface::kExperimentalEchoCancellation, googEchoCancellation2);
-            self->AddOptional(webrtc::MediaConstraintsInterface::kDAEchoCancellation, googDAEchoCancellation);
-            self->AddOptional(webrtc::MediaConstraintsInterface::kAutoGainControl, googAutoGainControl);
-            self->AddOptional(webrtc::MediaConstraintsInterface::kExperimentalAutoGainControl, googAutoGainControl2);
-            self->AddOptional(webrtc::MediaConstraintsInterface::kNoiseSuppression, googNoiseSuppression);
-            self->AddOptional(webrtc::MediaConstraintsInterface::kExperimentalNoiseSuppression, googNoiseSuppression2);
-            self->AddOptional(webrtc::MediaConstraintsInterface::kHighpassFilter, googHighpassFilter);
-            self->AddOptional(webrtc::MediaConstraintsInterface::kTypingNoiseDetection, googTypingNoiseDetection);
-            self->AddOptional(webrtc::MediaConstraintsInterface::kAudioMirroring, googAudioMirroring);
+            self->SetOptional(webrtc::MediaConstraintsInterface::kEchoCancellation, googEchoCancellation);
+            self->SetOptional(webrtc::MediaConstraintsInterface::kExperimentalEchoCancellation, googEchoCancellation2);
+            self->SetOptional(webrtc::MediaConstraintsInterface::kDAEchoCancellation, googDAEchoCancellation);
+            self->SetOptional(webrtc::MediaConstraintsInterface::kAutoGainControl, googAutoGainControl);
+            self->SetOptional(webrtc::MediaConstraintsInterface::kExperimentalAutoGainControl, googAutoGainControl2);
+            self->SetOptional(webrtc::MediaConstraintsInterface::kNoiseSuppression, googNoiseSuppression);
+            self->SetOptional(webrtc::MediaConstraintsInterface::kExperimentalNoiseSuppression, googNoiseSuppression2);
+            self->SetOptional(webrtc::MediaConstraintsInterface::kHighpassFilter, googHighpassFilter);
+            self->SetOptional(webrtc::MediaConstraintsInterface::kTypingNoiseDetection, googTypingNoiseDetection);
+            self->SetOptional(webrtc::MediaConstraintsInterface::kAudioMirroring, googAudioMirroring);
           }
         }
       }
@@ -187,14 +183,14 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(Isolate *isolate, con
             Local<Value> maxFrameRate = option->Get(String::NewFromUtf8(isolate, "maxFrameRate"));
             Local<Value> minFrameRate = option->Get(String::NewFromUtf8(isolate, "minFrameRate"));
 
-            self->AddOptional(webrtc::MediaConstraintsInterface::kMinAspectRatio, minAspectRatio);
-            self->AddOptional(webrtc::MediaConstraintsInterface::kMaxAspectRatio, maxAspectRatio);
-            self->AddOptional(webrtc::MediaConstraintsInterface::kMaxWidth, maxWidth);
-            self->AddOptional(webrtc::MediaConstraintsInterface::kMinWidth, minWidth);
-            self->AddOptional(webrtc::MediaConstraintsInterface::kMaxHeight, maxHeight);
-            self->AddOptional(webrtc::MediaConstraintsInterface::kMinHeight, minHeight);
-            self->AddOptional(webrtc::MediaConstraintsInterface::kMaxFrameRate, maxFrameRate);
-            self->AddOptional(webrtc::MediaConstraintsInterface::kMinFrameRate, minFrameRate);
+            self->SetOptional(webrtc::MediaConstraintsInterface::kMinAspectRatio, minAspectRatio);
+            self->SetOptional(webrtc::MediaConstraintsInterface::kMaxAspectRatio, maxAspectRatio);
+            self->SetOptional(webrtc::MediaConstraintsInterface::kMaxWidth, maxWidth);
+            self->SetOptional(webrtc::MediaConstraintsInterface::kMinWidth, minWidth);
+            self->SetOptional(webrtc::MediaConstraintsInterface::kMaxHeight, maxHeight);
+            self->SetOptional(webrtc::MediaConstraintsInterface::kMinHeight, minHeight);
+            self->SetOptional(webrtc::MediaConstraintsInterface::kMaxFrameRate, maxFrameRate);
+            self->SetOptional(webrtc::MediaConstraintsInterface::kMinFrameRate, minFrameRate);
           }
         }
       }
@@ -217,34 +213,86 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(Isolate *isolate, con
 }
 
 
-void MediaConstraints::AddOptional(std::string key, Local<Value> value) {
-  if (!value.IsEmpty()) {
+void MediaConstraints::SetOptional(std::string key, Local<Value> value) {
+  if (!value.IsEmpty() && !value->IsNull() && !value->IsUndefined()) {
     if (value->IsTrue() || value->IsFalse()) {
-      MediaConstraints::AddOptional(key, value->IsTrue() ? 
-                                    webrtc::MediaConstraintsInterface::kValueTrue : 
-                                    webrtc::MediaConstraintsInterface::kValueFalse);
+      MediaConstraints::SetOptional(key, value->IsTrue() ?
+                                    std::string(webrtc::MediaConstraintsInterface::kValueTrue) :
+                                    std::string(webrtc::MediaConstraintsInterface::kValueFalse));
+    } else if (value->IsNumber()) {
+      MediaConstraints::SetOptional(key, value->NumberValue());
+    } else if (value->IsInt32()) {
+      MediaConstraints::SetOptional(key, value->Int32Value());
+    } else if (value->IsUint32()) {
+      MediaConstraints::SetOptional(key, value->Uint32Value());
+    } else {
+      Isolate* isolate = Isolate::GetCurrent();
+      isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Unknown MediaConstraints Type")));
     }
-
-    // TODO(): IsNumber()
   }
-}
-
-void MediaConstraints::AddOptional(std::string key, const char *value) {
-  _conf->AddOptional(key, value);
 }
 
 void MediaConstraints::SetMandatory(std::string key, Local<Value> value) {
-  if (!value.IsEmpty()) {
+  if (!value.IsEmpty() && !value->IsNull() && !value->IsUndefined()) {
     if (value->IsTrue() || value->IsFalse()) {
-      MediaConstraints::SetMandatory(key, value->IsTrue() ? 
-                                     webrtc::MediaConstraintsInterface::kValueTrue : 
-                                     webrtc::MediaConstraintsInterface::kValueFalse);
+      MediaConstraints::SetMandatory(key, value->IsTrue() ?
+                                     std::string(webrtc::MediaConstraintsInterface::kValueTrue) :
+                                     std::string(webrtc::MediaConstraintsInterface::kValueFalse));
+    } else if (value->IsNumber()) {
+      MediaConstraints::SetMandatory(key, value->NumberValue());
+    } else if (value->IsInt32()) {
+      MediaConstraints::SetMandatory(key, value->Int32Value());
+    } else if (value->IsUint32()) {
+      MediaConstraints::SetMandatory(key, value->Uint32Value());
+    } else {
+      Isolate* isolate = Isolate::GetCurrent();
+      isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Unknown MediaConstraints Type")));
     }
   }
 }
 
-void MediaConstraints::SetMandatory(std::string key, const char *value) {
-  _conf->SetMandatory(key, value);
+void MediaConstraints::RemoveMandatory(const std::string& key) {
+  std::string value;
+
+  if (_mandatory.FindFirst(key, &value)) {
+    for (webrtc::MediaConstraintsInterface::Constraints::iterator iter = _mandatory.begin(); iter != _mandatory.end(); ++iter) {
+      if (iter->key == key) {
+        _mandatory.erase(iter);
+        break;
+      }
+    }
+  }
+}
+
+void MediaConstraints::AddMandatory(const std::string &key, const std::string &value) {
+  _mandatory.push_back(webrtc::MediaConstraintsInterface::Constraint(key, value));
+}
+
+void MediaConstraints::SetMandatory(const std::string &key, const std::string &value) {
+  MediaConstraints::RemoveMandatory(key);
+  MediaConstraints::AddMandatory(key, value);
+}
+
+void MediaConstraints::RemoveOptional(const std::string& key) {
+  std::string value;
+
+  if (_optional.FindFirst(key, &value)) {
+    for (webrtc::MediaConstraintsInterface::Constraints::iterator iter = _optional.begin(); iter != _optional.end(); ++iter) {
+      if (iter->key == key) {
+        _optional.erase(iter);
+        break;
+      }
+    }
+  }
+}
+
+void MediaConstraints::AddOptional(const std::string &key, const std::string &value) {
+  _optional.push_back(webrtc::MediaConstraintsInterface::Constraint(key, value));
+}
+
+void MediaConstraints::SetOptional(const std::string &key, const std::string &value) {
+  MediaConstraints::RemoveOptional(key);
+  MediaConstraints::AddOptional(key, value);
 }
 
 bool MediaConstraints::UseAudio() const {
@@ -263,6 +311,14 @@ std::string MediaConstraints::VideoId() const {
   return _videoId;
 }
 
-const webrtc::FakeConstraints *MediaConstraints::ToConstraints() const {
-  return _conf;
+const webrtc::MediaConstraintsInterface *MediaConstraints::ToConstraints() const {
+  return this;
+}
+
+const webrtc::MediaConstraintsInterface::Constraints &MediaConstraints::GetMandatory() const {
+  return _mandatory;
+}
+
+const webrtc::MediaConstraintsInterface::Constraints &MediaConstraints::GetOptional() const {
+  return _optional;
 }

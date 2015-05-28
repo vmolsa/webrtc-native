@@ -29,9 +29,11 @@
 
 #include <v8.h>
 #include "Observers.h"
+#include "talk/app/webrtc/mediaconstraintsinterface.h"
+#include "webrtc/base/stringencode.h"
 
 namespace WebRTC {
-  class MediaConstraints : public rtc::RefCountInterface {
+  class MediaConstraints : public webrtc::MediaConstraintsInterface, public rtc::RefCountInterface {
     friend class rtc::RefCountedObject<MediaConstraints>;
 
    public:
@@ -45,16 +47,32 @@ namespace WebRTC {
     std::string AudioId() const;
     std::string VideoId() const;
 
-    const webrtc::FakeConstraints *ToConstraints() const;
+    void RemoveMandatory(const std::string& key);
+    void AddMandatory(const std::string &key, const std::string &value);
+    void SetMandatory(const std::string &key, const std::string &value);
+
+    template <class T> void SetMandatory(const std::string& key, const T& value) {
+      SetMandatory(key, rtc::ToString<T>(value));
+    }
+
+    void RemoveOptional(const std::string& key);
+    void AddOptional(const std::string &key, const std::string &value);
+    void SetOptional(const std::string &key, const std::string &value);
+
+    template <class T> void SetOptional(const std::string& key, const T& value) {
+      SetOptional(key, rtc::ToString<T>(value));
+    }
+
+    const webrtc::MediaConstraintsInterface *ToConstraints() const;
+    const webrtc::MediaConstraintsInterface::Constraints &GetMandatory() const final;
+    const webrtc::MediaConstraintsInterface::Constraints &GetOptional() const final;
 
    private:
     explicit MediaConstraints();
     ~MediaConstraints() override;
 
-    void AddOptional(std::string key, v8::Local<v8::Value> value);
-    void AddOptional(std::string key, const char *value);
+    void SetOptional(std::string key, v8::Local<v8::Value> value);
     void SetMandatory(std::string key, v8::Local<v8::Value> value);
-    void SetMandatory(std::string key, const char *value);
 
    protected:
     bool _audio;
@@ -63,7 +81,8 @@ namespace WebRTC {
     std::string _audioId;
     std::string _videoId;
 
-    webrtc::FakeConstraints* _conf;
+    webrtc::MediaConstraintsInterface::Constraints _mandatory;
+    webrtc::MediaConstraintsInterface::Constraints _optional;
   };
 };
 
