@@ -38,6 +38,10 @@ var WebRTC = require('webrtc-native');
 
 - Notify V8 Engine to attempt to free memory.
 
+#### WebRTC.setDebug(boolean)
+
+- Enable / Disable WebRTC log messages
+
 # Build
 
 ````
