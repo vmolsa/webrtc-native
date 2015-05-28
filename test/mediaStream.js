@@ -107,6 +107,8 @@ function P2P(alice, bob) {
   };
 }
 
+WEBRTC.setDebug(true);
+
 var alice = new WEBRTC.RTCPeerConnection(config, constraints);
 var bob = new WEBRTC.RTCPeerConnection(config, constraints);
 
