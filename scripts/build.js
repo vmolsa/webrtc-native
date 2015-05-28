@@ -88,7 +88,7 @@ function sync() {
   }
 
   if (!SYNC) {
-    return checkout();
+    return build();
   }
 
   var res = spawn(GCLIENT, ['sync'], {
