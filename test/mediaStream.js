@@ -158,7 +158,4 @@ function onError(error) {
   throw error;
 }
 
-WEBRTC.getUserMedia({
-  audio: true,
-  video: true,
-}, onSuccess, onError);
+WEBRTC.getUserMedia(constraints, onSuccess, onError);
