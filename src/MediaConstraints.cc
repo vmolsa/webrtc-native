@@ -137,6 +137,7 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(Isolate *isolate, con
             Local<Value> googHighpassFilter = option->Get(String::NewFromUtf8(isolate, "googHighpassFilter"));
             Local<Value> googTypingNoiseDetection = option->Get(String::NewFromUtf8(isolate, "googTypingNoiseDetection"));
             Local<Value> googAudioMirroring = option->Get(String::NewFromUtf8(isolate, "googAudioMirroring"));
+            Local<Value> sourceId = option->Get(String::NewFromUtf8(isolate, "sourceId"));
 
             self->SetOptional(webrtc::MediaConstraintsInterface::kEchoCancellation, googEchoCancellation);
             self->SetOptional(webrtc::MediaConstraintsInterface::kExperimentalEchoCancellation, googEchoCancellation2);
@@ -148,6 +149,11 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(Isolate *isolate, con
             self->SetOptional(webrtc::MediaConstraintsInterface::kHighpassFilter, googHighpassFilter);
             self->SetOptional(webrtc::MediaConstraintsInterface::kTypingNoiseDetection, googTypingNoiseDetection);
             self->SetOptional(webrtc::MediaConstraintsInterface::kAudioMirroring, googAudioMirroring);
+
+            if (!sourceId.IsEmpty() && sourceId->IsString()) {
+              String::Utf8Value sourceId_str(sourceId->ToString());
+              self->_audioId = *sourceId_str;
+            }
           }
         }
       }
@@ -182,6 +188,7 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(Isolate *isolate, con
             Local<Value> minHeight = option->Get(String::NewFromUtf8(isolate, "minHeight"));
             Local<Value> maxFrameRate = option->Get(String::NewFromUtf8(isolate, "maxFrameRate"));
             Local<Value> minFrameRate = option->Get(String::NewFromUtf8(isolate, "minFrameRate"));
+            Local<Value> sourceId = option->Get(String::NewFromUtf8(isolate, "sourceId"));
 
             self->SetOptional(webrtc::MediaConstraintsInterface::kMinAspectRatio, minAspectRatio);
             self->SetOptional(webrtc::MediaConstraintsInterface::kMaxAspectRatio, maxAspectRatio);
@@ -191,6 +198,11 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(Isolate *isolate, con
             self->SetOptional(webrtc::MediaConstraintsInterface::kMinHeight, minHeight);
             self->SetOptional(webrtc::MediaConstraintsInterface::kMaxFrameRate, maxFrameRate);
             self->SetOptional(webrtc::MediaConstraintsInterface::kMinFrameRate, minFrameRate);
+
+            if (!sourceId.IsEmpty() && sourceId->IsString()) {
+              String::Utf8Value sourceId_str(sourceId->ToString());
+              self->_videoId = *sourceId_str;
+            }
           }
         }
       }
