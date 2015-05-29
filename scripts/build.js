@@ -65,7 +65,7 @@ function build() {
 }
 
 function checkout() {
-  sh('git checkout remotes/branch-heads/43', {
+  sh('git checkout branch-heads/44', {
     cwd: WEBRTC_SRC,
     env: process.env,
     stdio: 'inherit',
