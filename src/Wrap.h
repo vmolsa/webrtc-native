@@ -36,7 +36,7 @@ namespace WebRTC {
     virtual ~RTCWrap();
     
     inline void Wrap(v8::Isolate *isolate, v8::Local<v8::Object> obj, const char *className = "RTCWrap") {
-      LOG(LS_INFO) << __FUNCTION__;
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;
       
       if (obj.IsEmpty()) {
         _obj.ClearWeak();
@@ -59,13 +59,13 @@ namespace WebRTC {
     }
     
     template<class T> inline T* Unwrap() {
-      LOG(LS_INFO) << __FUNCTION__;
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;
       
       return static_cast<T*>(this);
     }
     
     template<class T> inline static T* Unwrap(v8::Isolate *isolate, v8::Local<v8::Object> obj, const char *className = "RTCWrap") {
-      LOG(LS_INFO) << __FUNCTION__;
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;
       
       if (!obj.IsEmpty()) {
         v8::Local<v8::Value> ptr = obj->GetHiddenValue(v8::String::NewFromUtf8(isolate, className));
@@ -82,7 +82,7 @@ namespace WebRTC {
 
    private:   
     static void onDispose(const v8::WeakCallbackData<v8::Object, RTCWrap> &info) {
-      LOG(LS_INFO) << __FUNCTION__;
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;
       
       v8::Isolate *isolate = info.GetIsolate();
       v8::HandleScope scope(isolate);

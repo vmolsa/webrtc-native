@@ -39,6 +39,8 @@
 using namespace v8;
 
 void SetDebug(const FunctionCallbackInfo<Value>& args) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   if (args.Length() && !args[0].IsEmpty()) {
     if (args[0]->IsTrue()) {
       rtc::LogMessage::LogToDebug(rtc::LS_VERBOSE);
@@ -49,11 +51,15 @@ void SetDebug(const FunctionCallbackInfo<Value>& args) {
 }
 
 void RTCGarbageCollect(const FunctionCallbackInfo<Value>& args) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   Isolate* isolate = args.GetIsolate();
   isolate->LowMemoryNotification();
 }
 
 void RTCIceCandidate(const FunctionCallbackInfo<Value>& args) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   Isolate* isolate = args.GetIsolate();
   HandleScope scope(isolate);
   
@@ -77,6 +83,8 @@ void RTCIceCandidate(const FunctionCallbackInfo<Value>& args) {
 }
 
 void RTCSessionDescription(const FunctionCallbackInfo<Value>& args) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   Isolate* isolate = args.GetIsolate();
   HandleScope scope(isolate);
   
@@ -97,10 +105,14 @@ void RTCSessionDescription(const FunctionCallbackInfo<Value>& args) {
 }
 
 void WebrtcModuleDispose(void *arg) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   WebRTC::Core::Dispose();
 }
 
 void WebrtcModuleInit(Handle<Object> exports) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   Isolate* isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
   

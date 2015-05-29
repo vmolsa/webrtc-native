@@ -35,7 +35,7 @@ using namespace v8;
 using namespace WebRTC;
 
 void PeerConnection::Init(Handle<Object> exports) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate* isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
@@ -132,7 +132,7 @@ Persistent<Function> PeerConnection::constructor;
 PeerConnection::PeerConnection(const Local<Object> &configuration,
                                const Local<Object> &constraints)
 { 
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = Isolate::GetCurrent();
     
@@ -190,7 +190,7 @@ PeerConnection::PeerConnection(const Local<Object> &configuration,
 }
 
 PeerConnection::~PeerConnection() {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   if (_socket.get()) {
     webrtc::PeerConnectionInterface::SignalingState state(_socket->signaling_state());
@@ -204,7 +204,7 @@ PeerConnection::~PeerConnection() {
 }
 
 webrtc::PeerConnectionInterface *PeerConnection::GetSocket() {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   if (!_socket.get()) {
     webrtc::PeerConnectionFactoryInterface *factory = Core::GetFactory();
@@ -219,7 +219,7 @@ webrtc::PeerConnectionInterface *PeerConnection::GetSocket() {
 }
 
 void PeerConnection::New(const FunctionCallbackInfo<Value>& args) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate* isolate = args.GetIsolate();
   HandleScope scope(isolate);
@@ -252,7 +252,7 @@ void PeerConnection::New(const FunctionCallbackInfo<Value>& args) {
 }
 
 void PeerConnection::CreateOffer(const FunctionCallbackInfo<Value> &args) { 
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = args.GetIsolate();
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, args.This());
@@ -278,7 +278,7 @@ void PeerConnection::CreateOffer(const FunctionCallbackInfo<Value> &args) {
 }
 
 void PeerConnection::CreateAnswer(const FunctionCallbackInfo<Value> &args) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = args.GetIsolate();
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, args.This());
@@ -304,7 +304,7 @@ void PeerConnection::CreateAnswer(const FunctionCallbackInfo<Value> &args) {
 }
 
 void PeerConnection::SetLocalDescription(const FunctionCallbackInfo<Value> &args) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = args.GetIsolate();
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, args.This());
@@ -363,7 +363,7 @@ void PeerConnection::SetLocalDescription(const FunctionCallbackInfo<Value> &args
 }
 
 void PeerConnection::SetRemoteDescription(const FunctionCallbackInfo<Value> &args) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = args.GetIsolate();
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, args.This());
@@ -422,7 +422,7 @@ void PeerConnection::SetRemoteDescription(const FunctionCallbackInfo<Value> &arg
 }
 
 void PeerConnection::AddIceCandidate(const FunctionCallbackInfo<Value> &args) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = args.GetIsolate();
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, args.This());
@@ -484,7 +484,7 @@ void PeerConnection::AddIceCandidate(const FunctionCallbackInfo<Value> &args) {
 }
 
 void PeerConnection::CreateDataChannel(const FunctionCallbackInfo<Value>& args) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = args.GetIsolate();
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, args.This());
@@ -557,7 +557,7 @@ void PeerConnection::CreateDataChannel(const FunctionCallbackInfo<Value>& args) 
 }
 
 void PeerConnection::AddStream(const v8::FunctionCallbackInfo<v8::Value>& args) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = args.GetIsolate();
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, args.This());
@@ -579,7 +579,7 @@ void PeerConnection::AddStream(const v8::FunctionCallbackInfo<v8::Value>& args) 
 }
 
 void PeerConnection::RemoveStream(const v8::FunctionCallbackInfo<v8::Value>& args) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = args.GetIsolate();
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, args.This());
@@ -599,7 +599,7 @@ void PeerConnection::RemoveStream(const v8::FunctionCallbackInfo<v8::Value>& arg
 }
 
 void PeerConnection::GetLocalStreams(const v8::FunctionCallbackInfo<v8::Value>& args) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = args.GetIsolate();
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, args.This());
@@ -625,7 +625,7 @@ void PeerConnection::GetLocalStreams(const v8::FunctionCallbackInfo<v8::Value>& 
 }
 
 void PeerConnection::GetRemoteStreams(const v8::FunctionCallbackInfo<v8::Value>& args) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = args.GetIsolate();
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, args.This());
@@ -651,7 +651,7 @@ void PeerConnection::GetRemoteStreams(const v8::FunctionCallbackInfo<v8::Value>&
 }
 
 void PeerConnection::GetStreamById(const v8::FunctionCallbackInfo<v8::Value>& args) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = args.GetIsolate();
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, args.This());
@@ -688,7 +688,7 @@ void PeerConnection::GetStreamById(const v8::FunctionCallbackInfo<v8::Value>& ar
 }
 
 void PeerConnection::Close(const FunctionCallbackInfo<Value>& args) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = args.GetIsolate();
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, args.This()); 
@@ -704,7 +704,7 @@ void PeerConnection::Close(const FunctionCallbackInfo<Value>& args) {
 void PeerConnection::GetSignalingState(Local<String> property, 
                                        const PropertyCallbackInfo<Value> &info)
 {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = info.GetIsolate();
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, info.Holder());
@@ -741,7 +741,7 @@ void PeerConnection::GetSignalingState(Local<String> property,
 void PeerConnection::GetIceConnectionState(Local<String> property, 
                                            const PropertyCallbackInfo<Value> &info)
 {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = info.GetIsolate();
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, info.Holder());
@@ -781,7 +781,7 @@ void PeerConnection::GetIceConnectionState(Local<String> property,
 void PeerConnection::GetIceGatheringState(Local<String> property, 
                                           const PropertyCallbackInfo<Value> &info)
 {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = info.GetIsolate();
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, info.Holder());
@@ -809,7 +809,7 @@ void PeerConnection::GetIceGatheringState(Local<String> property,
 void PeerConnection::GetOnSignalingStateChange(Local<String> property, 
                                                const PropertyCallbackInfo<Value> &info)
 {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = info.GetIsolate();
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, info.Holder());
@@ -819,7 +819,7 @@ void PeerConnection::GetOnSignalingStateChange(Local<String> property,
 void PeerConnection::GetOnIceCandidate(Local<String> property, 
                                        const PropertyCallbackInfo<Value> &info)
 {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = info.GetIsolate();
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, info.Holder());
@@ -829,7 +829,7 @@ void PeerConnection::GetOnIceCandidate(Local<String> property,
 void PeerConnection::GetLocalDescription(Local<String> property, 
                                          const PropertyCallbackInfo<Value> &info)
 {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = info.GetIsolate();
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, info.Holder());
@@ -839,7 +839,7 @@ void PeerConnection::GetLocalDescription(Local<String> property,
 void PeerConnection::GetRemoteDescription(Local<String> property, 
                                           const PropertyCallbackInfo<Value> &info)
 {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = info.GetIsolate();
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, info.Holder());
@@ -849,7 +849,7 @@ void PeerConnection::GetRemoteDescription(Local<String> property,
 void PeerConnection::GetOnDataChannel(Local<String> property, 
                                       const PropertyCallbackInfo<Value> &info)
 {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = info.GetIsolate();
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, info.Holder());
@@ -859,7 +859,7 @@ void PeerConnection::GetOnDataChannel(Local<String> property,
 void PeerConnection::GetOnNegotiationNeeded(Local<String> property, 
                                             const PropertyCallbackInfo<Value> &info)
 {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = info.GetIsolate();
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, info.Holder());
@@ -869,7 +869,7 @@ void PeerConnection::GetOnNegotiationNeeded(Local<String> property,
 void PeerConnection::GetOnAddStream(Local<String> property, 
                                     const PropertyCallbackInfo<Value> &info)
 {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = info.GetIsolate();
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, info.Holder());
@@ -879,7 +879,7 @@ void PeerConnection::GetOnAddStream(Local<String> property,
 void PeerConnection::GetOnRemoveStream(Local<String> property,
                                        const PropertyCallbackInfo<Value> &info)
 {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = info.GetIsolate();
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, info.Holder());
@@ -890,7 +890,7 @@ void PeerConnection::ReadOnly(Local<String> property,
                               Local<Value> value, 
                               const PropertyCallbackInfo<void> &info) 
 {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   //Isolate *isolate = info.GetIsolate();
   //PeerConnection *self = node::ObjectWrap::Unwrap<PeerConnection>(info.Holder());
 }
@@ -899,7 +899,7 @@ void PeerConnection::SetOnSignalingStateChange(Local<String> property,
                                                Local<Value> value, 
                                                const PropertyCallbackInfo<void> &info) 
 {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = info.GetIsolate();
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, info.Holder());
@@ -915,7 +915,7 @@ void PeerConnection::SetOnIceCandidate(Local<String> property,
                                        Local<Value> value, 
                                        const PropertyCallbackInfo<void> &info) 
 {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = info.GetIsolate();
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, info.Holder());
@@ -931,7 +931,7 @@ void PeerConnection::SetOnDataChannel(Local<String> property,
                                       Local<Value> value, 
                                       const PropertyCallbackInfo<void> &info) 
 {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = info.GetIsolate();
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, info.Holder());
@@ -947,7 +947,7 @@ void PeerConnection::SetOnNegotiationNeeded(Local<String> property,
                                             Local<Value> value, 
                                             const PropertyCallbackInfo<void> &info) 
 {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = info.GetIsolate();
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, info.Holder());
@@ -963,7 +963,7 @@ void PeerConnection::SetOnAddStream(Local<String> property,
                                     Local<Value> value, 
                                     const PropertyCallbackInfo<void> &info) 
 {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = info.GetIsolate();
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, info.Holder());
@@ -979,7 +979,7 @@ void PeerConnection::SetOnRemoveStream(Local<String> property,
                                        Local<Value> value,
                                        const PropertyCallbackInfo<void> &info)
 {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = info.GetIsolate();
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, info.Holder());
@@ -993,7 +993,7 @@ void PeerConnection::SetOnRemoveStream(Local<String> property,
 }
 
 void PeerConnection::On(Event *event) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = Isolate::GetCurrent();
   PeerConnectionEvent type = event->Type<PeerConnectionEvent>();

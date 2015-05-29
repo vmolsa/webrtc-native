@@ -34,7 +34,7 @@ using namespace v8;
 using namespace WebRTC;
 
 void GetUserMedia::Init(v8::Handle<v8::Object> exports) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate* isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
@@ -43,7 +43,7 @@ void GetUserMedia::Init(v8::Handle<v8::Object> exports) {
 }
 
 void GetUserMedia::GetMediaStream(const FunctionCallbackInfo<Value> &args) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   rtc::scoped_refptr<webrtc::MediaStreamInterface> stream;
   Isolate* isolate = args.GetIsolate();

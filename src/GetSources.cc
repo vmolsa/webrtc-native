@@ -30,7 +30,7 @@ using namespace v8;
 using namespace WebRTC;
 
 void GetSources::Init(Handle<Object> exports) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate* isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
@@ -39,7 +39,7 @@ void GetSources::Init(Handle<Object> exports) {
 }
 
 rtc::scoped_refptr<webrtc::AudioTrackInterface> GetSources::GetAudioSource(const rtc::scoped_refptr<MediaConstraints> &constraints) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   webrtc::PeerConnectionFactoryInterface *factory = Core::GetFactory();
   rtc::scoped_refptr<webrtc::AudioTrackInterface> track;
@@ -53,13 +53,14 @@ rtc::scoped_refptr<webrtc::AudioTrackInterface> GetSources::GetAudioSource(const
 }
 
 rtc::scoped_refptr<webrtc::AudioTrackInterface> GetSources::GetAudioSource(const std::string id, const rtc::scoped_refptr<MediaConstraints> &constraints) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   // TODO(): CreateAudioSource(cricket::AudioCapturer*, MediaConstraintsInterface) Missing?
   return GetSources::GetAudioSource(constraints);
 }
 
 rtc::scoped_refptr<webrtc::VideoTrackInterface> GetSources::GetVideoSource(const rtc::scoped_refptr<MediaConstraints> &constraints) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   cricket::DeviceManagerInterface *manager = Core::GetManager();
   rtc::scoped_refptr<webrtc::VideoTrackInterface> track;
@@ -90,7 +91,7 @@ rtc::scoped_refptr<webrtc::VideoTrackInterface> GetSources::GetVideoSource(const
 }
 
 rtc::scoped_refptr<webrtc::VideoTrackInterface> GetSources::GetVideoSource(const std::string id, const rtc::scoped_refptr<MediaConstraints> &constraints) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   cricket::DeviceManagerInterface *manager = Core::GetManager();
   rtc::scoped_refptr<webrtc::VideoTrackInterface> track;
@@ -117,7 +118,7 @@ rtc::scoped_refptr<webrtc::VideoTrackInterface> GetSources::GetVideoSource(const
 }
 
 Local<Value> GetSources::GetDevices(Isolate *isolate) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   EscapableHandleScope scope(isolate);
   Local<Array> list = Array::New(isolate);
@@ -166,7 +167,7 @@ Local<Value> GetSources::GetDevices(Isolate *isolate) {
 }
 
 void GetSources::GetDevices(const FunctionCallbackInfo<Value>& args) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = args.GetIsolate();
   HandleScope scope(isolate);

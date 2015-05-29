@@ -32,7 +32,7 @@ using namespace WebRTC;
 Persistent<Function> MediaStream::constructor;
 
 void MediaStream::Init() {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate* isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
@@ -83,7 +83,7 @@ void MediaStream::Init() {
 }
 
 Local<Value> MediaStream::New(Isolate *isolate, rtc::scoped_refptr<webrtc::MediaStreamInterface> mediaStream) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   EscapableHandleScope scope(isolate);
 
@@ -109,13 +109,14 @@ Local<Value> MediaStream::New(Isolate *isolate, rtc::scoped_refptr<webrtc::Media
 MediaStream::MediaStream() :
   _ended(true)
 {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   _observer = new rtc::RefCountedObject<MediaStreamObserver>(this);
   EventEmitter::Start(true);
 }
 
 MediaStream::~MediaStream() {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   if (_stream.get()) {
     _stream->UnregisterObserver(_observer.get());
@@ -125,7 +126,7 @@ MediaStream::~MediaStream() {
 }
 
 void MediaStream::New(const FunctionCallbackInfo<Value>& args) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate* isolate = args.GetIsolate();
   HandleScope scope(isolate);
@@ -140,7 +141,7 @@ void MediaStream::New(const FunctionCallbackInfo<Value>& args) {
 }
 
 rtc::scoped_refptr<webrtc::MediaStreamInterface> MediaStream::Unwrap(Isolate *isolate, Local<Object> value) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   if (!value.IsEmpty()) {
     MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, value, "MediaStream");
@@ -154,7 +155,7 @@ rtc::scoped_refptr<webrtc::MediaStreamInterface> MediaStream::Unwrap(Isolate *is
 }
 
 rtc::scoped_refptr<webrtc::MediaStreamInterface> MediaStream::Unwrap(Isolate *isolate, Local<Value> value) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   if (!value.IsEmpty() && value->IsObject()) {
     Local<Object> stream = Local<Object>::Cast(value);
@@ -165,7 +166,7 @@ rtc::scoped_refptr<webrtc::MediaStreamInterface> MediaStream::Unwrap(Isolate *is
 }
 
 void MediaStream::AddTrack(const FunctionCallbackInfo<Value>& args) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = args.GetIsolate();
   //MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, args.This(), "MediaStream");
@@ -198,7 +199,7 @@ void MediaStream::AddTrack(const FunctionCallbackInfo<Value>& args) {
 }
 
 void MediaStream::RemoveTrack(const FunctionCallbackInfo<Value>& args) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = args.GetIsolate();
   rtc::scoped_refptr<webrtc::MediaStreamInterface> stream = MediaStream::Unwrap(isolate, args.This());
@@ -228,7 +229,7 @@ void MediaStream::RemoveTrack(const FunctionCallbackInfo<Value>& args) {
 }
 
 void MediaStream::Clone(const FunctionCallbackInfo<Value>& args) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = args.GetIsolate();
   rtc::scoped_refptr<webrtc::MediaStreamInterface> self = MediaStream::Unwrap(isolate, args.This());
@@ -269,7 +270,7 @@ void MediaStream::Clone(const FunctionCallbackInfo<Value>& args) {
 }
 
 void MediaStream::GetTrackById(const FunctionCallbackInfo<Value>& args) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = args.GetIsolate();
   rtc::scoped_refptr<webrtc::MediaStreamInterface> stream = MediaStream::Unwrap(isolate, args.This());
@@ -300,7 +301,7 @@ void MediaStream::GetTrackById(const FunctionCallbackInfo<Value>& args) {
 }
 
 void MediaStream::GetAudioTracks(const FunctionCallbackInfo<Value>& args) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = args.GetIsolate();
   rtc::scoped_refptr<webrtc::MediaStreamInterface> self = MediaStream::Unwrap(isolate, args.This());
@@ -327,7 +328,7 @@ void MediaStream::GetAudioTracks(const FunctionCallbackInfo<Value>& args) {
 }
 
 void MediaStream::GetVideoTracks(const FunctionCallbackInfo<Value>& args) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = args.GetIsolate();
   rtc::scoped_refptr<webrtc::MediaStreamInterface> self = MediaStream::Unwrap(isolate, args.This());
@@ -356,7 +357,7 @@ void MediaStream::GetVideoTracks(const FunctionCallbackInfo<Value>& args) {
 void MediaStream::GetEnded(Local<String> property,
                            const PropertyCallbackInfo<Value> &info)
 {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = info.GetIsolate();
   MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, info.Holder(), "MediaStream");
@@ -366,7 +367,7 @@ void MediaStream::GetEnded(Local<String> property,
 void MediaStream::GetId(Local<String> property,
                         const PropertyCallbackInfo<Value> &info)
 {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = info.GetIsolate();
   rtc::scoped_refptr<webrtc::MediaStreamInterface> stream = MediaStream::Unwrap(isolate, info.Holder());
@@ -382,7 +383,7 @@ void MediaStream::GetId(Local<String> property,
 void MediaStream::GetOnAddTrack(Local<String> property,
                                 const PropertyCallbackInfo<Value> &info)
 {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = info.GetIsolate();
   MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, info.Holder(), "MediaStream");
@@ -392,7 +393,7 @@ void MediaStream::GetOnAddTrack(Local<String> property,
 void MediaStream::GetOnRemoveTrack(Local<String> property,
                                    const PropertyCallbackInfo<Value> &info)
 {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = info.GetIsolate();
   MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, info.Holder(), "MediaStream");
@@ -402,7 +403,7 @@ void MediaStream::GetOnRemoveTrack(Local<String> property,
 void MediaStream::GetOnEnded(Local<String> property,
                              const PropertyCallbackInfo<Value> &info)
 {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = info.GetIsolate();
   MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, info.Holder(), "MediaStream");
@@ -413,14 +414,14 @@ void MediaStream::ReadOnly(Local<String> property,
                            Local<Value> value,
                            const PropertyCallbackInfo<void> &info)
 {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
 }
 
 void MediaStream::SetOnAddTrack(Local<String> property,
                                 Local<Value> value,
                                 const PropertyCallbackInfo<void> &info)
 {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = info.GetIsolate();
   MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, info.Holder(), "MediaStream");
@@ -436,7 +437,7 @@ void MediaStream::SetOnRemoveTrack(Local<String> property,
                                    Local<Value> value,
                                    const PropertyCallbackInfo<void> &info)
 {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = info.GetIsolate();
   MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, info.Holder(), "MediaStream");
@@ -452,7 +453,7 @@ void MediaStream::SetOnEnded(Local<String> property,
                              Local<Value> value,
                              const PropertyCallbackInfo<void> &info)
 {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = info.GetIsolate();
   MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, info.Holder(), "MediaStream");
@@ -465,7 +466,7 @@ void MediaStream::SetOnEnded(Local<String> property,
 }
 
 void MediaStream::On(Event *event) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Isolate *isolate = Isolate::GetCurrent();
   MediaStreamEvent type = event->Type<MediaStreamEvent>();

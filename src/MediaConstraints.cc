@@ -32,21 +32,21 @@ MediaConstraints::MediaConstraints() :
   _audio(false),
   _video(false)
 {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
 }
 
 MediaConstraints::~MediaConstraints() {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
 }
 
 rtc::scoped_refptr<MediaConstraints> MediaConstraints::New() {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   return new rtc::RefCountedObject<MediaConstraints>();
 }
 
 rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(Isolate *isolate, const Local<Object> &constraints) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   rtc::scoped_refptr<MediaConstraints> self = MediaConstraints::New();
 
@@ -224,7 +224,7 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(Isolate *isolate, con
 }
 
 rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(Isolate *isolate, const Local<Value> &constraints) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   if (!constraints.IsEmpty() && constraints->IsObject()) {
     Local<Object> obj = Local<Object>::Cast(constraints);
@@ -236,7 +236,7 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(Isolate *isolate, con
 
 
 void MediaConstraints::SetOptional(std::string key, Local<Value> value) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   if (!value.IsEmpty() && !value->IsNull() && !value->IsUndefined()) {
     if (value->IsTrue() || value->IsFalse()) {
@@ -257,7 +257,7 @@ void MediaConstraints::SetOptional(std::string key, Local<Value> value) {
 }
 
 void MediaConstraints::SetMandatory(std::string key, Local<Value> value) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   if (!value.IsEmpty() && !value->IsNull() && !value->IsUndefined()) {
     if (value->IsTrue() || value->IsFalse()) {
@@ -278,7 +278,7 @@ void MediaConstraints::SetMandatory(std::string key, Local<Value> value) {
 }
 
 bool MediaConstraints::IsMandatory(const std::string& key) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   std::string value;
 
@@ -290,7 +290,7 @@ bool MediaConstraints::IsMandatory(const std::string& key) {
 }
 
 bool MediaConstraints::GetMandatory(const std::string& key) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   std::string value;
 
@@ -304,7 +304,7 @@ bool MediaConstraints::GetMandatory(const std::string& key) {
 }
 
 void MediaConstraints::RemoveMandatory(const std::string& key) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   std::string value;
 
@@ -319,20 +319,20 @@ void MediaConstraints::RemoveMandatory(const std::string& key) {
 }
 
 void MediaConstraints::AddMandatory(const std::string &key, const std::string &value) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   _mandatory.push_back(webrtc::MediaConstraintsInterface::Constraint(key, value));
 }
 
 void MediaConstraints::SetMandatory(const std::string &key, const std::string &value) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   MediaConstraints::RemoveMandatory(key);
   MediaConstraints::AddMandatory(key, value);
 }
 
 bool MediaConstraints::IsOptional(const std::string& key) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   std::string value;
 
@@ -344,7 +344,7 @@ bool MediaConstraints::IsOptional(const std::string& key) {
 }
 
 bool MediaConstraints::GetOptional(const std::string& key) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   std::string value;
 
@@ -358,7 +358,7 @@ bool MediaConstraints::GetOptional(const std::string& key) {
 }
 
 void MediaConstraints::RemoveOptional(const std::string& key) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   std::string value;
 
@@ -373,56 +373,56 @@ void MediaConstraints::RemoveOptional(const std::string& key) {
 }
 
 void MediaConstraints::AddOptional(const std::string &key, const std::string &value) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   _optional.push_back(webrtc::MediaConstraintsInterface::Constraint(key, value));
 }
 
 void MediaConstraints::SetOptional(const std::string &key, const std::string &value) {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   MediaConstraints::RemoveOptional(key);
   MediaConstraints::AddOptional(key, value);
 }
 
 bool MediaConstraints::UseAudio() const {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   return _audio;
 }
 
 bool MediaConstraints::UseVideo() const {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   return _video;
 }
 
 std::string MediaConstraints::AudioId() const {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   return _audioId;
 }
 
 std::string MediaConstraints::VideoId() const {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   return _videoId;
 }
 
 const webrtc::MediaConstraintsInterface *MediaConstraints::ToConstraints() const {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   return this;
 }
 
 const webrtc::MediaConstraintsInterface::Constraints &MediaConstraints::GetMandatory() const {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   return _mandatory;
 }
 
 const webrtc::MediaConstraintsInterface::Constraints &MediaConstraints::GetOptional() const {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   return _optional;
 }

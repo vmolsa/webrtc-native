@@ -39,14 +39,14 @@ rtc::scoped_ptr<cricket::DeviceManagerInterface> _manager;
 class ProcessMessages : public rtc::Runnable {
  public:
   virtual void Run(rtc::Thread* thread) {
-    LOG(LS_INFO) << __FUNCTION__;
+    LOG(LS_INFO) << __PRETTY_FUNCTION__;
     
     thread->ProcessMessages(rtc::ThreadManager::kForever);
   }
 };
 
 void Core::Init() {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   ProcessMessages task;
   
@@ -70,7 +70,7 @@ void Core::Init() {
 }
 
 void Core::Dispose() {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   _factory.release();
 
@@ -88,25 +88,25 @@ void Core::Dispose() {
 }
 
 webrtc::PeerConnectionFactoryInterface* Core::GetFactory() {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   return _factory.get();
 }
 
 cricket::DeviceManagerInterface* Core::GetManager() {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   return _manager.get();
 }
 
 rtc::Thread *Core::GetWorker() {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   return _worker;
 }
 
 rtc::Thread *Core::GetSignal() {
-  LOG(LS_INFO) << __FUNCTION__;
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   return _signal;
 }

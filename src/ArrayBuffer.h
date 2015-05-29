@@ -41,7 +41,7 @@ namespace node {
     
    public:
     inline static ArrayBuffer* New(v8::Isolate *isolate = 0, void *ptr = 0, size_t length = 0, bool release = false) {
-      LOG(LS_INFO) << __FUNCTION__;
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;
       
       ArrayBuffer *data = new ArrayBuffer(isolate);
       v8::Local<v8::ArrayBuffer> arrayBuffer = v8::ArrayBuffer::New(data->_isolate, ptr, length);
@@ -60,7 +60,7 @@ namespace node {
     }
     
     inline static ArrayBuffer* New(v8::Isolate *isolate, const char *ptr, int length = -1, bool release = false) {
-      LOG(LS_INFO) << __FUNCTION__;
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;
       
       const void *data = ptr;
       
@@ -72,7 +72,7 @@ namespace node {
     }
     
     inline static ArrayBuffer* New(v8::Isolate *isolate, const v8::Local<v8::ArrayBuffer> &arrayBuffer) {
-      LOG(LS_INFO) << __FUNCTION__;
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;
       
       if (arrayBuffer.IsEmpty()) {
         return ArrayBuffer::New(isolate);
@@ -110,14 +110,14 @@ namespace node {
     
     template<class T>
     inline static ArrayBuffer* New(v8::Isolate *isolate, const T &content) {
-      LOG(LS_INFO) << __FUNCTION__;
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;
       
       return ArrayBuffer::New(isolate, content, content.data(), content.size());
     }
     
     template<class T>
     inline static ArrayBuffer* New(v8::Isolate *isolate, const T &content, void *ptr, size_t length = 0) {
-      LOG(LS_INFO) << __FUNCTION__;
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;
       
       ArrayBufferWrapper<T> *ret = new ArrayBufferWrapper<T>(isolate, content, ptr, length);
       return static_cast<ArrayBuffer*>(ret);
@@ -125,7 +125,7 @@ namespace node {
 
     template<class T> 
     inline static ArrayBuffer* New(v8::Isolate *isolate, const T &content, const char *ptr, int length = -1) { 
-      LOG(LS_INFO) << __FUNCTION__;
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;
       
       const void *data = ptr;
 
@@ -138,7 +138,7 @@ namespace node {
     }
     
     inline static ArrayBuffer* New(v8::Isolate *isolate, const v8::Local<v8::Value> &arg) {
-      LOG(LS_INFO) << __FUNCTION__;
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;
       
       if (!arg.IsEmpty()) {            
         if (arg->IsArrayBuffer() || arg->IsTypedArray()) {
@@ -177,14 +177,14 @@ namespace node {
     }
      
     inline v8::Local<v8::ArrayBuffer> ToArrayBuffer() const {
-      LOG(LS_INFO) << __FUNCTION__;
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;
       
       v8::EscapableHandleScope scope(_isolate);
       return scope.Escape(v8::Local<v8::ArrayBuffer>::New(_isolate, _arrayBuffer));
     }
     
     v8::Local<v8::String> ToString() const {
-      LOG(LS_INFO) << __FUNCTION__;
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;
       
       v8::EscapableHandleScope scope(_isolate);
       v8::Local<v8::String> retval = v8::String::NewFromUtf8(_isolate, 
@@ -195,31 +195,31 @@ namespace node {
     }
     
     const char *ToUtf8() const {
-      LOG(LS_INFO) << __FUNCTION__;
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;
       
       return reinterpret_cast<const char*>(_data);
     }
     
     void *Data() const {
-      LOG(LS_INFO) << __FUNCTION__;
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;
       
       return _data;
     }
     
     size_t Length() const {
-      LOG(LS_INFO) << __FUNCTION__;
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;
       
       return _len;
     }
     
     size_t ByteLength() const {
-      LOG(LS_INFO) << __FUNCTION__;
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;
       
       return _len;
     }
     
     template<class T> const T &Unwrap() const {
-      LOG(LS_INFO) << __FUNCTION__;
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;
       
       static T nowrap;
       
@@ -237,7 +237,7 @@ namespace node {
     virtual ~ArrayBuffer();
     
     static void onDispose(const v8::WeakCallbackData<v8::ArrayBuffer, ArrayBuffer> &info) {
-      LOG(LS_INFO) << __FUNCTION__;
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;
       
       v8::Isolate *isolate = info.GetIsolate();
       v8::HandleScope scope(isolate);
@@ -271,7 +271,7 @@ namespace node {
       ArrayBuffer(isolate),
       _content(content)
     {
-      LOG(LS_INFO) << __FUNCTION__;
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;
       
       v8::Local<v8::ArrayBuffer> arrayBuffer = v8::ArrayBuffer::New(_isolate, ptr, length);
 
@@ -287,7 +287,7 @@ namespace node {
     }
 
     virtual ~ArrayBufferWrapper() {
-      LOG(LS_INFO) << __FUNCTION__;
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;
     }
 
    protected:
