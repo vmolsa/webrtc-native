@@ -150,7 +150,7 @@ function fetch(rerun) {
       fs.mkdirSync(WEBRTC);
     }
 
-    var res = spawn(FETCH, ['webrtc'], {
+    var res = spawn(FETCH, ['--nohooks', 'webrtc'], {
       cwd: WEBRTC,
       env: process.env,
       stdio: 'inherit',
