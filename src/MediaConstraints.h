@@ -47,6 +47,8 @@ namespace WebRTC {
     std::string AudioId() const;
     std::string VideoId() const;
 
+    bool IsMandatory(const std::string& key);
+    bool GetMandatory(const std::string& key);
     void RemoveMandatory(const std::string& key);
     void AddMandatory(const std::string &key, const std::string &value);
     void SetMandatory(const std::string &key, const std::string &value);
@@ -55,6 +57,8 @@ namespace WebRTC {
       SetMandatory(key, rtc::ToString<T>(value));
     }
 
+    bool IsOptional(const std::string& key);
+    bool GetOptional(const std::string& key);
     void RemoveOptional(const std::string& key);
     void AddOptional(const std::string &key, const std::string &value);
     void SetOptional(const std::string &key, const std::string &value);

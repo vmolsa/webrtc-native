@@ -172,6 +172,12 @@ PeerConnection::PeerConnection(const Local<Object> &configuration,
 
   _constraints = MediaConstraints::New(isolate, constraints);
 
+  if (!_constraints->GetOptional("RtpDataChannels")) {
+    if (!_constraints->IsOptional("DtlsSrtpKeyAgreement")) {
+      _constraints->SetOptional("DtlsSrtpKeyAgreement", "true");
+    }
+  }
+
   _offer = new rtc::RefCountedObject<OfferObserver>(this);
   _answer = new rtc::RefCountedObject<AnswerObserver>(this);
   _local = new rtc::RefCountedObject<LocalDescriptionObserver>(this);

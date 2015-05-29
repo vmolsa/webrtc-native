@@ -251,6 +251,28 @@ void MediaConstraints::SetMandatory(std::string key, Local<Value> value) {
   }
 }
 
+bool MediaConstraints::IsMandatory(const std::string& key) {
+  std::string value;
+
+  if (_mandatory.FindFirst(key, &value)) {
+    return true;
+  }
+
+  return false;
+}
+
+bool MediaConstraints::GetMandatory(const std::string& key) {
+  std::string value;
+
+  if (_mandatory.FindFirst(key, &value)) {
+    if (!value.compare("true")) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 void MediaConstraints::RemoveMandatory(const std::string& key) {
   std::string value;
 
@@ -271,6 +293,28 @@ void MediaConstraints::AddMandatory(const std::string &key, const std::string &v
 void MediaConstraints::SetMandatory(const std::string &key, const std::string &value) {
   MediaConstraints::RemoveMandatory(key);
   MediaConstraints::AddMandatory(key, value);
+}
+
+bool MediaConstraints::IsOptional(const std::string& key) {
+  std::string value;
+
+  if (_mandatory.FindFirst(key, &value)) {
+    return true;
+  }
+
+  return false;
+}
+
+bool MediaConstraints::GetOptional(const std::string& key) {
+  std::string value;
+
+  if (_optional.FindFirst(key, &value)) {
+    if (!value.compare("true")) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 void MediaConstraints::RemoveOptional(const std::string& key) {
