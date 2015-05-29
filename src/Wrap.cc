@@ -28,9 +28,9 @@
 using namespace WebRTC;
 
 RTCWrap::RTCWrap() {
-
+  LOG(LS_INFO) << __FUNCTION__;
 }
 
 RTCWrap::~RTCWrap() {
-
+  LOG(LS_INFO) << __FUNCTION__;
 }

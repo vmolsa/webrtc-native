@@ -23,6 +23,7 @@
 *
 */
 
+#include "Core.h"
 #include "GetUserMedia.h"
 #include "GetSources.h"
 #include "MediaStream.h"
@@ -33,6 +34,8 @@ using namespace v8;
 using namespace WebRTC;
 
 void GetUserMedia::Init(v8::Handle<v8::Object> exports) {
+  LOG(LS_INFO) << __FUNCTION__;
+  
   Isolate* isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
 
@@ -40,6 +43,8 @@ void GetUserMedia::Init(v8::Handle<v8::Object> exports) {
 }
 
 void GetUserMedia::GetMediaStream(const FunctionCallbackInfo<Value> &args) {
+  LOG(LS_INFO) << __FUNCTION__;
+  
   rtc::scoped_refptr<webrtc::MediaStreamInterface> stream;
   Isolate* isolate = args.GetIsolate();
   HandleScope scope(isolate);
@@ -51,9 +56,9 @@ void GetUserMedia::GetMediaStream(const FunctionCallbackInfo<Value> &args) {
   std::string videoId = constraints->VideoId();
 
   if (constraints->UseAudio() || constraints->UseVideo()) {
-    rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory = webrtc::CreatePeerConnectionFactory();
+    webrtc::PeerConnectionFactoryInterface *factory = Core::GetFactory();
 
-    if (factory.get()) {
+    if (factory) {
       stream = factory->CreateLocalMediaStream("stream");
 
       if (stream.get()) {

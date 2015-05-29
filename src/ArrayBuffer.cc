@@ -32,12 +32,16 @@ node::ArrayBuffer::ArrayBuffer(v8::Isolate *isolate) :
   _data(0),
   _isolate(isolate)
 {
+  LOG(LS_INFO) << __FUNCTION__;
+  
   if (!_isolate) {
     _isolate = v8::Isolate::GetCurrent();
   }
 }
 
 node::ArrayBuffer::~ArrayBuffer() {
+  LOG(LS_INFO) << __FUNCTION__;
+  
   if (_rel && _data) {
     delete [] reinterpret_cast<char*>(_data);
   }
