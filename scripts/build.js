@@ -124,6 +124,8 @@ function configure() {
 
       break;
     case 'linux':
+      process.env['GYP_DEFINES'] += ' clang=0';
+
       if (!process.env['JAVA_HOME']) {
         if (fs.existsSync('/usr/lib/jvm/java')) {
           process.env['JAVA_HOME'] = '/usr/lib/jvm/java';
