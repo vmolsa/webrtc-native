@@ -26,6 +26,12 @@
 #ifndef WEBRTC_WRAP_H
 #define WEBRTC_WRAP_H
 
+#ifdef WIN32
+#ifndef __PRETTY_FUNCTION__
+#define __PRETTY_FUNCTION__ __FUNCTION__
+#endif
+#endif
+
 #include <v8.h>
 #include "webrtc/base/logging.h"
 

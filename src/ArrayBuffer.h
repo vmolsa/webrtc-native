@@ -27,6 +27,12 @@
 #define NODE_ARRAYBUFFER_H
 
 #ifdef WIN32
+#ifndef __PRETTY_FUNCTION__
+#define __PRETTY_FUNCTION__ __FUNCTION__
+#endif
+#endif
+
+#ifdef WIN32
   #pragma warning( disable : 4267 )
 #endif
 

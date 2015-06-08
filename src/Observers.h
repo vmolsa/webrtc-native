@@ -55,6 +55,12 @@
 #include "talk/media/devices/devicemanager.h"
 #include "talk/session/media/mediasession.h"
 
+#ifdef WIN32
+#ifndef __PRETTY_FUNCTION__
+#define __PRETTY_FUNCTION__ __FUNCTION__
+#endif
+#endif
+
 namespace webrtc {
   class VideoCaptureModule;
 };
