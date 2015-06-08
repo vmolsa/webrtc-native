@@ -30,6 +30,7 @@
         'MediaStreamTrack.cc',
         'MediaConstraints.cc',
         'Wrap.cc',
+        'Stats.cc',
       ],      
       'defines': [
         'BUILDING_NODE_EXTENSION',

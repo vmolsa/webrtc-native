@@ -26,6 +26,7 @@
 #include "PeerConnection.h"
 #include "DataChannel.h"
 #include "MediaStream.h"
+#include "Stats.h"
 #include "Core.h"
 
 #include "talk/app/webrtc/test/fakedtlsidentityservice.h"
@@ -73,6 +74,9 @@ void PeerConnection::Init(Handle<Object> exports) {
 
   tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "getStreamById"),
                                                     FunctionTemplate::New(isolate, PeerConnection::GetStreamById));
+
+  tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "getStats"),
+                                FunctionTemplate::New(isolate, PeerConnection::GetStats));
 
   tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "close"),
                                 FunctionTemplate::New(isolate, PeerConnection::Close));
@@ -178,6 +182,7 @@ PeerConnection::PeerConnection(const Local<Object> &configuration,
     }
   }
 
+  _stats = new rtc::RefCountedObject<StatsObserver>(this);
   _offer = new rtc::RefCountedObject<OfferObserver>(this);
   _answer = new rtc::RefCountedObject<AnswerObserver>(this);
   _local = new rtc::RefCountedObject<LocalDescriptionObserver>(this);
@@ -655,6 +660,31 @@ void PeerConnection::GetStreamById(const v8::FunctionCallbackInfo<v8::Value>& ar
   isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
 }
 
+void PeerConnection::GetStats(const FunctionCallbackInfo<Value>& args) {
+  Isolate *isolate = args.GetIsolate();
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, args.This());
+  webrtc::PeerConnectionInterface *socket = self->GetSocket();
+
+  if (!args[0].IsEmpty() && args[0]->IsFunction()) {
+    self->_onstats.Reset(isolate, Local<Function>::Cast(args[0]));
+
+    if (socket) {
+      if (!socket->GetStats(self->_stats.get(), 0, webrtc::PeerConnectionInterface::kStatsOutputLevelStandard)) {
+        Local<Function> callback = Local<Function>::New(isolate, self->_onstats);
+        Local<Value> argv[1] = { Null(isolate) };
+
+        callback->Call(args.This(), 1, argv);
+
+        self->_onstats.Reset();
+      }
+    } else {
+      isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
+    }
+  } else {
+    isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Missing Callback")));
+  }
+}
+
 void PeerConnection::Close(const FunctionCallbackInfo<Value>& args) {
   Isolate *isolate = args.GetIsolate();
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, args.This()); 
@@ -1071,6 +1101,13 @@ void PeerConnection::On(Event *event) {
     case kPeerConnectionRenegotiation:
       callback = Local<Function>::New(isolate, _onnegotiationneeded);
       
+      break;
+    case kPeerConnectionStats:
+      callback = Local<Function>::New(isolate, _onstats);
+
+      argv[0] = Stats::New(isolate, event->Unwrap<webrtc::StatsReports>());
+      argc = 1;
+
       break;
   }
   

@@ -82,7 +82,8 @@ namespace WebRTC {
     kPeerConnectionDataChannel,
     kPeerConnectionAddStream,
     kPeerConnectionRemoveStream,
-    kPeerConnectionRenegotiation
+    kPeerConnectionRenegotiation,
+    kPeerConnectionStats
   };
   
   enum DataChannelEvent {
@@ -200,6 +201,16 @@ namespace WebRTC {
     MediaStreamTrackObserver(EventEmitter *parent = 0);
 
     void OnChanged() final;
+
+   protected:
+    EventEmitter* _parent;
+  };
+
+  class StatsObserver : public webrtc::StatsObserver {
+   public:
+    StatsObserver(EventEmitter *parent = 0);
+
+    void OnComplete(const webrtc::StatsReports& reports) final;
 
    protected:
     EventEmitter* _parent;

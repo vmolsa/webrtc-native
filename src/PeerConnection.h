@@ -56,6 +56,7 @@ namespace WebRTC {
     static void GetLocalStreams(const v8::FunctionCallbackInfo<v8::Value>& args);
     static void GetRemoteStreams(const v8::FunctionCallbackInfo<v8::Value>& args);
     static void GetStreamById(const v8::FunctionCallbackInfo<v8::Value>& args);
+    static void GetStats(const v8::FunctionCallbackInfo<v8::Value>& args);
     static void Close(const v8::FunctionCallbackInfo<v8::Value>& args);
     
     static void GetSignalingState(v8::Local<v8::String> property, 
@@ -142,12 +143,15 @@ namespace WebRTC {
     
     v8::Persistent<v8::Function> _remoteCallback;
     v8::Persistent<v8::Function> _remoteErrorCallback;
+
+    v8::Persistent<v8::Function> _onstats;
     
     v8::Persistent<v8::Object> _localsdp;
     v8::Persistent<v8::Object> _remotesdp;   
     
     static v8::Persistent<v8::Function> constructor;
     
+    rtc::scoped_refptr<StatsObserver> _stats;
     rtc::scoped_refptr<OfferObserver> _offer;
     rtc::scoped_refptr<AnswerObserver> _answer;
     rtc::scoped_refptr<LocalDescriptionObserver> _local;

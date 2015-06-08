@@ -206,3 +206,11 @@ void MediaStreamTrackObserver::OnChanged() {
   LOG(LS_INFO) << "MediaStreamTrackObserver::OnChanged()";
   _parent->Emit(kMediaStreamTrackChanged);
 }
+
+StatsObserver::StatsObserver(EventEmitter *parent) :
+  _parent(parent) { }
+
+void StatsObserver::OnComplete(const webrtc::StatsReports &reports) {
+  LOG(LS_INFO) << "StatsObserver::OnComplete()";
+  _parent->Emit(kPeerConnectionStats, reports);
+}
