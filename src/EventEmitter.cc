@@ -31,11 +31,15 @@ EventEmitter::EventEmitter() :
   _running(false),
   _closing(false)
 {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   uv_mutex_init(&_lock);
   _async.data = this;
 }
 
 EventEmitter::~EventEmitter() {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   EventEmitter::End();
 
   while (!_events.empty()) {

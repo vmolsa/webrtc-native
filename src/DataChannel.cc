@@ -31,6 +31,8 @@ using namespace WebRTC;
 Persistent<Function> DataChannel::constructor;
 
 void DataChannel::Init() {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   Isolate* isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
   
@@ -107,10 +109,14 @@ void DataChannel::Init() {
 }
 
 DataChannel::DataChannel() {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   _observer = new rtc::RefCountedObject<DataChannelObserver>(this);
 }
 
 DataChannel::~DataChannel() {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   if (_socket.get()) {  
     _socket->UnregisterObserver();
     
@@ -127,6 +133,8 @@ DataChannel::~DataChannel() {
 }
 
 void DataChannel::New(const v8::FunctionCallbackInfo<v8::Value> &args) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   Isolate* isolate = args.GetIsolate();
   HandleScope scope(isolate);
   
@@ -140,6 +148,8 @@ void DataChannel::New(const v8::FunctionCallbackInfo<v8::Value> &args) {
 }
 
 Local<Value> DataChannel::New(Isolate *isolate, rtc::scoped_refptr<webrtc::DataChannelInterface> dataChannel) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   EscapableHandleScope scope(isolate);
   
   Local<Value> argv[1];
@@ -163,10 +173,14 @@ Local<Value> DataChannel::New(Isolate *isolate, rtc::scoped_refptr<webrtc::DataC
 }
 
 webrtc::DataChannelInterface *DataChannel::GetSocket() const {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   return _socket.get();
 }
 
 void DataChannel::Close(const v8::FunctionCallbackInfo<v8::Value>& args) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   Isolate *isolate = args.GetIsolate();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, args.This());
   webrtc::DataChannelInterface *socket = self->GetSocket();
@@ -183,6 +197,8 @@ void DataChannel::Close(const v8::FunctionCallbackInfo<v8::Value>& args) {
 }
 
 void DataChannel::Send(const v8::FunctionCallbackInfo<v8::Value>& args) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   Isolate *isolate = args.GetIsolate();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, args.This());
   webrtc::DataChannelInterface *socket = self->GetSocket();
@@ -219,6 +235,8 @@ void DataChannel::Send(const v8::FunctionCallbackInfo<v8::Value>& args) {
 void DataChannel::GetId(v8::Local<v8::String> property, 
                         const v8::PropertyCallbackInfo<v8::Value> &info)
 {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   Isolate *isolate = info.GetIsolate();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
   webrtc::DataChannelInterface *socket = self->GetSocket();
@@ -234,6 +252,8 @@ void DataChannel::GetId(v8::Local<v8::String> property,
 void DataChannel::GetLabel(v8::Local<v8::String> property, 
                            const v8::PropertyCallbackInfo<v8::Value> &info)
 {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   Isolate *isolate = info.GetIsolate();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
   webrtc::DataChannelInterface *socket = self->GetSocket();
@@ -250,6 +270,8 @@ void DataChannel::GetLabel(v8::Local<v8::String> property,
 void DataChannel::GetOrdered(v8::Local<v8::String> property, 
                              const v8::PropertyCallbackInfo<v8::Value> &info)
 {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   Isolate *isolate = info.GetIsolate();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
   webrtc::DataChannelInterface *socket = self->GetSocket();
@@ -265,6 +287,8 @@ void DataChannel::GetOrdered(v8::Local<v8::String> property,
 void DataChannel::GetProtocol(v8::Local<v8::String> property, 
                               const v8::PropertyCallbackInfo<v8::Value> &info)
 {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   Isolate *isolate = info.GetIsolate();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
   webrtc::DataChannelInterface *socket = self->GetSocket();
@@ -281,6 +305,8 @@ void DataChannel::GetProtocol(v8::Local<v8::String> property,
 void DataChannel::GetReadyState(v8::Local<v8::String> property, 
                                 const v8::PropertyCallbackInfo<v8::Value> &info)
 {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   Isolate *isolate = info.GetIsolate();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
   webrtc::DataChannelInterface *socket = self->GetSocket();
@@ -309,6 +335,8 @@ void DataChannel::GetReadyState(v8::Local<v8::String> property,
 void DataChannel::GetBufferedAmount(v8::Local<v8::String> property, 
                                     const v8::PropertyCallbackInfo<v8::Value> &info)
 {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   Isolate *isolate = info.GetIsolate();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
   webrtc::DataChannelInterface *socket = self->GetSocket();
@@ -325,6 +353,8 @@ void DataChannel::GetBufferedAmount(v8::Local<v8::String> property,
 void DataChannel::GetBinaryType(v8::Local<v8::String> property, 
                                 const v8::PropertyCallbackInfo<v8::Value> &info)
 {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   Isolate *isolate = info.GetIsolate();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
   info.GetReturnValue().Set(Local<String>::New(isolate, self->_binaryType));
@@ -333,6 +363,8 @@ void DataChannel::GetBinaryType(v8::Local<v8::String> property,
 void DataChannel::GetMaxPacketLifeType(v8::Local<v8::String> property, 
                                        const v8::PropertyCallbackInfo<v8::Value> &info)
 {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   Isolate *isolate = info.GetIsolate();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
   webrtc::DataChannelInterface *socket = self->GetSocket();
@@ -349,6 +381,8 @@ void DataChannel::GetMaxPacketLifeType(v8::Local<v8::String> property,
 void DataChannel::GetMaxRetransmits(v8::Local<v8::String> property, 
                                     const v8::PropertyCallbackInfo<v8::Value> &info)
 {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   Isolate *isolate = info.GetIsolate();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
   webrtc::DataChannelInterface *socket = self->GetSocket();
@@ -365,6 +399,8 @@ void DataChannel::GetMaxRetransmits(v8::Local<v8::String> property,
 void DataChannel::GetNegotiated(v8::Local<v8::String> property, 
                                    const v8::PropertyCallbackInfo<v8::Value> &info)
 {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   Isolate *isolate = info.GetIsolate();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
   webrtc::DataChannelInterface *socket = self->GetSocket();
@@ -380,6 +416,8 @@ void DataChannel::GetNegotiated(v8::Local<v8::String> property,
 void DataChannel::GetReliable(v8::Local<v8::String> property, 
                               const v8::PropertyCallbackInfo<v8::Value> &info)
 {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   Isolate *isolate = info.GetIsolate();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
   webrtc::DataChannelInterface *socket = self->GetSocket();
@@ -395,6 +433,8 @@ void DataChannel::GetReliable(v8::Local<v8::String> property,
 void DataChannel::GetOnOpen(v8::Local<v8::String> property, 
                             const v8::PropertyCallbackInfo<v8::Value> &info)
 {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   Isolate *isolate = info.GetIsolate();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
   info.GetReturnValue().Set(Local<Function>::New(isolate, self->_onopen));
@@ -403,6 +443,8 @@ void DataChannel::GetOnOpen(v8::Local<v8::String> property,
 void DataChannel::GetOnMessage(v8::Local<v8::String> property, 
                                const v8::PropertyCallbackInfo<v8::Value> &info)
 {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   Isolate *isolate = info.GetIsolate();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
   info.GetReturnValue().Set(Local<Function>::New(isolate, self->_onmessage));
@@ -411,6 +453,8 @@ void DataChannel::GetOnMessage(v8::Local<v8::String> property,
 void DataChannel::GetOnClose(v8::Local<v8::String> property, 
                              const v8::PropertyCallbackInfo<v8::Value> &info)
 {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   Isolate *isolate = info.GetIsolate();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
   info.GetReturnValue().Set(Local<Function>::New(isolate, self->_onclose));
@@ -419,6 +463,8 @@ void DataChannel::GetOnClose(v8::Local<v8::String> property,
 void DataChannel::GetOnError(v8::Local<v8::String> property, 
                              const v8::PropertyCallbackInfo<v8::Value> &info)
 {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   Isolate *isolate = info.GetIsolate();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
   info.GetReturnValue().Set(Local<Function>::New(isolate, self->_onerror));
@@ -428,13 +474,15 @@ void DataChannel::ReadOnly(v8::Local<v8::String> property,
                               v8::Local<v8::Value> value, 
                               const v8::PropertyCallbackInfo<void> &info)
 {
-
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
 }
 
 void DataChannel::SetBinaryType(v8::Local<v8::String> property, 
                                 v8::Local<v8::Value> value, 
                                 const v8::PropertyCallbackInfo<void> &info)
-{  
+{
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   Isolate *isolate = info.GetIsolate();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
 
@@ -450,6 +498,8 @@ void DataChannel::SetOnOpen(v8::Local<v8::String> property,
                             v8::Local<v8::Value> value, 
                             const v8::PropertyCallbackInfo<void> &info)
 {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   Isolate *isolate = info.GetIsolate();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
 
@@ -464,6 +514,8 @@ void DataChannel::SetOnMessage(v8::Local<v8::String> property,
                                v8::Local<v8::Value> value, 
                                const v8::PropertyCallbackInfo<void> &info)
 {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   Isolate *isolate = info.GetIsolate();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
 
@@ -478,6 +530,8 @@ void DataChannel::SetOnClose(v8::Local<v8::String> property,
                              v8::Local<v8::Value> value, 
                              const v8::PropertyCallbackInfo<void> &info)
 {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   Isolate *isolate = info.GetIsolate();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
 
@@ -492,6 +546,8 @@ void DataChannel::SetOnError(v8::Local<v8::String> property,
                              v8::Local<v8::Value> value, 
                              const v8::PropertyCallbackInfo<void> &info)
 {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   Isolate *isolate = info.GetIsolate();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
 
@@ -503,6 +559,8 @@ void DataChannel::SetOnError(v8::Local<v8::String> property,
 }
 
 void DataChannel::On(Event *event) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   Isolate *isolate = Isolate::GetCurrent();
   DataChannelEvent type = event->Type<DataChannelEvent>();
   node::ArrayBuffer *arrayBuffer = 0;
