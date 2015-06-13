@@ -25,8 +25,8 @@ var totalChannels = 0;
 function RunTest(done) {
   function P2P(alice, bob) {
     function showState() {
-      console.log('Alice State:', alice.signalingState);
-      console.log('Bob State:', bob.signalingState);
+      //console.log('Alice State:', alice.signalingState);
+      //console.log('Bob State:', bob.signalingState);
     }
   
     alice.onicecandidate = function(event) {
@@ -100,21 +100,21 @@ function RunTest(done) {
 
       channel.onopen = function() {
         totalChannels += 1;
-        console.log('Alice: DataChannel Open!');
+        //console.log('Alice: DataChannel Open!');
 
         if (callback) {
           callback(channel);
         }
       };
 
-      channel.onmessage = function(data) {
-        console.log('Alice:', data);
-
+      channel.onmessage = function(event) {
+        var data = event.data;        
+        //console.log('Alice:', data);
         WEBRTC.RTCGarbageCollect();
       };
 
       channel.onclose = function() {
-        console.log('Alice: DataChannel Closed!');
+        //console.log('Alice: DataChannel Closed!');
         channel = null;
       };
     };
@@ -124,22 +124,24 @@ function RunTest(done) {
 
       channel.onopen = function() {
         totalChannels += 1;
-        console.log('Bob: DataChannel Open!');
+        //console.log('Bob: DataChannel Open!');
 
         if (callback) {
           callback(channel);
         }
       };
 
-      channel.onmessage = function(data) {
+      channel.onmessage = function(event) {
+        var data = event.data;
+        
         if (typeof(data) == 'string') {
-          console.log('Bob:', data);
+          //console.log('Bob:', data);
         } else {
           var buf = new Buffer(new Uint8Array(data));
           if (buf.toString('utf8') === 'HELLO') {
             console.log('TEST SUCCESS');
           } else {
-            console.log('TEST FAILED');
+            console.log('TEST FAILED', buf.toString('utf8'));
           }
         }
 
@@ -149,7 +151,7 @@ function RunTest(done) {
       };
 
       channel.onclose = function() {
-        console.log('Bob: DataChannel Closed!');
+        //console.log('Bob: DataChannel Closed!');
         channel = null;
       };
     };
@@ -167,7 +169,7 @@ function RunTest(done) {
       peers.push(alice);
       peers.push(bob);
 
-      for (var channels = 0; channels < 1; channels++) {
+      for (var channels = 0; channels < 100; channels++) {
         alice.ondatachannel(alice.createDataChannel('TestChannel'), function(channel) {
           var buf = new Buffer(5);
           buf.write('HELLO');
