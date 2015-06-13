@@ -79,6 +79,7 @@ function connect(callback) {
         console.log(connName, 'peer1 error', err);
         callback(err);
     });
+    
     peer2.on('error', function(err) {
         console.log(connName, 'peer2 error', err);
         callback(err);
@@ -91,6 +92,10 @@ function connect(callback) {
     });
     peer2.on('data', function() {
         console.log(connName, 'completed');
+        
+        peer1.destroy();
+        peer2.destroy();
+        
         callback();
     });
 }
