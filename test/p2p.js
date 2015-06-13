@@ -64,6 +64,7 @@ var constraints = {
   audio: {
     optional: [
       {
+/*
         googEchoCancellation: true,
         googEchoCancellation2: true,
         googDAEchoCancellation: true,
@@ -74,6 +75,7 @@ var constraints = {
         googHighpassFilter: true,
         googTypingNoiseDetection: true,
         googAudioMirroring: true,
+*/
       },
     ],
   },
@@ -108,8 +110,5 @@ var bob = new WEBRTC.RTCPeerConnection(config, constraints);
 P2P(alice, bob);
 
 alice.onnegotiationneeded(function() {
-  setTimeout(function() {
-    alice.close();
-    bob.close();
-  }, 5000);
+  console.log('Done! :)');
 });
