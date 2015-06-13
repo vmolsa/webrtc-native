@@ -42,6 +42,8 @@
         '<(DEPTH)/third_party/jsoncpp/jsoncpp.gyp:jsoncpp',
         '<(DEPTH)/third_party/libyuv/libyuv.gyp:libyuv',
         '<(DEPTH)/talk/libjingle.gyp:libjingle_peerconnection',
+        '<(DEPTH)/webrtc/modules/modules.gyp:video_capture',
+        '<(DEPTH)/webrtc/modules/modules.gyp:video_render',
       ],
       'include_dirs': [
         '<(nodedir)/src',
