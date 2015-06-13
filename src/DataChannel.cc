@@ -205,26 +205,20 @@ void DataChannel::Send(const v8::FunctionCallbackInfo<v8::Value>& args) {
   bool retval = false;
 
   if (socket) {
-    webrtc::DataChannelInterface::DataState state(socket->state());
-    
-    if (state != webrtc::DataChannelInterface::kOpen) {
-      isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Not Connected")));
-    } else {  
-      if(args[0]->IsString()) {
-        Local<String> str = Local<String>::Cast(args[0]);
-        std::string data(*String::Utf8Value(str));
+    if(args[0]->IsString()) {
+      Local<String> str = Local<String>::Cast(args[0]);
+      std::string data(*String::Utf8Value(str));
 
-        webrtc::DataBuffer buffer(data);
+      webrtc::DataBuffer buffer(data);
+      retval = socket->Send(buffer);
+    } else {
+      if (args[0]->IsArrayBuffer() || args[0]->IsTypedArray()) {
+        node::ArrayBuffer *container = node::ArrayBuffer::New(isolate, args[0]);
+        rtc::Buffer data(reinterpret_cast<char *>(container->Data()), container->Length());
+        webrtc::DataBuffer buffer(data, true);
         retval = socket->Send(buffer);
       } else {
-        if (args[0]->IsArrayBuffer() || args[0]->IsTypedArray()) {
-          node::ArrayBuffer *container = node::ArrayBuffer::New(isolate, args[0]);
-          rtc::Buffer data(reinterpret_cast<char *>(container->Data()), container->Length());
-          webrtc::DataBuffer buffer(data, true);
-          retval = socket->Send(buffer);
-        } else {
-          isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Invalid argument")));
-        }
+        isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Invalid argument")));
       }
     }
   }
@@ -597,17 +591,16 @@ void DataChannel::On(Event *event) {
   } else {
     callback = Local<Function>::New(isolate, _onmessage);
     rtc::Buffer buffer = event->Unwrap<rtc::Buffer>();
+    Local<Object> container = Object::New(isolate);
+    argv[0] = container;
+    argc = 1;
 
     if (type == kDataChannelData) {
-      argv[0] = String::NewFromUtf8(isolate, reinterpret_cast<char *>(buffer.data()), String::kNormalString, buffer.size());
-      argc = 1;
+      container->Set(String::NewFromUtf8(isolate, "data"), String::NewFromUtf8(isolate, reinterpret_cast<char *>(buffer.data()), String::kNormalString, buffer.size()));
     } else {
-      // TODO(): Wrapping rtc::Buffer to ArrayBuffer is not working properly?
       std::string data(reinterpret_cast<char *>(buffer.data()), buffer.size());
-
       arrayBuffer = node::ArrayBuffer::New(isolate, data);                                
-      argv[0] = arrayBuffer->ToArrayBuffer();
-      argc = 1;
+      container->Set(String::NewFromUtf8(isolate, "data"), arrayBuffer->ToArrayBuffer());
     }
   }
   
