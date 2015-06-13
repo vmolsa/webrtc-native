@@ -65,6 +65,8 @@ function build() {
 }
 
 function checkout() {
+  return build(); 
+
   sh('git checkout branch-heads/44', {
     cwd: WEBRTC_SRC,
     env: process.env,
