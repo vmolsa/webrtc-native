@@ -28,6 +28,7 @@
 #include <node.h>
 
 #include "Core.h"
+#include "Stats.h"
 #include "PeerConnection.h"
 #include "DataChannel.h"
 #include "BackTrace.h"
@@ -117,6 +118,8 @@ void WebrtcModuleInit(Handle<Object> exports) {
   HandleScope scope(isolate);
   
   WebRTC::Core::Init();
+  WebRTC::RTCStatsResponse::Init();
+  WebRTC::RTCStatsReport::Init();
   WebRTC::PeerConnection::Init(exports);
   WebRTC::DataChannel::Init();
   WebRTC::GetSources::Init(exports);
