@@ -87,23 +87,29 @@ Local<Value> MediaStream::New(Isolate *isolate, rtc::scoped_refptr<webrtc::Media
   
   EscapableHandleScope scope(isolate);
 
+  Local<Value> empty;
   Local<Value> argv[1];
   Local<Function> instance = Local<Function>::New(isolate, MediaStream::constructor);
 
   if (instance.IsEmpty() || !mediaStream.get()) {
-    Local<Value> empty = Null(isolate);
+    empty = Null(isolate);
     return scope.Escape(empty);
   }
 
   Local<Object> ret = instance->NewInstance(0, argv);
   MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, ret, "MediaStream");
+  
+  if (self) {
+    self->Start();
+    self->_stream = mediaStream;
+    self->_stream->RegisterObserver(self->_observer.get());
+    self->Emit(kMediaStreamChanged);
+    
+    return scope.Escape(ret);
+  }
 
-  self->Start();
-  self->_stream = mediaStream;
-  self->_stream->RegisterObserver(self->_observer.get());
-  self->Emit(kMediaStreamChanged);
-
-  return scope.Escape(ret);
+  empty = Null(isolate);
+  return scope.Escape(empty);
 }
 
 MediaStream::MediaStream() :
