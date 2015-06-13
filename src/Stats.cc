@@ -28,136 +28,213 @@
 using namespace v8;
 using namespace WebRTC;
 
-Persistent<Function> Stats::resconstructor;
-Persistent<Function> Stats::repconstructor;
+Persistent<Function> RTCStatsReport::constructor;
 
-Stats::Stats() {
-
-}
-
-Stats::~Stats() {
-
-}
-
-void Stats::Init() {
+void RTCStatsReport::Init() {
   Isolate* isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
+  
+  Local<FunctionTemplate> tpl = FunctionTemplate::New(isolate, RTCStatsReport::New);
+  tpl->SetClassName(String::NewFromUtf8(isolate, "RTCStatsReport"));
 
-  Local<FunctionTemplate> result = FunctionTemplate::New(isolate, Stats::NewResult);
-  result->SetClassName(String::NewFromUtf8(isolate, "Stats"));
+  tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "names"),
+                                FunctionTemplate::New(isolate, RTCStatsReport::Names));
 
-  result->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "result"),
-                                   FunctionTemplate::New(isolate, Stats::Result));
+  tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "stat"),
+                                FunctionTemplate::New(isolate, RTCStatsReport::Stat));
 
-  Local<FunctionTemplate> report = FunctionTemplate::New(isolate, Stats::NewReport);
-  report->SetClassName(String::NewFromUtf8(isolate, "Report"));
+  tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "id"),
+                                FunctionTemplate::New(isolate, RTCStatsReport::Id));
 
-  report->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "names"),
-                                   FunctionTemplate::New(isolate, Stats::Names));
+  tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "type"),
+                                FunctionTemplate::New(isolate, RTCStatsReport::Type));
 
-  report->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "stat"),
-                                   FunctionTemplate::New(isolate, Stats::Stat));
+  tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "timestamp"),
+                                FunctionTemplate::New(isolate, RTCStatsReport::Timestamp));
 
-  report->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "id"),
-                                   FunctionTemplate::New(isolate, Stats::Id));
+  constructor.Reset(isolate, tpl->GetFunction());
+};
 
-  report->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "type"),
-                                   FunctionTemplate::New(isolate, Stats::Type));
-
-  report->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "timestamp"),
-                                   FunctionTemplate::New(isolate, Stats::Timestamp));
-
-  resconstructor.Reset(isolate, result->GetFunction());
-  repconstructor.Reset(isolate, report->GetFunction());
-}
-
-void Stats::NewResult(const FunctionCallbackInfo<Value>& args) {
-  Isolate* isolate = args.GetIsolate();
-  HandleScope scope(isolate);
-
-  if (args.IsConstructCall()) {
-    Stats* stats = new Stats();
-    stats->Wrap(isolate, args.This(), "Stats");
-    return args.GetReturnValue().Set(args.This());
-  }
-
-  isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
-}
-
-void Stats::NewReport(const FunctionCallbackInfo<Value>& args) {
-  Isolate* isolate = args.GetIsolate();
-  HandleScope scope(isolate);
-
-  if (args.IsConstructCall()) {
-    Stats::Reports* reports = new Stats::Reports();
-    reports->Wrap(isolate, args.This(), "Reports");
-    return args.GetReturnValue().Set(args.This());
-  }
-
-  isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
-}
-
-Local<Value> Stats::New(Isolate *isolate, const webrtc::StatsReports &reports) {
+Local<Value> RTCStatsReport::New(Isolate *isolate, webrtc::StatsReport *report) {  
   EscapableHandleScope scope(isolate);
-
-  Local<Value> argv[1];
-  Local<Function> instance = Local<Function>::New(isolate, Stats::resconstructor);
+  Local<Function> instance = Local<Function>::New(isolate, RTCStatsReport::constructor);
 
   if (instance.IsEmpty()) {
     Local<Value> empty = Null(isolate);
     return scope.Escape(empty);
   }
 
-  Local<Object> ret = instance->NewInstance(0, argv);
-  Stats *stat = RTCWrap::Unwrap<Stats>(isolate, ret, "Stats");
+  Local<Object> ret = instance->NewInstance();
+  RTCStatsReport *stats = RTCWrap::Unwrap<RTCStatsReport>(isolate, ret, "RTCStatsReport");
 
-  stat->_reports = reports;
+  if (stats) {
+    stats->_report = report;
+  }
 
   return scope.Escape(ret);
 }
 
-void Stats::Result(const FunctionCallbackInfo<Value>& args) {
+void RTCStatsReport::New(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = args.GetIsolate();
   HandleScope scope(isolate);
 
-  Stats *stats = RTCWrap::Unwrap<Stats>(isolate, args.This(), "Stats");
-  Local<Array> list = Array::New(isolate);
-
-  if (stats) {
-
+  if (args.IsConstructCall()) {
+    RTCStatsReport* report = new RTCStatsReport();
+    report->Wrap(isolate, args.This(), "RTCStatsReport");
+    return args.GetReturnValue().Set(args.This());
   }
 
+  isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
+}
 
+void RTCStatsReport::Names(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = args.GetIsolate();
+  HandleScope scope(isolate);
+  
+  RTCStatsReport *stats = RTCWrap::Unwrap<RTCStatsReport>(isolate, args.This(), "RTCStatsReport");
+  webrtc::StatsReport::Values values = stats->_report->values();
+  Local<Array> list = Array::New(isolate);
+  unsigned int index = 0;
+  
+  for (webrtc::StatsReport::Values::iterator it = values.begin(); it != values.end(); it++) {
+    webrtc::StatsReport::ValuePtr value = values[it->first];
+    list->Set(index, String::NewFromUtf8(isolate, value->display_name()));
+    index++;
+  }
+  
   args.GetReturnValue().Set(list);
 }
 
-void Stats::Names(const FunctionCallbackInfo<Value>& args) {
+void RTCStatsReport::Stat(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = args.GetIsolate();
+  HandleScope scope(isolate);
+  
+  RTCStatsReport *stats = RTCWrap::Unwrap<RTCStatsReport>(isolate, args.This(), "RTCStatsReport");
+  webrtc::StatsReport::Values values = stats->_report->values();
+
+  if (args.Length() >= 1 && args[0]->IsString()) {
+    String::Utf8Value entry_value(args[0]->ToString());
+    std::string entry(*entry_value);
+    
+    for (webrtc::StatsReport::Values::iterator it = values.begin(); it != values.end(); it++) {
+      webrtc::StatsReport::ValuePtr value = values[it->first];
+
+      if (!entry.compare(value->display_name())) {
+        switch (value->type()) {
+          case webrtc::StatsReport::Value::kInt:
+            args.GetReturnValue().Set(Integer::New(isolate, value->int_val()));
+            
+            break;
+          case webrtc::StatsReport::Value::kInt64:
+            args.GetReturnValue().Set(Integer::New(isolate, static_cast<int32_t>(value->int64_val())));
+            
+            break;
+          case webrtc::StatsReport::Value::kFloat:
+            args.GetReturnValue().Set(Number::New(isolate, value->float_val()));
+          
+            break;
+          case webrtc::StatsReport::Value::kString:
+            args.GetReturnValue().Set(String::NewFromUtf8(isolate, value->string_val().c_str()));
+            
+            break;
+          case webrtc::StatsReport::Value::kStaticString:
+            args.GetReturnValue().Set(String::NewFromUtf8(isolate, value->static_string_val()));
+            
+            break;
+          case webrtc::StatsReport::Value::kBool:
+            args.GetReturnValue().Set(v8::Boolean::New(isolate, value->bool_val()));
+            
+            break;
+          case webrtc::StatsReport::Value::kId:
+            args.GetReturnValue().Set(String::NewFromUtf8(isolate, value->ToString().c_str()));
+          
+            break;
+        }
+      }
+    }
+  }
+}
+
+void RTCStatsReport::Id(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = args.GetIsolate();
   HandleScope scope(isolate);
 
+  RTCStatsReport *stats = RTCWrap::Unwrap<RTCStatsReport>(isolate, args.This(), "RTCStatsReport");
+  std::string id(stats->_report->id()->ToString());
+  args.GetReturnValue().Set(String::NewFromUtf8(isolate, id.c_str())); 
 }
 
-void Stats::Stat(const FunctionCallbackInfo<Value>& args) {
+void RTCStatsReport::Type(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = args.GetIsolate();
+  HandleScope scope(isolate);
+  
+  RTCStatsReport *stats = RTCWrap::Unwrap<RTCStatsReport>(isolate, args.This(), "RTCStatsReport");
+  args.GetReturnValue().Set(String::NewFromUtf8(isolate, stats->_report->TypeToString()));
+}
+
+void RTCStatsReport::Timestamp(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = args.GetIsolate();
   HandleScope scope(isolate);
 
+  RTCStatsReport *stats = RTCWrap::Unwrap<RTCStatsReport>(isolate, args.This(), "RTCStatsReport");
+  args.GetReturnValue().Set(Number::New(isolate, stats->_report->timestamp()));
 }
 
-void Stats::Id(const FunctionCallbackInfo<Value>& args) {
+Persistent<Function> RTCStatsResponse::constructor;
+
+void RTCStatsResponse::Init() {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
+
+  Local<FunctionTemplate> tpl = FunctionTemplate::New(isolate, RTCStatsResponse::New);
+  tpl->SetClassName(String::NewFromUtf8(isolate, "RTCStatsResponse"));
+
+  tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "result"),
+                                FunctionTemplate::New(isolate, RTCStatsResponse::Result));
+                                
+  constructor.Reset(isolate, tpl->GetFunction());
+}
+
+void RTCStatsResponse::New(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = args.GetIsolate();
   HandleScope scope(isolate);
 
+  if (args.IsConstructCall()) {
+    RTCStatsResponse *response = new RTCStatsResponse();
+    response->Wrap(isolate, args.This(), "RTCStatsResponse");
+    return args.GetReturnValue().Set(args.This());
+  }
+
+  isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
 }
 
-void Stats::Type(const FunctionCallbackInfo<Value>& args) {
+Local<Value> RTCStatsResponse::New(Isolate *isolate, const webrtc::StatsReports &reports) {  
+  EscapableHandleScope scope(isolate);
+  Local<Function> instance = Local<Function>::New(isolate, RTCStatsResponse::constructor);
+
+  if (instance.IsEmpty()) {
+    Local<Value> empty = Null(isolate);
+    return scope.Escape(empty);
+  }
+
+  Local<Object> ret = instance->NewInstance();
+  RTCStatsResponse *response = RTCWrap::Unwrap<RTCStatsResponse>(isolate, ret, "RTCStatsResponse");
+
+  response->_reports = reports;
+
+  return scope.Escape(ret);
+}
+
+void RTCStatsResponse::Result(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = args.GetIsolate();
   HandleScope scope(isolate);
 
+  RTCStatsResponse *response = RTCWrap::Unwrap<RTCStatsResponse>(isolate, args.This(), "RTCStatsResponse");
+  Local<Array> list = Array::New(isolate, response->_reports.size());
+ 
+  for(unsigned int index = 0; index < response->_reports.size(); index++) {
+    list->Set(index, RTCStatsReport::New(isolate, const_cast<webrtc::StatsReport*>(response->_reports.at(index))));
+  }
+
+  args.GetReturnValue().Set(list);
 }
-
-void Stats::Timestamp(const FunctionCallbackInfo<Value>& args) {
-  Isolate* isolate = args.GetIsolate();
-  HandleScope scope(isolate);
-
-}
-

@@ -33,33 +33,35 @@
 #include "Wrap.h"
 
 namespace WebRTC {
-  class Stats : public RTCWrap {
+  class RTCStatsReport : public RTCWrap {
    public:
     static void Init();
-    static v8::Local<v8::Value> New(v8::Isolate *isolate, const webrtc::StatsReports &reports);
-
+    static v8::Local<v8::Value> New(v8::Isolate *isolate, webrtc::StatsReport *report);
+    
    private:
-    Stats();
-    ~Stats() final;
-
-    class Reports : public RTCWrap {
-     public:
-       webrtc::StatsReport* _report;
-    };
-
-    static void NewResult(const v8::FunctionCallbackInfo<v8::Value>& args);
-    static void NewReport(const v8::FunctionCallbackInfo<v8::Value>& args);
-    static void Result(const v8::FunctionCallbackInfo<v8::Value>& args);
+    static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
     static void Names(const v8::FunctionCallbackInfo<v8::Value>& args);
     static void Stat(const v8::FunctionCallbackInfo<v8::Value>& args);
     static void Id(const v8::FunctionCallbackInfo<v8::Value>& args);
     static void Type(const v8::FunctionCallbackInfo<v8::Value>& args);
     static void Timestamp(const v8::FunctionCallbackInfo<v8::Value>& args);
-
+    
    protected:
-    static v8::Persistent<v8::Function> resconstructor;
-    static v8::Persistent<v8::Function> repconstructor;
-
+    static v8::Persistent<v8::Function> constructor;
+    webrtc::StatsReport* _report;
+  };
+  
+  class RTCStatsResponse : public RTCWrap {
+   public:
+    static void Init();
+    static v8::Local<v8::Value> New(v8::Isolate *isolate, const webrtc::StatsReports &reports);
+    
+   private:
+    static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
+    static void Result(const v8::FunctionCallbackInfo<v8::Value>& args);
+    
+   protected:
+    static v8::Persistent<v8::Function> constructor;
     webrtc::StatsReports _reports;
   };
 };
