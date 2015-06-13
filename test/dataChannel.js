@@ -72,7 +72,8 @@ function P2P(alice, bob) {
       }
     };
 
-    channel.onmessage = function(data) {
+    channel.onmessage = function(event) {
+      var data = event.data;
       console.log('Alice:', data);
     };
 
@@ -98,7 +99,8 @@ function P2P(alice, bob) {
       }
     };
 
-    channel.onmessage = function(data) {
+    channel.onmessage = function(event) {
+      var data = event.data;
       console.log('Bob:', data);
       channel.send('Hello Alice!');
     };
