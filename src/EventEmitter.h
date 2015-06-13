@@ -112,6 +112,14 @@ namespace WebRTC {
     explicit EventEmitter();
     virtual ~EventEmitter();
     
+    inline void Ref() {
+      uv_ref(reinterpret_cast<uv_handle_t*>(&_async));
+    }
+    
+    inline void Unref() {
+      uv_unref(reinterpret_cast<uv_handle_t*>(&_async));
+    }
+    
     inline void Start(bool unref = false) {
       LOG(LS_INFO) << __PRETTY_FUNCTION__;
       
@@ -122,7 +130,7 @@ namespace WebRTC {
         _running = true;
 
         if (unref) {
-          uv_unref(reinterpret_cast<uv_handle_t*>(&_async));
+          EventEmitter::Unref();
         }
       }
 
