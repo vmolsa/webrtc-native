@@ -70,7 +70,10 @@ namespace WebRTC {
 
     static void GetOnSignalingStateChange(v8::Local<v8::String> property, 
                                           const v8::PropertyCallbackInfo<v8::Value> &info);
-                                          
+    
+    static void GetOnIceConnectionStateChange(v8::Local<v8::String> property, 
+                                              const v8::PropertyCallbackInfo<v8::Value> &info);
+    
     static void GetOnIceCandidate(v8::Local<v8::String> property, 
                                   const v8::PropertyCallbackInfo<v8::Value> &info);
                                   
@@ -99,7 +102,11 @@ namespace WebRTC {
     static void SetOnSignalingStateChange(v8::Local<v8::String> property, 
                                           v8::Local<v8::Value> value, 
                                           const v8::PropertyCallbackInfo<void> &info);
-                                          
+    
+    static void SetOnIceConnectionStateChange(v8::Local<v8::String> property, 
+                                              v8::Local<v8::Value> value, 
+                                              const v8::PropertyCallbackInfo<void> &info);
+    
     static void SetOnIceCandidate(v8::Local<v8::String> property, 
                                   v8::Local<v8::Value> value, 
                                   const v8::PropertyCallbackInfo<void> &info);
@@ -122,10 +129,13 @@ namespace WebRTC {
                                
     void On(Event *event) final;
     
+    bool IsStable();
+    
     webrtc::PeerConnectionInterface *GetSocket();
     
    protected:
     v8::Persistent<v8::Function> _onsignalingstatechange;
+    v8::Persistent<v8::Function> _oniceconnectionstatechange;
     v8::Persistent<v8::Function> _onicecandidate;
     v8::Persistent<v8::Function> _ondatachannel;
     v8::Persistent<v8::Function> _onnegotiationneeded;

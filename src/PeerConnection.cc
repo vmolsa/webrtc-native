@@ -106,7 +106,11 @@ void PeerConnection::Init(Handle<Object> exports) {
   tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "onsignalingstatechange"),
                                        PeerConnection::GetOnSignalingStateChange,
                                        PeerConnection::SetOnSignalingStateChange);
-                                       
+  
+  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "oniceconnectionstatechange"),
+                                       PeerConnection::GetOnIceConnectionStateChange,
+                                       PeerConnection::SetOnIceConnectionStateChange);
+  
   tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "onicecandidate"),
                                        PeerConnection::GetOnIceCandidate,
                                        PeerConnection::SetOnIceCandidate);
@@ -215,7 +219,7 @@ webrtc::PeerConnectionInterface *PeerConnection::GetSocket() {
     webrtc::PeerConnectionFactoryInterface *factory = Core::GetFactory();
 
     if (factory) {
-      EventEmitter::Start();
+      EventEmitter::Start(true);
       _socket = factory->CreatePeerConnection(_servers, _constraints->ToConstraints(), NULL, NULL, _peer.get());
     }
   }
@@ -276,6 +280,7 @@ void PeerConnection::CreateOffer(const FunctionCallbackInfo<Value> &args) {
   }
   
   if (socket) {
+    self->Ref();
     socket->CreateOffer(self->_offer.get(), self->_constraints->ToConstraints());
   } else {
     isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
@@ -302,6 +307,7 @@ void PeerConnection::CreateAnswer(const FunctionCallbackInfo<Value> &args) {
   }
   
   if (socket) {
+    self->Ref();
     socket->CreateAnswer(self->_answer.get(), self->_constraints->ToConstraints());
   } else {
     isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
@@ -342,6 +348,7 @@ void PeerConnection::SetLocalDescription(const FunctionCallbackInfo<Value> &args
         
         if (desc) {
           if (socket) {
+            self->Ref();
             self->_localsdp.Reset(isolate, desc_obj);
             socket->SetLocalDescription(self->_local.get(), desc);
             error = 0;
@@ -401,6 +408,7 @@ void PeerConnection::SetRemoteDescription(const FunctionCallbackInfo<Value> &arg
         
         if (desc) {
           if (socket) {
+            self->Ref();
             self->_remotesdp.Reset(isolate, desc_obj);
             socket->SetRemoteDescription(self->_remote.get(), desc);
             error = 0;
@@ -846,6 +854,16 @@ void PeerConnection::GetOnSignalingStateChange(Local<String> property,
   info.GetReturnValue().Set(Local<Function>::New(isolate, self->_onsignalingstatechange));
 }
 
+void PeerConnection::GetOnIceConnectionStateChange(Local<String> property, 
+                                                   const PropertyCallbackInfo<Value> &info)
+{
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  Isolate *isolate = info.GetIsolate();
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, info.Holder());
+  info.GetReturnValue().Set(Local<Function>::New(isolate, self->_oniceconnectionstatechange));
+}
+
 void PeerConnection::GetOnIceCandidate(Local<String> property, 
                                        const PropertyCallbackInfo<Value> &info)
 {
@@ -938,6 +956,22 @@ void PeerConnection::SetOnSignalingStateChange(Local<String> property,
     self->_onsignalingstatechange.Reset(isolate, Local<Function>::Cast(value));
   } else {
     self->_onsignalingstatechange.Reset();
+  }
+}
+
+void PeerConnection::SetOnIceConnectionStateChange(Local<String> property, 
+                                                   Local<Value> value, 
+                                                   const PropertyCallbackInfo<void> &info) 
+{
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  Isolate *isolate = info.GetIsolate();
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, info.Holder());
+
+  if (!value.IsEmpty() && value->IsFunction()) {
+    self->_oniceconnectionstatechange.Reset(isolate, Local<Function>::Cast(value));
+  } else {
+    self->_oniceconnectionstatechange.Reset();
   }
 }
 
@@ -1137,12 +1171,19 @@ void PeerConnection::On(Event *event) {
     case kPeerConnectionSignalChange:
       callback = Local<Function>::New(isolate, _onsignalingstatechange);
       
+      if (PeerConnection::IsStable()) {
+        EventEmitter::Unref();
+      } else {
+        EventEmitter::Ref();
+      }
+      
       break;
     case kPeerConnectionIceChange:
+      callback = Local<Function>::New(isolate, _oniceconnectionstatechange);
       
       break;
     case kPeerConnectionIceGathering:
-    
+      
       break;
     case kPeerConnectionDataChannel:
       callback = Local<Function>::New(isolate, _ondatachannel);
@@ -1176,7 +1217,7 @@ void PeerConnection::On(Event *event) {
     case kPeerConnectionStats:
       callback = Local<Function>::New(isolate, _onstats);
 
-      argv[0] = Stats::New(isolate, event->Unwrap<webrtc::StatsReports>());
+      argv[0] = RTCStatsResponse::New(isolate, event->Unwrap<webrtc::StatsReports>());
       argc = 1;
 
       break;
@@ -1188,3 +1229,18 @@ void PeerConnection::On(Event *event) {
     isolate->ThrowException(argv[0]);
   }
 }
+
+bool PeerConnection::IsStable() {
+  webrtc::PeerConnectionInterface *socket = PeerConnection::GetSocket();
+
+  if (socket) {
+    webrtc::PeerConnectionInterface::SignalingState state(socket->signaling_state());
+    
+    if (state == webrtc::PeerConnectionInterface::kStable) {
+      return true;
+    }
+  }
+  
+  return false;
+}
+
