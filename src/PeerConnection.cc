@@ -219,7 +219,7 @@ webrtc::PeerConnectionInterface *PeerConnection::GetSocket() {
     webrtc::PeerConnectionFactoryInterface *factory = Core::GetFactory();
 
     if (factory) {
-      EventEmitter::Start(true);
+      EventEmitter::Start();
       _socket = factory->CreatePeerConnection(_servers, _constraints->ToConstraints(), NULL, NULL, _peer.get());
     }
   }
@@ -280,7 +280,6 @@ void PeerConnection::CreateOffer(const FunctionCallbackInfo<Value> &args) {
   }
   
   if (socket) {
-    self->Ref();
     socket->CreateOffer(self->_offer.get(), self->_constraints->ToConstraints());
   } else {
     isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
@@ -307,7 +306,6 @@ void PeerConnection::CreateAnswer(const FunctionCallbackInfo<Value> &args) {
   }
   
   if (socket) {
-    self->Ref();
     socket->CreateAnswer(self->_answer.get(), self->_constraints->ToConstraints());
   } else {
     isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
@@ -348,7 +346,6 @@ void PeerConnection::SetLocalDescription(const FunctionCallbackInfo<Value> &args
         
         if (desc) {
           if (socket) {
-            self->Ref();
             self->_localsdp.Reset(isolate, desc_obj);
             socket->SetLocalDescription(self->_local.get(), desc);
             error = 0;
@@ -408,7 +405,6 @@ void PeerConnection::SetRemoteDescription(const FunctionCallbackInfo<Value> &arg
         
         if (desc) {
           if (socket) {
-            self->Ref();
             self->_remotesdp.Reset(isolate, desc_obj);
             socket->SetRemoteDescription(self->_remote.get(), desc);
             error = 0;
@@ -1170,12 +1166,6 @@ void PeerConnection::On(Event *event) {
       break;
     case kPeerConnectionSignalChange:
       callback = Local<Function>::New(isolate, _onsignalingstatechange);
-      
-      if (PeerConnection::IsStable()) {
-        EventEmitter::Unref();
-      } else {
-        EventEmitter::Ref();
-      }
       
       break;
     case kPeerConnectionIceChange:
