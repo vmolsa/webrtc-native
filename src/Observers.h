@@ -51,8 +51,12 @@
 #include "talk/app/webrtc/videosourceinterface.h"
 #include "talk/app/webrtc/videosource.h"
 
+#include "talk/media/base/videocapturerfactory.h"
+#include "talk/media/base/videocapturer.h"
 #include "talk/media/sctp/sctpdataengine.h"
 #include "talk/media/devices/devicemanager.h"
+#include "talk/media/webrtc/webrtcvideocapturerfactory.h"
+
 #include "talk/session/media/mediasession.h"
 
 #ifdef WIN32
@@ -60,14 +64,6 @@
 #define __PRETTY_FUNCTION__ __FUNCTION__
 #endif
 #endif
-
-namespace webrtc {
-  class VideoCaptureModule;
-};
-
-namespace cricket {
-  class VideoRenderer;
-};
 
 #include "EventEmitter.h" // NOLINT(build/include)
 
