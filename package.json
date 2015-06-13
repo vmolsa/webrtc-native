@@ -1,6 +1,6 @@
 {
   "name": "webrtc-native",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "WebRTC for NodeJS",
   "homepage": "https://github.com/vmolsa/webrtc-native",
   "author": "https://github.com/vmolsa",
