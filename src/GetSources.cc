@@ -54,7 +54,7 @@ rtc::scoped_refptr<webrtc::AudioTrackInterface> GetSources::GetAudioSource(const
 
 rtc::scoped_refptr<webrtc::AudioTrackInterface> GetSources::GetAudioSource(const std::string id, const rtc::scoped_refptr<MediaConstraints> &constraints) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
+
   // TODO(): CreateAudioSource(cricket::AudioCapturer*, MediaConstraintsInterface) Missing?
   return GetSources::GetAudioSource(constraints);
 }
@@ -71,7 +71,7 @@ rtc::scoped_refptr<webrtc::VideoTrackInterface> GetSources::GetVideoSource(const
 
     if (manager->GetVideoCaptureDevices(&video_devs)) {
       std::vector<cricket::Device>::iterator video_it = video_devs.begin();
-      
+
       for (video_it = video_devs.begin(); !cap && video_it != video_devs.end(); video_it++) {
         cap = manager->CreateVideoCapturer(*video_it);
       }
