@@ -1,6 +1,6 @@
 var WEBRTC = require('../');
 
-WEBRTC.setDebug(false);
+WEBRTC.setDebug(true);
 
 function onSuccess(stream) {
   console.log('Got VideoStream');
