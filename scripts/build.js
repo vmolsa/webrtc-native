@@ -115,6 +115,8 @@ function configure() {
   process.env['GYP_DEFINES'] += ' host_arch=' + process.arch;
   process.env['GYP_DEFINES'] += ' nodedir=' + NODEJS;
   process.env['GYP_DEFINES'] += ' configuration=' + CONFIG;
+  process.env['GYP_DEFINES'] += ' build_with_chromium=0';
+  process.env['GYP_DEFINES'] += ' include_tests=0';
 
   switch (os.platform()) {
     case 'darwin':
