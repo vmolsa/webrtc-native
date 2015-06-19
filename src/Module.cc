@@ -46,7 +46,7 @@ void SetDebug(const FunctionCallbackInfo<Value>& args) {
     if (args[0]->IsTrue()) {
       rtc::LogMessage::LogToDebug(rtc::LS_VERBOSE);
     } else {
-      rtc::LogMessage::LogToDebug(rtc::LS_ERROR + 1);
+      rtc::LogMessage::LogToDebug(rtc::LS_NONE);
     }
   }
 }
