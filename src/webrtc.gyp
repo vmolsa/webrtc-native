@@ -65,6 +65,10 @@
             '-Wno-unknown-pragmas',
             '-Wno-unused-result',
           ],
+          'dependencies': [
+            '../third_party/node/deps/v8/tools/gyp/v8.gyp:v8',
+            '../third_party/node/deps/uv/uv.gyp:libuv',
+          ],
         }],
         ['OS=="win"', {
           'msvs_disabled_warnings': [ 
