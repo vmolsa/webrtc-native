@@ -35,6 +35,9 @@ if (fs.existsSync(ROOT + path.sep + 'build' + path.sep + 'Debug')) {
 var THIRD_PARTY = path.resolve(ROOT, 'third_party');
 var DEPOT_TOOLS_REPO = 'https://chromium.googlesource.com/chromium/tools/depot_tools.git';
 var DEPOT_TOOLS = path.resolve(THIRD_PARTY, 'depot_tools');
+var NODE_SRC = path.resolve(THIRD_PARTY, 'node');
+var NODE_SRC_REPO = 'https://github.com/joyent/node';
+var NODE_SRC_VERSION = 'v0.12.4';
 var WEBRTC = path.resolve(THIRD_PARTY, 'webrtc');
 var WEBRTC_SRC = path.resolve(WEBRTC, 'src');
 var WEBRTC_OUT = path.resolve(WEBRTC_SRC, 'out', CONFIG);
@@ -64,18 +67,6 @@ function build() {
   }
 }
 
-function checkout() {
-  return build(); 
-
-  sh('git checkout branch-heads/44', {
-    cwd: WEBRTC_SRC,
-    env: process.env,
-    stdio: 'inherit',
-  });
-
-  build();
-}
-
 function sync() {
   if (!SYNC) {
     if (fs.existsSync(THIRD_PARTY + path.sep + 'webrtc_sync')) {
@@ -102,7 +93,7 @@ function sync() {
   res.on('close', function (code) {
     if (!code) {
       fs.closeSync(fs.openSync(THIRD_PARTY + path.sep + 'webrtc_sync', 'w'));
-      return checkout();
+      return build();
     }
 
     process.exit(1);
@@ -151,6 +142,22 @@ function configure() {
 }
 
 function fetch(rerun) {
+  if (os.platform() == 'linux') {
+    if (!fs.existsSync(NODE_SRC)) {
+      sh('git clone ' + NODE_SRC_REPO, {
+        cwd: THIRD_PARTY,
+        env: process.env,
+        stdio: 'inherit',
+      });
+
+      sh('git checkout origin/' + NODE_SRC_VERSION + '-release', {
+        cwd: NODE_SRC,
+        env: process.env,
+        stdio: 'inherit',
+      });
+    }
+  }
+
   if (!fs.existsSync(WEBRTC) || !fs.existsSync(WEBRTC_SRC)) {
     if (!fs.existsSync(WEBRTC)) {
       fs.mkdirSync(WEBRTC);
