@@ -1,6 +1,7 @@
 var fs = require('fs');
 var os = require('os');
 var sh = require('child_process').execSync;
+var exec = require('child_process').exec;
 var spawn = require('child_process').spawn;
 var path = require('path');
 
@@ -43,6 +44,12 @@ var WEBRTC_SRC = path.resolve(WEBRTC, 'src');
 var WEBRTC_OUT = path.resolve(WEBRTC_SRC, 'out', CONFIG);
 var FETCH = path.resolve(DEPOT_TOOLS, (os.platform() == 'win32') ? 'fetch.bat' : 'fetch');
 var GCLIENT = path.resolve(DEPOT_TOOLS, (os.platform() == 'win32') ? 'gclient.bat' : 'gclient');
+
+exec('node -v', function (error, stdout, stderr) {
+  if (!error) {
+    NODE_SRC_VERSION = stdout.replace(/(\r\n|\n|\r)/gm, '');
+  }
+});
 
 if (os.platform() == 'win32' && process.arch == 'x64') {
   WEBRTC_OUT = path.resolve(WEBRTC_SRC, 'out', CONFIG + '_x64');
