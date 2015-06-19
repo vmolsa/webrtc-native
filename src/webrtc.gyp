@@ -1,5 +1,6 @@
 {
   'includes': [
+    '../third_party/webrtc/src/webrtc/supplement.gypi',
     '../third_party/webrtc/src/webrtc/build/common.gypi',
     '../third_party/webrtc/src/talk/build/common.gypi',
     '../build/config.gypi',
@@ -9,6 +10,7 @@
     'include_tests%': 0,
     'third_party%': 'third_party',
     'configuration%': 'Release',
+    'build_with_chromium%': 0,
   }, 
   'targets': [
     {
@@ -36,14 +38,11 @@
         'BUILDING_NODE_EXTENSION',
       ],
       'dependencies': [
-        '<(DEPTH)/webrtc/common.gyp:webrtc_common',
-        '<(DEPTH)/webrtc/webrtc.gyp:webrtc_all',
-        '<(DEPTH)/third_party/libsrtp/libsrtp.gyp:libsrtp',
-        '<(DEPTH)/third_party/jsoncpp/jsoncpp.gyp:jsoncpp',
-        '<(DEPTH)/third_party/libyuv/libyuv.gyp:libyuv',
-        '<(DEPTH)/talk/libjingle.gyp:libjingle_peerconnection',
-        '<(DEPTH)/webrtc/modules/modules.gyp:video_capture',
-        '<(DEPTH)/webrtc/modules/modules.gyp:video_render',
+        '<(DEPTH)/talk/libjingle.gyp:libjingle_peerconnection', 
+        '<(DEPTH)/webrtc/modules/modules.gyp:video_capture_module',
+        '<(DEPTH)/webrtc/modules/modules.gyp:video_capture_module_internal_impl',
+        '<(DEPTH)/webrtc/modules/modules.gyp:video_render_module',
+        '<(DEPTH)/webrtc/modules/modules.gyp:video_render_module_internal_impl',
       ],
       'include_dirs': [
         '<(nodedir)/src',
@@ -62,23 +61,9 @@
           'cflags': [
             '-fPIC',
             '-Wno-deprecated-declarations',
-          ],
-          'conditions': [
-            ['clang==1', {
-              'cflags': [
-                '-Wall',
-                '-Wextra',
-                '-Wimplicit-fallthrough',
-                '-Wmissing-braces',
-                '-Wreorder',
-                '-Wunused-variable',
-                '-Wno-address-of-array-temporary',
-                '-Wthread-safety',
-              ],
-              'cflags_cc': [
-                '-Wunused-private-field',
-              ],
-            }],
+            '-Wno-unused-variable',
+            '-Wno-unknown-pragmas',
+            '-Wno-unused-result',
           ],
         }],
         ['OS=="win"', {
