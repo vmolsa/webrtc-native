@@ -108,6 +108,7 @@ function configure() {
   process.env['GYP_DEFINES'] += ' configuration=' + CONFIG;
   process.env['GYP_DEFINES'] += ' build_with_chromium=0';
   process.env['GYP_DEFINES'] += ' include_tests=0';
+  process.env['GYP_DEFINES'] += ' uv_library=static_library';
 
   switch (os.platform()) {
     case 'darwin':

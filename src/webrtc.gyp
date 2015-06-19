@@ -11,6 +11,7 @@
     'third_party%': 'third_party',
     'configuration%': 'Release',
     'build_with_chromium%': 0,
+    'uv_library%': 'static_library',
   }, 
   'targets': [
     {
