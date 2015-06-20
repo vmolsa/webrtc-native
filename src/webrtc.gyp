@@ -23,7 +23,6 @@
         'BackTrace.cc',
         'EventEmitter.cc',
         'Observers.cc',
-        'ArrayBuffer.cc',
         'Module.cc',
         'PeerConnection.cc',
         'DataChannel.cc',
@@ -52,6 +51,8 @@
         '<(DEPTH)/third_party/jsoncpp/source/include',
         '<(DEPTH)/third_party/libsrtp/srtp',
         '<(DEPTH)/third_party/libyuv/include',
+        "<!(node -e \"require('node-arraybuffer')\")",
+        "<!(node -e \"require('nan')\")",
       ],
       'conditions': [ 
         ['OS=="linux"', {
