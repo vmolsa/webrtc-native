@@ -598,8 +598,7 @@ void DataChannel::On(Event *event) {
     if (type == kDataChannelData) {
       container->Set(String::NewFromUtf8(isolate, "data"), String::NewFromUtf8(isolate, reinterpret_cast<char *>(buffer.data()), String::kNormalString, buffer.size()));
     } else {
-      std::string data(reinterpret_cast<char *>(buffer.data()), buffer.size());
-      arrayBuffer = node::ArrayBuffer::New(isolate, data);                                
+      arrayBuffer = node::ArrayBuffer::New(isolate, reinterpret_cast<char *>(buffer.data()), buffer.size());                                
       container->Set(String::NewFromUtf8(isolate, "data"), arrayBuffer->ToArrayBuffer());
     }
   }
