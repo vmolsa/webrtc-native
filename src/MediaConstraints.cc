@@ -148,7 +148,7 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(Isolate *isolate, con
             Local<Value> sourceId = option->Get(String::NewFromUtf8(isolate, "sourceId"));
 
             self->SetOptional(webrtc::MediaConstraintsInterface::kEchoCancellation, googEchoCancellation);
-            self->SetOptional(webrtc::MediaConstraintsInterface::kExperimentalEchoCancellation, googEchoCancellation2);
+            self->SetOptional(webrtc::MediaConstraintsInterface::kExtendedFilterEchoCancellation, googEchoCancellation2);
             self->SetOptional(webrtc::MediaConstraintsInterface::kDAEchoCancellation, googDAEchoCancellation);
             self->SetOptional(webrtc::MediaConstraintsInterface::kAutoGainControl, googAutoGainControl);
             self->SetOptional(webrtc::MediaConstraintsInterface::kExperimentalAutoGainControl, googAutoGainControl2);
