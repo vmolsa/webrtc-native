@@ -23,9 +23,7 @@
 *
 */
 
-#pragma warning( disable : 4005 )
-
-#include <node.h>
+#include <nan.h>
 
 #include "Core.h"
 #include "Stats.h"
@@ -39,9 +37,11 @@
 
 using namespace v8;
 
-void SetDebug(const FunctionCallbackInfo<Value>& args) {
+NAN_METHOD(SetDebug) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
+  NanScope();
+
   if (args.Length() && !args[0].IsEmpty()) {
     if (args[0]->IsTrue()) {
       rtc::LogMessage::LogToDebug(rtc::LS_VERBOSE);
@@ -49,59 +49,58 @@ void SetDebug(const FunctionCallbackInfo<Value>& args) {
       rtc::LogMessage::LogToDebug(rtc::LS_NONE);
     }
   }
+
+  NanReturnUndefined();
 }
 
-void RTCGarbageCollect(const FunctionCallbackInfo<Value>& args) {
+NAN_METHOD(RTCGarbageCollect) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
+  NanScope();
+#if (NODE_MODULE_VERSION < NODE_0_12_MODULE_VERSION)
+  V8::LowMemoryNotification();
+#else
   Isolate* isolate = args.GetIsolate();
   isolate->LowMemoryNotification();
+#endif
+
+  NanReturnUndefined();
 }
 
-void RTCIceCandidate(const FunctionCallbackInfo<Value>& args) {
+NAN_METHOD(RTCIceCandidate) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate* isolate = args.GetIsolate();
-  HandleScope scope(isolate);
+  NanScope();
   
   if (args.Length() == 1 && args[0]->IsObject() && args.IsConstructCall()) {
     Local<Object> arg = args[0]->ToObject();
-    Local<Object> retval = Object::New(isolate);
+    Local<Object> retval = NanNew<Object>();
     
-    retval->Set(String::NewFromUtf8(isolate, "candidate"), 
-                arg->Get(String::NewFromUtf8(isolate, "candidate")));
-                
-    retval->Set(String::NewFromUtf8(isolate, "sdpMLineIndex"), 
-                arg->Get(String::NewFromUtf8(isolate, "sdpMLineIndex")));
-                
-    retval->Set(String::NewFromUtf8(isolate, "sdpMid"), 
-                arg->Get(String::NewFromUtf8(isolate, "sdpMid")));
+    retval->Set(NanNew("candidate"), arg->Get(NanNew("candidate")));               
+    retval->Set(NanNew("sdpMLineIndex"), arg->Get(NanNew("sdpMLineIndex")));
+    retval->Set(NanNew("sdpMid"), arg->Get(NanNew("sdpMid")));
     
-    args.GetReturnValue().Set(retval);
+    NanReturnValue(retval);
   } else {
-    args.GetReturnValue().Set(args[0]);
+    NanReturnValue(args[0]);
   }
 }
 
-void RTCSessionDescription(const FunctionCallbackInfo<Value>& args) {
+NAN_METHOD(RTCSessionDescription) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate* isolate = args.GetIsolate();
-  HandleScope scope(isolate);
+  NanScope();
   
   if (args.Length() == 1 && args[0]->IsObject() && args.IsConstructCall()) {
     Local<Object> arg = args[0]->ToObject();
-    Local<Object> retval = Object::New(isolate);
+    Local<Object> retval = NanNew<Object>();
     
-    retval->Set(String::NewFromUtf8(isolate, "type"), 
-                arg->Get(String::NewFromUtf8(isolate, "type")));
-                
-    retval->Set(String::NewFromUtf8(isolate, "sdp"), 
-                arg->Get(String::NewFromUtf8(isolate, "sdp")));
-    
-    args.GetReturnValue().Set(retval);
+    retval->Set(NanNew("type"), arg->Get(NanNew("type")));
+    retval->Set(NanNew("sdp"), arg->Get(NanNew("sdp")));
+
+    NanReturnValue(retval);
   } else {
-    args.GetReturnValue().Set(args[0]);
+    NanReturnValue(args[0]);
   }
 }
 
@@ -113,10 +112,9 @@ void WebrtcModuleDispose(void *arg) {
 
 void WebrtcModuleInit(Handle<Object> exports) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  Isolate* isolate = Isolate::GetCurrent();
-  HandleScope scope(isolate);
-  
+
+  NanScope();
+
   WebRTC::Core::Init();
   WebRTC::RTCStatsResponse::Init();
   WebRTC::RTCStatsReport::Init();
@@ -127,17 +125,10 @@ void WebrtcModuleInit(Handle<Object> exports) {
   WebRTC::MediaStream::Init();
   WebRTC::MediaStreamTrack::Init();
   
-  exports->Set(String::NewFromUtf8(isolate, "RTCGarbageCollect"), 
-               FunctionTemplate::New(isolate, RTCGarbageCollect)->GetFunction());
-  
-  exports->Set(String::NewFromUtf8(isolate, "RTCIceCandidate"), 
-               FunctionTemplate::New(isolate, RTCIceCandidate)->GetFunction());
-               
-  exports->Set(String::NewFromUtf8(isolate, "RTCSessionDescription"), 
-               FunctionTemplate::New(isolate, RTCSessionDescription)->GetFunction());
-
-  exports->Set(String::NewFromUtf8(isolate, "setDebug"),
-               FunctionTemplate::New(isolate, SetDebug)->GetFunction());
+  exports->Set(NanNew("RTCGarbageCollect"), NanNew<FunctionTemplate>(RTCGarbageCollect)->GetFunction()); 
+  exports->Set(NanNew("RTCIceCandidate"), NanNew<FunctionTemplate>(RTCIceCandidate)->GetFunction());
+  exports->Set(NanNew("RTCSessionDescription"), NanNew<FunctionTemplate>(RTCSessionDescription)->GetFunction());
+  exports->Set(NanNew("setDebug"), NanNew<FunctionTemplate>(SetDebug)->GetFunction());
 
   node::AtExit(WebrtcModuleDispose);
 }

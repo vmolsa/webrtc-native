@@ -28,7 +28,7 @@
 
 #pragma warning( disable : 4005 )
 
-#include <v8.h>
+#include <nan.h>
 
 #include "Observers.h"
 #include "EventEmitter.h"
@@ -39,85 +39,38 @@ namespace WebRTC {
   class DataChannel : public RTCWrap, public EventEmitter {    
    public:    
     static void Init();
-    static v8::Local<v8::Value> New(v8::Isolate *isolate, 
-                                    rtc::scoped_refptr<webrtc::DataChannelInterface> dataChannel);
+    static v8::Local<v8::Value> New(rtc::scoped_refptr<webrtc::DataChannelInterface> dataChannel);
     
    private:
     DataChannel();
     ~DataChannel() final;
     
-    static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
-    static void Close(const v8::FunctionCallbackInfo<v8::Value>& args);
-    static void Send(const v8::FunctionCallbackInfo<v8::Value>& args);
+    static NAN_METHOD(New);
+    static NAN_METHOD(Close);
+    static NAN_METHOD(Send);
 
-    static void GetId(v8::Local<v8::String> property, 
-                      const v8::PropertyCallbackInfo<v8::Value> &info);
+    static NAN_GETTER(GetId);
+    static NAN_GETTER(GetLabel);
+    static NAN_GETTER(GetOrdered);
+    static NAN_GETTER(GetProtocol);
+    static NAN_GETTER(GetReadyState);
+    static NAN_GETTER(GetBufferedAmount);
+    static NAN_GETTER(GetBinaryType);
+    static NAN_GETTER(GetMaxPacketLifeType);
+    static NAN_GETTER(GetMaxRetransmits);
+    static NAN_GETTER(GetNegotiated);
+    static NAN_GETTER(GetReliable);
+    static NAN_GETTER(GetOnOpen);
+    static NAN_GETTER(GetOnMessage);
+    static NAN_GETTER(GetOnClose);
+    static NAN_GETTER(GetOnError);
 
-    static void GetLabel(v8::Local<v8::String> property, 
-                         const v8::PropertyCallbackInfo<v8::Value> &info);
-    
-    static void GetOrdered(v8::Local<v8::String> property, 
-                           const v8::PropertyCallbackInfo<v8::Value> &info);
-
-    static void GetProtocol(v8::Local<v8::String> property, 
-                            const v8::PropertyCallbackInfo<v8::Value> &info);
-
-    static void GetReadyState(v8::Local<v8::String> property, 
-                              const v8::PropertyCallbackInfo<v8::Value> &info);
-
-    static void GetBufferedAmount(v8::Local<v8::String> property, 
-                                  const v8::PropertyCallbackInfo<v8::Value> &info);
-
-    static void GetBinaryType(v8::Local<v8::String> property, 
-                              const v8::PropertyCallbackInfo<v8::Value> &info);
-
-    static void GetMaxPacketLifeType(v8::Local<v8::String> property, 
-                                     const v8::PropertyCallbackInfo<v8::Value> &info);
-
-    static void GetMaxRetransmits(v8::Local<v8::String> property, 
-                                  const v8::PropertyCallbackInfo<v8::Value> &info);
-                                  
-    static void GetNegotiated(v8::Local<v8::String> property, 
-                              const v8::PropertyCallbackInfo<v8::Value> &info);
-
-    static void GetReliable(v8::Local<v8::String> property, 
-                            const v8::PropertyCallbackInfo<v8::Value> &info);
-
-    static void GetOnOpen(v8::Local<v8::String> property, 
-                          const v8::PropertyCallbackInfo<v8::Value> &info);
-
-    static void GetOnMessage(v8::Local<v8::String> property, 
-                             const v8::PropertyCallbackInfo<v8::Value> &info);
-
-    static void GetOnClose(v8::Local<v8::String> property, 
-                           const v8::PropertyCallbackInfo<v8::Value> &info);
-
-    static void GetOnError(v8::Local<v8::String> property, 
-                           const v8::PropertyCallbackInfo<v8::Value> &info);    
-
-    static void ReadOnly(v8::Local<v8::String> property, 
-                         v8::Local<v8::Value> value, 
-                         const v8::PropertyCallbackInfo<void> &info);
-                         
-    static void SetBinaryType(v8::Local<v8::String> property, 
-                              v8::Local<v8::Value> value, 
-                              const v8::PropertyCallbackInfo<void> &info);
-
-    static void SetOnOpen(v8::Local<v8::String> property, 
-                          v8::Local<v8::Value> value, 
-                          const v8::PropertyCallbackInfo<void> &info);
-
-    static void SetOnMessage(v8::Local<v8::String> property, 
-                             v8::Local<v8::Value> value, 
-                             const v8::PropertyCallbackInfo<void> &info);
-
-    static void SetOnClose(v8::Local<v8::String> property, 
-                           v8::Local<v8::Value> value, 
-                           const v8::PropertyCallbackInfo<void> &info);
-
-    static void SetOnError(v8::Local<v8::String> property, 
-                           v8::Local<v8::Value> value, 
-                           const v8::PropertyCallbackInfo<void> &info);
+    static NAN_SETTER(ReadOnly);
+    static NAN_SETTER(SetBinaryType);
+    static NAN_SETTER(SetOnOpen);
+    static NAN_SETTER(SetOnMessage);
+    static NAN_SETTER(SetOnClose);
+    static NAN_SETTER(SetOnError);
 
     void On(Event *event) final;
     
