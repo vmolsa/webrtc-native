@@ -558,7 +558,7 @@ void PeerConnection::CreateDataChannel(const FunctionCallbackInfo<Value>& args) 
     rtc::scoped_refptr<webrtc::DataChannelInterface> dataChannel = socket->CreateDataChannel(label, &config);
     
     if (dataChannel.get()) {
-      return args.GetReturnValue().Set(DataChannel::New(isolate, dataChannel));
+      return args.GetReturnValue().Set(DataChannel::New(dataChannel));
     }
   }
   
@@ -1180,7 +1180,7 @@ void PeerConnection::On(Event *event) {
       
       container = Object::New(isolate);
       container->Set(String::NewFromUtf8(isolate, "channel"),
-                     DataChannel::New(isolate, event->Unwrap<rtc::scoped_refptr<webrtc::DataChannelInterface> >()));
+                     DataChannel::New(event->Unwrap<rtc::scoped_refptr<webrtc::DataChannelInterface> >()));
 
       argv[0] = container;
       argc = 1;
