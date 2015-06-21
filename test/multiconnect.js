@@ -63,6 +63,13 @@ function connect(callback) {
         initiator: true
     });
 
+    var timeout = setTimeout(function () {
+      peer1.destroy();
+      peer2.destroy();
+
+      callback(new Error("Timeout"));
+    }, 10000);
+
     // when peer1 has signaling data, give it to peer2, and vice versa
     peer1.on('signal', function(data) {
         console.log(connName, 'signal peer1 -> peer2:');
@@ -90,9 +97,12 @@ function connect(callback) {
         console.log(connName, 'sending message');
         peer1.send('peers are for kids');
     });
+
     peer2.on('data', function() {
         console.log(connName, 'completed');
-        
+
+        clearTimeout(timeout);
+
         peer1.destroy();
         peer2.destroy();
         
