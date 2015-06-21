@@ -31,7 +31,6 @@
         'MediaStream.cc',
         'MediaStreamTrack.cc',
         'MediaConstraints.cc',
-        'Wrap.cc',
         'Stats.cc',
       ],      
       'defines': [
