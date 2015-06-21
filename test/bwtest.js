@@ -158,17 +158,13 @@ function bwtest(options, callback) {
         // TODO allocating new buffer per send as workaround to repeated Externalize()
         // after fixing the issues around that we can move back to higher scope.
         var buffer = new ArrayBuffer(options.packetSize);
-        peer1.send(buffer, function(err) {
-            if (err) {
-                return failure(err);
-            }
-            n += 1;
-            if (global.setImmediate) {
-                global.setImmediate(send);
-            } else {
-                setTimeout(send, 0);
-            }
-        });
+        peer1.send(buffer);
+        n += 1;
+        if (global.setImmediate) {
+            global.setImmediate(send);
+        } else {
+            setTimeout(send, 0);
+        }
     }
 
 
