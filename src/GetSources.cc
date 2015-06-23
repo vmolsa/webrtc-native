@@ -32,10 +32,9 @@ using namespace WebRTC;
 void GetSources::Init(Handle<Object> exports) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate* isolate = Isolate::GetCurrent();
-  HandleScope scope(isolate);
+  NanScope();
 
-  exports->Set(String::NewFromUtf8(isolate, "getSources"), FunctionTemplate::New(isolate, GetSources::GetDevices)->GetFunction());
+  exports->Set(NanNew("getSources"), NanNew<FunctionTemplate>(GetSources::GetDevices)->GetFunction());
 }
 
 rtc::scoped_refptr<webrtc::AudioTrackInterface> GetSources::GetAudioSource(const rtc::scoped_refptr<MediaConstraints> &constraints) {
@@ -117,11 +116,11 @@ rtc::scoped_refptr<webrtc::VideoTrackInterface> GetSources::GetVideoSource(const
   return track;
 }
 
-Local<Value> GetSources::GetDevices(Isolate *isolate) {
+Local<Value> GetSources::GetDevices() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  EscapableHandleScope scope(isolate);
-  Local<Array> list = Array::New(isolate);
+  NanEscapableScope();
+  Local<Array> list = NanNew<Array>();
   uint32_t index = 0;
 
   cricket::DeviceManagerInterface *manager = Core::GetManager();
@@ -135,11 +134,11 @@ Local<Value> GetSources::GetDevices(Isolate *isolate) {
 
       for (audio_it = audio_devs.begin(); audio_it != audio_devs.end(); audio_it++) {
         const cricket::Device &dev = *audio_it;
-        Local<Object> dev_obj = Object::New(isolate);
+        Local<Object> dev_obj = NanNew<Object>();
 
-        dev_obj->Set(String::NewFromUtf8(isolate, "kind"), String::NewFromUtf8(isolate, "audio"));
-        dev_obj->Set(String::NewFromUtf8(isolate, "label"), String::NewFromUtf8(isolate, dev.name.c_str()));
-        dev_obj->Set(String::NewFromUtf8(isolate, "id"), String::NewFromUtf8(isolate, dev.id.c_str()));
+        dev_obj->Set(NanNew("kind"), NanNew("audio"));
+        dev_obj->Set(NanNew("label"), NanNew(dev.name.c_str()));
+        dev_obj->Set(NanNew("id"), NanNew(dev.id.c_str()));
 
         list->Set(index, dev_obj);
         index++;
@@ -151,11 +150,11 @@ Local<Value> GetSources::GetDevices(Isolate *isolate) {
 
       for (video_it = video_devs.begin(); video_it != video_devs.end(); video_it++) {
         const cricket::Device &dev = *video_it;
-        Local<Object> dev_obj = Object::New(isolate);
+        Local<Object> dev_obj = NanNew<Object>();
 
-        dev_obj->Set(String::NewFromUtf8(isolate, "kind"), String::NewFromUtf8(isolate, "video"));
-        dev_obj->Set(String::NewFromUtf8(isolate, "label"), String::NewFromUtf8(isolate, dev.name.c_str()));
-        dev_obj->Set(String::NewFromUtf8(isolate, "id"), String::NewFromUtf8(isolate, dev.id.c_str()));
+        dev_obj->Set(NanNew("kind"), NanNew("video"));
+        dev_obj->Set(NanNew("label"), NanNew(dev.name.c_str()));
+        dev_obj->Set(NanNew("id"), NanNew(dev.id.c_str()));
 
         list->Set(index, dev_obj);
         index++;
@@ -163,20 +162,19 @@ Local<Value> GetSources::GetDevices(Isolate *isolate) {
     }
   }
 
-  return scope.Escape(list);
+  return NanEscapeScope(list);
 }
 
-void GetSources::GetDevices(const FunctionCallbackInfo<Value>& args) {
+NAN_METHOD(GetSources::GetDevices) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = args.GetIsolate();
-  HandleScope scope(isolate);
+  NanScope();
 
   if (args.Length() == 1 && args[0]->IsFunction()) {
     Local<Function> callback = Local<Function>::Cast(args[0]);
 
     Local<Value> argv[1] = { 
-      GetSources::GetDevices(isolate)
+      GetSources::GetDevices()
     };
 
     if (!callback.IsEmpty()) {

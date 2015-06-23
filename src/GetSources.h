@@ -26,7 +26,7 @@
 #ifndef WEBRTC_GETSOURCES_H
 #define WEBRTC_GETSOURCES_H
 
-#include <v8.h>
+#include <nan.h>
 #include "Observers.h"
 #include "MediaConstraints.h"
 
@@ -41,10 +41,10 @@ namespace WebRTC {
     static rtc::scoped_refptr<webrtc::VideoTrackInterface> GetVideoSource(const rtc::scoped_refptr<MediaConstraints> &constraints);
     static rtc::scoped_refptr<webrtc::VideoTrackInterface> GetVideoSource(const std::string id, const rtc::scoped_refptr<MediaConstraints> &constraints);
 
-    static v8::Local<v8::Value> GetDevices(v8::Isolate *isolate);
+    static v8::Local<v8::Value> GetDevices();
 
    private:
-    static void GetDevices(const v8::FunctionCallbackInfo<v8::Value>& args);
+    static NAN_METHOD(GetDevices);
   };
 };
 
