@@ -182,7 +182,7 @@ PeerConnection::PeerConnection(const Local<Object> &configuration,
     }
   }
 
-  _constraints = MediaConstraints::New(isolate, constraints);
+  _constraints = MediaConstraints::New(constraints);
 
   if (!_constraints->GetOptional("RtpDataChannels")) {
     if (!_constraints->IsOptional("DtlsSrtpKeyAgreement")) {
