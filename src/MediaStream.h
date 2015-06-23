@@ -26,7 +26,7 @@
 #ifndef WEBRTC_MEDIASTREAM_H
 #define WEBRTC_MEDIASTREAM_H
 
-#include <v8.h>
+#include <nan.h>
 
 #include "Observers.h" 
 #include "EventEmitter.h"
@@ -35,11 +35,26 @@
 namespace WebRTC {
   class MediaStream : public RTCWrap, public EventEmitter {
    public:
-    static void Init();
+    static void Init();    
     static v8::Local<v8::Value> New(v8::Isolate *isolate, rtc::scoped_refptr<webrtc::MediaStreamInterface> mediaStream);
 
     static rtc::scoped_refptr<webrtc::MediaStreamInterface> Unwrap(v8::Isolate *isolate, v8::Local<v8::Object> value);
     static rtc::scoped_refptr<webrtc::MediaStreamInterface> Unwrap(v8::Isolate *isolate, v8::Local<v8::Value> value);
+
+    // TODO(): Remove This
+    inline static v8::Local<v8::Value> New(rtc::scoped_refptr<webrtc::MediaStreamInterface> mediaStream) {
+      return New(v8::Isolate::GetCurrent(), mediaStream);
+    }
+    
+    // TODO(): Remove This
+    inline static rtc::scoped_refptr<webrtc::MediaStreamInterface> Unwrap(v8::Local<v8::Object> value) {
+      return Unwrap(v8::Isolate::GetCurrent(), value);
+    }
+    
+    // TODO(): Remove This
+    inline static rtc::scoped_refptr<webrtc::MediaStreamInterface> Unwrap(v8::Local<v8::Value> value) {
+      return Unwrap(v8::Isolate::GetCurrent(), value);
+    }
 
    private:
     MediaStream();
