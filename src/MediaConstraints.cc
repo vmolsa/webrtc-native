@@ -45,8 +45,10 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New() {
   return new rtc::RefCountedObject<MediaConstraints>();
 }
 
-rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(Isolate *isolate, const Local<Object> &constraints) {
+rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(const Local<Object> &constraints) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  NanScope();
   
   rtc::scoped_refptr<MediaConstraints> self = MediaConstraints::New();
 
@@ -54,7 +56,7 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(Isolate *isolate, con
     return self;
   }
 
-  Local<Value> optional_value = constraints->Get(String::NewFromUtf8(isolate, "optional"));
+  Local<Value> optional_value = constraints->Get(NanNew("optional"));
 
   if (!optional_value.IsEmpty() && optional_value->IsArray()) {
     Local<Array> options = Local<Array>::Cast(optional_value);
@@ -64,22 +66,22 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(Isolate *isolate, con
 
       if (!option_value.IsEmpty() && option_value->IsObject()) {
         Local<Object> option = Local<Object>::Cast(option_value);
-        Local<Value> DtlsSrtpKeyAgreement = option->Get(String::NewFromUtf8(isolate, "DtlsSrtpKeyAgreement"));
-        Local<Value> RtpDataChannels = option->Get(String::NewFromUtf8(isolate, "RtpDataChannels"));
-        Local<Value> googDscp = option->Get(String::NewFromUtf8(isolate, "googDscp"));
-        Local<Value> googIPv6 = option->Get(String::NewFromUtf8(isolate, "googIPv6"));
-        Local<Value> googSuspendBelowMinBitrate = option->Get(String::NewFromUtf8(isolate, "googSuspendBelowMinBitrate"));
-        Local<Value> googNumUnsignalledRecvStreams = option->Get(String::NewFromUtf8(isolate, "googNumUnsignalledRecvStreams"));
-        Local<Value> googCombinedAudioVideoBwe = option->Get(String::NewFromUtf8(isolate, "googCombinedAudioVideoBwe"));
-        Local<Value> googScreencastMinBitrate = option->Get(String::NewFromUtf8(isolate, "googScreencastMinBitrate"));
-        Local<Value> googCpuOveruseDetection = option->Get(String::NewFromUtf8(isolate, "googCpuOveruseDetection"));
-        Local<Value> googCpuUnderuseThreshold = option->Get(String::NewFromUtf8(isolate, "googCpuUnderuseThreshold"));
-        Local<Value> googCpuOveruseThreshold = option->Get(String::NewFromUtf8(isolate, "googCpuOveruseThreshold"));
-        Local<Value> googCpuOveruseEncodeUsage = option->Get(String::NewFromUtf8(isolate, "googCpuOveruseEncodeUsage"));
-        Local<Value> googHighStartBitrate = option->Get(String::NewFromUtf8(isolate, "googHighStartBitrate"));
-        Local<Value> googHighBitrate = option->Get(String::NewFromUtf8(isolate, "googHighBitrate"));
-        Local<Value> googVeryHighBitrate = option->Get(String::NewFromUtf8(isolate, "googVeryHighBitrate"));
-        Local<Value> googPayloadPadding = option->Get(String::NewFromUtf8(isolate, "googPayloadPadding"));
+        Local<Value> DtlsSrtpKeyAgreement = option->Get(NanNew("DtlsSrtpKeyAgreement"));
+        Local<Value> RtpDataChannels = option->Get(NanNew("RtpDataChannels"));
+        Local<Value> googDscp = option->Get(NanNew("googDscp"));
+        Local<Value> googIPv6 = option->Get(NanNew("googIPv6"));
+        Local<Value> googSuspendBelowMinBitrate = option->Get(NanNew("googSuspendBelowMinBitrate"));
+        Local<Value> googNumUnsignalledRecvStreams = option->Get(NanNew("googNumUnsignalledRecvStreams"));
+        Local<Value> googCombinedAudioVideoBwe = option->Get(NanNew("googCombinedAudioVideoBwe"));
+        Local<Value> googScreencastMinBitrate = option->Get(NanNew("googScreencastMinBitrate"));
+        Local<Value> googCpuOveruseDetection = option->Get(NanNew("googCpuOveruseDetection"));
+        Local<Value> googCpuUnderuseThreshold = option->Get(NanNew("googCpuUnderuseThreshold"));
+        Local<Value> googCpuOveruseThreshold = option->Get(NanNew("googCpuOveruseThreshold"));
+        Local<Value> googCpuOveruseEncodeUsage = option->Get(NanNew("googCpuOveruseEncodeUsage"));
+        Local<Value> googHighStartBitrate = option->Get(NanNew("googHighStartBitrate"));
+        Local<Value> googHighBitrate = option->Get(NanNew("googHighBitrate"));
+        Local<Value> googVeryHighBitrate = option->Get(NanNew("googVeryHighBitrate"));
+        Local<Value> googPayloadPadding = option->Get(NanNew("googPayloadPadding"));
 
         self->SetOptional(webrtc::MediaConstraintsInterface::kEnableDtlsSrtp, DtlsSrtpKeyAgreement);
         self->SetOptional(webrtc::MediaConstraintsInterface::kEnableRtpDataChannels, RtpDataChannels);
@@ -105,11 +107,11 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(Isolate *isolate, con
 
   if (!mandatory_value.IsEmpty() && mandatory_value->IsObject()) {
     Local<Object> mandatory = Local<Object>::Cast(mandatory_value);
-    Local<Value> OfferToReceiveAudio = mandatory->Get(String::NewFromUtf8(isolate, "OfferToReceiveAudio"));
-    Local<Value> OfferToReceiveVideo = mandatory->Get(String::NewFromUtf8(isolate, "OfferToReceiveVideo"));
-    Local<Value> VoiceActivityDetection = mandatory->Get(String::NewFromUtf8(isolate, "VoiceActivityDetection"));
-    Local<Value> IceRestart = mandatory->Get(String::NewFromUtf8(isolate, "IceRestart"));
-    Local<Value> googUseRtpMUX = mandatory->Get(String::NewFromUtf8(isolate, "googUseRtpMUX"));
+    Local<Value> OfferToReceiveAudio = mandatory->Get(NanNew("OfferToReceiveAudio"));
+    Local<Value> OfferToReceiveVideo = mandatory->Get(NanNew("OfferToReceiveVideo"));
+    Local<Value> VoiceActivityDetection = mandatory->Get(NanNew("VoiceActivityDetection"));
+    Local<Value> IceRestart = mandatory->Get(NanNew("IceRestart"));
+    Local<Value> googUseRtpMUX = mandatory->Get(NanNew("googUseRtpMUX"));
 
     self->SetMandatory(webrtc::MediaConstraintsInterface::kOfferToReceiveAudio, OfferToReceiveAudio);
     self->SetMandatory(webrtc::MediaConstraintsInterface::kOfferToReceiveVideo, OfferToReceiveVideo);
@@ -118,14 +120,14 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(Isolate *isolate, con
     self->SetMandatory(webrtc::MediaConstraintsInterface::kUseRtpMux, googUseRtpMUX);
   }
 
-  Local<Value> audio_value = constraints->Get(String::NewFromUtf8(isolate, "audio"));
+  Local<Value> audio_value = constraints->Get(NanNew("audio"));
 
   if (!audio_value.IsEmpty()) {
     if (audio_value->IsTrue() || audio_value->IsFalse()) {
       self->_audio = true;
     } else if (audio_value->IsObject()) {
       Local<Object> audio = Local<Object>::Cast(audio_value);
-      optional_value = audio->Get(String::NewFromUtf8(isolate, "optional"));
+      optional_value = audio->Get(NanNew("optional"));
 
       if (!optional_value.IsEmpty() && optional_value->IsArray()) {
         Local<Array> options = Local<Array>::Cast(optional_value);
@@ -135,17 +137,17 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(Isolate *isolate, con
 
           if (!option_value.IsEmpty() && option_value->IsObject()) {
             Local<Object> option = Local<Object>::Cast(option_value);
-            Local<Value> googEchoCancellation = option->Get(String::NewFromUtf8(isolate, "googEchoCancellation"));
-            Local<Value> googEchoCancellation2 = option->Get(String::NewFromUtf8(isolate, "googEchoCancellation2"));
-            Local<Value> googDAEchoCancellation = option->Get(String::NewFromUtf8(isolate, "googDAEchoCancellation"));
-            Local<Value> googAutoGainControl = option->Get(String::NewFromUtf8(isolate, "googAutoGainControl"));
-            Local<Value> googAutoGainControl2 = option->Get(String::NewFromUtf8(isolate, "googAutoGainControl2"));
-            Local<Value> googNoiseSuppression = option->Get(String::NewFromUtf8(isolate, "googNoiseSuppression"));
-            Local<Value> googNoiseSuppression2 = option->Get(String::NewFromUtf8(isolate, "googNoiseSuppression2"));
-            Local<Value> googHighpassFilter = option->Get(String::NewFromUtf8(isolate, "googHighpassFilter"));
-            Local<Value> googTypingNoiseDetection = option->Get(String::NewFromUtf8(isolate, "googTypingNoiseDetection"));
-            Local<Value> googAudioMirroring = option->Get(String::NewFromUtf8(isolate, "googAudioMirroring"));
-            Local<Value> sourceId = option->Get(String::NewFromUtf8(isolate, "sourceId"));
+            Local<Value> googEchoCancellation = option->Get(NanNew("googEchoCancellation"));
+            Local<Value> googEchoCancellation2 = option->Get(NanNew("googEchoCancellation2"));
+            Local<Value> googDAEchoCancellation = option->Get(NanNew("googDAEchoCancellation"));
+            Local<Value> googAutoGainControl = option->Get(NanNew("googAutoGainControl"));
+            Local<Value> googAutoGainControl2 = option->Get(NanNew("googAutoGainControl2"));
+            Local<Value> googNoiseSuppression = option->Get(NanNew("googNoiseSuppression"));
+            Local<Value> googNoiseSuppression2 = option->Get(NanNew("googNoiseSuppression2"));
+            Local<Value> googHighpassFilter = option->Get(NanNew("googHighpassFilter"));
+            Local<Value> googTypingNoiseDetection = option->Get(NanNew("googTypingNoiseDetection"));
+            Local<Value> googAudioMirroring = option->Get(NanNew("googAudioMirroring"));
+            Local<Value> sourceId = option->Get(NanNew("sourceId"));
 
             self->SetOptional(webrtc::MediaConstraintsInterface::kEchoCancellation, googEchoCancellation);
             self->SetOptional(webrtc::MediaConstraintsInterface::kExtendedFilterEchoCancellation, googEchoCancellation2);
@@ -170,14 +172,14 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(Isolate *isolate, con
     }
   }
 
-  Local<Value> video_value = constraints->Get(String::NewFromUtf8(isolate, "video"));
+  Local<Value> video_value = constraints->Get(NanNew("video"));
 
   if (!video_value.IsEmpty()) {
     if (video_value->IsTrue() || video_value->IsFalse()) {
       self->_video = true;
     } else if (video_value->IsObject()) {
       Local<Object> video = Local<Object>::Cast(audio_value);
-      optional_value = video->Get(String::NewFromUtf8(isolate, "optional"));
+      optional_value = video->Get(NanNew("optional"));
 
       if (!optional_value.IsEmpty() && optional_value->IsArray()) {
         Local<Array> options = Local<Array>::Cast(optional_value);
@@ -188,15 +190,15 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(Isolate *isolate, con
           if (!option_value.IsEmpty() && option_value->IsObject()) {
             Local<Object> option = Local<Object>::Cast(option_value);
 
-            Local<Value> minAspectRatio = option->Get(String::NewFromUtf8(isolate, "minAspectRatio"));
-            Local<Value> maxAspectRatio = option->Get(String::NewFromUtf8(isolate, "maxAspectRatio"));
-            Local<Value> maxWidth = option->Get(String::NewFromUtf8(isolate, "maxWidth"));
-            Local<Value> minWidth = option->Get(String::NewFromUtf8(isolate, "minWidth"));
-            Local<Value> maxHeight = option->Get(String::NewFromUtf8(isolate, "maxHeight"));
-            Local<Value> minHeight = option->Get(String::NewFromUtf8(isolate, "minHeight"));
-            Local<Value> maxFrameRate = option->Get(String::NewFromUtf8(isolate, "maxFrameRate"));
-            Local<Value> minFrameRate = option->Get(String::NewFromUtf8(isolate, "minFrameRate"));
-            Local<Value> sourceId = option->Get(String::NewFromUtf8(isolate, "sourceId"));
+            Local<Value> minAspectRatio = option->Get(NanNew("minAspectRatio"));
+            Local<Value> maxAspectRatio = option->Get(NanNew("maxAspectRatio"));
+            Local<Value> maxWidth = option->Get(NanNew("maxWidth"));
+            Local<Value> minWidth = option->Get(NanNew("minWidth"));
+            Local<Value> maxHeight = option->Get(NanNew("maxHeight"));
+            Local<Value> minHeight = option->Get(NanNew("minHeight"));
+            Local<Value> maxFrameRate = option->Get(NanNew("maxFrameRate"));
+            Local<Value> minFrameRate = option->Get(NanNew("minFrameRate"));
+            Local<Value> sourceId = option->Get(NanNew("sourceId"));
 
             self->SetOptional(webrtc::MediaConstraintsInterface::kMinAspectRatio, minAspectRatio);
             self->SetOptional(webrtc::MediaConstraintsInterface::kMaxAspectRatio, maxAspectRatio);
@@ -223,12 +225,14 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(Isolate *isolate, con
   return self;
 }
 
-rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(Isolate *isolate, const Local<Value> &constraints) {
+rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(const Local<Value> &constraints) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  NanScope();
   
   if (!constraints.IsEmpty() && constraints->IsObject()) {
     Local<Object> obj = Local<Object>::Cast(constraints);
-    return MediaConstraints::New(isolate, obj);
+    return MediaConstraints::New(obj);
   }
 
   return MediaConstraints::New();
@@ -250,8 +254,7 @@ void MediaConstraints::SetOptional(std::string key, Local<Value> value) {
     } else if (value->IsUint32()) {
       MediaConstraints::SetOptional(key, value->Uint32Value());
     } else {
-      Isolate* isolate = Isolate::GetCurrent();
-      isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Unknown MediaConstraints Type")));
+      NanThrowError("Unknown MediaConstraints Type");
     }
   }
 }
@@ -271,8 +274,7 @@ void MediaConstraints::SetMandatory(std::string key, Local<Value> value) {
     } else if (value->IsUint32()) {
       MediaConstraints::SetMandatory(key, value->Uint32Value());
     } else {
-      Isolate* isolate = Isolate::GetCurrent();
-      isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Unknown MediaConstraints Type")));
+      NanThrowError("Unknown MediaConstraints Type");
     }
   }
 }
