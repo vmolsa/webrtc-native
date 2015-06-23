@@ -26,7 +26,7 @@
 #ifndef WEBRTC_GETUSERMEDIA_H
 #define WEBRTC_GETUSERMEDIA_H
 
-#include <v8.h>
+#include <nan.h>
 
 namespace WebRTC {
   class GetUserMedia {
@@ -34,7 +34,7 @@ namespace WebRTC {
     static void Init(v8::Handle<v8::Object> exports);
 
    private:
-    static void GetMediaStream(const v8::FunctionCallbackInfo<v8::Value> &args);
+    static NAN_METHOD(GetMediaStream);
   };
 };
 
