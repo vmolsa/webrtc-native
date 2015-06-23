@@ -41,7 +41,7 @@ void GetUserMedia::Init(Handle<Object> exports) {
   exports->Set(NanNew("getUserMedia"), NanNew<FunctionTemplate>(GetUserMedia::GetMediaStream)->GetFunction());
 }
 
-NAN_METHOD(GetSources::GetDevices) {
+NAN_METHOD(GetUserMedia::GetMediaStream) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   NanScope();
