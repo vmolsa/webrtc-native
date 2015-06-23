@@ -103,7 +103,7 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(const Local<Object> &
     }
   }
 
-  Local<Value> mandatory_value = constraints->Get(String::NewFromUtf8(isolate, "mandatory"));
+  Local<Value> mandatory_value = constraints->Get(NanNew("mandatory"));
 
   if (!mandatory_value.IsEmpty() && mandatory_value->IsObject()) {
     Local<Object> mandatory = Local<Object>::Cast(mandatory_value);
