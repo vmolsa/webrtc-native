@@ -36,68 +36,33 @@ namespace WebRTC {
   class MediaStream : public RTCWrap, public EventEmitter {
    public:
     static void Init();    
-    static v8::Local<v8::Value> New(v8::Isolate *isolate, rtc::scoped_refptr<webrtc::MediaStreamInterface> mediaStream);
+    static v8::Local<v8::Value> New(rtc::scoped_refptr<webrtc::MediaStreamInterface> mediaStream);
 
-    static rtc::scoped_refptr<webrtc::MediaStreamInterface> Unwrap(v8::Isolate *isolate, v8::Local<v8::Object> value);
-    static rtc::scoped_refptr<webrtc::MediaStreamInterface> Unwrap(v8::Isolate *isolate, v8::Local<v8::Value> value);
-
-    // TODO(): Remove This
-    inline static v8::Local<v8::Value> New(rtc::scoped_refptr<webrtc::MediaStreamInterface> mediaStream) {
-      return New(v8::Isolate::GetCurrent(), mediaStream);
-    }
-    
-    // TODO(): Remove This
-    inline static rtc::scoped_refptr<webrtc::MediaStreamInterface> Unwrap(v8::Local<v8::Object> value) {
-      return Unwrap(v8::Isolate::GetCurrent(), value);
-    }
-    
-    // TODO(): Remove This
-    inline static rtc::scoped_refptr<webrtc::MediaStreamInterface> Unwrap(v8::Local<v8::Value> value) {
-      return Unwrap(v8::Isolate::GetCurrent(), value);
-    }
+    static rtc::scoped_refptr<webrtc::MediaStreamInterface> Unwrap(v8::Local<v8::Object> value);
+    static rtc::scoped_refptr<webrtc::MediaStreamInterface> Unwrap(v8::Local<v8::Value> value);
 
    private:
     MediaStream();
     ~MediaStream() final;
+    
+    static NAN_METHOD(New);
+    static NAN_METHOD(AddTrack);
+    static NAN_METHOD(Clone);
+    static NAN_METHOD(GetTrackById);
+    static NAN_METHOD(GetAudioTracks);
+    static NAN_METHOD(GetVideoTracks);
+    static NAN_METHOD(RemoveTrack);
+    
+    static NAN_GETTER(GetEnded);
+    static NAN_GETTER(GetId);
+    static NAN_GETTER(GetOnAddTrack);
+    static NAN_GETTER(GetOnRemoveTrack);
+    static NAN_GETTER(GetOnEnded);
 
-    static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
-    static void AddTrack(const v8::FunctionCallbackInfo<v8::Value>& args);
-    static void Clone(const v8::FunctionCallbackInfo<v8::Value>& args);
-    static void GetTrackById(const v8::FunctionCallbackInfo<v8::Value>& args);
-    static void GetAudioTracks(const v8::FunctionCallbackInfo<v8::Value>& args);
-    static void GetVideoTracks(const v8::FunctionCallbackInfo<v8::Value>& args);
-    static void RemoveTrack(const v8::FunctionCallbackInfo<v8::Value>& args);
-
-    static void GetEnded(v8::Local<v8::String> property,
-                         const v8::PropertyCallbackInfo<v8::Value> &info);
-
-    static void GetId(v8::Local<v8::String> property,
-                      const v8::PropertyCallbackInfo<v8::Value> &info);
-
-    static void GetOnAddTrack(v8::Local<v8::String> property,
-                              const v8::PropertyCallbackInfo<v8::Value> &info);
-
-    static void GetOnRemoveTrack(v8::Local<v8::String> property,
-                                 const v8::PropertyCallbackInfo<v8::Value> &info);
-
-    static void GetOnEnded(v8::Local<v8::String> property,
-                           const v8::PropertyCallbackInfo<v8::Value> &info);
-
-    static void ReadOnly(v8::Local<v8::String> property,
-                         v8::Local<v8::Value> value,
-                         const v8::PropertyCallbackInfo<void> &info);
-
-    static void SetOnAddTrack(v8::Local<v8::String> property,
-                              v8::Local<v8::Value> value,
-                              const v8::PropertyCallbackInfo<void> &info);
-
-    static void SetOnRemoveTrack(v8::Local<v8::String> property,
-                                 v8::Local<v8::Value> value,
-                                 const v8::PropertyCallbackInfo<void> &info);
-
-    static void SetOnEnded(v8::Local<v8::String> property,
-                           v8::Local<v8::Value> value,
-                           const v8::PropertyCallbackInfo<void> &info);
+    static NAN_SETTER(ReadOnly);
+    static NAN_SETTER(SetOnAddTrack);
+    static NAN_SETTER(SetOnRemoveTrack);
+    static NAN_SETTER(SetOnEnded);
 
     void On(Event *event) final;
 

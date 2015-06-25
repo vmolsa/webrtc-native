@@ -34,70 +34,56 @@ Persistent<Function> MediaStream::constructor;
 void MediaStream::Init() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate* isolate = Isolate::GetCurrent();
-  HandleScope scope(isolate);
+  NanScope();
 
-  Local<FunctionTemplate> tpl = FunctionTemplate::New(isolate, MediaStream::New);
-  tpl->SetClassName(String::NewFromUtf8(isolate, "MediaStream"));
+  Local<FunctionTemplate> tpl = NanNew<FunctionTemplate>(MediaStream::New);
+  tpl->SetClassName(NanNew("MediaStream"));
 
-  tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "addTrack"),
-                                FunctionTemplate::New(isolate, MediaStream::AddTrack));
+  tpl->PrototypeTemplate()->Set(NanNew("addTrack"), NanNew<FunctionTemplate>(MediaStream::AddTrack)->GetFunction());
+  tpl->PrototypeTemplate()->Set(NanNew("removeTrack"), NanNew<FunctionTemplate>(MediaStream::RemoveTrack)->GetFunction());
+  tpl->PrototypeTemplate()->Set(NanNew("clone"), NanNew<FunctionTemplate>(MediaStream::Clone)->GetFunction());
+  tpl->PrototypeTemplate()->Set(NanNew("getAudioTracks"), NanNew<FunctionTemplate>(MediaStream::GetAudioTracks)->GetFunction());
+  tpl->PrototypeTemplate()->Set(NanNew("getTrackById"), NanNew<FunctionTemplate>(MediaStream::GetTrackById)->GetFunction());
+  tpl->PrototypeTemplate()->Set(NanNew("getVideoTracks"), NanNew<FunctionTemplate>(MediaStream::GetVideoTracks)->GetFunction());
 
-  tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "removeTrack"),
-                                FunctionTemplate::New(isolate, MediaStream::RemoveTrack));
-
-  tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "clone"),
-                                FunctionTemplate::New(isolate, MediaStream::Clone));
-
-  tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "getAudioTracks"),
-                                FunctionTemplate::New(isolate, MediaStream::GetAudioTracks));
-
-  tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "getTrackById"),
-                                FunctionTemplate::New(isolate, MediaStream::GetTrackById));
-
-  tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "getVideoTracks"),
-                                FunctionTemplate::New(isolate, MediaStream::GetVideoTracks));
-
-
-  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "ended"),
+  tpl->InstanceTemplate()->SetAccessor(NanNew("ended"),
                                        MediaStream::GetEnded,
                                        MediaStream::ReadOnly);
 
-  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "id"),
+  tpl->InstanceTemplate()->SetAccessor(NanNew("id"),
                                        MediaStream::GetId,
                                        MediaStream::ReadOnly);
 
-  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "onaddtrack"),
+  tpl->InstanceTemplate()->SetAccessor(NanNew("onaddtrack"),
                                        MediaStream::GetOnAddTrack,
                                        MediaStream::SetOnAddTrack);
 
-  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "onremovetrack"),
+  tpl->InstanceTemplate()->SetAccessor(NanNew("onremovetrack"),
                                        MediaStream::GetOnRemoveTrack,
                                        MediaStream::SetOnRemoveTrack);
 
-  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "onended"),
+  tpl->InstanceTemplate()->SetAccessor(NanNew("onended"),
                                        MediaStream::GetOnEnded,
                                        MediaStream::SetOnEnded);
 
-  constructor.Reset(isolate, tpl->GetFunction());
+  NanAssignPersistent(constructor, tpl->GetFunction());
 }
 
-Local<Value> MediaStream::New(Isolate *isolate, rtc::scoped_refptr<webrtc::MediaStreamInterface> mediaStream) {
+Local<Value> MediaStream::New(rtc::scoped_refptr<webrtc::MediaStreamInterface> mediaStream) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  EscapableHandleScope scope(isolate);
+  NanEscapableScope();
 
   Local<Value> empty;
   Local<Value> argv[1];
-  Local<Function> instance = Local<Function>::New(isolate, MediaStream::constructor);
+  Local<Function> instance = NanNew(MediaStream::constructor);
 
   if (instance.IsEmpty() || !mediaStream.get()) {
-    empty = Null(isolate);
-    return scope.Escape(empty);
+    return NanEscapeScope(NanNull());
   }
 
   Local<Object> ret = instance->NewInstance(0, argv);
-  MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, ret, "MediaStream");
+  MediaStream *self = RTCWrap::Unwrap<MediaStream>(ret, "MediaStream");
   
   if (self) {
     self->Start();
@@ -105,11 +91,10 @@ Local<Value> MediaStream::New(Isolate *isolate, rtc::scoped_refptr<webrtc::Media
     self->_stream->RegisterObserver(self->_observer.get());
     self->Emit(kMediaStreamChanged);
     
-    return scope.Escape(ret);
+    return NanEscapeScope(ret);
   }
 
-  empty = Null(isolate);
-  return scope.Escape(empty);
+  return NanEscapeScope(NanNull());
 }
 
 MediaStream::MediaStream() :
@@ -131,26 +116,25 @@ MediaStream::~MediaStream() {
   EventEmitter::End();
 }
 
-void MediaStream::New(const FunctionCallbackInfo<Value>& args) {
+NAN_METHOD(MediaStream::New) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate* isolate = args.GetIsolate();
-  HandleScope scope(isolate);
+  NanScope();
 
   if (args.IsConstructCall()) {
     MediaStream* mediaStream = new MediaStream();
-    mediaStream->Wrap(isolate, args.This(), "MediaStream");
-    return args.GetReturnValue().Set(args.This());
+    mediaStream->Wrap(args.This(), "MediaStream");
+    NanReturnValue(args.This());
   }
-
-  isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
+  
+  NanThrowError("Internal Error");
 }
 
-rtc::scoped_refptr<webrtc::MediaStreamInterface> MediaStream::Unwrap(Isolate *isolate, Local<Object> value) {
+rtc::scoped_refptr<webrtc::MediaStreamInterface> MediaStream::Unwrap(Local<Object> value) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   if (!value.IsEmpty()) {
-    MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, value, "MediaStream");
+    MediaStream *self = RTCWrap::Unwrap<MediaStream>(value, "MediaStream");
 
     if (self) {
       return self->_stream;
@@ -160,32 +144,31 @@ rtc::scoped_refptr<webrtc::MediaStreamInterface> MediaStream::Unwrap(Isolate *is
   return 0;
 }
 
-rtc::scoped_refptr<webrtc::MediaStreamInterface> MediaStream::Unwrap(Isolate *isolate, Local<Value> value) {
+rtc::scoped_refptr<webrtc::MediaStreamInterface> MediaStream::Unwrap(Local<Value> value) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   if (!value.IsEmpty() && value->IsObject()) {
     Local<Object> stream = Local<Object>::Cast(value);
-    return MediaStream::Unwrap(isolate, stream);
+    return MediaStream::Unwrap(stream);
   }
 
   return 0;
 }
 
-void MediaStream::AddTrack(const FunctionCallbackInfo<Value>& args) {
+NAN_METHOD(MediaStream::AddTrack) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
+   
+  NanScope();
   
-  Isolate *isolate = args.GetIsolate();
-  //MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, args.This(), "MediaStream");
-  rtc::scoped_refptr<webrtc::MediaStreamInterface> stream = MediaStream::Unwrap(isolate, args.This());
+  rtc::scoped_refptr<webrtc::MediaStreamInterface> stream = MediaStream::Unwrap(args.This());
   bool retval = false;
 
   if (stream.get()) {
     if (args.Length() >= 1 && args[0]->IsObject()) {
-      rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track = MediaStreamTrack::Unwrap(isolate, args[0]);
+      rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track = MediaStreamTrack::Unwrap(args[0]);
 
       if (track.get()) {
         std::string kind = track->kind();
-        //self->Start();
 
         if (kind.compare("audio") == 0) {
           rtc::scoped_refptr<webrtc::AudioTrackInterface> audio(static_cast<webrtc::AudioTrackInterface*>(track.get()));
@@ -196,24 +179,24 @@ void MediaStream::AddTrack(const FunctionCallbackInfo<Value>& args) {
         }
       }
     }
-  }
-  else {
-    isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
+  } else {
+    NanThrowError("Internal Error");
   }
 
-  args.GetReturnValue().Set(v8::Boolean::New(isolate, retval));
+  NanReturnValue(NanNew(retval));
 }
 
-void MediaStream::RemoveTrack(const FunctionCallbackInfo<Value>& args) {
+NAN_METHOD(MediaStream::RemoveTrack) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = args.GetIsolate();
-  rtc::scoped_refptr<webrtc::MediaStreamInterface> stream = MediaStream::Unwrap(isolate, args.This());
+  NanScope();
+  
+  rtc::scoped_refptr<webrtc::MediaStreamInterface> stream = MediaStream::Unwrap(args.This());
   bool retval = false;
 
   if (stream.get()) {
     if (args.Length() >= 1 && args[0]->IsObject()) {
-      rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track = MediaStreamTrack::Unwrap(isolate, args[0]);
+      rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track = MediaStreamTrack::Unwrap(args[0]);
 
       if (track.get()) {
         std::string kind = track->kind();
@@ -228,17 +211,18 @@ void MediaStream::RemoveTrack(const FunctionCallbackInfo<Value>& args) {
       }
     }
   } else {
-    isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
+    NanThrowError("Internal Error");
   }
 
-  args.GetReturnValue().Set(v8::Boolean::New(isolate, retval));
+  NanReturnValue(NanNew(retval));
 }
 
-void MediaStream::Clone(const FunctionCallbackInfo<Value>& args) {
+NAN_METHOD(MediaStream::Clone) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = args.GetIsolate();
-  rtc::scoped_refptr<webrtc::MediaStreamInterface> self = MediaStream::Unwrap(isolate, args.This());
+  NanScope();
+  
+  rtc::scoped_refptr<webrtc::MediaStreamInterface> self = MediaStream::Unwrap(args.This());
   rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory = webrtc::CreatePeerConnectionFactory();
   rtc::scoped_refptr<webrtc::MediaStreamInterface> stream;
 
@@ -268,18 +252,19 @@ void MediaStream::Clone(const FunctionCallbackInfo<Value>& args) {
         }
       }
 
-      return args.GetReturnValue().Set(MediaStream::New(isolate, stream));
+      NanReturnValue(MediaStream::New(stream));
     }
   }
   
-  isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
+  NanThrowError("Internal Error");
 }
 
-void MediaStream::GetTrackById(const FunctionCallbackInfo<Value>& args) {
+NAN_METHOD(MediaStream::GetTrackById) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = args.GetIsolate();
-  rtc::scoped_refptr<webrtc::MediaStreamInterface> stream = MediaStream::Unwrap(isolate, args.This());
+  NanScope();
+  
+  rtc::scoped_refptr<webrtc::MediaStreamInterface> stream = MediaStream::Unwrap(args.This());
 
   if (stream.get()) {
     if (args.Length() >= 1 && args[0]->IsString()) {
@@ -289,198 +274,185 @@ void MediaStream::GetTrackById(const FunctionCallbackInfo<Value>& args) {
       rtc::scoped_refptr<webrtc::AudioTrackInterface> audio = stream->FindAudioTrack(id);
 
       if (audio.get()) {
-        return args.GetReturnValue().Set(MediaStreamTrack::New(isolate, audio.get()));
+        NanReturnValue(MediaStreamTrack::New(audio.get()));
       }
 
       rtc::scoped_refptr<webrtc::VideoTrackInterface> video = stream->FindVideoTrack(id);
 
       if (video.get()) {
-        return args.GetReturnValue().Set(MediaStreamTrack::New(isolate, video.get()));
+        NanReturnValue(MediaStreamTrack::New(video.get()));
       }
     }
 
-    Local<Value> empty = Null(isolate);
-    args.GetReturnValue().Set(empty);
+    NanReturnValue(NanNull());
   } else {
-    isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
+    NanThrowError("Internal Error");
   }
 }
 
-void MediaStream::GetAudioTracks(const FunctionCallbackInfo<Value>& args) {
+NAN_METHOD(MediaStream::GetAudioTracks) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = args.GetIsolate();
-  rtc::scoped_refptr<webrtc::MediaStreamInterface> self = MediaStream::Unwrap(isolate, args.This());
+  NanScope();
+  
+  rtc::scoped_refptr<webrtc::MediaStreamInterface> self = MediaStream::Unwrap(args.This());
 
   if (self.get()) {
     webrtc::AudioTrackVector audio_list = self->GetAudioTracks();
     std::vector<rtc::scoped_refptr<webrtc::AudioTrackInterface> >::iterator audio_it;
-    Local<Array> list = Array::New(isolate);
+    Local<Array> list = NanNew<Array>();
     uint32_t index = 0;
 
     for (audio_it = audio_list.begin(); audio_it != audio_list.end(); audio_it++) {
       rtc::scoped_refptr<webrtc::AudioTrackInterface> track(*audio_it);
 
       if (track.get()) {
-        list->Set(index, MediaStreamTrack::New(isolate, track.get()));
+        list->Set(index, MediaStreamTrack::New(track.get()));
         index++;
       }
     }
 
-    args.GetReturnValue().Set(list);
+    NanReturnValue(list);
   } else {
-    isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
+    NanThrowError("Internal Error");
   }
 }
 
-void MediaStream::GetVideoTracks(const FunctionCallbackInfo<Value>& args) {
+NAN_METHOD(MediaStream::GetVideoTracks) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = args.GetIsolate();
-  rtc::scoped_refptr<webrtc::MediaStreamInterface> self = MediaStream::Unwrap(isolate, args.This());
+  NanScope();
+  
+  rtc::scoped_refptr<webrtc::MediaStreamInterface> self = MediaStream::Unwrap(args.This());
 
   if (self.get()) {
     webrtc::VideoTrackVector video_list = self->GetVideoTracks();
     std::vector<rtc::scoped_refptr<webrtc::VideoTrackInterface> >::iterator video_it;
-    Local<Array> list = Array::New(isolate);
+    Local<Array> list = NanNew<Array>();
     uint32_t index = 0;
 
     for (video_it = video_list.begin(); video_it != video_list.end(); video_it++) {
       rtc::scoped_refptr<webrtc::VideoTrackInterface> track(*video_it);
 
       if (track.get()) {
-        list->Set(index, MediaStreamTrack::New(isolate, track.get()));
+        list->Set(index, MediaStreamTrack::New(track.get()));
         index++;
       }
     }
 
-    args.GetReturnValue().Set(list);
+    NanReturnValue(list);
   } else {
-    isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
+    NanThrowError("Internal Error");
   }
 }
 
-void MediaStream::GetEnded(Local<String> property,
-                           const PropertyCallbackInfo<Value> &info)
-{
+NAN_GETTER(MediaStream::GetEnded) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = info.GetIsolate();
-  MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, info.Holder(), "MediaStream");
-  info.GetReturnValue().Set(v8::Boolean::New(isolate, self->_ended));
+  NanScope();
+  
+  MediaStream *self = RTCWrap::Unwrap<MediaStream>(args.Holder(), "MediaStream");
+  NanReturnValue(NanNew(self->_ended));
 }
 
-void MediaStream::GetId(Local<String> property,
-                        const PropertyCallbackInfo<Value> &info)
-{
+NAN_GETTER(MediaStream::GetId) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = info.GetIsolate();
-  rtc::scoped_refptr<webrtc::MediaStreamInterface> stream = MediaStream::Unwrap(isolate, info.Holder());
+  NanScope();
+  
+  rtc::scoped_refptr<webrtc::MediaStreamInterface> stream = MediaStream::Unwrap(args.Holder());
   
   if (stream.get()) {
-    std::string label = stream->label();
-    info.GetReturnValue().Set(String::NewFromUtf8(isolate, label.c_str()));
+    NanReturnValue(NanNew(stream->label().c_str()));
   } else {
-    isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
+    NanThrowError("Internal Error");
   }
 }
 
-void MediaStream::GetOnAddTrack(Local<String> property,
-                                const PropertyCallbackInfo<Value> &info)
-{
+NAN_GETTER(MediaStream::GetOnAddTrack) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = info.GetIsolate();
-  MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, info.Holder(), "MediaStream");
-  info.GetReturnValue().Set(Local<Function>::New(isolate, self->_onaddtrack));
+  NanScope();
+  
+  MediaStream *self = RTCWrap::Unwrap<MediaStream>(args.Holder(), "MediaStream");
+  NanReturnValue(NanNew(self->_onaddtrack));
 }
 
-void MediaStream::GetOnRemoveTrack(Local<String> property,
-                                   const PropertyCallbackInfo<Value> &info)
-{
+NAN_GETTER(MediaStream::GetOnRemoveTrack) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = info.GetIsolate();
-  MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, info.Holder(), "MediaStream");
-  info.GetReturnValue().Set(Local<Function>::New(isolate, self->_onremovetrack));
+  NanScope();
+  
+  MediaStream *self = RTCWrap::Unwrap<MediaStream>(args.Holder(), "MediaStream");
+  NanReturnValue(NanNew(self->_onremovetrack));
 }
 
-void MediaStream::GetOnEnded(Local<String> property,
-                             const PropertyCallbackInfo<Value> &info)
-{
+NAN_GETTER(MediaStream::GetOnEnded) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = info.GetIsolate();
-  MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, info.Holder(), "MediaStream");
-  info.GetReturnValue().Set(Local<Function>::New(isolate, self->_onended));
+  NanScope();
+  
+  MediaStream *self = RTCWrap::Unwrap<MediaStream>(args.Holder(), "MediaStream");
+  NanReturnValue(NanNew(self->_onended));
 }
 
-void MediaStream::ReadOnly(Local<String> property,
-                           Local<Value> value,
-                           const PropertyCallbackInfo<void> &info)
-{
+NAN_SETTER(MediaStream::ReadOnly) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
 }
 
-void MediaStream::SetOnAddTrack(Local<String> property,
-                                Local<Value> value,
-                                const PropertyCallbackInfo<void> &info)
-{
+NAN_SETTER(MediaStream::SetOnAddTrack) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = info.GetIsolate();
-  MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, info.Holder(), "MediaStream");
+  NanScope();
+  
+  MediaStream *self = RTCWrap::Unwrap<MediaStream>(args.Holder(), "MediaStream");
 
   if (!value.IsEmpty() && value->IsFunction()) {
-    self->_onaddtrack.Reset(isolate, Local<Function>::Cast(value));
+    NanAssignPersistent(self->_onaddtrack, Local<Function>::Cast(value));
   } else {
-    self->_onaddtrack.Reset();
+    NanDisposePersistent(self->_onaddtrack);
   }
 }
 
-void MediaStream::SetOnRemoveTrack(Local<String> property,
-                                   Local<Value> value,
-                                   const PropertyCallbackInfo<void> &info)
-{
+NAN_SETTER(MediaStream::SetOnRemoveTrack) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = info.GetIsolate();
-  MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, info.Holder(), "MediaStream");
+  NanScope();
+  
+  MediaStream *self = RTCWrap::Unwrap<MediaStream>(args.Holder(), "MediaStream");
 
   if (!value.IsEmpty() && value->IsFunction()) {
-    self->_onremovetrack.Reset(isolate, Local<Function>::Cast(value));
+    NanAssignPersistent(self->_onremovetrack, Local<Function>::Cast(value));
   } else {
-    self->_onremovetrack.Reset();
+    NanDisposePersistent(self->_onremovetrack);
   }
 }
 
-void MediaStream::SetOnEnded(Local<String> property,
-                             Local<Value> value,
-                             const PropertyCallbackInfo<void> &info)
-{
+NAN_SETTER(MediaStream::SetOnEnded) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = info.GetIsolate();
-  MediaStream *self = RTCWrap::Unwrap<MediaStream>(isolate, info.Holder(), "MediaStream");
+  NanScope();
+  
+  MediaStream *self = RTCWrap::Unwrap<MediaStream>(args.Holder(), "MediaStream");
 
   if (!value.IsEmpty() && value->IsFunction()) {
-    self->_onended.Reset(isolate, Local<Function>::Cast(value));
+    NanAssignPersistent(self->_onended, Local<Function>::Cast(value));
   } else {
-    self->_onended.Reset();
+    NanDisposePersistent(self->_onended);
   }
 }
 
 void MediaStream::On(Event *event) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = Isolate::GetCurrent();
+  NanScope();
+  
   MediaStreamEvent type = event->Type<MediaStreamEvent>();
   Local<Function> onended;
   Local<Value> onended_argv[1];
 
   if (type != kMediaStreamChanged) {
-    isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
+    NanThrowError("Internal Error");
     return;
   }
 
@@ -494,10 +466,8 @@ void MediaStream::On(Event *event) {
       _ended = true;
 
       if (!_audio_tracks.empty() || !_video_tracks.empty()) {
-        onended = Local<Function>::New(isolate, _onended);
+        onended = NanNew(_onended);
       }
-
-      //EventEmitter::Stop();
     }
 
     if (audio_list.size() != _audio_tracks.size()) {
@@ -530,13 +500,13 @@ void MediaStream::On(Event *event) {
           }
 
           if (!found) {
-            Local<Function> callback = Local<Function>::New(isolate, _onaddtrack);
+            Local<Function> callback = NanNew(_onaddtrack);
             Local<Value> argv[] = {
-              MediaStreamTrack::New(isolate, cur_track.get())
+              MediaStreamTrack::New(cur_track.get())
             };
 
             if (!callback.IsEmpty() && callback->IsFunction()) {
-              callback->Call(RTCWrap::This(isolate), 1, argv);
+              callback->Call(RTCWrap::This(), 1, argv);
             }
           }
         }
@@ -567,13 +537,13 @@ void MediaStream::On(Event *event) {
           }
 
           if (!found) {
-            Local<Function> callback = Local<Function>::New(isolate, _onremovetrack);
+            Local<Function> callback = NanNew(_onremovetrack);
             Local<Value> argv[] = {
-              MediaStreamTrack::New(isolate, cur_track.get())
+              MediaStreamTrack::New(cur_track.get())
             };
 
             if (!callback.IsEmpty() && callback->IsFunction()) {
-              callback->Call(RTCWrap::This(isolate), 1, argv);
+              callback->Call(RTCWrap::This(), 1, argv);
             }
           }
         }
@@ -612,13 +582,13 @@ void MediaStream::On(Event *event) {
           }
 
           if (!found) {
-            Local<Function> callback = Local<Function>::New(isolate, _onaddtrack);
+            Local<Function> callback = NanNew(_onaddtrack);
             Local<Value> argv[] = {
-              MediaStreamTrack::New(isolate, cur_track.get())
+              MediaStreamTrack::New(cur_track.get())
             };
 
             if (!callback.IsEmpty() && callback->IsFunction()) {
-              callback->Call(RTCWrap::This(isolate), 1, argv);
+              callback->Call(RTCWrap::This(), 1, argv);
             }
           }
         }
@@ -649,13 +619,13 @@ void MediaStream::On(Event *event) {
           }
 
           if (!found) {
-            Local<Function> callback = Local<Function>::New(isolate, _onremovetrack);
+            Local<Function> callback = NanNew(_onremovetrack);
             Local<Value> argv[] = {
-              MediaStreamTrack::New(isolate, cur_track.get())
+              MediaStreamTrack::New(cur_track.get())
             };
 
             if (!callback.IsEmpty() && callback->IsFunction()) {
-              callback->Call(RTCWrap::This(isolate), 1, argv);
+              callback->Call(RTCWrap::This(), 1, argv);
             }
           }
         }
@@ -666,6 +636,6 @@ void MediaStream::On(Event *event) {
   }
 
   if (!onended.IsEmpty() && onended->IsFunction()) {
-    onended->Call(RTCWrap::This(isolate), 0, onended_argv);
+    onended->Call(RTCWrap::This(), 0, onended_argv);
   }
 }

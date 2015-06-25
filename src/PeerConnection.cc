@@ -570,7 +570,7 @@ void PeerConnection::AddStream(const v8::FunctionCallbackInfo<v8::Value>& args) 
   
   Isolate *isolate = args.GetIsolate();
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, args.This());
-  rtc::scoped_refptr<webrtc::MediaStreamInterface> mediaStream = MediaStream::Unwrap(isolate, args[0]);
+  rtc::scoped_refptr<webrtc::MediaStreamInterface> mediaStream = MediaStream::Unwrap(args[0]);
 
   if (mediaStream.get()) {
     webrtc::PeerConnectionInterface *socket = self->GetSocket();
@@ -592,7 +592,7 @@ void PeerConnection::RemoveStream(const v8::FunctionCallbackInfo<v8::Value>& arg
   
   Isolate *isolate = args.GetIsolate();
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(isolate, args.This());
-  rtc::scoped_refptr<webrtc::MediaStreamInterface> mediaStream = MediaStream::Unwrap(isolate, args[0]);
+  rtc::scoped_refptr<webrtc::MediaStreamInterface> mediaStream = MediaStream::Unwrap(args[0]);
 
   if (mediaStream.get()) {
     webrtc::PeerConnectionInterface *socket = self->GetSocket();
@@ -623,7 +623,7 @@ void PeerConnection::GetLocalStreams(const v8::FunctionCallbackInfo<v8::Value>& 
       size_t count;
 
       for (count = 0; count < local->count(); count++) {
-        list->Set(index, MediaStream::New(isolate, local->at(count)));
+        list->Set(index, MediaStream::New(local->at(count)));
       }
 
       return args.GetReturnValue().Set(list);
@@ -649,7 +649,7 @@ void PeerConnection::GetRemoteStreams(const v8::FunctionCallbackInfo<v8::Value>&
       size_t count;
 
       for (count = 0; count < remote->count(); count++) {
-        list->Set(index, MediaStream::New(isolate, remote->at(count)));
+        list->Set(index, MediaStream::New(remote->at(count)));
       }
 
       return args.GetReturnValue().Set(list);
@@ -684,7 +684,7 @@ void PeerConnection::GetStreamById(const v8::FunctionCallbackInfo<v8::Value>& ar
       }
 
       if (stream.get()) {
-        return args.GetReturnValue().Set(MediaStream::New(isolate, stream));
+        return args.GetReturnValue().Set(MediaStream::New(stream));
       } else {
         return args.GetReturnValue().Set(Null(isolate));
       }
@@ -1189,14 +1189,14 @@ void PeerConnection::On(Event *event) {
     case kPeerConnectionAddStream:
       callback = Local<Function>::New(isolate, _onaddstream);
 
-      argv[0] = MediaStream::New(isolate, event->Unwrap<rtc::scoped_refptr<webrtc::MediaStreamInterface> >());
+      argv[0] = MediaStream::New(event->Unwrap<rtc::scoped_refptr<webrtc::MediaStreamInterface> >());
       argc = 1;
 
       break;
     case kPeerConnectionRemoveStream:
       callback = Local<Function>::New(isolate, _onremovestream);
       
-      argv[0] = MediaStream::New(isolate, event->Unwrap<rtc::scoped_refptr<webrtc::MediaStreamInterface> >());
+      argv[0] = MediaStream::New(event->Unwrap<rtc::scoped_refptr<webrtc::MediaStreamInterface> >());
       argc = 1;
 
       break;
@@ -1207,7 +1207,7 @@ void PeerConnection::On(Event *event) {
     case kPeerConnectionStats:
       callback = Local<Function>::New(isolate, _onstats);
 
-      argv[0] = RTCStatsResponse::New(isolate, event->Unwrap<webrtc::StatsReports>());
+      argv[0] = RTCStatsResponse::New(event->Unwrap<webrtc::StatsReports>());
       argc = 1;
 
       break;
