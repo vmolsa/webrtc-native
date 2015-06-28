@@ -56,7 +56,8 @@
       'conditions': [ 
         ['OS=="linux"', {
           'include_dirs': [
-            '/usr/include/node/'
+            '/usr/include/node/',
+            '/usr/include/nodejs/'
           ],
           'defines': [
             '_LARGEFILE_SOURCE', 
