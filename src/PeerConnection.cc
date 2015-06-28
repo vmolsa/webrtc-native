@@ -23,6 +23,7 @@
 *
 */
 
+#include <nan.h>
 #include "PeerConnection.h"
 #include "DataChannel.h"
 #include "MediaStream.h"
