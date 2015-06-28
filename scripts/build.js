@@ -36,20 +36,11 @@ if (fs.existsSync(ROOT + path.sep + 'build' + path.sep + 'Debug')) {
 var THIRD_PARTY = path.resolve(ROOT, 'third_party');
 var DEPOT_TOOLS_REPO = 'https://chromium.googlesource.com/chromium/tools/depot_tools.git';
 var DEPOT_TOOLS = path.resolve(THIRD_PARTY, 'depot_tools');
-var NODE_SRC = path.resolve(THIRD_PARTY, 'node');
-var NODE_SRC_REPO = 'https://github.com/joyent/node';
-var NODE_SRC_VERSION = 'v0.12.4';
 var WEBRTC = path.resolve(THIRD_PARTY, 'webrtc');
 var WEBRTC_SRC = path.resolve(WEBRTC, 'src');
 var WEBRTC_OUT = path.resolve(WEBRTC_SRC, 'out', CONFIG);
 var FETCH = path.resolve(DEPOT_TOOLS, (os.platform() == 'win32') ? 'fetch.bat' : 'fetch');
 var GCLIENT = path.resolve(DEPOT_TOOLS, (os.platform() == 'win32') ? 'gclient.bat' : 'gclient');
-
-exec('node -v', function (error, stdout, stderr) {
-  if (!error) {
-    NODE_SRC_VERSION = stdout.replace(/(\r\n|\n|\r)/gm, '');
-  }
-});
 
 if (os.platform() == 'win32' && process.arch == 'x64') {
   WEBRTC_OUT = path.resolve(WEBRTC_SRC, 'out', CONFIG + '_x64');
@@ -124,7 +115,7 @@ function configure() {
       break;
     case 'win32':
       process.env['DEPOT_TOOLS_WIN_TOOLCHAIN'] = 0;
-
+      
       break;
     case 'linux':
       process.env['GYP_DEFINES'] += ' clang=0';
@@ -150,22 +141,6 @@ function configure() {
 }
 
 function fetch(rerun) {
-  if (os.platform() == 'linux') {
-    if (!fs.existsSync(NODE_SRC)) {
-      sh('git clone ' + NODE_SRC_REPO, {
-        cwd: THIRD_PARTY,
-        env: process.env,
-        stdio: 'inherit',
-      });
-
-      sh('git checkout origin/' + NODE_SRC_VERSION + '-release', {
-        cwd: NODE_SRC,
-        env: process.env,
-        stdio: 'inherit',
-      });
-    }
-  }
-
   if (!fs.existsSync(WEBRTC) || !fs.existsSync(WEBRTC_SRC)) {
     if (!fs.existsSync(WEBRTC)) {
       fs.mkdirSync(WEBRTC);
