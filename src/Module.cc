@@ -133,4 +133,4 @@ void WebrtcModuleInit(Handle<Object> exports) {
   node::AtExit(WebrtcModuleDispose);
 }
 
-NODE_MODULE(webrtc, WebrtcModuleInit)
+NODE_MODULE(webrtc_native, WebrtcModuleInit)
