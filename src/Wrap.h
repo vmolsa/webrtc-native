@@ -38,7 +38,7 @@
 
 namespace WebRTC {
   class RTCWrap : public node::ObjectWrap {
-   public:   
+   public:
     inline void Wrap(v8::Local<v8::Object> obj, const char *className = "RTCWrap") {
       node::ObjectWrap::Wrap(obj);
     }
