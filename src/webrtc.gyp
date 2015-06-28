@@ -12,6 +12,7 @@
     'configuration%': 'Release',
     'build_with_chromium%': 0,
     'uv_library%': 'static_library',
+    'nodelib%': 'iojs',
   }, 
   'targets': [
     {
@@ -50,7 +51,6 @@
         '<(DEPTH)/third_party/jsoncpp/source/include',
         '<(DEPTH)/third_party/libsrtp/srtp',
         '<(DEPTH)/third_party/libyuv/include',
-        "<!(node -e \"require('node-arraybuffer')\")",
         "<!(node -e \"require('nan')\")",
       ],
       'conditions': [ 
@@ -65,10 +65,6 @@
             '-Wno-unused-variable',
             '-Wno-unknown-pragmas',
             '-Wno-unused-result',
-          ],
-          'dependencies': [
-            '../third_party/node/deps/v8/tools/gyp/v8.gyp:v8',
-            '../third_party/node/deps/uv/uv.gyp:libuv',
           ],
         }],
         ['OS=="win"', {
@@ -93,7 +89,7 @@
             '-loleaut32.lib',
             '-luuid.lib',
             '-lodbc32.lib',
-            '-l"<(nodedir)\\<(target_arch)\\node"',
+            '-l"<(nodedir)\\<(target_arch)\\<(nodelib)"',
           ],
         }],
         ['OS=="mac"', {
