@@ -36,7 +36,7 @@ namespace v8 {
     static v8::Local<v8::Value> Parse(v8::Local<v8::Value> str) {
       NanEscapableScope();
       v8::Local<v8::Object> global = v8::Context::GetCurrent()->Global();
-      v8::Local<v8::Object> json = global->Get(NanNew("JSON"));
+      v8::Local<v8::Object> json = v8::Local<v8::Object>::Cast(global->Get(NanNew("JSON")));
       v8::Local<v8::Function> parse = v8::Local<v8::Function>::Cast(json->Get(NanNew("parse")));
       return NanEscapeScope(parse->Call(global, 1, &str));
     };
