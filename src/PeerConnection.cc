@@ -29,6 +29,21 @@
 #include "Stats.h"
 #include "Core.h"
 
+#if (NODE_MODULE_VERSION <= NODE_0_10_MODULE_VERSION)
+namespace v8 {
+  class JSON {
+   public:
+    static v8::Local<v8::Value> Parse(v8::Local<v8::Value> str) {
+      NanEscapableScope();
+      v8::Local<v8::Object> global = v8::Context::GetCurrent()->Global();
+      v8::Local<v8::Object> json = global->Get(NanNew("JSON"));
+      v8::Local<v8::Function> parse = v8::Local<v8::Function>::Cast(json->Get(NanNew("parse")));
+      return NanEscapeScope(parse->Call(global, 1, &str));
+    };
+  };
+};
+#endif
+
 using namespace v8;
 using namespace WebRTC;
 
