@@ -27,7 +27,7 @@ if (!fs.existsSync(ROOT + path.sep + 'build' + path.sep + 'config.gypi')) {
 
 if (os.platform() == 'linux') {
   if (fs.existsSync('/usr/include/node/common.gypi')) {
-    fs.linkSync('/usr/include/node/common.gypi', ROOT + path.sep + 'nodejs.gypi');
+    fs.createReadStream('/usr/include/node/common.gypi').pipe(fs.createWriteStream(ROOT + path.sep + 'nodejs.gypi'));
   }
 } else {
   fs.linkSync(NODEJS + path.sep + 'common.gypi', ROOT + path.sep + 'nodejs.gypi');
