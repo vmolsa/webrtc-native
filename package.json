@@ -25,7 +25,6 @@
   },
   "dependencies": {
     "nan": "^1.8.4",
-    "node-arraybuffer": "^1.0.11",
     "node-gyp": "^1.0.3"
   },
   "devDependencies": {
