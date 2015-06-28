@@ -6,7 +6,7 @@
 npm install webrtc-native --save
 ````
 
-# Compatibility
+### Compatibility
 
 | npm test              | Windows 8.1 | OSX | Fedora   | Ubuntu   |
 |-----------------------|-------------|-----|----------|----------|
@@ -14,7 +14,7 @@ npm install webrtc-native --save
 | NodeJS v0.12.x        | Yes         | Yes | Untested | Untested |
 | Io.js v2.3.1 (pangyp) | No          | Yes | Untested | Untested |
 
-# Features
+### Features
 
 | Feature           | Windows 8.1 | OSX | Fedora   | Ubuntu   |
 |-------------------|-------------|-----|----------|----------|
