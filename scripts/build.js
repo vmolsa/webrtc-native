@@ -56,7 +56,12 @@ if (os.platform() == 'win32' && process.arch == 'x64') {
 }
 
 function install() {
-  fs.linkSync(WEBRTC_OUT + path.sep + 'webrtc-native.node', ROOT + path.sep + 'build' + path.sep + CONFIG + path.sep + 'webrtc-native.node');
+  if (os.platform() == 'linux') {
+    fs.linkSync(WEBRTC_OUT + path.sep + 'libwebrtc-native.node', ROOT + path.sep + 'build' + path.sep + CONFIG + path.sep + 'webrtc-native.node');
+  } else {
+    fs.linkSync(WEBRTC_OUT + path.sep + 'webrtc-native.node', ROOT + path.sep + 'build' + path.sep + CONFIG + path.sep + 'webrtc-native.node');
+  }
+  
   console.log('Done! :)');
 }
 
