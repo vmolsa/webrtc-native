@@ -12,7 +12,7 @@
     'configuration%': 'Release',
     'build_with_chromium%': 0,
     'uv_library%': 'static_library',
-    'nodelib%': 'iojs',
+    'nodelib%': 'node',
   }, 
   'targets': [
     {
