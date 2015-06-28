@@ -31,9 +31,11 @@ EventEmitter::EventEmitter() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   uv_mutex_init(&_lock);
-  _async.data = this;
   
-  uv_async_init(uv_default_loop(), &_async, reinterpret_cast<uv_async_cb>(EventEmitter::onAsync));
+  _async = new uv_async_t();
+  _async->data = this;
+  
+  uv_async_init(uv_default_loop(), _async, reinterpret_cast<uv_async_cb>(EventEmitter::onAsync));
   
   EventEmitter::SetReference(false);
 }
@@ -41,14 +43,15 @@ EventEmitter::EventEmitter() {
 EventEmitter::~EventEmitter() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
 
-  uv_close(reinterpret_cast<uv_handle_t*>(&_async), NULL);
-    
+  _async->data = 0;
+
   while (!_events.empty()) {
     Event *event = _events.front();
     _events.pop();
     delete event;
   }
 
+  uv_close(reinterpret_cast<uv_handle_t*>(_async), EventEmitter::onEnded);
   uv_mutex_destroy(&_lock);
 }
 
@@ -56,9 +59,9 @@ void EventEmitter::SetReference(bool alive) {
   uv_mutex_lock(&_lock);
   
   if (alive) {
-    uv_ref(reinterpret_cast<uv_handle_t*>(&_async));
+    uv_ref(reinterpret_cast<uv_handle_t*>(_async));
   } else {
-    uv_unref(reinterpret_cast<uv_handle_t*>(&_async));
+    uv_unref(reinterpret_cast<uv_handle_t*>(_async));
   }
   
   uv_mutex_unlock(&_lock);
@@ -75,7 +78,7 @@ void EventEmitter::Emit(Event *event) {
   uv_mutex_lock(&_lock);
   
   _events.push(event);  
-  uv_async_send(&_async);
+  uv_async_send(_async);
   
   uv_mutex_unlock(&_lock);
 }
@@ -84,10 +87,21 @@ void EventEmitter::onAsync(uv_async_t *handle, int status) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   EventEmitter *self = static_cast<EventEmitter*>(handle->data);
-  self->DispatchEvents();
- }
+    
+  if (self) {
+    self->DispatchEvents();
+  }
+}
  
- void EventEmitter::DispatchEvents() {
+void EventEmitter::onEnded(uv_handle_t *handle) {
+  uv_async_t* async = reinterpret_cast<uv_async_t*>(handle);
+   
+  if (async) {
+    delete async;
+  }
+}
+ 
+void EventEmitter::DispatchEvents() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   uv_mutex_lock(&_lock);
 
@@ -104,4 +118,4 @@ void EventEmitter::onAsync(uv_async_t *handle, int status) {
   }
   
   uv_mutex_unlock(&_lock);
- }
+}

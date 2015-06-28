@@ -125,11 +125,12 @@ namespace WebRTC {
     
    private:
     static void onAsync(uv_async_t *handle, int status);
+    static void onEnded(uv_handle_t *handle);
     void DispatchEvents();
     
    protected:
     uv_mutex_t _lock;
-    uv_async_t _async;
+    uv_async_t* _async;
     std::queue<Event*> _events;
   };
 };
