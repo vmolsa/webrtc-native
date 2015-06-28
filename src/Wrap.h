@@ -43,8 +43,13 @@ namespace WebRTC {
       node::ObjectWrap::Wrap(obj);
     }
     
-    inline v8::Local<v8::Object> This() { 
+    inline v8::Local<v8::Object> This() {
+#if (NODE_MODULE_VERSION < NODE_0_12_MODULE_VERSION)
+      NanEscapableScope();
+      return NanEscapeScope(NanNew<v8::Object>(node::ObjectWrap::handle_));
+#else
       return node::ObjectWrap::handle();
+#endif
     }
     
     template<class T> inline T* Unwrap() {

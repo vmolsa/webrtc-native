@@ -23,7 +23,7 @@
 *
 */
 
-#include "v8.h"
+#include "nan.h"
 #include "Core.h"
 
 #ifdef WIN32

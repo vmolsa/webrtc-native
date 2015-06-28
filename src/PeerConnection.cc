@@ -549,6 +549,7 @@ NAN_METHOD(PeerConnection::CreateDataChannel) {
   }
   
   NanThrowError("Internal Error");
+  NanReturnUndefined();
 }
 
 NAN_METHOD(PeerConnection::AddStream) {
@@ -621,6 +622,7 @@ NAN_METHOD(PeerConnection::GetLocalStreams) {
   }
     
   NanThrowError("Internal Error");
+  NanReturnUndefined();
 }
 
 NAN_METHOD(PeerConnection::GetRemoteStreams) {
@@ -647,6 +649,7 @@ NAN_METHOD(PeerConnection::GetRemoteStreams) {
   }
 
   NanThrowError("Internal Error");
+  NanReturnUndefined();
 }
 
 NAN_METHOD(PeerConnection::GetStreamById) {
@@ -684,6 +687,7 @@ NAN_METHOD(PeerConnection::GetStreamById) {
   }
 
   NanThrowError("Internal Error");
+  NanReturnUndefined();
 }
 
 NAN_METHOD(PeerConnection::GetStats) {
@@ -803,6 +807,8 @@ NAN_GETTER(PeerConnection::GetIceConnectionState) {
   } else {
     NanThrowError("Internal Error");
   }
+  
+  NanReturnUndefined();
 }
 
 NAN_GETTER(PeerConnection::GetIceGatheringState) {
@@ -829,6 +835,8 @@ NAN_GETTER(PeerConnection::GetIceGatheringState) {
   } else {
     NanThrowError("Internal Error");
   }
+  
+  NanReturnUndefined();
 }
 
 NAN_GETTER(PeerConnection::GetOnSignalingStateChange) {

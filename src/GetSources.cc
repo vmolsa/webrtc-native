@@ -181,4 +181,6 @@ NAN_METHOD(GetSources::GetDevices) {
       callback->Call(args.This(), 1, argv);
     }
   }
+  
+  NanReturnUndefined();
 }

@@ -127,4 +127,6 @@ NAN_METHOD(GetUserMedia::GetMediaStream) {
       onsuccess->Call(args.This(), 1, argv);
     }
   }
+  
+  NanReturnUndefined();
 }

@@ -78,6 +78,7 @@ NAN_METHOD(RTCStatsReport::New) {
   }
 
   NanThrowError("Internal Error");
+  NanReturnUndefined();
 }
 
 NAN_METHOD(RTCStatsReport::Names) {
@@ -144,6 +145,8 @@ NAN_METHOD(RTCStatsReport::Stat) {
       }
     }
   }
+  
+  NanReturnUndefined();
 }
 
 NAN_METHOD(RTCStatsReport::Id) {
@@ -196,6 +199,7 @@ NAN_METHOD(RTCStatsResponse::New) {
   }
 
   NanThrowError("Internal Error");
+  NanReturnUndefined();
 }
 
 Local<Value> RTCStatsResponse::New(const webrtc::StatsReports &reports) {  

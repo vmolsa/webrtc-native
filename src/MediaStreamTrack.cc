@@ -150,6 +150,7 @@ NAN_METHOD(MediaStreamTrack::New) {
   }
 
   NanThrowError("Internal Error");
+  NanReturnUndefined();
 }
 
 rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> MediaStreamTrack::Unwrap(Local<Object> value) {
@@ -289,6 +290,7 @@ NAN_GETTER(MediaStreamTrack::GetMuted) {
 NAN_GETTER(MediaStreamTrack::GetReadOnly) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
+  NanScope();
   NanReturnValue(NanNew(true));
 }
 
@@ -318,7 +320,6 @@ NAN_GETTER(MediaStreamTrack::GetOnStarted) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   NanScope();
-  
   MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.Holder(), "MediaStreamTrack");
   NanReturnValue(NanNew(self->_onstarted));
 }
@@ -327,7 +328,6 @@ NAN_GETTER(MediaStreamTrack::GetOnMute) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   NanScope();
-  
   MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.Holder(), "MediaStreamTrack");
   NanReturnValue(NanNew(self->_onmute));
 }
@@ -336,7 +336,6 @@ NAN_GETTER(MediaStreamTrack::GetOnUnMute) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   NanScope();
-  
   MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.Holder(), "MediaStreamTrack");
   NanReturnValue(NanNew(self->_onunmute));
 }
@@ -345,7 +344,6 @@ NAN_GETTER(MediaStreamTrack::GetOnOverConstrained) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   NanScope();
-  
   MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.Holder(), "MediaStreamTrack");
   NanReturnValue(NanNew(self->_onoverconstrained));
 }
@@ -363,7 +361,6 @@ NAN_SETTER(MediaStreamTrack::ReadOnly) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   NanScope();
-  
   //MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.Holder(), "MediaStreamTrack");
 
   // TODO(): Implement This
@@ -372,8 +369,7 @@ NAN_SETTER(MediaStreamTrack::ReadOnly) {
 NAN_SETTER(MediaStreamTrack::SetEnabled) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  
+  NanScope(); 
   //MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.Holder(), "MediaStreamTrack");
 
   // TODO(): Implement This
@@ -383,7 +379,6 @@ NAN_SETTER(MediaStreamTrack::SetOnStarted) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   NanScope();
-  
   MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.Holder(), "MediaStreamTrack");
 
   if (!value.IsEmpty() && value->IsFunction()) {
@@ -397,7 +392,6 @@ NAN_SETTER(MediaStreamTrack::SetOnMute) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   NanScope();
-  
   MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.Holder(), "MediaStreamTrack");
 
   if (!value.IsEmpty() && value->IsFunction()) {
@@ -411,7 +405,6 @@ NAN_SETTER(MediaStreamTrack::SetOnUnMute) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   NanScope();
-  
   MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.Holder(), "MediaStreamTrack");
 
   if (!value.IsEmpty() && value->IsFunction()) {
@@ -424,8 +417,7 @@ NAN_SETTER(MediaStreamTrack::SetOnUnMute) {
 NAN_SETTER(MediaStreamTrack::SetOnOverConstrained) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  
+  NanScope(); 
   MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.Holder(), "MediaStreamTrack");
 
   if (!value.IsEmpty() && value->IsFunction()) {
@@ -439,7 +431,6 @@ NAN_SETTER(MediaStreamTrack::SetOnEnded) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   NanScope();
-  
   MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.Holder(), "MediaStreamTrack");
 
   if (!value.IsEmpty() && value->IsFunction()) {

@@ -140,6 +140,7 @@ NAN_METHOD(DataChannel::New) {
   }
 
   NanThrowError("Internal Error");
+  NanReturnUndefined();
 }
 
 Local<Value> DataChannel::New(rtc::scoped_refptr<webrtc::DataChannelInterface> dataChannel) {
@@ -186,13 +187,14 @@ NAN_METHOD(DataChannel::Close) {
       socket->Close();
     }
   }
+  
+  NanReturnUndefined();
 }
 
 NAN_METHOD(DataChannel::Send) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
 
   NanScope();
-
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.This());
   webrtc::DataChannelInterface *socket = self->GetSocket();
   bool retval = false;
@@ -203,14 +205,10 @@ NAN_METHOD(DataChannel::Send) {
       webrtc::DataBuffer buffer(data);
       retval = socket->Send(buffer);
     } else {
-      if (args[0]->IsArrayBuffer() || args[0]->IsTypedArray()) {
-        node::ArrayBuffer *container = node::ArrayBuffer::New(args[0]);
-        rtc::Buffer data(reinterpret_cast<char *>(container->Data()), container->Length());
-        webrtc::DataBuffer buffer(data, true);
-        retval = socket->Send(buffer);
-      } else {
-        NanThrowError("Invalid argument");
-      }
+      node::ArrayBuffer *container = node::ArrayBuffer::New(args[0]);
+      rtc::Buffer data(reinterpret_cast<char *>(container->Data()), container->Length());
+      webrtc::DataBuffer buffer(data, true);
+      retval = socket->Send(buffer);
     }
   }
   
@@ -219,6 +217,7 @@ NAN_METHOD(DataChannel::Send) {
 
 NAN_GETTER(DataChannel::GetId) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   NanScope();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
   webrtc::DataChannelInterface *socket = self->GetSocket();
@@ -233,6 +232,7 @@ NAN_GETTER(DataChannel::GetId) {
 NAN_GETTER(DataChannel::GetLabel) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
 
+  NanScope();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
   webrtc::DataChannelInterface *socket = self->GetSocket();
   
@@ -246,6 +246,7 @@ NAN_GETTER(DataChannel::GetLabel) {
 NAN_GETTER(DataChannel::GetOrdered) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
+  NanScope();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
   webrtc::DataChannelInterface *socket = self->GetSocket();
   
@@ -258,7 +259,8 @@ NAN_GETTER(DataChannel::GetOrdered) {
 
 NAN_GETTER(DataChannel::GetProtocol) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-
+  
+  NanScope();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
   webrtc::DataChannelInterface *socket = self->GetSocket();
   
@@ -272,6 +274,7 @@ NAN_GETTER(DataChannel::GetProtocol) {
 NAN_GETTER(DataChannel::GetReadyState) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
+  NanScope();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
   webrtc::DataChannelInterface *socket = self->GetSocket();
   
@@ -300,6 +303,7 @@ NAN_GETTER(DataChannel::GetReadyState) {
 NAN_GETTER(DataChannel::GetBufferedAmount) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
 
+  NanScope();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
   webrtc::DataChannelInterface *socket = self->GetSocket();
   
@@ -313,6 +317,7 @@ NAN_GETTER(DataChannel::GetBufferedAmount) {
 NAN_GETTER(DataChannel::GetBinaryType) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
+  NanScope();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
   NanReturnValue(NanNew(self->_binaryType));
 }
@@ -320,6 +325,7 @@ NAN_GETTER(DataChannel::GetBinaryType) {
 NAN_GETTER(DataChannel::GetMaxPacketLifeType) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
+  NanScope();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
   webrtc::DataChannelInterface *socket = self->GetSocket();
   
@@ -333,6 +339,7 @@ NAN_GETTER(DataChannel::GetMaxPacketLifeType) {
 NAN_GETTER(DataChannel::GetMaxRetransmits) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
+  NanScope();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
   webrtc::DataChannelInterface *socket = self->GetSocket();
   
@@ -346,6 +353,7 @@ NAN_GETTER(DataChannel::GetMaxRetransmits) {
 NAN_GETTER(DataChannel::GetNegotiated) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
+  NanScope();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
   webrtc::DataChannelInterface *socket = self->GetSocket();
   
@@ -359,6 +367,7 @@ NAN_GETTER(DataChannel::GetNegotiated) {
 NAN_GETTER(DataChannel::GetReliable) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
+  NanScope();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
   webrtc::DataChannelInterface *socket = self->GetSocket();
   
@@ -372,6 +381,7 @@ NAN_GETTER(DataChannel::GetReliable) {
 NAN_GETTER(DataChannel::GetOnOpen) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
+  NanScope();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
   NanReturnValue(NanNew(self->_onopen));
 }
@@ -379,6 +389,7 @@ NAN_GETTER(DataChannel::GetOnOpen) {
 NAN_GETTER(DataChannel::GetOnMessage) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
+  NanScope();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
   NanReturnValue(NanNew(self->_onmessage));
 }
@@ -386,6 +397,7 @@ NAN_GETTER(DataChannel::GetOnMessage) {
 NAN_GETTER(DataChannel::GetOnClose) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
+  NanScope();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
   NanReturnValue(NanNew(self->_onclose));
 }
@@ -393,6 +405,7 @@ NAN_GETTER(DataChannel::GetOnClose) {
 NAN_GETTER(DataChannel::GetOnError) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
+  NanScope();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
   NanReturnValue(NanNew(self->_onerror));
 }  
@@ -404,6 +417,7 @@ NAN_SETTER(DataChannel::ReadOnly) {
 NAN_SETTER(DataChannel::SetBinaryType) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
+  NanScope();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
 
   if (!value.IsEmpty() && value->IsString()) {
@@ -416,6 +430,7 @@ NAN_SETTER(DataChannel::SetBinaryType) {
 NAN_SETTER(DataChannel::SetOnOpen) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
+  NanScope();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
 
   if (!value.IsEmpty() && value->IsFunction()) {
@@ -428,6 +443,7 @@ NAN_SETTER(DataChannel::SetOnOpen) {
 NAN_SETTER(DataChannel::SetOnMessage) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
+  NanScope();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
 
   if (!value.IsEmpty() && value->IsFunction()) {
@@ -440,6 +456,7 @@ NAN_SETTER(DataChannel::SetOnMessage) {
 NAN_SETTER(DataChannel::SetOnClose) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
+  NanScope();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
 
   if (!value.IsEmpty() && value->IsFunction()) {
@@ -452,6 +469,7 @@ NAN_SETTER(DataChannel::SetOnClose) {
 NAN_SETTER(DataChannel::SetOnError) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
+  NanScope();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
 
   if (!value.IsEmpty() && value->IsFunction()) {
@@ -464,6 +482,7 @@ NAN_SETTER(DataChannel::SetOnError) {
 void DataChannel::On(Event *event) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
+  NanScope();
   DataChannelEvent type = event->Type<DataChannelEvent>();
   node::ArrayBuffer *arrayBuffer = 0;
   Local<Function> callback;
