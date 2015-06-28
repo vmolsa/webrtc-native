@@ -46,7 +46,6 @@
 #include "talk/app/webrtc/peerconnectionfactory.h"
 #include "talk/app/webrtc/peerconnectioninterface.h"
 #include "talk/app/webrtc/test/fakeconstraints.h"
-#include "talk/app/webrtc/fakeportallocatorfactory.h"
 #include "talk/app/webrtc/datachannelinterface.h"
 #include "talk/app/webrtc/videosourceinterface.h"
 #include "talk/app/webrtc/videosource.h"
@@ -65,7 +64,7 @@
 #endif
 #endif
 
-#include "EventEmitter.h" // NOLINT(build/include)
+#include "EventEmitter.h"
 
 namespace WebRTC {
   enum PeerConnectionEvent {
@@ -104,46 +103,50 @@ namespace WebRTC {
   
   class OfferObserver : public webrtc::CreateSessionDescriptionObserver {
    public:
-    OfferObserver(EventEmitter *parent = 0);
+    OfferObserver(EventEmitter *listener = 0);
     
+    void SetEmitter(EventEmitter *listener = 0);
     void OnSuccess(webrtc::SessionDescriptionInterface* sdp) final;
     void OnFailure(const std::string &error) final;
     
    protected:
-    EventEmitter* _parent;
+    EventEmitter* _listener;
   };
   
   class AnswerObserver : public webrtc::CreateSessionDescriptionObserver {    
    public:
-    AnswerObserver(EventEmitter *parent = 0);
+    AnswerObserver(EventEmitter *listener = 0);
    
+    void SetEmitter(EventEmitter *listener = 0);
     void OnSuccess(webrtc::SessionDescriptionInterface* sdp) final;
     void OnFailure(const std::string &error) final;
     
    protected:
-    EventEmitter* _parent;
+    EventEmitter* _listener;
   };
 
   class LocalDescriptionObserver : public webrtc::SetSessionDescriptionObserver {
    public:
-    LocalDescriptionObserver(EventEmitter *parent = 0);
+    LocalDescriptionObserver(EventEmitter *listener = 0);
     
+    void SetEmitter(EventEmitter *listener = 0);
     void OnSuccess() final;
     void OnFailure(const std::string &error) final;
 
    protected:
-    EventEmitter* _parent;
+    EventEmitter* _listener;
   };
     
   class RemoteDescriptionObserver : public webrtc::SetSessionDescriptionObserver {    
    public:
-    RemoteDescriptionObserver(EventEmitter *parent = 0);
+    RemoteDescriptionObserver(EventEmitter *listener = 0);
     
+    void SetEmitter(EventEmitter *listener = 0);
     void OnSuccess() final;
     void OnFailure(const std::string &error) final;
 
    protected:
-    EventEmitter* _parent;
+    EventEmitter* _listener;
   };
   
   class PeerConnectionObserver : 
@@ -151,8 +154,9 @@ namespace WebRTC {
     public rtc::RefCountInterface 
   {
    public:
-    PeerConnectionObserver(EventEmitter *parent = 0);
+    PeerConnectionObserver(EventEmitter *listener = 0);
     
+    void SetEmitter(EventEmitter *listener = 0);
     void OnSignalingChange(webrtc::PeerConnectionInterface::SignalingState state) final;
     void OnIceConnectionChange(webrtc::PeerConnectionInterface::IceConnectionState state) final;
     void OnIceGatheringChange(webrtc::PeerConnectionInterface::IceGatheringState state) final;
@@ -165,7 +169,7 @@ namespace WebRTC {
     void OnRemoveStream(webrtc::MediaStreamInterface* stream) final;
 
    protected:
-    EventEmitter* _parent;
+    EventEmitter* _listener;
   };
   
   class DataChannelObserver : 
@@ -173,13 +177,14 @@ namespace WebRTC {
     public rtc::RefCountInterface 
   {
    public:
-    DataChannelObserver(EventEmitter *parent = 0);
+    DataChannelObserver(EventEmitter *listener = 0);
     
+    void SetEmitter(EventEmitter *listener = 0);
     void OnStateChange() final;
     void OnMessage(const webrtc::DataBuffer& buffer) final;
     
    protected:
-    EventEmitter* _parent;
+    EventEmitter* _listener;
   };
 
   class MediaStreamObserver :
@@ -187,12 +192,13 @@ namespace WebRTC {
     public rtc::RefCountInterface
   {
    public:
-     MediaStreamObserver(EventEmitter *parent = 0);
-
+     MediaStreamObserver(EventEmitter *listener = 0);
+     
+     void SetEmitter(EventEmitter *listener = 0);
      void OnChanged() final;
 
    protected:
-    EventEmitter* _parent;
+    EventEmitter* _listener;
   };
 
   class MediaStreamTrackObserver :
@@ -200,22 +206,24 @@ namespace WebRTC {
     public rtc::RefCountInterface
   {
    public:
-    MediaStreamTrackObserver(EventEmitter *parent = 0);
-
+    MediaStreamTrackObserver(EventEmitter *listener = 0);
+    
+    void SetEmitter(EventEmitter *listener = 0);
     void OnChanged() final;
 
    protected:
-    EventEmitter* _parent;
+    EventEmitter* _listener;
   };
 
   class StatsObserver : public webrtc::StatsObserver {
    public:
-    StatsObserver(EventEmitter *parent = 0);
-
+    StatsObserver(EventEmitter *listener = 0);
+    
+    void SetEmitter(EventEmitter *listener = 0);
     void OnComplete(const webrtc::StatsReports& reports) final;
 
    protected:
-    EventEmitter* _parent;
+    EventEmitter* _listener;
   };
 };
 
