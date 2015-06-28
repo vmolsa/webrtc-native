@@ -5,6 +5,10 @@ var exec = require('child_process').exec;
 var spawn = require('child_process').spawn;
 var path = require('path');
 
+if (!sh) {
+  sh = require('sync-exec');
+}
+
 var ROOT = process.cwd();
 var NODEJS = '.';
 var SYNC = false;
