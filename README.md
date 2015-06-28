@@ -1,13 +1,21 @@
 [WebRTC](http://en.wikipedia.org/wiki/WebRTC) for NodeJS
 
-This module is working only with latest NodeJS version. 
-If you are using another version of NodeJS then you should use [node-webrtc](https://github.com/js-platform/node-webrtc) project.
-
 # Install
 
 ````
 npm install webrtc-native --save
 ````
+
+# Features
+
+|                   | Windows 8.1 | Linux    | OSX |
+|-------------------|-------------|----------|-----|
+| RTP DataChannels  | Yes         | Untested | Yes |
+| SCTP DataChannels | Yes         | Untested | Yes |
+| Audio Capture     | Yes         | Untested | Yes |
+| Video Capture     | Yes         | Untested | No  |
+| Screen Capture    | No          | No       | No  |
+| Window Capture    | No          | No       | No  |
 
 # API
 ### Usage
