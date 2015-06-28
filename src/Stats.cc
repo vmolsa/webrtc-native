@@ -30,10 +30,15 @@ using namespace WebRTC;
 
 Persistent<Function> RTCStatsReport::constructor;
 
+RTCStatsReport::~RTCStatsReport() {
+  
+}
+
 void RTCStatsReport::Init() {
   NanScope();
   
   Local<FunctionTemplate> tpl = NanNew<FunctionTemplate>(RTCStatsReport::New);
+  tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(NanNew("RTCStatsReport"));
 
   tpl->PrototypeTemplate()->Set(NanNew("names"), NanNew<FunctionTemplate>(RTCStatsReport::Names)->GetFunction());
@@ -165,10 +170,15 @@ NAN_METHOD(RTCStatsReport::Timestamp) {
 
 Persistent<Function> RTCStatsResponse::constructor;
 
+RTCStatsResponse::~RTCStatsResponse() {
+  
+}
+
 void RTCStatsResponse::Init() {
   NanScope();
 
   Local<FunctionTemplate> tpl = NanNew<FunctionTemplate>(RTCStatsResponse::New);
+  tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(NanNew("RTCStatsResponse"));
 
   tpl->PrototypeTemplate()->Set(NanNew("result"), NanNew<FunctionTemplate>(RTCStatsResponse::Result)->GetFunction());

@@ -33,102 +33,27 @@
 #endif
 
 #include <nan.h>
+#include <node_object_wrap.h>
 #include "webrtc/base/logging.h"
 
 namespace WebRTC {
-  class RTCWrap {
-   public:  
+  class RTCWrap : public node::ObjectWrap {
+   public:   
     inline void Wrap(v8::Local<v8::Object> obj, const char *className = "RTCWrap") {
-      LOG(LS_INFO) << __PRETTY_FUNCTION__;
-      if (obj.IsEmpty()) {
-        NanDisposePersistent(_obj);
-      } else {
-        NanAssignPersistent(_obj, obj);
-
-#if (NODE_MODULE_VERSION < NODE_0_12_MODULE_VERSION)
-        _obj.MakeWeak(this, RTCWrap::onDispose);   
-#else
-        _obj.SetWeak(this, RTCWrap::onDispose);
-#endif
-        _obj.MarkIndependent();
-
-        obj->SetHiddenValue(NanNew(className), NanNew<v8::External>(this));
-      }
-    }
-
-    // TODO(): remove this
-    inline void Wrap(v8::Isolate *isolate, v8::Local<v8::Object> obj, const char *className = "RTCWrap") {
-      return RTCWrap::Wrap(obj, className);
-    }
-
-    inline void Clear() {
-      NanDisposePersistent(_obj);
+      node::ObjectWrap::Wrap(obj);
     }
     
-    inline v8::Local<v8::Object> This() {     
-      NanEscapableScope();
-      return NanEscapeScope(NanNew<v8::Object>(_obj));
-    }
-
-    // TODO(): remove this
-    inline v8::Local<v8::Object> This(v8::Isolate *isolate) {
-      return RTCWrap::This();
+    inline v8::Local<v8::Object> This() { 
+      return node::ObjectWrap::handle();
     }
     
-    template<class T> inline T* Unwrap() {     
+    template<class T> inline T* Unwrap() {
       return static_cast<T*>(this);
     }
     
     template<class T> inline static T* Unwrap(v8::Local<v8::Object> obj, const char *className = "RTCWrap") {
-      LOG(LS_INFO) << __PRETTY_FUNCTION__;
-      
-      if (!obj.IsEmpty()) {
-        v8::Local<v8::Value> ptr = obj->GetHiddenValue(NanNew(className));
-        
-        if (!ptr.IsEmpty() && ptr->IsExternal()) {
-          v8::Local<v8::External> ext = v8::Local<v8::External>::Cast(ptr);
-          RTCWrap *wrap = static_cast<RTCWrap*>(ext->Value());
-          return wrap->Unwrap<T>();
-        }
-      }
-      
-      return 0;
+      return node::ObjectWrap::Unwrap<T>(obj);
     }
-
-    // TODO(): remove this
-    template<class T> inline static T* Unwrap(v8::Isolate *isolate, v8::Local<v8::Object> obj, const char *className = "RTCWrap") {
-      return RTCWrap::Unwrap<T>(obj, className);
-    }
-
-   private:
-#if NODE_MINOR_VERSION > 11
-    static inline void onDispose(const v8::WeakCallbackData<v8::Object, RTCWrap> &info) {
-      RTCWrap *wrap = info.GetParameter();
-
-      if (wrap) {
-        wrap->Clear();
-        delete wrap;
-      }
-    }
-#else
-    virtual ~RTCWrap() {
-      _obj.ClearWeak();
-      _obj.Dispose();
-      _obj.Clear();
-    }
-
-    static inline void onDispose(v8::Persistent<v8::Value> value, void *data) {
-      RTCWrap *wrap = static_cast<RTCWrap*>(data);
-
-      if (wrap) {
-        wrap->Clear();
-        delete wrap;
-      }
-    }
-#endif
-
-   protected:
-    v8::Persistent<v8::Object> _obj;
   };
 };
 

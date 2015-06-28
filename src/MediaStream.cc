@@ -37,6 +37,7 @@ void MediaStream::Init() {
   NanScope();
 
   Local<FunctionTemplate> tpl = NanNew<FunctionTemplate>(MediaStream::New);
+  tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(NanNew("MediaStream"));
 
   tpl->PrototypeTemplate()->Set(NanNew("addTrack"), NanNew<FunctionTemplate>(MediaStream::AddTrack)->GetFunction());
@@ -86,7 +87,6 @@ Local<Value> MediaStream::New(rtc::scoped_refptr<webrtc::MediaStreamInterface> m
   MediaStream *self = RTCWrap::Unwrap<MediaStream>(ret, "MediaStream");
   
   if (self) {
-    self->Start();
     self->_stream = mediaStream;
     self->_stream->RegisterObserver(self->_observer.get());
     self->Emit(kMediaStreamChanged);
@@ -103,7 +103,6 @@ MediaStream::MediaStream() :
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   _observer = new rtc::RefCountedObject<MediaStreamObserver>(this);
-  EventEmitter::Start(true);
 }
 
 MediaStream::~MediaStream() {
@@ -111,9 +110,8 @@ MediaStream::~MediaStream() {
   
   if (_stream.get()) {
     _stream->UnregisterObserver(_observer.get());
+    _observer->SetEmitter();
   }
-
-  EventEmitter::End();
 }
 
 NAN_METHOD(MediaStream::New) {

@@ -39,6 +39,8 @@ namespace WebRTC {
     static v8::Local<v8::Value> New(webrtc::StatsReport *report);
     
    private:
+    ~RTCStatsReport() final;
+    
     static NAN_METHOD(New);
     static NAN_METHOD(Names);
     static NAN_METHOD(Stat);
@@ -57,6 +59,8 @@ namespace WebRTC {
     static v8::Local<v8::Value> New(const webrtc::StatsReports &reports);
     
    private:
+    ~RTCStatsResponse() final;
+   
     static NAN_METHOD(New);
     static NAN_METHOD(Result);
     

@@ -36,6 +36,7 @@ void DataChannel::Init() {
   NanScope();
   
   Local<FunctionTemplate> tpl = NanNew<FunctionTemplate>(DataChannel::New);
+  tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(NanNew("RTCDataChannel"));
   
   tpl->PrototypeTemplate()->Set(NanNew("close"), NanNew<FunctionTemplate>(DataChannel::Close)->GetFunction());
@@ -115,6 +116,7 @@ DataChannel::~DataChannel() {
   
   if (_socket.get()) {  
     _socket->UnregisterObserver();
+    _observer->SetEmitter();
     
     webrtc::DataChannelInterface::DataState state(_socket->state());
     
@@ -124,8 +126,6 @@ DataChannel::~DataChannel() {
       _socket->Close();
     }
   }
-
-  EventEmitter::End();
 }
 
 NAN_METHOD(DataChannel::New) {
@@ -155,7 +155,7 @@ Local<Value> DataChannel::New(rtc::scoped_refptr<webrtc::DataChannelInterface> d
   Local<Object> ret = instance->NewInstance();
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(ret);
 
-  self->Start();
+  self->SetReference(true);
   self->_socket = dataChannel;
   self->_socket->RegisterObserver(self->_observer.get());
   self->Emit(kDataChannelStateChange);
@@ -487,8 +487,7 @@ void DataChannel::On(Event *event) {
 
           break;
         case webrtc::DataChannelInterface::kClosed:
-          EventEmitter::Stop();
-          socket->UnregisterObserver();
+          EventEmitter::SetReference(false);
           
           callback = NanNew(_onclose);
           NanDisposePersistent(_onclose);

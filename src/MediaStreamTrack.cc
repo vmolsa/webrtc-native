@@ -36,6 +36,7 @@ void MediaStreamTrack::Init() {
   NanScope();
 
   Local<FunctionTemplate> tpl = NanNew<FunctionTemplate>(MediaStreamTrack::New);
+  tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(NanNew("MediaStreamTrack"));
 
   tpl->PrototypeTemplate()->Set(NanNew("getConstraints"), NanNew<FunctionTemplate>(MediaStreamTrack::GetConstraints)->GetFunction());
@@ -126,7 +127,6 @@ MediaStreamTrack::MediaStreamTrack() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   _observer = new rtc::RefCountedObject<MediaStreamTrackObserver>(this);
-  EventEmitter::Start(true);
 }
 
 MediaStreamTrack::~MediaStreamTrack() {
@@ -134,9 +134,8 @@ MediaStreamTrack::~MediaStreamTrack() {
   
   if (_track.get()) {
     _track->UnregisterObserver(_observer.get());
+    _observer->SetEmitter();
   }
-
-  EventEmitter::End();
 }
 
 NAN_METHOD(MediaStreamTrack::New) {
