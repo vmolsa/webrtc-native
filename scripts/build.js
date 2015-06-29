@@ -212,6 +212,8 @@ function prep() {
     fs.mkdirSync(THIRD_PARTY);
   }
 
+  process.env['PATH'] = process.env['PATH'] + path.delimiter + DEPOT_TOOLS;
+
   if (!fs.existsSync(DEPOT_TOOLS)) {
     var res = spawn('git', ['clone', DEPOT_TOOLS_REPO], {
       cwd: THIRD_PARTY,
@@ -221,7 +223,6 @@ function prep() {
 
     res.on('close', function (code) {
       if (!code) {
-        process.env['PATH'] = process.env['PATH'] + path.delimiter + DEPOT_TOOLS;
         return fetch(false);
       }
 
