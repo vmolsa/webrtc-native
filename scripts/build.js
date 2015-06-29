@@ -210,15 +210,23 @@ function prep() {
   }
 
   if (!fs.existsSync(DEPOT_TOOLS)) {
-    sh('git clone ' + DEPOT_TOOLS_REPO, {
+    var res = spawn('git', ['clone', DEPOT_TOOLS_REPO], {
       cwd: THIRD_PARTY,
       env: process.env,
       stdio: 'inherit',
     });
-  }
 
-  process.env['PATH'] = process.env['PATH'] + path.delimiter + DEPOT_TOOLS;
-  fetch(false);
+    res.on('close', function (code) {
+      if (!code) {
+        process.env['PATH'] = process.env['PATH'] + path.delimiter + DEPOT_TOOLS;
+        return fetch(false);
+      }
+
+      process.exit(1);
+    });
+  } else {
+    fetch(false);
+  }
 }
 
 // TODO(): apt-get install
