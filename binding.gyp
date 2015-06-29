@@ -11,7 +11,7 @@
           'inputs': [],
           'outputs': [''],
           'action': [
-            'node', 'scripts/build.js'
+            'node', 'scripts/build.js', '<(node_root_dir)',
           ],
         }
       ]
