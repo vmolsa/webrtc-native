@@ -8,22 +8,22 @@ npm install webrtc-native --save
 
 ### Compatibility x64
 
-| npm install           | Windows 8.1 | OSX | Fedora   | Ubuntu   |
-|-----------------------|-------------|-----|----------|----------|
-| NodeJS v0.10.x        | No          | Yes | No       | Untested |
-| NodeJS v0.12.x        | Yes         | Yes | Untested | Untested |
-| Io.js v2.3.1 (pangyp) | No          | Yes | Untested | Untested |
+| npm install           | Windows 8.1 | OSX | Ubuntu 14.04 |
+|-----------------------|-------------|-----|--------------|
+| NodeJS v0.10.x        | No          | Yes | Untested     |
+| NodeJS v0.12.x        | Yes         | Yes | Untested     | 
+| Io.js v2.3.1          | Yes         | Yes | Untested     |
 
 ### Features
 
-| Feature           | Windows 8.1 | OSX | Fedora   | Ubuntu   |
-|-------------------|-------------|-----|----------|----------|
-| RTP DataChannels  | Yes         | Yes | Untested | Untested |
-| SCTP DataChannels | Yes         | Yes | Untested | Untested |
-| Audio Capture     | Yes         | Yes | Untested | Untested |
-| Video Capture     | Yes         | No  | Untested | Untested |
-| Screen Capture    | No          | No  | No       | No       |
-| Window Capture    | No          | No  | No       | No       |
+| Feature               | Windows 8.1 | OSX | Ubuntu 14.04 |
+|-----------------------|-------------|-----|--------------|
+| RTP DataChannels      | Yes         | Yes | Untested     |
+| SCTP DataChannels     | Yes         | Yes | Untested     |
+| Audio Capture         | Yes         | Yes | Untested     |
+| Video Capture         | Yes         | No  | Untested     |
+| Screen Capture        | No          | No  | No           |
+| Window Capture        | No          | No  | No           |
 
 # API
 ### Usage
