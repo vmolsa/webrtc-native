@@ -1,2 +1,2 @@
 
-module.exports = require('./build/Release/webrtc.node');
+module.exports = require('./build/Release/webrtc-native.node');
