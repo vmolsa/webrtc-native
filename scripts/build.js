@@ -5,15 +5,12 @@ var spawn = require('child_process').spawn;
 var path = require('path');
 
 var ROOT = process.cwd();
-var NODEJS = '.';
+var NODEJS = process.argv[2];
 var SYNC = false;
 
 if (os.platform() == 'win32') {
   process.chdir(path.resolve(ROOT, '..'));
   ROOT = process.cwd();
-  NODEJS = path.resolve(process.env['USERPROFILE'], '.node-gyp', process.version.substring(1));
-} else {
-  NODEJS = path.resolve(process.env['HOME'], '.node-gyp', process.version.substring(1));
 }
 
 if (fs.existsSync(ROOT + path.sep + 'nodejs.gypi')) {
@@ -81,7 +78,7 @@ function compile() {
   }); 
 }
 
-function build() {
+function build() { 
   if (fs.existsSync(WEBRTC_SRC)) {
     var res = spawn('python', [ WEBRTC_SRC + path.sep + 'webrtc' + path.sep + 'build' + path.sep + 'gyp_webrtc', 'src' + path.sep + 'webrtc.gyp' ], {
       cwd: ROOT,
@@ -149,6 +146,12 @@ function configure() {
       break;
     case 'win32':
       process.env['DEPOT_TOOLS_WIN_TOOLCHAIN'] = 0;
+      
+      var nodelibpath = path.resolve(NODEJS, 'x64');
+    
+      if (fs.existsSync(nodelibpath + path.sep + 'iojs.lib')) {
+        process.env['GYP_DEFINES'] += ' nodelib=iojs';
+      }
       
       break;
     case 'linux':
@@ -228,7 +231,5 @@ function prep() {
     fetch(false);
   }
 }
-
-// TODO(): apt-get install
 
 prep();
