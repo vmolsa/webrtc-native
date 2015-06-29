@@ -81,6 +81,7 @@
             4267,
             4005,
             4506,
+            4789,
           ],
           'libraries': [
             '-lkernel32.lib',
@@ -94,6 +95,7 @@
             '-loleaut32.lib',
             '-luuid.lib',
             '-lodbc32.lib',
+            '-lDelayImp.lib',
             '-l"<(nodedir)\\<(target_arch)\\<(nodelib)"',
           ],
         }],
