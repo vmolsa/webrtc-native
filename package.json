@@ -20,12 +20,12 @@
     "node": ">=0.12.x"
   },
   "scripts": {
-    "install": "node-gyp rebuild",
+    "install": "pangyp rebuild",
     "test": "node test/all.js"
   },
   "dependencies": {
     "nan": "^1.8.4",
-    "node-gyp": "^1.0.3"
+    "pangyp": "^2.2.1"
   },
   "devDependencies": {
     "minimist": "^1.1.1",
