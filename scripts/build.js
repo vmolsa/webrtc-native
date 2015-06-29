@@ -5,7 +5,7 @@ var spawn = require('child_process').spawn;
 var path = require('path');
 
 var ROOT = process.cwd();
-var NODEJS = process.argv[2];
+var NODEJS = path.resolve(process.argv[2]);
 var SYNC = false;
 
 if (os.platform() == 'win32') {
@@ -96,7 +96,7 @@ function build() {
   }
 }
 
-function sync() {
+function sync() {  
   if (!SYNC) {
     if (fs.existsSync(THIRD_PARTY + path.sep + 'webrtc_sync')) {
       var stat = fs.statSync(THIRD_PARTY + path.sep + 'webrtc_sync');
@@ -129,15 +129,21 @@ function sync() {
   });
 }
 
-function configure() {
-  process.env['GYP_DEFINES'] += ' third_party=' + THIRD_PARTY;
+function configure() { 
   process.env['GYP_DEFINES'] += ' target_arch=' + process.arch;
   process.env['GYP_DEFINES'] += ' host_arch=' + process.arch;
-  process.env['GYP_DEFINES'] += ' nodedir=' + NODEJS;
-  process.env['GYP_DEFINES'] += ' configuration=' + CONFIG;
+  process.env['GYP_DEFINES'] += ' node_root_dir=' + NODEJS.replace(/\\/g, '\\\\');
   process.env['GYP_DEFINES'] += ' build_with_chromium=0';
   process.env['GYP_DEFINES'] += ' include_tests=0';
-  process.env['GYP_DEFINES'] += ' uv_library=static_library';
+  process.env['GYP_DEFINES'] += ' ConfigurationName=' + CONFIG;
+  
+  var nodelibpath = path.resolve(NODEJS, 'x64');
+
+  if (fs.existsSync(nodelibpath + path.sep + 'iojs.lib')) {
+    process.env['GYP_DEFINES'] += ' runtime=iojs';
+  } else {
+    process.env['GYP_DEFINES'] += ' runtime=node';
+  }
 
   switch (os.platform()) {
     case 'darwin':
@@ -146,12 +152,6 @@ function configure() {
       break;
     case 'win32':
       process.env['DEPOT_TOOLS_WIN_TOOLCHAIN'] = 0;
-      
-      var nodelibpath = path.resolve(NODEJS, 'x64');
-    
-      if (fs.existsSync(nodelibpath + path.sep + 'iojs.lib')) {
-        process.env['GYP_DEFINES'] += ' nodelib=iojs';
-      }
       
       break;
     case 'linux':
