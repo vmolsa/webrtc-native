@@ -40,11 +40,8 @@
       ],
       'conditions': [ 
         ['OS=="linux"', {
-          'include_dirs': [
-            '/usr/include/node/',
-            '/usr/include/nodejs/'
-          ],
           'cflags': [
+            '-std=gnu++11',
             '-Wno-deprecated-declarations',
             '-Wno-unused-variable',
             '-Wno-unknown-pragmas',
