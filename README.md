@@ -10,16 +10,16 @@ npm install webrtc-native --save
 
 | npm install           | Windows 8.1 | OSX | Ubuntu 14.04 |
 |-----------------------|-------------|-----|--------------|
-| NodeJS v0.10.x        | No          | Yes | Untested     |
-| NodeJS v0.12.x        | Yes         | Yes | Untested     | 
-| Io.js v2.3.1          | Yes         | Yes | Untested     |
+| NodeJS v0.10.x        | Yes         | Yes | Yes          |
+| NodeJS v0.12.x        | Yes         | Yes | Yes          | 
+| Io.js v2.3.1          | Yes         | Yes | Yes          |
 
 ### Features
 
 | Feature               | Windows 8.1 | OSX | Ubuntu 14.04 |
 |-----------------------|-------------|-----|--------------|
-| RTP DataChannels      | Yes         | Yes | Untested     |
-| SCTP DataChannels     | Yes         | Yes | Untested     |
+| RTP DataChannels      | Yes         | Yes | Yes          |
+| SCTP DataChannels     | Yes         | Yes | Yes          |
 | Audio Capture         | Yes         | Yes | Untested     |
 | Video Capture         | Yes         | No  | Untested     |
 | Screen Capture        | No          | No  | No           |
