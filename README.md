@@ -20,12 +20,6 @@ npm install webrtc-native --save
 | NodeJS v0.12.x        | Yes         | Yes | Yes          |
 | Io.js v2.3.1          | Yes         | Yes | Yes          |
 
-| npm test              | Windows 8.1 | OSX | Ubuntu 14.04 |
-|-----------------------|-------------|-----|--------------|
-| NodeJS v0.10.x        | Yes         | Yes | Yes          |
-| NodeJS v0.12.x        | Yes         | Yes | Yes          |
-| Io.js v2.3.1          | Yes         | Yes | Yes          |
-
 ### Features
 
 | Feature               | Windows 8.1 | OSX | Ubuntu 14.04 |
