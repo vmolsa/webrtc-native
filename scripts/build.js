@@ -4,20 +4,23 @@ var spawn = require('child_process').spawn;
 var path = require('path');
 
 var ROOT = process.cwd();
-var NODEJS = path.resolve(process.argv[2]);
-var SYNC = false;
 
 if (os.platform() == 'win32') {
   process.chdir(path.resolve(ROOT, '..'));
   ROOT = process.cwd();
 }
 
-if (fs.existsSync(ROOT + path.sep + 'nodejs.gypi')) {
-  fs.unlinkSync(ROOT + path.sep + 'nodejs.gypi');
+if (!fs.existsSync(ROOT + path.sep + 'build' + path.sep + 'config.gypi')) {
+  throw new Error('Run pangyp rebuild instead of node build.js');
 }
 
-if (!fs.existsSync(ROOT + path.sep + 'build' + path.sep + 'config.gypi')) {
-  throw new Error('Run node-gyp rebuild instead of node build.js');
+var ARCH = process.argv[2].substring(14);
+var RUNTIME = process.argv[3].substring(10);
+var NODEJS = path.resolve(process.argv[4]);
+var SYNC = false;
+
+if (fs.existsSync(ROOT + path.sep + 'nodejs.gypi')) {
+  fs.unlinkSync(ROOT + path.sep + 'nodejs.gypi');
 }
 
 fs.linkSync(NODEJS + path.sep + 'common.gypi', ROOT + path.sep + 'nodejs.gypi');
@@ -119,21 +122,14 @@ function sync() {
 }
 
 function configure() { 
-  process.env['GYP_DEFINES'] += ' target_arch=' + process.arch;
+  process.env['GYP_DEFINES'] += ' target_arch=' + ARCH;
   process.env['GYP_DEFINES'] += ' host_arch=' + process.arch;
+  process.env['GYP_DEFINES'] += ' runtime=' + RUNTIME;
   process.env['GYP_DEFINES'] += ' node_root_dir=' + NODEJS.replace(/\\/g, '\\\\');
   process.env['GYP_DEFINES'] += ' build_with_chromium=0';
   process.env['GYP_DEFINES'] += ' include_tests=0';
   process.env['GYP_DEFINES'] += ' ConfigurationName=' + CONFIG;
   
-  var nodelibpath = path.resolve(NODEJS, 'x64');
-
-  if (fs.existsSync(nodelibpath + path.sep + 'iojs.lib')) {
-    process.env['GYP_DEFINES'] += ' runtime=iojs';
-  } else {
-    process.env['GYP_DEFINES'] += ' runtime=node';
-  }
-
   switch (os.platform()) {
     case 'darwin':
       process.env['GYP_DEFINES'] += ' clang=1';
@@ -159,7 +155,7 @@ function configure() {
       break;
   }
 
-  console.log('target_arch =', process.arch);
+  console.log('target_arch =', ARCH);
   console.log('host_arch =', process.arch);
   console.log('configuration =', CONFIG);
 
