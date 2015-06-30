@@ -14,6 +14,12 @@ npm install webrtc-native --save
 | NodeJS v0.12.x        | Yes         | Yes | Yes          | 
 | Io.js v2.3.1          | Yes         | Yes | Yes          |
 
+| npm test              | Windows 8.1 | OSX | Ubuntu 14.04 |
+|-----------------------|-------------|-----|--------------|
+| NodeJS v0.10.x        | Yes         | Yes | Yes          |
+| NodeJS v0.12.x        | Yes         | Yes | Yes          |
+| Io.js v2.3.1          | Yes         | Yes | Yes          |
+
 ### Features
 
 | Feature               | Windows 8.1 | OSX | Ubuntu 14.04 |
@@ -83,4 +89,9 @@ You must run node-gyp with administrator privileges.
 ## OS X
 ````
 XCode 3.0 or higher
+````
+
+## Ubuntu 14.04 LTS
+````
+sudo apt-get install --yes build-essential python2.7 git pkg-config libnss3-dev libasound2-dev libpulse-dev libjpeg62-dev libxv-dev libgtk2.0-dev libexpat1-dev default-jdk libxtst-dev libxss-dev libpci-dev libgconf2-dev libgnome-keyring-dev libudev-dev
 ````
