@@ -61,7 +61,7 @@ void Core::Init() {
   
   rtc::ThreadManager::Instance()->SetCurrentThread(&_signal);
   
-  if (ThreadManager::Instance()->CurrentThread() != &_signal) {
+  if (rtc::ThreadManager::Instance()->CurrentThread() != &_signal) {
     LOG(LS_ERROR) << "Internal Thread Error!";
     abort();
   }
