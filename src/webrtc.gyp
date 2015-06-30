@@ -9,7 +9,7 @@
   ],
   'targets': [
     {
-      'target_name': 'webrtc-native',
+      'target_name': 'webrtc',
       'sources': [
         'Core.cc',
         'BackTrace.cc',
@@ -78,7 +78,7 @@
       'target_name': 'All',
       'type': 'none',
       'dependencies': [
-        'webrtc-native',
+        'webrtc',
       ],
     },
   ],
