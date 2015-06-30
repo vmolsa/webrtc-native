@@ -355,7 +355,7 @@ NAN_METHOD(PeerConnection::SetLocalDescription) {
   
   if (error) {
     if (!args[2].IsEmpty() && args[2]->IsFunction()) {
-      Handle<Value> argv[1] = {
+      Local<Value> argv[1] = {
         NanError(error)
       };
 
@@ -416,7 +416,7 @@ NAN_METHOD(PeerConnection::SetRemoteDescription) {
 
   if (error) {
     if (!args[2].IsEmpty() && args[2]->IsFunction()) {
-      Handle<Value> argv[1] = {
+      Local<Value> argv[1] = {
         NanError(error)
       };
 
@@ -438,7 +438,7 @@ NAN_METHOD(PeerConnection::AddIceCandidate) {
   webrtc::PeerConnectionInterface *socket = self->GetSocket();
   
   const char *error = 0;
-  Handle<Value> argv[1];
+  Local<Value> argv[1];
 
   if (!args[0].IsEmpty() && args[0]->IsObject()) {
     Local<Object> desc = Local<Object>::Cast(args[0]);
@@ -482,7 +482,7 @@ NAN_METHOD(PeerConnection::AddIceCandidate) {
   
   if (error) {
     if (!args[2].IsEmpty() && args[2]->IsFunction()) {
-      argv[1] = NanError(error);
+      argv[0] = NanError(error);
       
       Local<Function> onerror = Local<Function>::Cast(args[2]);
       onerror->Call(args.This(), 1, argv);
