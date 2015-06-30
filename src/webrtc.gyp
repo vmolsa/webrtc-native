@@ -47,6 +47,9 @@
             '-Wno-unknown-pragmas',
             '-Wno-unused-result',
           ],
+          'ldflags': [
+            '-rdynamic',
+          ],
         }],
         ['OS=="win"', {
           'msvs_disabled_warnings': [
