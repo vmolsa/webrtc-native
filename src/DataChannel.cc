@@ -33,79 +33,76 @@ Persistent<Function> DataChannel::constructor;
 void DataChannel::Init() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate* isolate = Isolate::GetCurrent();
-  HandleScope scope(isolate);
+  NanScope();
   
-  Local<FunctionTemplate> tpl = FunctionTemplate::New(isolate, DataChannel::New);
-  tpl->SetClassName(String::NewFromUtf8(isolate, "RTCDataChannel"));
+  Local<FunctionTemplate> tpl = NanNew<FunctionTemplate>(DataChannel::New);
+  tpl->InstanceTemplate()->SetInternalFieldCount(1);
+  tpl->SetClassName(NanNew("RTCDataChannel"));
   
-  tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "close"),
-                                FunctionTemplate::New(isolate, DataChannel::Close));
-                                
-  tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "send"),
-                                FunctionTemplate::New(isolate, DataChannel::Send));
-  
-  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "id"),
+  tpl->PrototypeTemplate()->Set(NanNew("close"), NanNew<FunctionTemplate>(DataChannel::Close)->GetFunction());
+  tpl->PrototypeTemplate()->Set(NanNew("send"), NanNew<FunctionTemplate>(DataChannel::Send)->GetFunction());
+ 
+  tpl->InstanceTemplate()->SetAccessor(NanNew("id"),
                                        DataChannel::GetId,
                                        DataChannel::ReadOnly);
                                        
-  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "label"),
+  tpl->InstanceTemplate()->SetAccessor(NanNew("label"),
                                        DataChannel::GetLabel,
                                        DataChannel::ReadOnly);
                                        
-  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "ordered"),
+  tpl->InstanceTemplate()->SetAccessor(NanNew("ordered"),
                                        DataChannel::GetOrdered,
                                        DataChannel::ReadOnly);
                                        
-  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "protocol"),
+  tpl->InstanceTemplate()->SetAccessor(NanNew("protocol"),
                                        DataChannel::GetProtocol,
                                        DataChannel::ReadOnly);
                                        
-  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "readyState"),
+  tpl->InstanceTemplate()->SetAccessor(NanNew("readyState"),
                                        DataChannel::GetReadyState,
                                        DataChannel::ReadOnly);
                                        
-  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "bufferedAmount"),
+  tpl->InstanceTemplate()->SetAccessor(NanNew("bufferedAmount"),
                                        DataChannel::GetBufferedAmount,
                                        DataChannel::ReadOnly);
                                        
-  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "binaryType"),
+  tpl->InstanceTemplate()->SetAccessor(NanNew("binaryType"),
                                        DataChannel::GetBinaryType,
                                        DataChannel::SetBinaryType);
                                        
-  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "maxPacketLifeType"),
+  tpl->InstanceTemplate()->SetAccessor(NanNew("maxPacketLifeType"),
                                        DataChannel::GetMaxPacketLifeType,
                                        DataChannel::ReadOnly);
                                        
-  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "maxRetransmits"),
+  tpl->InstanceTemplate()->SetAccessor(NanNew("maxRetransmits"),
                                        DataChannel::GetMaxRetransmits,
                                        DataChannel::ReadOnly);
                                        
-  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "negotiated"),
+  tpl->InstanceTemplate()->SetAccessor(NanNew("negotiated"),
                                        DataChannel::GetNegotiated,
                                        DataChannel::ReadOnly);
                                        
-  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "reliable"),
+  tpl->InstanceTemplate()->SetAccessor(NanNew("reliable"),
                                        DataChannel::GetReliable,
                                        DataChannel::ReadOnly); 
                                        
-  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "onopen"),
+  tpl->InstanceTemplate()->SetAccessor(NanNew("onopen"),
                                        DataChannel::GetOnOpen,
                                        DataChannel::SetOnOpen); 
                                        
-  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "onmessage"),
+  tpl->InstanceTemplate()->SetAccessor(NanNew("onmessage"),
                                        DataChannel::GetOnMessage,
                                        DataChannel::SetOnMessage);
                                        
-  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "onclose"),
+  tpl->InstanceTemplate()->SetAccessor(NanNew("onclose"),
                                        DataChannel::GetOnClose,
                                        DataChannel::SetOnClose);
                                        
-  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "onerror"),
+  tpl->InstanceTemplate()->SetAccessor(NanNew("onerror"),
                                        DataChannel::GetOnError,
                                        DataChannel::SetOnError); 
-                                       
-  constructor.Reset(isolate, tpl->GetFunction());
+  
+  NanAssignPersistent(constructor, tpl->GetFunction());
 }
 
 DataChannel::DataChannel() {
@@ -119,6 +116,7 @@ DataChannel::~DataChannel() {
   
   if (_socket.get()) {  
     _socket->UnregisterObserver();
+    _observer->SetEmitter();
     
     webrtc::DataChannelInterface::DataState state(_socket->state());
     
@@ -128,48 +126,44 @@ DataChannel::~DataChannel() {
       _socket->Close();
     }
   }
-
-  EventEmitter::End();
 }
 
-void DataChannel::New(const v8::FunctionCallbackInfo<v8::Value> &args) {
+NAN_METHOD(DataChannel::New) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  Isolate* isolate = args.GetIsolate();
-  HandleScope scope(isolate);
-  
+
+  NanScope();
+
   if (args.IsConstructCall()) {
     DataChannel* dataChannel = new DataChannel();
-    dataChannel->Wrap(isolate, args.This());
-    return args.GetReturnValue().Set(args.This());
+    dataChannel->Wrap(args.This());
+    NanReturnValue(args.This());
   }
 
-  isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
+  NanThrowError("Internal Error");
+  NanReturnUndefined();
 }
 
-Local<Value> DataChannel::New(Isolate *isolate, rtc::scoped_refptr<webrtc::DataChannelInterface> dataChannel) {
+Local<Value> DataChannel::New(rtc::scoped_refptr<webrtc::DataChannelInterface> dataChannel) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  EscapableHandleScope scope(isolate);
-  
-  Local<Value> argv[1];
-  Local<Function> instance = Local<Function>::New(isolate, DataChannel::constructor);
+  NanEscapableScope();
+  Local<Function> instance = NanNew(DataChannel::constructor);
   
   if (instance.IsEmpty() || !dataChannel.get()) {
-    Local<Value> empty = Null(isolate);
-    return scope.Escape(empty);
+    return NanEscapeScope(NanNull());
   }
   
-  Local<Object> ret = instance->NewInstance(0, argv);
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, ret);
+  Local<Object> ret = instance->NewInstance();
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(ret);
 
-  self->Start();
+  self->SetReference(true);
   self->_socket = dataChannel;
   self->_socket->RegisterObserver(self->_observer.get());
-  self->_binaryType.Reset(isolate, String::NewFromUtf8(isolate, "arraybuffer"));
   self->Emit(kDataChannelStateChange);
 
-  return scope.Escape(ret);
+  NanAssignPersistent(self->_binaryType, NanNew("arraybuffer"));
+
+  return NanEscapeScope(ret);
 }
 
 webrtc::DataChannelInterface *DataChannel::GetSocket() const {
@@ -178,11 +172,10 @@ webrtc::DataChannelInterface *DataChannel::GetSocket() const {
   return _socket.get();
 }
 
-void DataChannel::Close(const v8::FunctionCallbackInfo<v8::Value>& args) {
+NAN_METHOD(DataChannel::Close) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = args.GetIsolate();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, args.This());
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.This());
   webrtc::DataChannelInterface *socket = self->GetSocket();
   
   if (socket) {
@@ -194,368 +187,302 @@ void DataChannel::Close(const v8::FunctionCallbackInfo<v8::Value>& args) {
       socket->Close();
     }
   }
+  
+  NanReturnUndefined();
 }
 
-void DataChannel::Send(const v8::FunctionCallbackInfo<v8::Value>& args) {
+NAN_METHOD(DataChannel::Send) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  Isolate *isolate = args.GetIsolate();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, args.This());
+
+  NanScope();
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.This());
   webrtc::DataChannelInterface *socket = self->GetSocket();
   bool retval = false;
 
   if (socket) {
     if(args[0]->IsString()) {
-      Local<String> str = Local<String>::Cast(args[0]);
-      std::string data(*String::Utf8Value(str));
-
+      std::string data(*NanUtf8String(args[0]));
       webrtc::DataBuffer buffer(data);
       retval = socket->Send(buffer);
     } else {
-      if (args[0]->IsArrayBuffer() || args[0]->IsTypedArray()) {
-        node::ArrayBuffer *container = node::ArrayBuffer::New(isolate, args[0]);
-        rtc::Buffer data(reinterpret_cast<char *>(container->Data()), container->Length());
-        webrtc::DataBuffer buffer(data, true);
-        retval = socket->Send(buffer);
-      } else {
-        isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Invalid argument")));
-      }
+      node::ArrayBuffer *container = node::ArrayBuffer::New(args[0]);
+      rtc::Buffer data(reinterpret_cast<char *>(container->Data()), container->Length());
+      webrtc::DataBuffer buffer(data, true);
+      retval = socket->Send(buffer);
     }
   }
   
-  return args.GetReturnValue().Set(v8::Boolean::New(isolate, retval));
+  NanReturnValue(NanNew(retval));
 }
 
-void DataChannel::GetId(v8::Local<v8::String> property, 
-                        const v8::PropertyCallbackInfo<v8::Value> &info)
-{
+NAN_GETTER(DataChannel::GetId) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = info.GetIsolate();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
+  NanScope();
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
   webrtc::DataChannelInterface *socket = self->GetSocket();
-  Local<Value> retval;
   
   if (socket) {
-    retval = Integer::New(isolate, socket->id());
+    NanReturnValue(NanNew(socket->id()));
   }
-  
-  info.GetReturnValue().Set(retval);
+
+  NanReturnUndefined();
 }
 
-void DataChannel::GetLabel(v8::Local<v8::String> property, 
-                           const v8::PropertyCallbackInfo<v8::Value> &info)
-{
+NAN_GETTER(DataChannel::GetLabel) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  Isolate *isolate = info.GetIsolate();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
+
+  NanScope();
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
   webrtc::DataChannelInterface *socket = self->GetSocket();
-  Local<Value> retval;
   
   if (socket) {
-    std::string data = socket->label();
-    retval = String::NewFromUtf8(isolate, data.c_str());
+    NanReturnValue(NanNew(socket->label().c_str()));
   }
   
-  info.GetReturnValue().Set(retval);
+  NanReturnUndefined();
 }
 
-void DataChannel::GetOrdered(v8::Local<v8::String> property, 
-                             const v8::PropertyCallbackInfo<v8::Value> &info)
-{
+NAN_GETTER(DataChannel::GetOrdered) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = info.GetIsolate();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
+  NanScope();
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
   webrtc::DataChannelInterface *socket = self->GetSocket();
-  Local<Value> retval;
   
   if (socket) {
-    retval = v8::Boolean::New(isolate, socket->ordered());
+    NanReturnValue(NanNew(socket->ordered()));
   }
   
-  info.GetReturnValue().Set(retval);
+  NanReturnUndefined();
 }
 
-void DataChannel::GetProtocol(v8::Local<v8::String> property, 
-                              const v8::PropertyCallbackInfo<v8::Value> &info)
-{
+NAN_GETTER(DataChannel::GetProtocol) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = info.GetIsolate();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
+  NanScope();
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
   webrtc::DataChannelInterface *socket = self->GetSocket();
-  Local<Value> retval;
   
   if (socket) {
-    std::string data = socket->protocol();
-    retval = String::NewFromUtf8(isolate, data.c_str());
+    NanReturnValue(NanNew(socket->protocol().c_str()));
   }
   
-  info.GetReturnValue().Set(retval);
+  NanReturnUndefined();
 }
 
-void DataChannel::GetReadyState(v8::Local<v8::String> property, 
-                                const v8::PropertyCallbackInfo<v8::Value> &info)
-{
+NAN_GETTER(DataChannel::GetReadyState) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = info.GetIsolate();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
+  NanScope();
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
   webrtc::DataChannelInterface *socket = self->GetSocket();
-  Local<Value> retval;
   
   if (socket) {
     webrtc::DataChannelInterface::DataState state(socket->state());
   
     switch (state) {
       case webrtc::DataChannelInterface::kConnecting:
-        info.GetReturnValue().Set(String::NewFromUtf8(isolate, "connecting"));
+        NanReturnValue(NanNew("connecting"));
         break;
       case webrtc::DataChannelInterface::kOpen:
-        info.GetReturnValue().Set(String::NewFromUtf8(isolate, "open"));
+        NanReturnValue(NanNew("open"));
         break;
       case webrtc::DataChannelInterface::kClosing:
-        info.GetReturnValue().Set(String::NewFromUtf8(isolate, "closing"));
+        NanReturnValue(NanNew("closing"));
         break;
       case webrtc::DataChannelInterface::kClosed:
-        info.GetReturnValue().Set(String::NewFromUtf8(isolate, "closed"));
+        NanReturnValue(NanNew("closed"));
         break;
     }
   }
+
+  NanReturnUndefined();
 }
 
-void DataChannel::GetBufferedAmount(v8::Local<v8::String> property, 
-                                    const v8::PropertyCallbackInfo<v8::Value> &info)
-{
+NAN_GETTER(DataChannel::GetBufferedAmount) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  Isolate *isolate = info.GetIsolate();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
+
+  NanScope();
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
   webrtc::DataChannelInterface *socket = self->GetSocket();
-  Local<Value> retval;
   
   if (socket) {
-    uint64_t value = socket->buffered_amount();
-    retval = Integer::NewFromUnsigned(isolate, static_cast<uint32_t>(value));
+    NanReturnValue(NanNew(static_cast<uint32_t>(socket->buffered_amount())));
   }
   
-  info.GetReturnValue().Set(retval);
+  NanReturnUndefined();
 }
 
-void DataChannel::GetBinaryType(v8::Local<v8::String> property, 
-                                const v8::PropertyCallbackInfo<v8::Value> &info)
-{
+NAN_GETTER(DataChannel::GetBinaryType) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = info.GetIsolate();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
-  info.GetReturnValue().Set(Local<String>::New(isolate, self->_binaryType));
+  NanScope();
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
+  NanReturnValue(NanNew(self->_binaryType));
 }
 
-void DataChannel::GetMaxPacketLifeType(v8::Local<v8::String> property, 
-                                       const v8::PropertyCallbackInfo<v8::Value> &info)
-{
+NAN_GETTER(DataChannel::GetMaxPacketLifeType) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = info.GetIsolate();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
+  NanScope();
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
   webrtc::DataChannelInterface *socket = self->GetSocket();
-  Local<Value> retval;
   
   if (socket) {
-    uint16_t value = socket->maxRetransmitTime();
-    retval = Integer::NewFromUnsigned(isolate, static_cast<uint32_t>(value));
+    NanReturnValue(NanNew(static_cast<uint32_t>(socket->maxRetransmitTime())));
   }
   
-  info.GetReturnValue().Set(retval);
+  NanReturnUndefined();
 }
 
-void DataChannel::GetMaxRetransmits(v8::Local<v8::String> property, 
-                                    const v8::PropertyCallbackInfo<v8::Value> &info)
-{
+NAN_GETTER(DataChannel::GetMaxRetransmits) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = info.GetIsolate();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
+  NanScope();
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
   webrtc::DataChannelInterface *socket = self->GetSocket();
-  Local<Value> retval;
   
   if (socket) {
-    uint16_t value = socket->maxRetransmits();
-    retval = Integer::NewFromUnsigned(isolate, static_cast<uint32_t>(value));
+    NanReturnValue(NanNew(static_cast<uint32_t>(socket->maxRetransmits())));
   }
   
-  info.GetReturnValue().Set(retval);
+  NanReturnUndefined();
 }
 
-void DataChannel::GetNegotiated(v8::Local<v8::String> property, 
-                                   const v8::PropertyCallbackInfo<v8::Value> &info)
-{
+NAN_GETTER(DataChannel::GetNegotiated) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = info.GetIsolate();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
+  NanScope();
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
   webrtc::DataChannelInterface *socket = self->GetSocket();
-  Local<Value> retval;
   
   if (socket) {
-    retval = v8::Boolean::New(isolate, socket->negotiated());
+    NanReturnValue(NanNew(socket->negotiated()));
   }
   
-  info.GetReturnValue().Set(retval);
+  NanReturnValue(NanFalse());
 }
 
-void DataChannel::GetReliable(v8::Local<v8::String> property, 
-                              const v8::PropertyCallbackInfo<v8::Value> &info)
-{
+NAN_GETTER(DataChannel::GetReliable) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = info.GetIsolate();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
+  NanScope();
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
   webrtc::DataChannelInterface *socket = self->GetSocket();
-  Local<Value> retval;
   
   if (socket) {
-    retval = v8::Boolean::New(isolate, socket->reliable());
+    NanReturnValue(NanNew(socket->reliable()));
   }
   
-  info.GetReturnValue().Set(retval);
+  NanReturnValue(NanFalse());
 }
 
-void DataChannel::GetOnOpen(v8::Local<v8::String> property, 
-                            const v8::PropertyCallbackInfo<v8::Value> &info)
-{
+NAN_GETTER(DataChannel::GetOnOpen) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = info.GetIsolate();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
-  info.GetReturnValue().Set(Local<Function>::New(isolate, self->_onopen));
+  NanScope();
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
+  NanReturnValue(NanNew(self->_onopen));
 }
 
-void DataChannel::GetOnMessage(v8::Local<v8::String> property, 
-                               const v8::PropertyCallbackInfo<v8::Value> &info)
-{
+NAN_GETTER(DataChannel::GetOnMessage) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = info.GetIsolate();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
-  info.GetReturnValue().Set(Local<Function>::New(isolate, self->_onmessage));
+  NanScope();
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
+  NanReturnValue(NanNew(self->_onmessage));
 }
 
-void DataChannel::GetOnClose(v8::Local<v8::String> property, 
-                             const v8::PropertyCallbackInfo<v8::Value> &info)
-{
+NAN_GETTER(DataChannel::GetOnClose) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = info.GetIsolate();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
-  info.GetReturnValue().Set(Local<Function>::New(isolate, self->_onclose));
+  NanScope();
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
+  NanReturnValue(NanNew(self->_onclose));
 }
 
-void DataChannel::GetOnError(v8::Local<v8::String> property, 
-                             const v8::PropertyCallbackInfo<v8::Value> &info)
-{
+NAN_GETTER(DataChannel::GetOnError) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = info.GetIsolate();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
-  info.GetReturnValue().Set(Local<Function>::New(isolate, self->_onerror));
+  NanScope();
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
+  NanReturnValue(NanNew(self->_onerror));
 }  
 
-void DataChannel::ReadOnly(v8::Local<v8::String> property, 
-                              v8::Local<v8::Value> value, 
-                              const v8::PropertyCallbackInfo<void> &info)
-{
+NAN_SETTER(DataChannel::ReadOnly) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
 }
 
-void DataChannel::SetBinaryType(v8::Local<v8::String> property, 
-                                v8::Local<v8::Value> value, 
-                                const v8::PropertyCallbackInfo<void> &info)
-{
+NAN_SETTER(DataChannel::SetBinaryType) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = info.GetIsolate();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
+  NanScope();
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
 
   if (!value.IsEmpty() && value->IsString()) {
-    
-    self->_binaryType.Reset(isolate, value->ToString());
+    NanAssignPersistent(self->_binaryType, value->ToString());
   } else {
-    self->_binaryType.Reset(isolate, String::NewFromUtf8(isolate, "arraybuffer"));
+    NanAssignPersistent(self->_binaryType, NanNew("arraybuffer"));
   }
 }
 
-void DataChannel::SetOnOpen(v8::Local<v8::String> property, 
-                            v8::Local<v8::Value> value, 
-                            const v8::PropertyCallbackInfo<void> &info)
-{
+NAN_SETTER(DataChannel::SetOnOpen) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = info.GetIsolate();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
+  NanScope();
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
 
   if (!value.IsEmpty() && value->IsFunction()) {
-    self->_onopen.Reset(isolate, Local<Function>::Cast(value));
+    NanAssignPersistent(self->_onopen, Local<Function>::Cast(value));
   } else {
-    self->_onopen.Reset();
+    NanDisposePersistent(self->_onopen);
   }
 }
 
-void DataChannel::SetOnMessage(v8::Local<v8::String> property, 
-                               v8::Local<v8::Value> value, 
-                               const v8::PropertyCallbackInfo<void> &info)
-{
+NAN_SETTER(DataChannel::SetOnMessage) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = info.GetIsolate();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
+  NanScope();
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
 
   if (!value.IsEmpty() && value->IsFunction()) {
-    self->_onmessage.Reset(isolate, Local<Function>::Cast(value));
+    NanAssignPersistent(self->_onmessage, Local<Function>::Cast(value));
   } else {
-    self->_onmessage.Reset();
+    NanDisposePersistent(self->_onmessage);
   }
 }
 
-void DataChannel::SetOnClose(v8::Local<v8::String> property, 
-                             v8::Local<v8::Value> value, 
-                             const v8::PropertyCallbackInfo<void> &info)
-{
+NAN_SETTER(DataChannel::SetOnClose) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = info.GetIsolate();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
+  NanScope();
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
 
   if (!value.IsEmpty() && value->IsFunction()) {
-    self->_onclose.Reset(isolate, Local<Function>::Cast(value));
+    NanAssignPersistent(self->_onclose, Local<Function>::Cast(value));
   } else {
-    self->_onclose.Reset();
+    NanDisposePersistent(self->_onclose);
   }
 }
 
-void DataChannel::SetOnError(v8::Local<v8::String> property, 
-                             v8::Local<v8::Value> value, 
-                             const v8::PropertyCallbackInfo<void> &info)
-{
+NAN_SETTER(DataChannel::SetOnError) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = info.GetIsolate();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(isolate, info.Holder());
+  NanScope();
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder());
 
   if (!value.IsEmpty() && value->IsFunction()) {
-    self->_onerror.Reset(isolate, Local<Function>::Cast(value));
+    NanAssignPersistent(self->_onerror, Local<Function>::Cast(value));
   } else {
-    self->_onerror.Reset();
+    NanDisposePersistent(self->_onclose);
   }
 }
 
 void DataChannel::On(Event *event) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = Isolate::GetCurrent();
+  NanScope();
   DataChannelEvent type = event->Type<DataChannelEvent>();
   node::ArrayBuffer *arrayBuffer = 0;
   Local<Function> callback;
@@ -572,40 +499,39 @@ void DataChannel::On(Event *event) {
 
           break;
         case webrtc::DataChannelInterface::kOpen:
-          callback = Local<Function>::New(isolate, _onopen);
+          callback = NanNew(_onopen);
 
           break;
         case webrtc::DataChannelInterface::kClosing:
 
           break;
         case webrtc::DataChannelInterface::kClosed:
-          EventEmitter::Stop();
-          socket->UnregisterObserver();
+          EventEmitter::SetReference(false);
           
-          callback = Local<Function>::New(isolate, _onclose);          
-          _onclose.Reset();
+          callback = NanNew(_onclose);
+          NanDisposePersistent(_onclose);
 
           break;
       }
     }
   } else {
-    callback = Local<Function>::New(isolate, _onmessage);
+    callback = NanNew(_onmessage);
     rtc::Buffer buffer = event->Unwrap<rtc::Buffer>();
-    Local<Object> container = Object::New(isolate);
+    Local<Object> container = NanNew<Object>();
     argv[0] = container;
     argc = 1;
 
     if (type == kDataChannelData) {
-      container->Set(String::NewFromUtf8(isolate, "data"), String::NewFromUtf8(isolate, reinterpret_cast<char *>(buffer.data()), String::kNormalString, buffer.size()));
+      container->Set(NanNew("data"), NanNew(reinterpret_cast<char *>(buffer.data()), buffer.size()));
     } else {
-      arrayBuffer = node::ArrayBuffer::New(isolate, reinterpret_cast<char *>(buffer.data()), buffer.size());                                
-      container->Set(String::NewFromUtf8(isolate, "data"), arrayBuffer->ToArrayBuffer());
+      arrayBuffer = node::ArrayBuffer::New(reinterpret_cast<char *>(buffer.data()), buffer.size());                                
+      container->Set(NanNew("data"), arrayBuffer->ToArrayBuffer());
     }
   }
   
   if (!callback.IsEmpty() && callback->IsFunction()) {
-    callback->Call(RTCWrap::This(isolate), argc, argv);
+    callback->Call(RTCWrap::This(), argc, argv);
   } else if (isError) {
-    isolate->ThrowException(argv[0]);
+    NanThrowError(argv[0]);
   }
 }

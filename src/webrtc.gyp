@@ -5,19 +5,11 @@
     '../third_party/webrtc/src/talk/build/common.gypi',
     '../build/config.gypi',
     '../nodejs.gypi',
+    'addon.gypi',
   ],
-  'variables': {
-    'include_tests%': 0,
-    'third_party%': 'third_party',
-    'configuration%': 'Release',
-    'build_with_chromium%': 0,
-    'uv_library%': 'static_library',
-  }, 
   'targets': [
     {
-      'target_name': 'webrtc-native',
-      'type': 'loadable_module',
-      'product_extension': 'node',
+      'target_name': 'webrtc',
       'sources': [
         'Core.cc',
         'BackTrace.cc',
@@ -31,11 +23,7 @@
         'MediaStream.cc',
         'MediaStreamTrack.cc',
         'MediaConstraints.cc',
-        'Wrap.cc',
         'Stats.cc',
-      ],      
-      'defines': [
-        'BUILDING_NODE_EXTENSION',
       ],
       'dependencies': [
         '<(DEPTH)/talk/libjingle.gyp:libjingle_peerconnection', 
@@ -45,55 +33,30 @@
         '<(DEPTH)/webrtc/modules/modules.gyp:video_render_module_internal_impl',
       ],
       'include_dirs': [
-        '<(nodedir)/src',
-        '<(nodedir)/deps/uv/include',
-        '<(nodedir)/deps/v8/include',
         '<(DEPTH)/third_party/jsoncpp/source/include',
         '<(DEPTH)/third_party/libsrtp/srtp',
         '<(DEPTH)/third_party/libyuv/include',
-        "<!(node -e \"require('node-arraybuffer')\")",
         "<!(node -e \"require('nan')\")",
       ],
       'conditions': [ 
         ['OS=="linux"', {
-          'defines': [
-            '_LARGEFILE_SOURCE', 
-            '_FILE_OFFSET_BITS=64',
-          ],
           'cflags': [
-            '-fPIC',
+            '-std=gnu++11',
             '-Wno-deprecated-declarations',
             '-Wno-unused-variable',
             '-Wno-unknown-pragmas',
             '-Wno-unused-result',
           ],
-          'dependencies': [
-            '../third_party/node/deps/v8/tools/gyp/v8.gyp:v8',
-            '../third_party/node/deps/uv/uv.gyp:libuv',
+          'ldflags': [
+            '-Wl,--unresolved-symbols=ignore-in-object-files',
           ],
         }],
         ['OS=="win"', {
-          'msvs_disabled_warnings': [ 
-            4251,
-            4530,
-            4702,
-            4199,
-            4201,
+          'msvs_disabled_warnings': [
             4267,
-          ],
-          'libraries': [
-            '-lkernel32.lib',
-            '-luser32.lib',
-            '-lgdi32.lib',
-            '-lwinspool.lib',
-            '-lcomdlg32.lib',
-            '-ladvapi32.lib',
-            '-lshell32.lib',
-            '-lole32.lib',
-            '-loleaut32.lib',
-            '-luuid.lib',
-            '-lodbc32.lib',
-            '-l"<(nodedir)\\<(target_arch)\\node"',
+            4005,
+            4201,
+            4506,
           ],
         }],
         ['OS=="mac"', {
@@ -104,18 +67,9 @@
               '-Wno-unknown-pragmas',
               '-Wno-unused-result',
             ],
-            'DYLIB_INSTALL_NAME_BASE': '@rpath',
           },
-          'libraries': [ 
-            '-undefined dynamic_lookup',
-            '-framework AppKit',
-            '-framework QTKit',
-          ],
           'defines': [
             'USE_BACKTRACE',
-            '_LARGEFILE_SOURCE', 
-            '_FILE_OFFSET_BITS=64',
-            '_DARWIN_USE_64_BIT_INODE=1',
           ],
         }],
       ],      
@@ -124,7 +78,7 @@
       'target_name': 'All',
       'type': 'none',
       'dependencies': [
-        'webrtc-native',
+        'webrtc',
       ],
     },
   ],

@@ -30,86 +30,78 @@ using namespace WebRTC;
 
 Persistent<Function> RTCStatsReport::constructor;
 
-void RTCStatsReport::Init() {
-  Isolate* isolate = Isolate::GetCurrent();
-  HandleScope scope(isolate);
+RTCStatsReport::~RTCStatsReport() {
   
-  Local<FunctionTemplate> tpl = FunctionTemplate::New(isolate, RTCStatsReport::New);
-  tpl->SetClassName(String::NewFromUtf8(isolate, "RTCStatsReport"));
+}
 
-  tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "names"),
-                                FunctionTemplate::New(isolate, RTCStatsReport::Names));
+void RTCStatsReport::Init() {
+  NanScope();
+  
+  Local<FunctionTemplate> tpl = NanNew<FunctionTemplate>(RTCStatsReport::New);
+  tpl->InstanceTemplate()->SetInternalFieldCount(1);
+  tpl->SetClassName(NanNew("RTCStatsReport"));
 
-  tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "stat"),
-                                FunctionTemplate::New(isolate, RTCStatsReport::Stat));
-
-  tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "id"),
-                                FunctionTemplate::New(isolate, RTCStatsReport::Id));
-
-  tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "type"),
-                                FunctionTemplate::New(isolate, RTCStatsReport::Type));
-
-  tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "timestamp"),
-                                FunctionTemplate::New(isolate, RTCStatsReport::Timestamp));
-
-  constructor.Reset(isolate, tpl->GetFunction());
+  tpl->PrototypeTemplate()->Set(NanNew("names"), NanNew<FunctionTemplate>(RTCStatsReport::Names)->GetFunction());
+  tpl->PrototypeTemplate()->Set(NanNew("stat"), NanNew<FunctionTemplate>(RTCStatsReport::Stat)->GetFunction());
+  tpl->PrototypeTemplate()->Set(NanNew("id"), NanNew<FunctionTemplate>(RTCStatsReport::Id)->GetFunction());
+  tpl->PrototypeTemplate()->Set(NanNew("type"), NanNew<FunctionTemplate>(RTCStatsReport::Type)->GetFunction());
+  tpl->PrototypeTemplate()->Set(NanNew("timestamp"), NanNew<FunctionTemplate>(RTCStatsReport::Timestamp)->GetFunction());
+  
+  NanAssignPersistent(constructor, tpl->GetFunction());
 };
 
-Local<Value> RTCStatsReport::New(Isolate *isolate, webrtc::StatsReport *report) {  
-  EscapableHandleScope scope(isolate);
-  Local<Function> instance = Local<Function>::New(isolate, RTCStatsReport::constructor);
+Local<Value> RTCStatsReport::New(webrtc::StatsReport *report) {  
+  NanEscapableScope();
+  Local<Function> instance = NanNew(RTCStatsReport::constructor);
 
   if (instance.IsEmpty()) {
-    Local<Value> empty = Null(isolate);
-    return scope.Escape(empty);
+    return NanEscapeScope(NanNull());
   }
 
   Local<Object> ret = instance->NewInstance();
-  RTCStatsReport *stats = RTCWrap::Unwrap<RTCStatsReport>(isolate, ret, "RTCStatsReport");
+  RTCStatsReport *stats = RTCWrap::Unwrap<RTCStatsReport>(ret, "RTCStatsReport");
 
   if (stats) {
     stats->_report = report;
   }
 
-  return scope.Escape(ret);
+  return NanEscapeScope(ret);
 }
 
-void RTCStatsReport::New(const FunctionCallbackInfo<Value>& args) {
-  Isolate* isolate = args.GetIsolate();
-  HandleScope scope(isolate);
+NAN_METHOD(RTCStatsReport::New) {
+  NanScope();
 
   if (args.IsConstructCall()) {
     RTCStatsReport* report = new RTCStatsReport();
-    report->Wrap(isolate, args.This(), "RTCStatsReport");
-    return args.GetReturnValue().Set(args.This());
+    report->Wrap(args.This(), "RTCStatsReport");
+    NanReturnValue(args.This());
   }
 
-  isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
+  NanThrowError("Internal Error");
+  NanReturnUndefined();
 }
 
-void RTCStatsReport::Names(const FunctionCallbackInfo<Value>& args) {
-  Isolate* isolate = args.GetIsolate();
-  HandleScope scope(isolate);
+NAN_METHOD(RTCStatsReport::Names) {
+  NanScope();
   
-  RTCStatsReport *stats = RTCWrap::Unwrap<RTCStatsReport>(isolate, args.This(), "RTCStatsReport");
+  RTCStatsReport *stats = RTCWrap::Unwrap<RTCStatsReport>(args.This(), "RTCStatsReport");
   webrtc::StatsReport::Values values = stats->_report->values();
-  Local<Array> list = Array::New(isolate);
+  Local<Array> list = NanNew<Array>();
   unsigned int index = 0;
   
   for (webrtc::StatsReport::Values::iterator it = values.begin(); it != values.end(); it++) {
     webrtc::StatsReport::ValuePtr value = values[it->first];
-    list->Set(index, String::NewFromUtf8(isolate, value->display_name()));
+    list->Set(index, NanNew(value->display_name()));
     index++;
   }
   
-  args.GetReturnValue().Set(list);
+  NanReturnValue(list);
 }
 
-void RTCStatsReport::Stat(const FunctionCallbackInfo<Value>& args) {
-  Isolate* isolate = args.GetIsolate();
-  HandleScope scope(isolate);
+NAN_METHOD(RTCStatsReport::Stat) {
+  NanScope();
   
-  RTCStatsReport *stats = RTCWrap::Unwrap<RTCStatsReport>(isolate, args.This(), "RTCStatsReport");
+  RTCStatsReport *stats = RTCWrap::Unwrap<RTCStatsReport>(args.This(), "RTCStatsReport");
   webrtc::StatsReport::Values values = stats->_report->values();
 
   if (args.Length() >= 1 && args[0]->IsString()) {
@@ -122,119 +114,119 @@ void RTCStatsReport::Stat(const FunctionCallbackInfo<Value>& args) {
       if (!entry.compare(value->display_name())) {
         switch (value->type()) {
           case webrtc::StatsReport::Value::kInt:
-            args.GetReturnValue().Set(Integer::New(isolate, value->int_val()));
+            NanReturnValue(NanNew(value->int_val()));
             
             break;
           case webrtc::StatsReport::Value::kInt64:
-            args.GetReturnValue().Set(Integer::New(isolate, static_cast<int32_t>(value->int64_val())));
+            NanReturnValue(NanNew(static_cast<int32_t>(value->int64_val())));
             
             break;
           case webrtc::StatsReport::Value::kFloat:
-            args.GetReturnValue().Set(Number::New(isolate, value->float_val()));
+            NanReturnValue(NanNew(value->float_val()));
           
             break;
           case webrtc::StatsReport::Value::kString:
-            args.GetReturnValue().Set(String::NewFromUtf8(isolate, value->string_val().c_str()));
+            NanReturnValue(NanNew(value->string_val().c_str()));
             
             break;
           case webrtc::StatsReport::Value::kStaticString:
-            args.GetReturnValue().Set(String::NewFromUtf8(isolate, value->static_string_val()));
+            NanReturnValue(NanNew(value->static_string_val()));
             
             break;
           case webrtc::StatsReport::Value::kBool:
-            args.GetReturnValue().Set(v8::Boolean::New(isolate, value->bool_val()));
+            NanReturnValue(NanNew(value->bool_val()));
             
             break;
           case webrtc::StatsReport::Value::kId:
-            args.GetReturnValue().Set(String::NewFromUtf8(isolate, value->ToString().c_str()));
+            NanReturnValue(NanNew(value->ToString().c_str()));
           
             break;
         }
       }
     }
   }
-}
-
-void RTCStatsReport::Id(const FunctionCallbackInfo<Value>& args) {
-  Isolate* isolate = args.GetIsolate();
-  HandleScope scope(isolate);
-
-  RTCStatsReport *stats = RTCWrap::Unwrap<RTCStatsReport>(isolate, args.This(), "RTCStatsReport");
-  std::string id(stats->_report->id()->ToString());
-  args.GetReturnValue().Set(String::NewFromUtf8(isolate, id.c_str())); 
-}
-
-void RTCStatsReport::Type(const FunctionCallbackInfo<Value>& args) {
-  Isolate* isolate = args.GetIsolate();
-  HandleScope scope(isolate);
   
-  RTCStatsReport *stats = RTCWrap::Unwrap<RTCStatsReport>(isolate, args.This(), "RTCStatsReport");
-  args.GetReturnValue().Set(String::NewFromUtf8(isolate, stats->_report->TypeToString()));
+  NanReturnUndefined();
 }
 
-void RTCStatsReport::Timestamp(const FunctionCallbackInfo<Value>& args) {
-  Isolate* isolate = args.GetIsolate();
-  HandleScope scope(isolate);
+NAN_METHOD(RTCStatsReport::Id) {
+  NanScope();
 
-  RTCStatsReport *stats = RTCWrap::Unwrap<RTCStatsReport>(isolate, args.This(), "RTCStatsReport");
-  args.GetReturnValue().Set(Number::New(isolate, stats->_report->timestamp()));
+  RTCStatsReport *stats = RTCWrap::Unwrap<RTCStatsReport>(args.This(), "RTCStatsReport");
+  std::string id(stats->_report->id()->ToString());
+  NanReturnValue(NanNew(id.c_str())); 
+}
+
+NAN_METHOD(RTCStatsReport::Type) {
+  NanScope();
+  
+  RTCStatsReport *stats = RTCWrap::Unwrap<RTCStatsReport>(args.This(), "RTCStatsReport");
+  NanReturnValue(NanNew(stats->_report->TypeToString()));
+}
+
+NAN_METHOD(RTCStatsReport::Timestamp) {
+  NanScope();
+
+  RTCStatsReport *stats = RTCWrap::Unwrap<RTCStatsReport>(args.This(), "RTCStatsReport");
+  NanReturnValue(NanNew(stats->_report->timestamp()));
 }
 
 Persistent<Function> RTCStatsResponse::constructor;
 
-void RTCStatsResponse::Init() {
-  Isolate* isolate = Isolate::GetCurrent();
-  HandleScope scope(isolate);
-
-  Local<FunctionTemplate> tpl = FunctionTemplate::New(isolate, RTCStatsResponse::New);
-  tpl->SetClassName(String::NewFromUtf8(isolate, "RTCStatsResponse"));
-
-  tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "result"),
-                                FunctionTemplate::New(isolate, RTCStatsResponse::Result));
-                                
-  constructor.Reset(isolate, tpl->GetFunction());
+RTCStatsResponse::~RTCStatsResponse() {
+  
 }
 
-void RTCStatsResponse::New(const FunctionCallbackInfo<Value>& args) {
-  Isolate* isolate = args.GetIsolate();
-  HandleScope scope(isolate);
+void RTCStatsResponse::Init() {
+  NanScope();
+
+  Local<FunctionTemplate> tpl = NanNew<FunctionTemplate>(RTCStatsResponse::New);
+  tpl->InstanceTemplate()->SetInternalFieldCount(1);
+  tpl->SetClassName(NanNew("RTCStatsResponse"));
+
+  tpl->PrototypeTemplate()->Set(NanNew("result"), NanNew<FunctionTemplate>(RTCStatsResponse::Result)->GetFunction());
+                                
+  NanAssignPersistent(constructor, tpl->GetFunction());
+}
+
+NAN_METHOD(RTCStatsResponse::New) {
+  NanScope();
 
   if (args.IsConstructCall()) {
     RTCStatsResponse *response = new RTCStatsResponse();
-    response->Wrap(isolate, args.This(), "RTCStatsResponse");
-    return args.GetReturnValue().Set(args.This());
+    response->Wrap(args.This(), "RTCStatsResponse");
+    NanReturnValue(args.This());
   }
 
-  isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
+  NanThrowError("Internal Error");
+  NanReturnUndefined();
 }
 
-Local<Value> RTCStatsResponse::New(Isolate *isolate, const webrtc::StatsReports &reports) {  
-  EscapableHandleScope scope(isolate);
-  Local<Function> instance = Local<Function>::New(isolate, RTCStatsResponse::constructor);
+Local<Value> RTCStatsResponse::New(const webrtc::StatsReports &reports) {  
+  NanEscapableScope();
+  Local<Function> instance = NanNew(RTCStatsResponse::constructor);
 
   if (instance.IsEmpty()) {
-    Local<Value> empty = Null(isolate);
-    return scope.Escape(empty);
+    return NanEscapeScope(NanNull());
   }
 
   Local<Object> ret = instance->NewInstance();
-  RTCStatsResponse *response = RTCWrap::Unwrap<RTCStatsResponse>(isolate, ret, "RTCStatsResponse");
+  RTCStatsResponse *response = RTCWrap::Unwrap<RTCStatsResponse>(ret, "RTCStatsResponse");
 
   response->_reports = reports;
 
-  return scope.Escape(ret);
+  return NanEscapeScope(ret);
 }
 
-void RTCStatsResponse::Result(const FunctionCallbackInfo<Value>& args) {
-  Isolate* isolate = args.GetIsolate();
-  HandleScope scope(isolate);
+NAN_METHOD(RTCStatsResponse::Result) {
+  NanScope();
 
-  RTCStatsResponse *response = RTCWrap::Unwrap<RTCStatsResponse>(isolate, args.This(), "RTCStatsResponse");
-  Local<Array> list = Array::New(isolate, response->_reports.size());
+  RTCStatsResponse *response = RTCWrap::Unwrap<RTCStatsResponse>(args.This(), "RTCStatsResponse");
+  Local<Array> list = NanNew<Array>(response->_reports.size());
  
   for(unsigned int index = 0; index < response->_reports.size(); index++) {
-    list->Set(index, RTCStatsReport::New(isolate, const_cast<webrtc::StatsReport*>(response->_reports.at(index))));
+    list->Set(index, RTCStatsReport::New(const_cast<webrtc::StatsReport*>(response->_reports.at(index))));
   }
 
-  args.GetReturnValue().Set(list);
+  NanReturnValue(list);
 }

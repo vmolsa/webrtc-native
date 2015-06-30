@@ -33,23 +33,21 @@
 using namespace v8;
 using namespace WebRTC;
 
-void GetUserMedia::Init(v8::Handle<v8::Object> exports) {
+void GetUserMedia::Init(Handle<Object> exports) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate* isolate = Isolate::GetCurrent();
-  HandleScope scope(isolate);
+  NanScope();
 
-  exports->Set(String::NewFromUtf8(isolate, "getUserMedia"), FunctionTemplate::New(isolate, GetUserMedia::GetMediaStream)->GetFunction());
+  exports->Set(NanNew("getUserMedia"), NanNew<FunctionTemplate>(GetUserMedia::GetMediaStream)->GetFunction());
 }
 
-void GetUserMedia::GetMediaStream(const FunctionCallbackInfo<Value> &args) {
+NAN_METHOD(GetUserMedia::GetMediaStream) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
+  NanScope();
+  
   rtc::scoped_refptr<webrtc::MediaStreamInterface> stream;
-  Isolate* isolate = args.GetIsolate();
-  HandleScope scope(isolate);
-
-  rtc::scoped_refptr<MediaConstraints> constraints = MediaConstraints::New(isolate, args[0]);
+  rtc::scoped_refptr<MediaConstraints> constraints = MediaConstraints::New(args[0]);
   const char *error = 0;
 
   std::string audioId = constraints->AudioId();
@@ -108,7 +106,7 @@ void GetUserMedia::GetMediaStream(const FunctionCallbackInfo<Value> &args) {
 
   if (!error) {
     if (stream.get()) {
-      argv[0] = MediaStream::New(isolate, stream);
+      argv[0] = MediaStream::New(stream);
     } else {
       error = "Invalid MediaStream";
     }
@@ -117,11 +115,11 @@ void GetUserMedia::GetMediaStream(const FunctionCallbackInfo<Value> &args) {
   if (error) {
     if (!args[2].IsEmpty() && args[2]->IsFunction()) {
       Local<Function> onerror = Local<Function>::Cast(args[2]);
-      argv[0] = Exception::Error(String::NewFromUtf8(isolate, error));
+      argv[0] = NanError(error);
 
       onerror->Call(args.This(), 1, argv);
     } else {
-      isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, error)));
+      NanThrowError(error);
     }
   } else {
     if (!args[1].IsEmpty() && args[1]->IsFunction()) {
@@ -129,4 +127,6 @@ void GetUserMedia::GetMediaStream(const FunctionCallbackInfo<Value> &args) {
       onsuccess->Call(args.This(), 1, argv);
     }
   }
+  
+  NanReturnUndefined();
 }

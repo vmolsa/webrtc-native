@@ -26,7 +26,7 @@
 #ifndef WEBRTC_STATS_H
 #define WEBRTC_STATS_H
 
-#include <v8.h>
+#include <nan.h>
 
 #include "Observers.h" 
 #include "EventEmitter.h"
@@ -36,15 +36,17 @@ namespace WebRTC {
   class RTCStatsReport : public RTCWrap {
    public:
     static void Init();
-    static v8::Local<v8::Value> New(v8::Isolate *isolate, webrtc::StatsReport *report);
+    static v8::Local<v8::Value> New(webrtc::StatsReport *report);
     
    private:
-    static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
-    static void Names(const v8::FunctionCallbackInfo<v8::Value>& args);
-    static void Stat(const v8::FunctionCallbackInfo<v8::Value>& args);
-    static void Id(const v8::FunctionCallbackInfo<v8::Value>& args);
-    static void Type(const v8::FunctionCallbackInfo<v8::Value>& args);
-    static void Timestamp(const v8::FunctionCallbackInfo<v8::Value>& args);
+    ~RTCStatsReport() final;
+    
+    static NAN_METHOD(New);
+    static NAN_METHOD(Names);
+    static NAN_METHOD(Stat);
+    static NAN_METHOD(Id);
+    static NAN_METHOD(Type);
+    static NAN_METHOD(Timestamp);
     
    protected:
     static v8::Persistent<v8::Function> constructor;
@@ -54,11 +56,13 @@ namespace WebRTC {
   class RTCStatsResponse : public RTCWrap {
    public:
     static void Init();
-    static v8::Local<v8::Value> New(v8::Isolate *isolate, const webrtc::StatsReports &reports);
+    static v8::Local<v8::Value> New(const webrtc::StatsReports &reports);
     
    private:
-    static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
-    static void Result(const v8::FunctionCallbackInfo<v8::Value>& args);
+    ~RTCStatsResponse() final;
+   
+    static NAN_METHOD(New);
+    static NAN_METHOD(Result);
     
    protected:
     static v8::Persistent<v8::Function> constructor;

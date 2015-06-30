@@ -27,7 +27,7 @@
 #ifndef WEBRTC_MEDIACONSTRAINTS_H
 #define WEBRTC_MEDIACONSTRAINTS_H
 
-#include <v8.h>
+#include <nan.h>
 #include "Observers.h"
 #include "talk/app/webrtc/mediaconstraintsinterface.h"
 #include "webrtc/base/stringencode.h"
@@ -38,8 +38,8 @@ namespace WebRTC {
 
    public:
     static rtc::scoped_refptr<MediaConstraints> New();
-    static rtc::scoped_refptr<MediaConstraints> New(v8::Isolate *isolate, const v8::Local<v8::Object> &constraints);
-    static rtc::scoped_refptr<MediaConstraints> New(v8::Isolate *isolate, const v8::Local<v8::Value> &constraints);
+    static rtc::scoped_refptr<MediaConstraints> New(const v8::Local<v8::Object> &constraints);
+    static rtc::scoped_refptr<MediaConstraints> New(const v8::Local<v8::Value> &constraints);
 
     bool UseAudio() const;
     bool UseVideo() const;

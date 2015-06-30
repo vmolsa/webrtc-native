@@ -33,113 +33,100 @@ Persistent<Function> MediaStreamTrack::constructor;
 void MediaStreamTrack::Init() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate* isolate = Isolate::GetCurrent();
-  HandleScope scope(isolate);
+  NanScope();
 
-  Local<FunctionTemplate> tpl = FunctionTemplate::New(isolate, MediaStreamTrack::New);
-  tpl->SetClassName(String::NewFromUtf8(isolate, "MediaStreamTrack"));
+  Local<FunctionTemplate> tpl = NanNew<FunctionTemplate>(MediaStreamTrack::New);
+  tpl->InstanceTemplate()->SetInternalFieldCount(1);
+  tpl->SetClassName(NanNew("MediaStreamTrack"));
 
-  tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "getConstraints"),
-                                FunctionTemplate::New(isolate, MediaStreamTrack::GetConstraints));
+  tpl->PrototypeTemplate()->Set(NanNew("getConstraints"), NanNew<FunctionTemplate>(MediaStreamTrack::GetConstraints)->GetFunction());
+  tpl->PrototypeTemplate()->Set(NanNew("applyConstraints"), NanNew<FunctionTemplate>(MediaStreamTrack::ApplyConstraints)->GetFunction());
+  tpl->PrototypeTemplate()->Set(NanNew("setSettings"), NanNew<FunctionTemplate>(MediaStreamTrack::GetSettings)->GetFunction());
+  tpl->PrototypeTemplate()->Set(NanNew("getCapabilities"), NanNew<FunctionTemplate>(MediaStreamTrack::GetCapabilities)->GetFunction());
+  tpl->PrototypeTemplate()->Set(NanNew("clone"), NanNew<FunctionTemplate>(MediaStreamTrack::Clone)->GetFunction());
+  tpl->PrototypeTemplate()->Set(NanNew("stop"), NanNew<FunctionTemplate>(MediaStreamTrack::Stop)->GetFunction());
 
-  tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "applyConstraints"),
-                                FunctionTemplate::New(isolate, MediaStreamTrack::ApplyConstraints));
-
-  tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "setSettings"),
-                                FunctionTemplate::New(isolate, MediaStreamTrack::GetSettings));
-
-  tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "getCapabilities"),
-                                FunctionTemplate::New(isolate, MediaStreamTrack::GetCapabilities));
-
-  tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "clone"),
-                                FunctionTemplate::New(isolate, MediaStreamTrack::Clone));
-
-  tpl->PrototypeTemplate()->Set(String::NewFromUtf8(isolate, "stop"),
-                                FunctionTemplate::New(isolate, MediaStreamTrack::Stop));
-
-  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "enabled"),
+  tpl->InstanceTemplate()->SetAccessor(NanNew("enabled"),
                                        MediaStreamTrack::GetEnabled,
                                        MediaStreamTrack::SetEnabled);
 
-  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "id"),
+  tpl->InstanceTemplate()->SetAccessor(NanNew("id"),
                                        MediaStreamTrack::GetId,
                                        MediaStreamTrack::ReadOnly);
 
-  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "kind"),
+  tpl->InstanceTemplate()->SetAccessor(NanNew("kind"),
                                        MediaStreamTrack::GetKind,
                                        MediaStreamTrack::ReadOnly);
 
-  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "label"),
+  tpl->InstanceTemplate()->SetAccessor(NanNew("label"),
                                        MediaStreamTrack::GetLabel,
                                        MediaStreamTrack::ReadOnly);
 
-  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "muted"),
+  tpl->InstanceTemplate()->SetAccessor(NanNew("muted"),
                                        MediaStreamTrack::GetMuted,
                                        MediaStreamTrack::ReadOnly);
 
-  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "readonly"),
+  tpl->InstanceTemplate()->SetAccessor(NanNew("readonly"),
                                        MediaStreamTrack::GetReadOnly,
                                        MediaStreamTrack::ReadOnly);
 
-  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "readyState"),
+  tpl->InstanceTemplate()->SetAccessor(NanNew("readyState"),
                                        MediaStreamTrack::GetReadyState,
                                        MediaStreamTrack::ReadOnly);
 
-  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "remote"),
+  tpl->InstanceTemplate()->SetAccessor(NanNew("remote"),
                                        MediaStreamTrack::GetRemote,
                                        MediaStreamTrack::ReadOnly);
 
-  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "onstarted"),
+  tpl->InstanceTemplate()->SetAccessor(NanNew("onstarted"),
                                        MediaStreamTrack::GetOnStarted,
                                        MediaStreamTrack::SetOnStarted);
 
-  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "onmute"),
+  tpl->InstanceTemplate()->SetAccessor(NanNew("onmute"),
                                        MediaStreamTrack::GetOnMute,
                                        MediaStreamTrack::SetOnMute);
 
-  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "onunmute"),
+  tpl->InstanceTemplate()->SetAccessor(NanNew("onunmute"),
                                        MediaStreamTrack::GetOnUnMute,
                                        MediaStreamTrack::SetOnUnMute);
 
-  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "onoverconstrained"),
+  tpl->InstanceTemplate()->SetAccessor(NanNew("onoverconstrained"),
                                        MediaStreamTrack::GetOnOverConstrained,
                                        MediaStreamTrack::SetOnOverConstrained);
 
-  tpl->InstanceTemplate()->SetAccessor(String::NewFromUtf8(isolate, "onended"),
+  tpl->InstanceTemplate()->SetAccessor(NanNew("onended"),
                                        MediaStreamTrack::GetOnEnded,
                                        MediaStreamTrack::SetOnEnded);
 
-  constructor.Reset(isolate, tpl->GetFunction());
+  NanAssignPersistent(constructor, tpl->GetFunction());
 }
 
-Local<Value> MediaStreamTrack::New(Isolate *isolate, rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> mediaStreamTrack) {
+Local<Value> MediaStreamTrack::New(rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> mediaStreamTrack) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  EscapableHandleScope scope(isolate);
+  NanEscapableScope();
 
   Local<Value> argv[1];
-  Local<Function> instance = Local<Function>::New(isolate, MediaStreamTrack::constructor);
+  Local<Function> instance = NanNew(MediaStreamTrack::constructor);
 
   if (instance.IsEmpty() || !mediaStreamTrack.get()) {
-    Local<Value> empty = Null(isolate);
-    return scope.Escape(empty);
+    return NanEscapeScope(NanNull());
   }
 
   Local<Object> ret = instance->NewInstance(0, argv);
-  MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(isolate, ret, "MediaStreamTrack");
+  MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(ret, "MediaStreamTrack");
 
   self->_track = mediaStreamTrack;
   self->_track->RegisterObserver(self->_observer.get());
   self->Emit(kMediaStreamTrackChanged);
 
-  return scope.Escape(ret);
+  return NanEscapeScope(ret);
 }
 
 MediaStreamTrack::MediaStreamTrack() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   _observer = new rtc::RefCountedObject<MediaStreamTrackObserver>(this);
-  EventEmitter::Start(true);
 }
 
 MediaStreamTrack::~MediaStreamTrack() {
@@ -147,31 +134,30 @@ MediaStreamTrack::~MediaStreamTrack() {
   
   if (_track.get()) {
     _track->UnregisterObserver(_observer.get());
+    _observer->SetEmitter();
   }
-
-  EventEmitter::End();
 }
 
-void MediaStreamTrack::New(const FunctionCallbackInfo<Value>& args) {
+NAN_METHOD(MediaStreamTrack::New) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate* isolate = args.GetIsolate();
-  HandleScope scope(isolate);
+  NanScope();
 
   if (args.IsConstructCall()) {
     MediaStreamTrack* mediaStreamTrack = new MediaStreamTrack();
-    mediaStreamTrack->Wrap(isolate, args.This(), "MediaStreamTrack");
-    return args.GetReturnValue().Set(args.This());
+    mediaStreamTrack->Wrap(args.This(), "MediaStreamTrack");
+    NanReturnValue(args.This());
   }
 
-  isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Internal Error")));
+  NanThrowError("Internal Error");
+  NanReturnUndefined();
 }
 
-rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> MediaStreamTrack::Unwrap(Isolate *isolate, Local<Object> value) {
+rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> MediaStreamTrack::Unwrap(Local<Object> value) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   if (!value.IsEmpty()) {
-    MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(isolate, value, "MediaStreamTrack");
+    MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(value, "MediaStreamTrack");
 
     if (self) {
       return self->_track;
@@ -181,301 +167,276 @@ rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> MediaStreamTrack::Unwrap(I
   return 0;
 }
 
-rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> MediaStreamTrack::Unwrap(Isolate *isolate, Local<Value> value) {
+rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> MediaStreamTrack::Unwrap(Local<Value> value) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   if (!value.IsEmpty() && value->IsObject()) {
     Local<Object> track = Local<Object>::Cast(value);
-    return MediaStreamTrack::Unwrap(isolate, track);
+    return MediaStreamTrack::Unwrap(track);
   }
 
   return 0;
 }
 
-void MediaStreamTrack::GetConstraints(const v8::FunctionCallbackInfo<v8::Value>& args) {
+NAN_METHOD(MediaStreamTrack::GetConstraints) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  //Isolate *isolate = args.GetIsolate();
-  //MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(isolate, args.This(), "MediaStreamTrack");
+  NanScope();
+  //MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.This(), "MediaStreamTrack");
 
+  NanReturnUndefined();
 }
 
-void MediaStreamTrack::ApplyConstraints(const v8::FunctionCallbackInfo<v8::Value>& args) {
+NAN_METHOD(MediaStreamTrack::ApplyConstraints) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  //Isolate *isolate = args.GetIsolate();
-  //MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(isolate, args.This(), "MediaStreamTrack");
-
+  NanScope();
+  //MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.This(), "MediaStreamTrack");
+  
+  NanReturnUndefined();
 }
 
-void MediaStreamTrack::GetSettings(const v8::FunctionCallbackInfo<v8::Value>& args) {
+NAN_METHOD(MediaStreamTrack::GetSettings) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  //Isolate *isolate = args.GetIsolate();
-  //MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(isolate, args.This(), "MediaStreamTrack");
+  NanScope();
+  //MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.This(), "MediaStreamTrack");
 
+  NanReturnUndefined();
 }
 
-void MediaStreamTrack::GetCapabilities(const v8::FunctionCallbackInfo<v8::Value>& args) {
+NAN_METHOD(MediaStreamTrack::GetCapabilities) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  //Isolate *isolate = args.GetIsolate();
-  //MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(isolate, args.This(), "MediaStreamTrack");
+  NanScope();
+  //MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.This(), "MediaStreamTrack");
 
+  NanReturnUndefined();
 }
 
-void MediaStreamTrack::Clone(const v8::FunctionCallbackInfo<v8::Value>& args) {
+NAN_METHOD(MediaStreamTrack::Clone) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  //Isolate *isolate = args.GetIsolate();
-  //MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(isolate, args.This(), "MediaStreamTrack");
+  NanScope();
+  //MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.This(), "MediaStreamTrack");
 
+  NanReturnUndefined();
 }
 
-void MediaStreamTrack::Stop(const v8::FunctionCallbackInfo<v8::Value>& args) {
+NAN_METHOD(MediaStreamTrack::Stop) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  //Isolate *isolate = args.GetIsolate();
-  //MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(isolate, args.This(), "MediaStreamTrack");
+  NanScope();
+  //MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.This(), "MediaStreamTrack");
 
+  NanReturnUndefined();
 }
 
-void MediaStreamTrack::GetEnabled(Local<String> property,
-                                  const PropertyCallbackInfo<Value> &info)
-{
+NAN_GETTER(MediaStreamTrack::GetEnabled) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  //Isolate *isolate = info.GetIsolate();
-  //MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(isolate, info.Holder(), "MediaStreamTrack");
+  NanScope();
+  //MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.Holder(), "MediaStreamTrack");
+
+  // TODO(): Implement This
+  
+  NanReturnUndefined();
+}
+
+NAN_GETTER(MediaStreamTrack::GetId) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  NanScope();
+  //MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.Holder(), "MediaStreamTrack");
+
+  // TODO(): Implement This
+  
+  NanReturnUndefined();
+}
+
+NAN_GETTER(MediaStreamTrack::GetKind) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  NanScope();
+  //MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.Holder(), "MediaStreamTrack");
+
+  // TODO(): Implement This
+  
+  NanReturnUndefined();
+}
+
+NAN_GETTER(MediaStreamTrack::GetLabel) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  NanScope();
+  //MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.Holder(), "MediaStreamTrack");
+
+  // TODO(): Implement This
+  
+  NanReturnUndefined();
+}
+
+NAN_GETTER(MediaStreamTrack::GetMuted) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  NanScope();
+  //MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.Holder(), "MediaStreamTrack");
+
+  // TODO(): Implement This
+  
+  NanReturnUndefined();
+}
+
+NAN_GETTER(MediaStreamTrack::GetReadOnly) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  NanScope();
+  NanReturnValue(NanNew(true));
+}
+
+NAN_GETTER(MediaStreamTrack::GetReadyState) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  NanScope();
+  //MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.Holder(), "MediaStreamTrack");
+
+  // TODO(): Implement This
+  
+  NanReturnUndefined();
+}
+
+NAN_GETTER(MediaStreamTrack::GetRemote) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  NanScope();
+  //MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.Holder(), "MediaStreamTrack");
+
+  // TODO(): Implement This
+  
+  NanReturnUndefined();
+}
+
+NAN_GETTER(MediaStreamTrack::GetOnStarted) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  NanScope();
+  MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.Holder(), "MediaStreamTrack");
+  NanReturnValue(NanNew(self->_onstarted));
+}
+
+NAN_GETTER(MediaStreamTrack::GetOnMute) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  NanScope();
+  MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.Holder(), "MediaStreamTrack");
+  NanReturnValue(NanNew(self->_onmute));
+}
+
+NAN_GETTER(MediaStreamTrack::GetOnUnMute) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  NanScope();
+  MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.Holder(), "MediaStreamTrack");
+  NanReturnValue(NanNew(self->_onunmute));
+}
+
+NAN_GETTER(MediaStreamTrack::GetOnOverConstrained) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  NanScope();
+  MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.Holder(), "MediaStreamTrack");
+  NanReturnValue(NanNew(self->_onoverconstrained));
+}
+
+NAN_GETTER(MediaStreamTrack::GetOnEnded) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  NanScope();
+  
+  MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.Holder(), "MediaStreamTrack");
+  NanReturnValue(NanNew(self->_onended));
+}
+
+NAN_SETTER(MediaStreamTrack::ReadOnly) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  NanScope();
+  //MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.Holder(), "MediaStreamTrack");
 
   // TODO(): Implement This
 }
 
-void MediaStreamTrack::GetId(Local<String> property,
-                             const PropertyCallbackInfo<Value> &info)
-{
+NAN_SETTER(MediaStreamTrack::SetEnabled) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  //Isolate *isolate = info.GetIsolate();
-  //MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(isolate, info.Holder(), "MediaStreamTrack");
+  NanScope(); 
+  //MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.Holder(), "MediaStreamTrack");
 
   // TODO(): Implement This
 }
 
-void MediaStreamTrack::GetKind(Local<String> property,
-                               const PropertyCallbackInfo<Value> &info)
-{
+NAN_SETTER(MediaStreamTrack::SetOnStarted) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  //Isolate *isolate = info.GetIsolate();
-  //MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(isolate, info.Holder(), "MediaStreamTrack");
-
-  // TODO(): Implement This
-}
-
-void MediaStreamTrack::GetLabel(Local<String> property,
-                                const PropertyCallbackInfo<Value> &info)
-{
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  //Isolate *isolate = info.GetIsolate();
-  //MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(isolate, info.Holder(), "MediaStreamTrack");
-
-  // TODO(): Implement This
-}
-
-void MediaStreamTrack::GetMuted(Local<String> property,
-                                const PropertyCallbackInfo<Value> &info)
-{
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  //Isolate *isolate = info.GetIsolate();
-  //MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(isolate, info.Holder(), "MediaStreamTrack");
-
-  // TODO(): Implement This
-}
-
-void MediaStreamTrack::GetReadOnly(Local<String> property,
-                                   const PropertyCallbackInfo<Value> &info)
-{
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  Isolate *isolate = info.GetIsolate();
-  info.GetReturnValue().Set(v8::Boolean::New(isolate, true));
-}
-
-void MediaStreamTrack::GetReadyState(Local<String> property,
-                                     const PropertyCallbackInfo<Value> &info)
-{
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  //Isolate *isolate = info.GetIsolate();
-  //MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(isolate, info.Holder(), "MediaStreamTrack");
-
-  // TODO(): Implement This
-}
-
-void MediaStreamTrack::GetRemote(Local<String> property,
-                                 const PropertyCallbackInfo<Value> &info)
-{
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  //Isolate *isolate = info.GetIsolate();
-  //MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(isolate, info.Holder(), "MediaStreamTrack");
-
-  // TODO(): Implement This
-}
-
-void MediaStreamTrack::GetOnStarted(Local<String> property,
-                                    const PropertyCallbackInfo<Value> &info)
-{
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  Isolate *isolate = info.GetIsolate();
-  MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(isolate, info.Holder(), "MediaStreamTrack");
-  info.GetReturnValue().Set(Local<Function>::New(isolate, self->_onstarted));
-}
-
-void MediaStreamTrack::GetOnMute(Local<String> property,
-                                 const PropertyCallbackInfo<Value> &info)
-{
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  Isolate *isolate = info.GetIsolate();
-  MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(isolate, info.Holder(), "MediaStreamTrack");
-  info.GetReturnValue().Set(Local<Function>::New(isolate, self->_onmute));
-}
-
-void MediaStreamTrack::GetOnUnMute(Local<String> property,
-                                   const PropertyCallbackInfo<Value> &info)
-{
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  Isolate *isolate = info.GetIsolate();
-  MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(isolate, info.Holder(), "MediaStreamTrack");
-  info.GetReturnValue().Set(Local<Function>::New(isolate, self->_onunmute));
-}
-
-void MediaStreamTrack::GetOnOverConstrained(Local<String> property,
-                                            const PropertyCallbackInfo<Value> &info)
-{
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  Isolate *isolate = info.GetIsolate();
-  MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(isolate, info.Holder(), "MediaStreamTrack");
-  info.GetReturnValue().Set(Local<Function>::New(isolate, self->_onoverconstrained));
-}
-
-void MediaStreamTrack::GetOnEnded(Local<String> property,
-                                  const PropertyCallbackInfo<Value> &info)
-{ 
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  Isolate *isolate = info.GetIsolate();
-  MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(isolate, info.Holder(), "MediaStreamTrack");
-  info.GetReturnValue().Set(Local<Function>::New(isolate, self->_onended));
-}
-
-void MediaStreamTrack::ReadOnly(Local<String> property,
-                                Local<Value> value,
-                                const PropertyCallbackInfo<void> &info)
-{
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  //Isolate *isolate = info.GetIsolate();
-  //MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(isolate, info.Holder(), "MediaStreamTrack");
-}
-
-void MediaStreamTrack::SetEnabled(Local<String> property,
-                                  Local<Value> value,
-                                  const PropertyCallbackInfo<void> &info)
-{
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  //Isolate *isolate = info.GetIsolate();
-  //MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(isolate, info.Holder(), "MediaStreamTrack");
-
-  // TODO(): Implement This
-}
-
-void MediaStreamTrack::SetOnStarted(Local<String> property,
-                                    Local<Value> value,
-                                    const PropertyCallbackInfo<void> &info)
-{
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  Isolate *isolate = info.GetIsolate();
-  MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(isolate, info.Holder(), "MediaStreamTrack");
+  NanScope();
+  MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.Holder(), "MediaStreamTrack");
 
   if (!value.IsEmpty() && value->IsFunction()) {
-    self->_onstarted.Reset(isolate, Local<Function>::Cast(value));
-  }
-  else {
-    self->_onstarted.Reset();
-  }
-}
-
-void MediaStreamTrack::SetOnMute(Local<String> property,
-                                 Local<Value> value,
-                                 const PropertyCallbackInfo<void> &info)
-{
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  Isolate *isolate = info.GetIsolate();
-  MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(isolate, info.Holder(), "MediaStreamTrack");
-
-  if (!value.IsEmpty() && value->IsFunction()) {
-    self->_onmute.Reset(isolate, Local<Function>::Cast(value));
-  }
-  else {
-    self->_onmute.Reset();
-  }
-}
-
-void MediaStreamTrack::SetOnUnMute(Local<String> property,
-                                   Local<Value> value,
-                                   const PropertyCallbackInfo<void> &info)
-{
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  Isolate *isolate = info.GetIsolate();
-  MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(isolate, info.Holder(), "MediaStreamTrack");
-
-  if (!value.IsEmpty() && value->IsFunction()) {
-    self->_onunmute.Reset(isolate, Local<Function>::Cast(value));
+    NanAssignPersistent(self->_onstarted, Local<Function>::Cast(value));
   } else {
-    self->_onunmute.Reset();
+    NanDisposePersistent(self->_onstarted);
   }
 }
 
-void MediaStreamTrack::SetOnOverConstrained(Local<String> property,
-                                            Local<Value> value,
-                                            const PropertyCallbackInfo<void> &info)
-{
+NAN_SETTER(MediaStreamTrack::SetOnMute) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = info.GetIsolate();
-  MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(isolate, info.Holder(), "MediaStreamTrack");
+  NanScope();
+  MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.Holder(), "MediaStreamTrack");
 
   if (!value.IsEmpty() && value->IsFunction()) {
-    self->_onoverconstrained.Reset(isolate, Local<Function>::Cast(value));
+    NanAssignPersistent(self->_onmute, Local<Function>::Cast(value));
   } else {
-    self->_onoverconstrained.Reset();
+    NanDisposePersistent(self->_onmute);
   }
 }
 
-void MediaStreamTrack::SetOnEnded(Local<String> property,
-                                  Local<Value> value,
-                                  const PropertyCallbackInfo<void> &info)
-{
+NAN_SETTER(MediaStreamTrack::SetOnUnMute) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Isolate *isolate = info.GetIsolate();
-  MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(isolate, info.Holder(), "MediaStreamTrack");
+  NanScope();
+  MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.Holder(), "MediaStreamTrack");
 
   if (!value.IsEmpty() && value->IsFunction()) {
-    self->_onended.Reset(isolate, Local<Function>::Cast(value));
+    NanAssignPersistent(self->_onunmute, Local<Function>::Cast(value));
   } else {
-    self->_onended.Reset();
+    NanDisposePersistent(self->_onunmute);
+  }
+}
+
+NAN_SETTER(MediaStreamTrack::SetOnOverConstrained) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  NanScope(); 
+  MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.Holder(), "MediaStreamTrack");
+
+  if (!value.IsEmpty() && value->IsFunction()) {
+    NanAssignPersistent(self->_onoverconstrained, Local<Function>::Cast(value));
+  } else {
+    NanDisposePersistent(self->_onoverconstrained);
+  }
+}
+
+NAN_SETTER(MediaStreamTrack::SetOnEnded) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  NanScope();
+  MediaStreamTrack *self = RTCWrap::Unwrap<MediaStreamTrack>(args.Holder(), "MediaStreamTrack");
+
+  if (!value.IsEmpty() && value->IsFunction()) {
+    NanAssignPersistent(self->_onended, Local<Function>::Cast(value));
+  } else {
+    NanDisposePersistent(self->_onended);
   }
 }
 

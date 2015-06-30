@@ -97,7 +97,6 @@ namespace WebRTC {
       Event(event),
       _content(content)
     {
-      LOG(LS_INFO) << __PRETTY_FUNCTION__;
       _wrap = true;
     }
 
@@ -112,87 +111,12 @@ namespace WebRTC {
     explicit EventEmitter();
     virtual ~EventEmitter();
     
-    inline void Ref() {
-      uv_ref(reinterpret_cast<uv_handle_t*>(&_async));
-    }
-    
-    inline void Unref() {
-      uv_unref(reinterpret_cast<uv_handle_t*>(&_async));
-    }
-    
-    inline void Start(bool unref = false) {
-      LOG(LS_INFO) << __PRETTY_FUNCTION__;
-      
-      uv_mutex_lock(&_lock);
-
-      if (!_running) {
-        uv_async_init(uv_default_loop(), &_async, reinterpret_cast<uv_async_cb>(EventEmitter::onAsync));
-        _running = true;
-
-        if (unref) {
-          EventEmitter::Unref();
-        }
-      }
-
-      uv_mutex_unlock(&_lock);
-    }
-    
-    inline void Stop() {
-      LOG(LS_INFO) << __PRETTY_FUNCTION__;
-      
-      uv_mutex_lock(&_lock);
-
-      if (_running) {
-        if (_events.empty()) {
-          uv_close(reinterpret_cast<uv_handle_t*>(&_async), NULL);
-          _running = false;
-        } else {
-          _closing = true;
-          uv_async_send(&_async);
-        }
-      }
-
-      uv_mutex_unlock(&_lock);
-    }
-    
-    inline void End() {
-      LOG(LS_INFO) << __PRETTY_FUNCTION__;
-      
-      uv_mutex_lock(&_lock);
-
-      if (_running) {
-        uv_close(reinterpret_cast<uv_handle_t*>(&_async), NULL);
-        _running = false;
-      }
-
-      uv_mutex_unlock(&_lock);
-    }
-    
-    inline void Emit(Event *event) {
-      LOG(LS_INFO) << __PRETTY_FUNCTION__;
-      
-      uv_mutex_lock(&_lock);
-
-      if (_running) {
-        if (!_closing) {
-          _events.push(event);
-        }
-        
-        uv_async_send(&_async);
-      }
-
-      uv_mutex_unlock(&_lock);
-    }
-    
-    inline void Emit(int event = 0) {
-      LOG(LS_INFO) << __PRETTY_FUNCTION__;
-      
-      EventEmitter::Emit(new Event(event));
-    }
+    void SetReference(bool alive = true);
+    void Emit(Event *event);  
+    void Emit(int event = 0);
     
     template <class T> inline void Emit(int event, const T &content) {
-      LOG(LS_INFO) << __FUNCTION__;
-      
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;    
       EventWrapper<T> *wrap = new EventWrapper<T>(event, content);
       EventEmitter::Emit(wrap);
     }
@@ -200,38 +124,13 @@ namespace WebRTC {
     virtual void On(Event *event) = 0;
     
    private:
-    inline static void onAsync(uv_async_t *handle, int status) {
-      LOG(LS_INFO) << __PRETTY_FUNCTION__;
-      
-      EventEmitter *self = static_cast<EventEmitter*>(handle->data);
-      bool closing = false;
-      uv_mutex_lock(&self->_lock);
-
-      while (!self->_events.empty() && self->_running) {
-        Event *event = self->_events.front();
-        self->_events.pop();
-        
-        uv_mutex_unlock(&self->_lock);
-        
-        self->On(event);
-        delete event;
-        
-        uv_mutex_lock(&self->_lock);
-      }
-
-      closing = self->_closing;
-      uv_mutex_unlock(&self->_lock);
-
-      if (closing) {
-        self->Stop();
-      }
-    }
+    static void onAsync(uv_async_t *handle, int status);
+    static void onEnded(uv_handle_t *handle);
+    void DispatchEvents();
     
    protected:
-    bool _running;
-    bool _closing;
     uv_mutex_t _lock;
-    uv_async_t _async;
+    uv_async_t* _async;
     std::queue<Event*> _events;
   };
 };
