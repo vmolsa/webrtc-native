@@ -59,6 +59,13 @@ void Core::Init() {
   _signal.Start(&task);
   _worker.Start(&task);
   
+  rtc::ThreadManager::Instance()->SetCurrentThread(&_signal);
+  
+  if (ThreadManager::Instance()->CurrentThread() != &_signal) {
+    LOG(LS_ERROR) << "Internal Thread Error!";
+    abort();
+  }
+  
   _factory = webrtc::CreatePeerConnectionFactory(&_signal, &_worker, NULL, NULL, NULL);
   _manager.reset(cricket::DeviceManagerFactory::Create());
 
