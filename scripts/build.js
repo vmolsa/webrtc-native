@@ -45,11 +45,7 @@ if (os.platform() == 'win32' && process.arch == 'x64') {
 }
 
 function install() {
-  if (os.platform() == 'linux') {
-    fs.linkSync(WEBRTC_OUT + path.sep + 'libwebrtc.node', ROOT + path.sep + 'build' + path.sep + CONFIG + path.sep + 'webrtc.node');
-  } else {
-    fs.linkSync(WEBRTC_OUT + path.sep + 'webrtc.node', ROOT + path.sep + 'build' + path.sep + CONFIG + path.sep + 'webrtc.node');
-  }
+  fs.linkSync(WEBRTC_OUT + path.sep + 'webrtc.node', ROOT + path.sep + 'build' + path.sep + CONFIG + path.sep + 'webrtc.node');
   
   console.log('Done! :)');
 }
