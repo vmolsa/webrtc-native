@@ -33,7 +33,7 @@
 using namespace v8;
 using namespace WebRTC;
 
-rtc::Thread *_signal, *_worker;
+rtc::Thread _signal, _worker;
 rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> _factory;
 rtc::scoped_ptr<cricket::DeviceManagerInterface> _manager;
 
@@ -56,13 +56,10 @@ void Core::Init() {
 #endif
   rtc::InitializeSSL();
   
-  _signal = new rtc::Thread();
-  _worker = new rtc::Thread();
+  _signal.Start(&task);
+  _worker.Start(&task);
   
-  _signal->Start(&task);
-  _worker->Start(&task);
-  
-  _factory = webrtc::CreatePeerConnectionFactory(_signal, _worker, NULL, NULL, NULL);
+  _factory = webrtc::CreatePeerConnectionFactory(&_signal, &_worker, NULL, NULL, NULL);
   _manager.reset(cricket::DeviceManagerFactory::Create());
 
   if (!_manager->Init()) {
@@ -88,11 +85,8 @@ void Core::Dispose() {
 
   _manager.release();
   
-  _signal->Stop();
-  _worker->Stop();
-  
-  delete _signal;
-  delete _worker;
+  _signal.Stop();
+  _worker.Stop();
 }
 
 webrtc::PeerConnectionFactoryInterface* Core::GetFactory() {
@@ -110,11 +104,11 @@ cricket::DeviceManagerInterface* Core::GetManager() {
 rtc::Thread *Core::GetWorker() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  return _worker;
+  return &_worker;
 }
 
 rtc::Thread *Core::GetSignal() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  return _signal;
+  return &_signal;
 }
