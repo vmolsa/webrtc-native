@@ -49,16 +49,11 @@
           ],
         }],
         ['OS=="win"', {
-          'msvs_disabled_warnings': [ 
-            4251,
-            4530,
-            4702,
-            4199,
-            4201,
+          'msvs_disabled_warnings': [
             4267,
             4005,
+            4201,
             4506,
-            4789,
           ],
         }],
         ['OS=="mac"', {
