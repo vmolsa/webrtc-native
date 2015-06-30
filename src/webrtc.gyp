@@ -46,6 +46,12 @@
             '-Wno-unused-variable',
             '-Wno-unknown-pragmas',
             '-Wno-unused-result',
+            '-Wextra',
+            '-ffunction-sections',
+            '-fdata-sections',
+            '-fno-omit-frame-pointer',
+            '-fno-rtti',
+            '-fno-exceptions',
           ],
           'ldflags': [
             '-rdynamic',
