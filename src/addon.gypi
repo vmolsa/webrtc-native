@@ -1,7 +1,8 @@
 {
   'target_defaults': {
     'type': 'loadable_module',
-    'product_prefix': 'node',
+    'product_prefix': '',
+    'product_extension': 'node',
     'defines': [ 
       'BUILDING_NODE_EXTENSION' 
      ],
