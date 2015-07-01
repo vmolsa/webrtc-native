@@ -141,4 +141,6 @@ io.on('connection', function(socket) {
   });
 });
 
-server.listen(80);
+server.listen(80, function() {
+  console.log('Open in browser: http://localhost/');
+});
