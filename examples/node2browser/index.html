@@ -86,7 +86,8 @@
       console.log('Peer Channel opened!');
       
       pingpong = setInterval(function() {
-        channel.send('PING PONG!');
+        console.log('Peer: Sending PING');
+        channel.send('PING');
       }, 5000);
     };
     

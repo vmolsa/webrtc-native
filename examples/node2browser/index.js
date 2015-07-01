@@ -122,8 +122,14 @@ io.on('connection', function(socket) {
 
     channel.onmessage = function(event) {
       var data = event.data;
-      console.log('Peer Message:', data);
-      channel.send(data);
+      
+      if (data == 'PING') {
+        console.log('Peer: Sending PONG');
+        channel.send('PONG');
+      } else {
+        console.log('Peer Message:', data);
+        channel.send(data);
+      }
     };
   };
   
