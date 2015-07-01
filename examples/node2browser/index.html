@@ -3,6 +3,7 @@
   <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
 </head>
 <body>
+  <video></video>
 <script>
   var config = {
     iceServers: [
@@ -62,37 +63,46 @@
     });
   };
   
-  peer.onaddstream = function(stream) {
-    console.log('Peer: add mediaStream');
+  peer.onaddstream = function(event) {
+    console.log('Peer Add mediaStream:', event.stream);
+    
+    var video = document.querySelector('video');
+    video.src = window.URL.createObjectURL(event.stream);
+    
+    video.onloadedmetadata = function(event) {
+      video.play();
+    };   
   };
   
-  peer.onremovestream = function(stream) {
-    console.log('Peer: remove mediaStream');
+  peer.onremovestream = function(event) {
+    console.log('Peer Remove mediaStream:', event.stream);
   };
 
   peer.ondatachannel = function(event) {
     var channel = event ? event.channel || event : null;
+    var pingpong = null;
 
     channel.onopen = function() {
       console.log('Peer Channel opened!');
+      
+      pingpong = setInterval(function() {
+        channel.send('PING PONG!');
+      }, 5000);
     };
     
     channel.onclose = function() {
       console.log('Peer Channel closed!');
+      
+      if (pingpong) {
+        clearInterval(pingpong);
+      }
     };
     
     channel.onmessage = function(event) {
       var data = event.data;
       console.log('Peer Message:', data);
     };
-    
-    setInterval(function() {
-      channel.send('PING PONG!');
-    }, 5000);
   };
-  
-  peer.ondatachannel(peer.createDataChannel('echo'));
-	
 </script>
 </body>
 </html>

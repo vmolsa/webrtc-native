@@ -127,6 +127,8 @@ io.on('connection', function(socket) {
     };
   };
   
+  peer.ondatachannel(peer.createDataChannel('echo'));
+  
   WebRTC.getUserMedia(constraints, function(stream) {
     console.log('Sending Stream to Peer');
     peer.addStream(stream);
