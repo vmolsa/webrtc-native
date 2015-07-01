@@ -26,16 +26,15 @@
 #include "nan.h"
 #include "Core.h"
 
+#include "talk/app/webrtc/peerconnectionfactoryproxy.h"
+#include "talk/app/webrtc/proxy.h"
+
 #ifdef WIN32
 #include "webrtc/base/win32socketinit.h"
 #endif
 
 using namespace v8;
 using namespace WebRTC;
-
-rtc::Thread _signal, _worker;
-rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> _factory;
-rtc::scoped_ptr<cricket::DeviceManagerInterface> _manager;
 
 class ProcessMessages : public rtc::Runnable {
  public:
@@ -46,10 +45,30 @@ class ProcessMessages : public rtc::Runnable {
   }
 };
 
+ProcessMessages task;
+
+class PeerConnectionFactory : public webrtc::PeerConnectionFactory {
+  public:
+    PeerConnectionFactory() :
+      webrtc::PeerConnectionFactory(rtc::Thread::Current(), &_worker, NULL, NULL, NULL)
+    {
+      _worker.Start(&task);
+    }
+    
+    virtual ~PeerConnectionFactory() {
+      _worker.Stop();
+    }
+    
+  protected:
+    rtc::Thread _worker;
+};
+
+rtc::Thread _signal;
+rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> _factory;
+rtc::scoped_ptr<cricket::DeviceManagerInterface> _manager;
+
 void Core::Init() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  ProcessMessages task;
   
 #ifdef WIN32
   rtc::EnsureWinsockInit();
@@ -57,8 +76,6 @@ void Core::Init() {
   rtc::InitializeSSL();
   
   _signal.Start(&task);
-  _worker.Start(&task);
-  
   rtc::ThreadManager::Instance()->SetCurrentThread(&_signal);
   
   if (rtc::ThreadManager::Instance()->CurrentThread() != &_signal) {
@@ -66,7 +83,7 @@ void Core::Init() {
     abort();
   }
   
-  _factory = webrtc::CreatePeerConnectionFactory(&_signal, &_worker, NULL, NULL, NULL);
+  _factory = Core::CreateFactory();
   _manager.reset(cricket::DeviceManagerFactory::Create());
 
   if (!_manager->Init()) {
@@ -91,9 +108,20 @@ void Core::Dispose() {
   }
 
   _manager.release();
-  
   _signal.Stop();
-  _worker.Stop();
+}
+
+rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> Core::CreateFactory() {
+  rtc::scoped_refptr<PeerConnectionFactory> factory(new rtc::RefCountedObject<PeerConnectionFactory>());
+  
+  webrtc::MethodCall0<PeerConnectionFactory, bool> call(factory.get(), &webrtc::PeerConnectionFactory::Initialize);
+  bool result = call.Marshal(factory->signaling_thread());
+  
+  if (!result) {
+    return NULL;
+  }
+  
+  return webrtc::PeerConnectionFactoryProxy::Create(factory->signaling_thread(), factory);
 }
 
 webrtc::PeerConnectionFactoryInterface* Core::GetFactory() {
@@ -106,12 +134,6 @@ cricket::DeviceManagerInterface* Core::GetManager() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   return _manager.get();
-}
-
-rtc::Thread *Core::GetWorker() {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  return &_worker;
 }
 
 rtc::Thread *Core::GetSignal() {

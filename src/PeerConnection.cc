@@ -184,6 +184,9 @@ PeerConnection::PeerConnection(const Local<Object> &configuration,
   _local = new rtc::RefCountedObject<LocalDescriptionObserver>(this);
   _remote = new rtc::RefCountedObject<RemoteDescriptionObserver>(this);
   _peer = new rtc::RefCountedObject<PeerConnectionObserver>(this);
+  
+  //_factory = Core::CreateFactory();
+  _factory = Core::GetFactory();
 }
 
 PeerConnection::~PeerConnection() {
@@ -209,11 +212,11 @@ webrtc::PeerConnectionInterface *PeerConnection::GetSocket() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   if (!_socket.get()) {
-    webrtc::PeerConnectionFactoryInterface *factory = Core::GetFactory();
-
-    if (factory) {
+    if (_factory.get()) {
       EventEmitter::SetReference(true);
-      _socket = factory->CreatePeerConnection(_servers, _constraints->ToConstraints(), NULL, NULL, _peer.get());
+      _socket = _factory->CreatePeerConnection(_servers, _constraints->ToConstraints(), NULL, NULL, _peer.get());
+    } else {
+      NanThrowError("Internal Factory Error");
     }
   }
    

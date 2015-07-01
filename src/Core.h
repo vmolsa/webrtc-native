@@ -34,6 +34,7 @@ namespace WebRTC {
    public:
     static void Init();
     static void Dispose();
+    static rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> Core::CreateFactory();
     static webrtc::PeerConnectionFactoryInterface* GetFactory();
     static cricket::DeviceManagerInterface* GetManager();
     static rtc::Thread* GetWorker();
