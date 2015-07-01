@@ -1,0 +1,98 @@
+<html>
+<head>
+  <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+</head>
+<body>
+<script>
+  var config = {
+    iceServers: [
+      {
+        url: 'stun:stun.l.google.com:19302',
+      },
+    ],
+  };
+  
+  var constraints = {
+    optional: [
+      {
+        DtlsSrtpKeyAgreement: true,
+      },
+    ],
+    mandatory: {
+      OfferToReceiveAudio: true,
+      OfferToReceiveVideo: true,
+    },
+  };
+   
+  var socket = io.connect('http://localhost');
+  var peer = new window.webkitRTCPeerConnection(config, constraints);
+  
+  socket.on('disconnect', function() {
+    peer.close();
+  });
+  
+  socket.on('icecandidate', function(data) {
+    peer.addIceCandidate(new RTCIceCandidate(data));
+  });
+  
+  socket.on('offer', function(data) {
+    peer.setRemoteDescription(new RTCSessionDescription(data), function() {
+      peer.createAnswer(function(sdp) {
+        peer.setLocalDescription(sdp, function() {
+          socket.emit('answer', sdp);
+        });
+      });
+    });
+  });
+  
+  socket.on('answer', function (data) {
+    peer.setRemoteDescription(new RTCSessionDescription(data));
+  });
+    
+  peer.onicecandidate = function(event) {
+    var candidate = event.candidate || event;
+    socket.emit('icecandidate', candidate);
+  };
+
+  peer.onnegotiationneeded = function() {
+    peer.createOffer(function(sdp) {
+      peer.setLocalDescription(sdp, function() {
+        socket.emit('offer', sdp);
+      });
+    });
+  };
+  
+  peer.onaddstream = function(stream) {
+    console.log('Peer: add mediaStream');
+  };
+  
+  peer.onremovestream = function(stream) {
+    console.log('Peer: remove mediaStream');
+  };
+
+  peer.ondatachannel = function(event) {
+    var channel = event ? event.channel || event : null;
+
+    channel.onopen = function() {
+      console.log('Peer Channel opened!');
+    };
+    
+    channel.onclose = function() {
+      console.log('Peer Channel closed!');
+    };
+    
+    channel.onmessage = function(event) {
+      var data = event.data;
+      console.log('Peer Message:', data);
+    };
+    
+    setInterval(function() {
+      channel.send('PING PONG!');
+    }, 5000);
+  };
+  
+  peer.ondatachannel(peer.createDataChannel('echo'));
+	
+</script>
+</body>
+</html>
