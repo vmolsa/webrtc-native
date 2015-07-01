@@ -111,4 +111,11 @@ P2P(alice, bob);
 
 alice.onnegotiationneeded(function() {
   console.log('Done! :)');
+  
+  setTimeout(function() {
+    console.log('Closing...');
+    
+    alice.close();
+    bob.close();
+  }, 5000);
 });
