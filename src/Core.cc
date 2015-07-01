@@ -26,6 +26,9 @@
 #include "nan.h"
 #include "Core.h"
 
+#include "talk/app/webrtc/peerconnectionfactoryproxy.h"
+#include "talk/app/webrtc/proxy.h"
+
 #ifdef WIN32
 #include "webrtc/base/win32socketinit.h"
 #endif
@@ -33,36 +36,70 @@
 using namespace v8;
 using namespace WebRTC;
 
-rtc::Thread *_signal, *_worker;
-rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> _factory;
-rtc::scoped_ptr<cricket::DeviceManagerInterface> _manager;
-
 class ProcessMessages : public rtc::Runnable {
  public:
   virtual void Run(rtc::Thread* thread) {
     LOG(LS_INFO) << __PRETTY_FUNCTION__;
     
-    thread->ProcessMessages(rtc::ThreadManager::kForever);
+    if (thread) {
+      thread->ProcessMessages(rtc::ThreadManager::kForever);
+    } else {
+      LOG(LS_ERROR) << "Internal Thread Error!";
+      abort();
+    }
   }
 };
 
+class ThreadConstructor : public ProcessMessages {
+  public:
+    ThreadConstructor() :
+      _worker(new rtc::Thread())
+    {
+      _worker->Start(this);
+    }
+    
+    virtual ~ThreadConstructor() {
+      _worker->Stop();
+      delete _worker;
+    }
+    
+    rtc::Thread *Current() const {
+      return _worker;
+    }
+     
+  protected:
+    rtc::Thread* _worker;
+};
+
+class PeerConnectionFactory : public ThreadConstructor, public webrtc::PeerConnectionFactory {
+  public:
+    PeerConnectionFactory() :
+      webrtc::PeerConnectionFactory(rtc::Thread::Current(), ThreadConstructor::Current(), NULL, NULL, NULL)
+    { }    
+};
+
+
+ThreadConstructor* _signal;
+rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> _factory;
+rtc::scoped_ptr<cricket::DeviceManagerInterface> _manager;
+
 void Core::Init() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  ProcessMessages task;
   
 #ifdef WIN32
   rtc::EnsureWinsockInit();
 #endif
   rtc::InitializeSSL();
   
-  _signal = new rtc::Thread();
-  _worker = new rtc::Thread();
+  _signal = new ThreadConstructor();
+  rtc::ThreadManager::Instance()->SetCurrentThread(_signal->Current());
   
-  _signal->Start(&task);
-  _worker->Start(&task);
+  if (rtc::ThreadManager::Instance()->CurrentThread() != _signal->Current()) {
+    LOG(LS_ERROR) << "Internal Thread Error!";
+    abort();
+  }
   
-  _factory = webrtc::CreatePeerConnectionFactory(_signal, _worker, NULL, NULL, NULL);
+  _factory = Core::CreateFactory();
   _manager.reset(cricket::DeviceManagerFactory::Create());
 
   if (!_manager->Init()) {
@@ -88,11 +125,20 @@ void Core::Dispose() {
 
   _manager.release();
   
-  _signal->Stop();
-  _worker->Stop();
-  
   delete _signal;
-  delete _worker;
+}
+
+rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> Core::CreateFactory() {
+  rtc::scoped_refptr<PeerConnectionFactory> factory(new rtc::RefCountedObject<PeerConnectionFactory>());
+  
+  webrtc::MethodCall0<PeerConnectionFactory, bool> call(factory.get(), &webrtc::PeerConnectionFactory::Initialize);
+  bool result = call.Marshal(factory->signaling_thread());
+  
+  if (!result) {
+    return NULL;
+  }
+  
+  return webrtc::PeerConnectionFactoryProxy::Create(factory->signaling_thread(), factory);
 }
 
 webrtc::PeerConnectionFactoryInterface* Core::GetFactory() {
@@ -105,16 +151,4 @@ cricket::DeviceManagerInterface* Core::GetManager() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   return _manager.get();
-}
-
-rtc::Thread *Core::GetWorker() {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  return _worker;
-}
-
-rtc::Thread *Core::GetSignal() {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  return _signal;
 }

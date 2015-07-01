@@ -8,28 +8,22 @@ npm install webrtc-native --save
 
 ### Compatibility x64
 
-| npm install           | Windows 8.1 | OSX | Ubuntu 14.04 |
-|-----------------------|-------------|-----|--------------|
-| NodeJS v0.10.x        | Yes         | Yes | Yes          |
-| NodeJS v0.12.x        | Yes         | Yes | Yes          |
-| Io.js v2.3.1          | Yes         | Yes | Yes          |
-
-| npm test              | Windows 8.1 | OSX | Ubuntu 14.04 |
-|-----------------------|-------------|-----|--------------|
-| NodeJS v0.10.x        | Yes         | Yes | Yes          |
-| NodeJS v0.12.x        | Yes         | Yes | Yes          |
-| Io.js v2.3.1          | Yes         | Yes | Yes          |
+| npm install && test   | Windows 8.1 | OSX | Ubuntu 14.04 | Fedora 22    |
+|-----------------------|-------------|-----|--------------|--------------|
+| NodeJS v0.10.x        | Yes         | Yes | Yes          | Yes          |
+| NodeJS v0.12.x        | Yes         | Yes | Yes          | Yes          |
+| Io.js v2.3.1          | Yes         | Yes | Yes          | Yes          |
 
 ### Features
 
-| Feature               | Windows 8.1 | OSX | Ubuntu 14.04 |
-|-----------------------|-------------|-----|--------------|
-| RTP DataChannels      | Yes         | Yes | Yes          |
-| SCTP DataChannels     | Yes         | Yes | Yes          |
-| Audio Capture         | Yes         | Yes | Untested     |
-| Video Capture         | Yes         | No  | Untested     |
-| Screen Capture        | No          | No  | No           |
-| Window Capture        | No          | No  | No           |
+| Feature               | Windows 8.1 | OSX | Ubuntu 14.04 | Fedora 22    |
+|-----------------------|-------------|-----|--------------|--------------|
+| RTP DataChannels      | Yes         | Yes | Yes          | Yes          |
+| SCTP DataChannels     | Yes         | Yes | Yes          | Yes          |
+| Audio Capture         | Yes         | Yes | Untested     | Untested     |
+| Video Capture         | Yes         | No  | Untested     | Untested     |
+| Screen Capture        | No          | No  | No           | No           |
+| Window Capture        | No          | No  | No           | No           |
 
 # API
 ### Usage
@@ -67,7 +61,9 @@ var WebRTC = require('webrtc-native');
 # Build
 
 ````
-node-gyp rebuild
+git clone https://github.com/vmolsa/webrtc-native
+cd webrtc-native
+npm install
 ````
 
 # Prerequisite software
@@ -94,4 +90,11 @@ XCode 3.0 or higher
 ## Ubuntu 14.04 LTS
 ````
 sudo apt-get install --yes build-essential python2.7 git pkg-config libnss3-dev libasound2-dev libpulse-dev libjpeg62-dev libxv-dev libgtk2.0-dev libexpat1-dev default-jdk libxtst-dev libxss-dev libpci-dev libgconf2-dev libgnome-keyring-dev libudev-dev
+````
+
+## Fedora 22
+````
+sudo dnf update -y
+sudo dnf groupinstall -y "Development tools"
+sudo dnf install -y git gcc-c++ nss-devel SAASound-devel alsa-lib-devel systemd-devel pulseaudio-libs-devel turbojpeg-devel libXv-devel gtk+-devel expat-devel java-1.8.0-openjdk-devel gtk2-devel libXtst-devel libXScrnSaver-devel pciutils-devel dbus-devel pkgconfig GConf2-devel libgnome-keyring-devel
 ````
