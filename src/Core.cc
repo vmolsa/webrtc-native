@@ -50,21 +50,16 @@ class ProcessMessages : public rtc::Runnable {
   }
 };
 
-ProcessMessages task;
-
-class ThreadConstructor {
+class ThreadConstructor : public ProcessMessages {
   public:
     ThreadConstructor() :
-      _task(new ProcessMessages()),
-      _worker(new rtc::Thread()) 
+      _worker(new rtc::Thread())
     {
-      _worker->Start(_task);
+      _worker->Start(this);
     }
     
     virtual ~ThreadConstructor() {
       _worker->Stop();
-      
-      delete _task;
       delete _worker;
     }
     
@@ -73,7 +68,6 @@ class ThreadConstructor {
     }
      
   protected:
-    ProcessMessages* _task;
     rtc::Thread* _worker;
 };
 
