@@ -58,11 +58,12 @@ var WebRTC = require('webrtc-native');
 
 - Enable / Disable WebRTC log messages
 
-# Build
+# Build from source
 
 ````
 git clone https://github.com/vmolsa/webrtc-native
 cd webrtc-native
+export BUILD_WEBRTC=true
 npm install
 ````
 
