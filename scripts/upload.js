@@ -1,13 +1,16 @@
 var os = require('os');
 var spawn = require('child_process').spawn;
-var versions = require('node_versions.json');
+var versions = require('../node_versions.json');
 
-var NVM = (os.platform() == 'win32') ? 'nvmw' : 'nvm';
+var ROOT = process.cwd();
+var NVM = (os.platform() == 'win32') ? 'nvmw.bat' : 'nvm';
+var NPM = (os.platform() == 'win32') ? 'npm.cmd' : 'nvm';
 
 process.env['BUILD_WEBRTC'] = 'true';
 
 function build(callback) {
-  var res = spawn('npm', [ 'install' ], {
+  var res = spawn(NPM, [ 'install' ], {
+    cwd: ROOT,
     env: process.env,
     stdio: 'inherit',
   });
@@ -19,6 +22,7 @@ function build(callback) {
 
 function prep(version, callback) {
   var res = spawn(NVM, [ 'use', version ], {
+    cwd: ROOT,
     env: process.env,
     stdio: 'inherit',
   });
@@ -34,6 +38,7 @@ function prep(version, callback) {
 
 function install(version, callback) {
   var res = spawn(NVM, [ 'install', version ], {
+    cwd: ROOT,
     env: process.env,
     stdio: 'inherit',
   });
