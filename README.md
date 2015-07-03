@@ -96,5 +96,5 @@ sudo apt-get install --yes build-essential python2.7 git pkg-config libnss3-dev 
 ````
 sudo dnf update -y
 sudo dnf groupinstall -y "Development tools"
-sudo dnf install -y git gcc-c++ nss-devel SAASound-devel alsa-lib-devel systemd-devel pulseaudio-libs-devel turbojpeg-devel libXv-devel gtk+-devel expat-devel java-1.8.0-openjdk-devel gtk2-devel libXtst-devel libXScrnSaver-devel pciutils-devel dbus-devel pkgconfig GConf2-devel libgnome-keyring-devel
+sudo dnf install -y git gcc-c++ nss-devel SAASound-devel alsa-lib-devel systemd-devel pulseaudio-libs-devel turbojpeg-devel libXv-devel gtk+-devel expat-devel java-1.8.0-openjdk-devel gtk2-devel libXtst-devel libXScrnSaver-devel redhat-lsb pciutils-devel dbus-devel pkgconfig GConf2-devel libgnome-keyring-devel
 ````
