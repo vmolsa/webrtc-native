@@ -31,3 +31,5 @@ third_party
 
 config.gypi
 nodejs.gypi
+
+examples
