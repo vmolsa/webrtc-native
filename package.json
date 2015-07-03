@@ -22,7 +22,8 @@
   },
   "dependencies": {
     "nan": "^1.8.4",
-    "pangyp": "^2.2.1"
+    "pangyp": "^2.2.1",
+    "request": "^2.58.0"
   },
   "devDependencies": {
     "minimist": "^1.1.1",

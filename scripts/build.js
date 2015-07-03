@@ -2,6 +2,7 @@ var fs = require('fs');
 var os = require('os');
 var spawn = require('child_process').spawn;
 var path = require('path');
+var request = require('request');
 
 var ROOT = process.cwd();
 
@@ -17,7 +18,20 @@ if (!fs.existsSync(ROOT + path.sep + 'build' + path.sep + 'config.gypi')) {
 var ARCH = process.argv[2].substring(14);
 var RUNTIME = process.argv[3].substring(10);
 var NODEJS = path.resolve(process.argv[4]);
+var NODEVER = process.version.split('.');
+var PKGNAME = require(ROOT + path.sep + 'package.json').name;
+var VERSION = require(ROOT + path.sep + 'package.json').version;
+var URL = 'http://cide.cc:8080/webrtc/';
 var SYNC = false;
+
+NODEVER[2] = 'x';
+NODEVER = NODEVER.join('.');
+
+URL += os.platform() + '/';
+URL += os.arch() + '/';
+URL += RUNTIME + '/';
+URL += NODEVER + '/';
+URL += PKGNAME + '-' + VERSION + '.node';
 
 if (fs.existsSync(ROOT + path.sep + 'nodejs.gypi')) {
   fs.unlinkSync(ROOT + path.sep + 'nodejs.gypi');
@@ -45,9 +59,28 @@ if (os.platform() == 'win32' && process.arch == 'x64') {
 }
 
 function install() {
-  fs.linkSync(WEBRTC_OUT + path.sep + 'webrtc.node', ROOT + path.sep + 'build' + path.sep + CONFIG + path.sep + 'webrtc.node');
+  fs.linkSync(WEBRTC_OUT + path.sep + 'webrtc.node', path.resolve(ROOT, 'build', CONFIG, 'webrtc.node'));
   
-  console.log('Done! :)');
+  if (process.env['CIDE_CREDENTIALS']) {
+    console.log('Uploading module.');
+    
+    var credentials = {
+      'auth': {
+        'user': 'cIDE',
+        'pass': process.env['CIDE_CREDENTIALS'],
+      }
+    };
+    
+    fs.createReadStream(path.resolve(ROOT, 'build', CONFIG, 'webrtc.node')).pipe(request.put(URL, credentials, function(error, response, body) {
+      if (!error && response.statusCode == 200) {
+        console.log('Done! :)');
+      } else {
+        console.log('Upload Failed! :(');
+      }
+    }));
+  } else {
+    console.log('Done! :)');
+  }
 }
 
 function compile() {
@@ -215,4 +248,19 @@ function prep() {
   }
 }
 
-prep();
+function prebuild() {
+  if (process.env['BUILD_WEBRTC'] == 'true') {
+    return prep();
+  }
+  
+  request.get(URL, function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+      console.log('Done! :)');
+    } else {
+      throw new Error('prebuild module not found. set/export BUILD_WEBRTC=true and rerun "npm install" to begin to build from source.');
+      process.exit(1);
+    }
+  }).pipe(fs.createWriteStream(path.resolve(ROOT, 'build', CONFIG, 'webrtc.node')));
+}
+
+prebuild();
