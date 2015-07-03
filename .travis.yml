@@ -13,7 +13,7 @@ before_install:
   - sudo apt-get install --yes build-essential python2.7 git pkg-config libnss3-dev libasound2-dev libpulse-dev libjpeg62-dev libxv-dev libgtk2.0-dev libexpat1-dev default-jdk libxtst-dev libxss-dev libpci-dev libgconf2-dev libgnome-keyring-dev libudev-dev
 
 install:
-  - npm install
+  - travis_wait npm install
   - npm test
 
 notifications:
