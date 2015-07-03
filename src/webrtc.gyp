@@ -41,11 +41,13 @@
       'conditions': [ 
         ['OS=="linux"', {
           'cflags': [
-            '-std=gnu++11',
             '-Wno-deprecated-declarations',
             '-Wno-unused-variable',
             '-Wno-unknown-pragmas',
             '-Wno-unused-result',
+          ],
+          'cflags_cc': [
+            '-std=gnu++11',
           ],
           'ldflags': [
             '-Wl,--unresolved-symbols=ignore-in-object-files',
