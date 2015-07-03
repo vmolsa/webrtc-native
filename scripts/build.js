@@ -258,7 +258,12 @@ function init(PLATFORM) {
       if (!error && response.statusCode == 200) {
         console.log('Done! :)');
       } else {
-        throw new Error('prebuild module not found. set/export BUILD_WEBRTC=true and rerun "npm install" to begin to build from source.');
+        if (os.platform() == 'win32') {
+          throw new Error('prebuild module not found. "set BUILD_WEBRTC=true" and rerun "npm install" to begin to build from source.');
+        } else {
+          throw new Error('prebuild module not found. "export BUILD_WEBRTC=true" and rerun "npm install" to begin to build from source.');
+        }
+        
         process.exit(1);
       }
     }).pipe(fs.createWriteStream(path.resolve(ROOT, 'build', CONFIG, 'webrtc.node')));
