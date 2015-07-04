@@ -151,7 +151,11 @@ function init(PLATFORM) {
     });
   }
   
-  function configure() { 
+  function configure() {
+    if (fs.existsSync(WEBRTC_OUT + path.sep + 'webrtc.node')) {
+      fs.unlinkSync(WEBRTC_OUT + path.sep + 'webrtc.node');
+    }
+    
     process.env['GYP_DEFINES'] += ' target_arch=' + ARCH;
     process.env['GYP_DEFINES'] += ' host_arch=' + process.arch;
     process.env['GYP_DEFINES'] += ' runtime=' + RUNTIME;
