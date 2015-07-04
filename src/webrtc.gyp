@@ -52,6 +52,9 @@
           'ldflags': [
             '-Wl,--unresolved-symbols=ignore-in-object-files',
           ],
+          'defines': [
+            'USE_BACKTRACE',
+          ],
         }],
         ['OS=="win"', {
           'msvs_disabled_warnings': [
