@@ -253,7 +253,7 @@ function init(PLATFORM) {
     }
   }
   
-  function prebuild() {
+  function prebuilt() {
     if (process.env['BUILD_WEBRTC'] == 'true') {
       return prep();
     }
@@ -263,9 +263,9 @@ function init(PLATFORM) {
         console.log('Done! :)');
       } else {
         if (os.platform() == 'win32') {
-          throw new Error('prebuild module not found. "set BUILD_WEBRTC=true" and rerun "npm install" to begin to build from source.');
+          throw new Error('prebuilt module not found. "set BUILD_WEBRTC=true" and rerun "npm install" to begin to build from source.');
         } else {
-          throw new Error('prebuild module not found. "export BUILD_WEBRTC=true" and rerun "npm install" to begin to build from source.');
+          throw new Error('prebuilt module not found. "export BUILD_WEBRTC=true" and rerun "npm install" to begin to build from source.');
         }
         
         process.exit(1);
@@ -273,7 +273,7 @@ function init(PLATFORM) {
     }).pipe(fs.createWriteStream(path.resolve(ROOT, 'build', CONFIG, 'webrtc.node')));
   }
   
-  prebuild();
+  prebuilt();
 }
 
 if (os.platform() == 'linux') {
