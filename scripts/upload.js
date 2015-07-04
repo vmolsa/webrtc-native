@@ -3,54 +3,25 @@ var spawn = require('child_process').spawn;
 var versions = require('../node_versions.json');
 
 var ROOT = process.cwd();
-var NVM = (os.platform() == 'win32') ? 'nvmw.bat' : 'scripts/nvm.sh';
-var NPM = (os.platform() == 'win32') ? 'npm.cmd' : 'npm';
+var MULTIBUILD = (os.platform() == 'win32') ? 'scripts\\multibuild.cmd' : 'scripts/multibuild.sh';
 
 process.env['BUILD_WEBRTC'] = 'true';
 
-function build(callback) {
-  var res = spawn(NPM, [ 'install' ], {
+function build(version, callback) {
+  var res = spawn(MULTIBUILD, [ version ], {
     cwd: ROOT,
     env: process.env,
     stdio: 'inherit',
   });
-  
+
   res.on('close', function (code) {
     callback(code == 0);
   });
 }
 
-function prep(version, callback) {
-  var res = spawn(NVM, [ 'use', version ], {
-    cwd: ROOT,
-    env: process.env,
-    stdio: 'inherit',
-  });
-
-  res.on('close', function (code) {
-    if (!code) {
-      build(callback);
-    }
-    
-    callback(false);
-  });
-}
-
-function install(version, callback) {
-  var res = spawn(NVM, [ 'install', version ], {
-    cwd: ROOT,
-    env: process.env,
-    stdio: 'inherit',
-  });
-
-  res.on('close', function (code) {
-    prep(version, callback);
-  });
-}
-
 function buildNext(index) {
   if (index < versions.length) {
-    install(versions[index], function(result) {
+    build(versions[index], function(result) {
       if (result) {
         buildNext(index + 1);
       }

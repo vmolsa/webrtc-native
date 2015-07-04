@@ -190,6 +190,7 @@ function init(PLATFORM) {
     }
   
     console.log('runtime =', RUNTIME);
+    console.log('version =', NODEVER);
     console.log('target_arch =', ARCH);
     console.log('host_arch =', process.arch);
     console.log('configuration =', CONFIG);
