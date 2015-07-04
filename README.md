@@ -73,7 +73,7 @@ npm install
 ````
 You must build with Visual Studio 2013 Update 4, no other versions are supported.
 You must have Windows 7 x64 or later. x86 OSs are unsupported.
-You must run node-gyp with administrator privileges.
+You must run "npm install" with administrator privileges.
 ````
 - [Git](http://git-scm.com/)
 
