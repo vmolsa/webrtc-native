@@ -3,7 +3,7 @@ var spawn = require('child_process').spawn;
 var versions = require('../node_versions.json');
 
 var ROOT = process.cwd();
-var NVM = (os.platform() == 'win32') ? 'nvmw.bat' : 'sh ./scripts/nvm.sh';
+var NVM = (os.platform() == 'win32') ? 'nvmw.bat' : 'scripts/nvm.sh';
 var NPM = (os.platform() == 'win32') ? 'npm.cmd' : 'npm';
 
 process.env['BUILD_WEBRTC'] = 'true';
