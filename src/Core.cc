@@ -29,46 +29,98 @@
 #include "talk/app/webrtc/peerconnectionfactoryproxy.h"
 #include "talk/app/webrtc/proxy.h"
 
+#include "webrtc/base/cpumonitor.h"
+
 #ifdef WIN32
 #include "webrtc/base/win32socketinit.h"
+#include "webrtc/base/win32socketserver.h"
+#else
+#include "webrtc/base/physicalsocketserver.h"
 #endif
 
 using namespace v8;
 using namespace WebRTC;
 
-class ProcessMessages : public rtc::Runnable {
- public:
-  virtual void Run(rtc::Thread* thread) {
-    LOG(LS_INFO) << __PRETTY_FUNCTION__;
-    
-    if (thread) {
-      thread->ProcessMessages(rtc::ThreadManager::kForever);
-    } else {
-      LOG(LS_ERROR) << "Internal Thread Error!";
-      abort();
-    }
-  }
-};
-
-class ThreadConstructor : public ProcessMessages {
+class ThreadPool {
   public:
-    ThreadConstructor() :
-      _worker(new rtc::Thread())
-    {
-      _worker->Start(this);
+    static void Init() {
+      rtc::CpuSampler info;
+      
+      if (info.Init()) {
+        _instances = info.GetCurrentCpus();
+      } else {
+        _instances = 1;
+      }
+       
+      _pool = new ThreadPool[_instances];
     }
     
-    virtual ~ThreadConstructor() {
+    static void Dispose() {
+      delete [] _pool;
+    }
+  
+    static ThreadPool *GetPool() {
+      int selected = _instances - 1;
+      size_t count = _pool[_instances - 1]._count;
+      
+      for (int index = 0; index < _instances; index++) {
+        if (count >= _pool[index]._count) {
+          selected = index;
+          count = _pool[index]._count;
+        }
+      }
+      
+      return &_pool[selected];
+    }
+  
+    rtc::Thread *GetWorker() {
+      return _worker;
+    }
+    
+    void Inc() {
+      _count++;
+    }
+    
+    void Dec() {
+      _count--;
+    }
+    
+  private:
+    ThreadPool() : _count(0), _worker(new rtc::Thread()) {
+      _worker->Start();
+    }
+    
+    virtual ~ThreadPool() {
       _worker->Stop();
       delete _worker;
     }
     
+  protected:
+    size_t _count;
+    rtc::Thread* _worker;
+    static ThreadPool* _pool;
+    static int _instances;
+};
+
+ThreadPool* ThreadPool::_pool;
+int ThreadPool::_instances;
+
+class ThreadConstructor {
+  public:
+    ThreadConstructor() : _pool(ThreadPool::GetPool()) { 
+      _pool->Inc();
+    }
+    
+    virtual ~ThreadConstructor() {
+      _pool->Dec();
+    }
+    
     rtc::Thread *Current() const {
-      return _worker;
+      return _pool->GetWorker();
     }
      
   protected:
-    rtc::Thread* _worker;
+    ThreadPool* _pool;
 };
 
 class PeerConnectionFactory : public ThreadConstructor, public webrtc::PeerConnectionFactory {
@@ -78,8 +130,12 @@ class PeerConnectionFactory : public ThreadConstructor, public webrtc::PeerConne
     { }    
 };
 
+#ifdef WIN32
+  rtc::Win32Thread* _signal;
+#else 
+  rtc::Thread* _signal;
+#endif 
 
-ThreadConstructor* _signal;
 rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> _factory;
 rtc::scoped_ptr<cricket::DeviceManagerInterface> _manager;
 
@@ -90,15 +146,23 @@ void Core::Init() {
   rtc::EnsureWinsockInit();
 #endif
   rtc::InitializeSSL();
+
+#ifdef WIN32
+  _signal = new rtc::Win32Thread();
+#else 
+  _signal = new rtc::Thread();
+#endif
+  _signal->Start();
+
+  rtc::ThreadManager::Instance()->SetCurrentThread(_signal);
   
-  _signal = new ThreadConstructor();
-  rtc::ThreadManager::Instance()->SetCurrentThread(_signal->Current());
-  
-  if (rtc::ThreadManager::Instance()->CurrentThread() != _signal->Current()) {
+  if (rtc::ThreadManager::Instance()->CurrentThread() != _signal) {
     LOG(LS_ERROR) << "Internal Thread Error!";
     abort();
   }
-  
+
+  ThreadPool::Init();
+
   _factory = Core::CreateFactory();
   _manager.reset(cricket::DeviceManagerFactory::Create());
 
@@ -125,6 +189,9 @@ void Core::Dispose() {
 
   _manager.release();
   
+  ThreadPool::Dispose();
+  
+  _signal->Stop(); 
   delete _signal;
 }
 
