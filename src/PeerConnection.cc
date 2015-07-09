@@ -184,9 +184,7 @@ PeerConnection::PeerConnection(const Local<Object> &configuration,
   _local = new rtc::RefCountedObject<LocalDescriptionObserver>(this);
   _remote = new rtc::RefCountedObject<RemoteDescriptionObserver>(this);
   _peer = new rtc::RefCountedObject<PeerConnectionObserver>(this);
-  
   _factory = Core::CreateFactory();
-  //_factory = Core::GetFactory();
 }
 
 PeerConnection::~PeerConnection() {
