@@ -49,6 +49,7 @@ NAN_METHOD(GetUserMedia::GetMediaStream) {
   rtc::scoped_refptr<webrtc::MediaStreamInterface> stream;
   rtc::scoped_refptr<MediaConstraints> constraints = MediaConstraints::New(args[0]);
   const char *error = 0;
+  bool have_source = false;
 
   std::string audioId = constraints->AudioId();
   std::string videoId = constraints->VideoId();
@@ -70,26 +71,33 @@ NAN_METHOD(GetUserMedia::GetMediaStream) {
           }
 
           if (audio_track.get()) {
-            stream->AddTrack(audio_track);
+            if (!stream->AddTrack(audio_track)) {
+              error = "Invalid Audio Input";
+            } else {
+              have_source = true;
+            }
           } else {
             if (!audioId.empty()) {
               error = "Invalid Audio Input";
             }
           }
-        }
-
+        } 
+        
         if (constraints->UseVideo()) {
           rtc::scoped_refptr<webrtc::VideoTrackInterface> video_track;
 
           if (videoId.empty()) {
             video_track = GetSources::GetVideoSource(constraints);
-          }
-          else {
+          } else {
             video_track = GetSources::GetVideoSource(videoId, constraints);
           }
 
           if (video_track.get()) {
-            stream->AddTrack(video_track);
+            if (!stream->AddTrack(video_track)) {
+              error = "Invalid Video Input";
+            } else {
+              have_source = true;
+            }
           } else {
             if (!videoId.empty()) {
               error = "Invalid Video Input";
@@ -98,8 +106,10 @@ NAN_METHOD(GetUserMedia::GetMediaStream) {
         }
       }
     }
-  } else {
-    error = "No Stream Inputs";
+  }
+  
+  if (!have_source) {
+    error = "No available inputs";
   }
 
   Handle<Value> argv[1];
