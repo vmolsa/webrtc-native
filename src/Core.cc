@@ -130,12 +130,7 @@ class PeerConnectionFactory : public ThreadConstructor, public webrtc::PeerConne
     { }    
 };
 
-#ifdef WIN32
-  rtc::Win32Thread* _signal;
-#else 
-  rtc::Thread* _signal;
-#endif 
-
+rtc::Thread* _signal;
 rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> _factory;
 rtc::scoped_ptr<cricket::DeviceManagerInterface> _manager;
 
@@ -147,11 +142,7 @@ void Core::Init() {
 #endif
   rtc::InitializeSSL();
 
-#ifdef WIN32
-  _signal = new rtc::Win32Thread();
-#else 
   _signal = new rtc::Thread();
-#endif
   _signal->Start();
 
   rtc::ThreadManager::Instance()->SetCurrentThread(_signal);
