@@ -38,7 +38,14 @@
         '<(DEPTH)/third_party/libyuv/include',
         "<!(node -e \"require('nan')\")",
       ],
-      'conditions': [ 
+      'conditions': [
+        ['include_tests==1', {
+          'dependencies': [
+            '<(DEPTH)/talk/libjingle_tests.gyp:libjingle_unittest_main',
+            '<(DEPTH)/talk/libjingle_tests.gyp:libjingle_media_unittest',
+            '<(DEPTH)/webrtc/modules/modules.gyp:video_capture_tests',
+          ],
+        }],
         ['OS=="linux"', {
           'cflags': [
             '-Wno-deprecated-declarations',
