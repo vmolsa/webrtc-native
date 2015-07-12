@@ -270,6 +270,9 @@ namespace node {
     }
 
 #endif
+    inline std::string ToCString() const {
+      return std::string(ArrayBuffer::ToUtf8(), ArrayBuffer::Length());
+    }
 
     inline const char *ToUtf8() const {
       return _data;
