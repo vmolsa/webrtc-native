@@ -38,27 +38,39 @@
 
 namespace WebRTC {
   class RTCWrap : public node::ObjectWrap {
-   public:
-    inline void Wrap(v8::Local<v8::Object> obj, const char *className = "RTCWrap") {
-      node::ObjectWrap::Wrap(obj);
-    }
-    
-    inline v8::Local<v8::Object> This() {
+    public:
+      inline void Wrap(v8::Local<v8::Object> obj, const char *className = "RTCWrap") {
+        _className = className;
+        node::ObjectWrap::Wrap(obj);
+      }
+      
+      inline v8::Local<v8::Object> This() {
 #if (NODE_MODULE_VERSION < NODE_0_12_MODULE_VERSION)
-      NanEscapableScope();
-      return NanEscapeScope(NanNew<v8::Object>(node::ObjectWrap::handle_));
+        NanEscapableScope();
+        return NanEscapeScope(NanNew<v8::Object>(node::ObjectWrap::handle_));
 #else
-      return node::ObjectWrap::handle();
+        return node::ObjectWrap::handle();
 #endif
-    }
+      }
+      
+      template<class T> inline T* Unwrap() {
+        return static_cast<T*>(this);
+      }
+      
+      template<class T> inline static T* Unwrap(v8::Local<v8::Object> obj, const char *className = "RTCWrap") {
+        RTCWrap *wrap = node::ObjectWrap::Unwrap<RTCWrap>(obj);
+        
+        if (wrap) {
+          if (!wrap->_className.compare(className)) {
+            return wrap->Unwrap<T>();
+          }
+        }
+        
+        return 0;
+      }
     
-    template<class T> inline T* Unwrap() {
-      return static_cast<T*>(this);
-    }
-    
-    template<class T> inline static T* Unwrap(v8::Local<v8::Object> obj, const char *className = "RTCWrap") {
-      return node::ObjectWrap::Unwrap<T>(obj);
-    }
+    protected:
+      std::string _className;   
   };
 };
 
