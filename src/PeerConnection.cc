@@ -24,26 +24,12 @@
 */
 
 #include <nan.h>
+#include "Global.h"
 #include "PeerConnection.h"
 #include "DataChannel.h"
 #include "MediaStream.h"
 #include "Stats.h"
 #include "Core.h"
-
-#if (NODE_MODULE_VERSION <= NODE_0_10_MODULE_VERSION)
-namespace v8 {
-  class JSON {
-   public:
-    static v8::Local<v8::Value> Parse(v8::Local<v8::Value> str) {
-      NanEscapableScope();
-      v8::Local<v8::Object> global = v8::Context::GetCurrent()->Global();
-      v8::Local<v8::Object> json = v8::Local<v8::Object>::Cast(global->Get(NanNew("JSON")));
-      v8::Local<v8::Function> parse = v8::Local<v8::Function>::Cast(json->Get(NanNew("parse")));
-      return NanEscapeScope(parse->Call(global, 1, &str));
-    };
-  };
-};
-#endif
 
 using namespace v8;
 using namespace WebRTC;
@@ -1035,7 +1021,7 @@ void PeerConnection::On(Event *event) {
   std::string data;
   int argc = 0;
   
-  switch(type) {
+  switch (type) {
     case kPeerConnectionCreateOffer:
       callback = NanNew(_offerCallback);
       
