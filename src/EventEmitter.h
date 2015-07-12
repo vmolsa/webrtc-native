@@ -108,7 +108,7 @@ namespace WebRTC {
 
   class EventEmitter {    
    public:
-    explicit EventEmitter();
+    explicit EventEmitter(uv_loop_t *loop = 0);
     virtual ~EventEmitter();
     
     void SetReference(bool alive = true);

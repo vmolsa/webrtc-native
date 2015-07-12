@@ -27,7 +27,7 @@
 
 using namespace WebRTC;
 
-EventEmitter::EventEmitter() {
+EventEmitter::EventEmitter(uv_loop_t *loop) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   uv_mutex_init(&_lock);
@@ -35,7 +35,11 @@ EventEmitter::EventEmitter() {
   _async = new uv_async_t();
   _async->data = this;
   
-  uv_async_init(uv_default_loop(), _async, reinterpret_cast<uv_async_cb>(EventEmitter::onAsync));
+  if (!loop) {
+    loop = uv_default_loop();
+  }
+  
+  uv_async_init(loop, _async, reinterpret_cast<uv_async_cb>(EventEmitter::onAsync));
   
   EventEmitter::SetReference(false);
 }
