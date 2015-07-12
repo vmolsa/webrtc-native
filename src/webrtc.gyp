@@ -11,7 +11,9 @@
     {
       'target_name': 'webrtc',
       'sources': [
+        'Global.cc',
         'Core.cc',
+        'Thread.cc',
         'BackTrace.cc',
         'EventEmitter.cc',
         'Observers.cc',
@@ -24,6 +26,7 @@
         'MediaStreamTrack.cc',
         'MediaConstraints.cc',
         'Stats.cc',
+        'MediaSource.cc',
       ],
       'dependencies': [
         '<(DEPTH)/talk/libjingle.gyp:libjingle_peerconnection', 
