@@ -25,6 +25,7 @@
 
 #include <nan.h>
 
+#include "Global.h"
 #include "Core.h"
 #include "Stats.h"
 #include "PeerConnection.h"
@@ -34,6 +35,7 @@
 #include "GetUserMedia.h"
 #include "MediaStream.h"
 #include "MediaStreamTrack.h"
+#include "MediaSource.h"
 
 using namespace v8;
 
@@ -57,13 +59,7 @@ NAN_METHOD(RTCGarbageCollect) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   NanScope();
-#if (NODE_MODULE_VERSION < NODE_0_12_MODULE_VERSION)
-  V8::LowMemoryNotification();
-#else
-  Isolate* isolate = args.GetIsolate();
-  isolate->LowMemoryNotification();
-#endif
-
+  NanLowMemoryNotification();
   NanReturnUndefined();
 }
 
@@ -115,6 +111,7 @@ void WebrtcModuleInit(Handle<Object> exports) {
 
   NanScope();
 
+  WebRTC::Global::Init(exports);
   WebRTC::Core::Init();
   WebRTC::RTCStatsResponse::Init();
   WebRTC::RTCStatsReport::Init();
@@ -124,6 +121,7 @@ void WebrtcModuleInit(Handle<Object> exports) {
   WebRTC::GetUserMedia::Init(exports);
   WebRTC::MediaStream::Init();
   WebRTC::MediaStreamTrack::Init();
+  WebRTC::MediaSource::Init(exports);
   
   exports->Set(NanNew("RTCGarbageCollect"), NanNew<FunctionTemplate>(RTCGarbageCollect)->GetFunction()); 
   exports->Set(NanNew("RTCIceCandidate"), NanNew<FunctionTemplate>(RTCIceCandidate)->GetFunction());
