@@ -104,6 +104,8 @@ NAN_METHOD(GetUserMedia::GetMediaStream) {
             }
           }
         }
+      } else {
+        error = "Internal Error";
       }
     }
   }
@@ -114,7 +116,7 @@ NAN_METHOD(GetUserMedia::GetMediaStream) {
 
   Handle<Value> argv[1];
 
-  if (!error) {
+  if (!error) {   
     if (stream.get()) {
       argv[0] = MediaStream::New(stream);
     } else {
