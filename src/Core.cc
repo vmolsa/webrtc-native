@@ -41,9 +41,21 @@
 using namespace v8;
 using namespace WebRTC;
 
+class BlockingThread : public rtc::Thread {
+  public:
+    virtual void Run() {
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;
+      
+      rtc::Thread::SetAllowBlockingCalls(true);
+      rtc::Thread::Run();
+    }
+};
+
 class ThreadPool {
   public:
     static void Init() {
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;
+      
       rtc::CpuSampler info;
       
       if (info.Init()) {
@@ -56,10 +68,14 @@ class ThreadPool {
     }
     
     static void Dispose() {
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;
+      
       delete [] _pool;
     }
   
     static ThreadPool *GetPool() {
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;
+      
       int selected = _instances - 1;
       size_t count = _pool[_instances - 1]._count;
       
@@ -74,7 +90,9 @@ class ThreadPool {
     }
   
     rtc::Thread *GetWorker() {
-      return _worker;
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;
+      
+      return static_cast<rtc::Thread*>(_worker);
     }
     
     void Inc() {
@@ -86,18 +104,22 @@ class ThreadPool {
     }
     
   private:
-    ThreadPool() : _count(0), _worker(new rtc::Thread()) {
+    ThreadPool() : _count(0), _worker(new BlockingThread()) {
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;
+      
       _worker->Start();
     }
     
     virtual ~ThreadPool() {
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;
+      
       _worker->Stop();
       delete _worker;
     }
     
   protected:
     size_t _count;
-    rtc::Thread* _worker;
+    BlockingThread* _worker;
     static ThreadPool* _pool;
     static int _instances;
 };
@@ -107,15 +129,21 @@ int ThreadPool::_instances;
 
 class ThreadConstructor {
   public:
-    ThreadConstructor() : _pool(ThreadPool::GetPool()) { 
+    ThreadConstructor() : _pool(ThreadPool::GetPool()) {
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;
+      
       _pool->Inc();
     }
     
     virtual ~ThreadConstructor() {
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;
+      
       _pool->Dec();
     }
     
     rtc::Thread *Current() const {
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;
+      
       return _pool->GetWorker();
     }
      
@@ -127,10 +155,12 @@ class PeerConnectionFactory : public ThreadConstructor, public webrtc::PeerConne
   public:
     PeerConnectionFactory() :
       webrtc::PeerConnectionFactory(rtc::Thread::Current(), ThreadConstructor::Current(), NULL, NULL, NULL)
-    { }    
+    {
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;
+    }    
 };
 
-rtc::Thread* _signal;
+BlockingThread* _signal;
 rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> _factory;
 rtc::scoped_ptr<cricket::DeviceManagerInterface> _manager;
 
@@ -142,7 +172,7 @@ void Core::Init() {
 #endif
   rtc::InitializeSSL();
 
-  _signal = new rtc::Thread();
+  _signal = new BlockingThread();
   _signal->Start();
 
   rtc::ThreadManager::Instance()->SetCurrentThread(_signal);
