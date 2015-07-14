@@ -73,6 +73,9 @@
             4201,
             4506,
           ],
+          'sources': [
+            'PlatformWin32.cc'
+          ],
         }],
         ['OS=="mac"', {
           'xcode_settings': {
