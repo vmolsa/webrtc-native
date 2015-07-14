@@ -76,21 +76,20 @@ Local<Value> MediaStream::New(rtc::scoped_refptr<webrtc::MediaStreamInterface> m
   NanEscapableScope();
 
   Local<Value> empty;
-  Local<Value> argv[1];
   Local<Function> instance = NanNew(MediaStream::constructor);
 
   if (instance.IsEmpty() || !mediaStream.get()) {
     return NanEscapeScope(NanNull());
   }
 
-  Local<Object> ret = instance->NewInstance(0, argv);
+  Local<Object> ret = instance->NewInstance();
   MediaStream *self = RTCWrap::Unwrap<MediaStream>(ret, "MediaStream");
   
-  if (self) {
+  if (self) {   
     self->_stream = mediaStream;
     self->_stream->RegisterObserver(self->_observer.get());
     self->Emit(kMediaStreamChanged);
-    
+
     return NanEscapeScope(ret);
   }
 
