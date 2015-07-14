@@ -89,6 +89,9 @@
           'defines': [
             'USE_BACKTRACE',
           ],
+          'sources': [
+            'PlatformMac.cc'
+          ],
         }],
       ],      
     },
