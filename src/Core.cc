@@ -23,7 +23,7 @@
 *
 */
 
-#include "nan.h"
+#include <nan.h>
 #include "Core.h"
 
 #include "talk/app/webrtc/peerconnectionfactoryproxy.h"
@@ -164,13 +164,8 @@ void Core::Init() {
 
 void Core::Dispose() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-
-#if (NODE_MODULE_VERSION < NODE_0_12_MODULE_VERSION)
-  V8::LowMemoryNotification();
-#else
-  Isolate* isolate = Isolate::GetCurrent();
-  isolate->LowMemoryNotification();
-#endif
+  
+  NanLowMemoryNotification();
   
   _factory.release();
 
