@@ -61,7 +61,7 @@ namespace WebRTC {
         if (_listener) {
           _listener->Emit(event, content);
         }
-      }      
+      }
 
       virtual void Run();
       void End();
