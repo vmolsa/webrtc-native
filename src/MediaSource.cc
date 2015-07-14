@@ -406,6 +406,7 @@ void MediaSource::On(Event *event) {
     
     switch (ctx.type) {
       case kMediaSourceNone:
+      case kMediaSourceBuffer:
         break;
       case kMediaSourceImage:
         printf("MediaSource::On(kMediaSourceImage)\n");
