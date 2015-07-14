@@ -26,18 +26,22 @@
 #include "ArrayBuffer.h"
 #include "MediaSource.h"
 
+#include "talk/media/base/videoframe.h"
+
 using namespace v8;
 using namespace WebRTC;
 
 Persistent<Function> MediaSource::constructor;
 
 enum MediaSourceEvent {
-  kMediaSourceEncode = 1,
+  kMediaSourceData = 1,
+  kMediaSourceEncode,
   kMediaSourceDecode,
 };
 
 enum MediaSourceType {
   kMediaSourceNone = 1,
+  kMediaSourceBuffer,
   kMediaSourceImage,
   kMediaSourceAudio,
 };
@@ -49,15 +53,62 @@ class MediaSourceContext {
     MediaSourceType type;
 };
 
+class MediaSourceBuffer : public MediaSourceContext {
+  public:
+    explicit MediaSourceBuffer(size_t length = 0) : MediaSourceContext(kMediaSourceBuffer), _length(length), _data(0) {
+      if (_length) {
+        _data = new uint8_t[_length];
+      }
+    }
+
+    MediaSourceBuffer(uint8_t *data, size_t length) : MediaSourceContext(kMediaSourceBuffer), _length(0), _data(0) {
+      if (length) {
+        _data = new uint8_t[_length];
+      }
+      
+      for (size_t index = 0; index < _length; index++) {
+        _data[index] = data[index];
+      }
+    }
+    
+    MediaSourceBuffer(const char *data, size_t length) : MediaSourceContext(kMediaSourceBuffer), _length(0), _data(0) {
+      if (length) {
+        _data = new uint8_t[_length];
+      }
+      
+      for (size_t index = 0; index < _length; index++) {
+        _data[index] = data[index];
+      }
+    }    
+    
+    virtual ~MediaSourceBuffer() {
+      if (_length) {
+        delete [] _data;
+      }
+    }
+
+    uint8_t *Data() const {
+      return _data;
+    }
+    
+    size_t Length() const {
+      return _length;
+    }
+
+  protected:
+    size_t _length;
+    uint8_t* _data;
+};
+
 class MediaSourceImage : public MediaSourceContext {
   public:
     MediaSourceImage() : MediaSourceContext(kMediaSourceImage) { }
   
-    int width;
-    int height;
+    size_t width;
+    size_t height;
     
     std::string mime;
-    std::string data; // <- void *?
+    MediaSourceBuffer buffer;
 };
 
 class MediaSourceAudio : public MediaSourceContext {
@@ -70,29 +121,84 @@ class MediaSourceAudio : public MediaSourceContext {
     int frames;
     
     std::string mime;
-    std::string data; // <- void *?
+    MediaSourceBuffer buffer;
 };
 
-class yuv_handler : public Thread {
+class yuv_transformer : public Thread {
   public:
-    yuv_handler(EventEmitter *listener) : Thread(listener) { }
-  
-    void Decode(const std::string &data) {
-      
-    }
-  
+    yuv_transformer(EventEmitter *listener) : Thread(listener) { }
+
     void On(Event *event) final {
       MediaSourceEvent type = event->Type<MediaSourceEvent>();
 
       switch (type) {
-        case kMediaSourceEncode:
-          break;
+        case kMediaSourceData:
         case kMediaSourceDecode:
-          Decode(event->Unwrap<std::string>());
+          break;
+        case kMediaSourceEncode:
+          Notify(kMediaSourceData, event->Unwrap<MediaSourceImage>());
           break;
       }
     }
 };
+
+rtc::scoped_refptr<VideoRenderer> VideoRenderer::New(webrtc::MediaStreamTrackInterface *track, Thread *worker) {
+  return new rtc::RefCountedObject<VideoRenderer>(track, worker);
+}
+
+VideoRenderer::VideoRenderer(webrtc::MediaStreamTrackInterface *track, Thread *worker) : 
+  _track(static_cast<webrtc::VideoTrackInterface*>(track)), 
+  _worker(worker)
+{
+  if (_track.get()) {
+    _track->AddRenderer(this);
+  }
+}
+      
+VideoRenderer::~VideoRenderer() {
+  VideoRenderer::End();
+}
+
+void VideoRenderer::RenderFrame(const cricket::VideoFrame* frame) {
+  size_t total = frame->CopyToBuffer(0, 0); // Get Buffer Size
+  MediaSourceImage image;
+  
+  image.mime = std::string("image/i420");
+  image.width = frame->GetWidth();
+  image.height = frame->GetHeight();
+  image.buffer = MediaSourceBuffer(total);
+  
+  frame->CopyToBuffer(image.buffer.Data(), image.buffer.Length());
+  
+  if (_worker) {
+    _worker->Emit(kMediaSourceEncode, image);
+  }
+}
+
+void VideoRenderer::End() {
+  if (_worker) {
+    Thread *worker = _worker;
+    _worker = 0;
+    
+    worker->SetEmitter();
+    worker->End();
+    
+    delete worker;
+  }
+  
+  if (_track.get()) {
+    _track->RemoveRenderer(this);
+    (void) _track.release();
+  }
+}
+
+Thread *MediaSource::Format2Worker(const std::string &fmt) {
+  if (!fmt.compare("image/i420")) {
+    return Thread::New<yuv_transformer>(this);
+  }
+  
+  return 0;
+}
 
 void MediaSource::Init(Handle<Object> exports) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
@@ -118,31 +224,32 @@ void MediaSource::Init(Handle<Object> exports) {
   exports->Set(NanNew("MediaSource"), tpl->GetFunction());                                   
 }
 
-MediaSource::MediaSource(const std::string &format, Local<Object> stream, Local<Function> callback) {
+MediaSource::MediaSource(const std::string &fmt, v8::Local<v8::Function> callback) { // Encoder
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  if (!stream.IsEmpty()) { // Encoder
-    if (!format.compare("image/i420")) {
-      _worker = Thread::New<yuv_handler>(this);
-    }
-  } else if (!callback.IsEmpty()) { // Decoder
-    NanAssignPersistent(_callback, callback);
-  }
+  NanAssignPersistent(_callback, callback);
   
-  if (!_worker) {
-    _worker = Thread::New<yuv_handler>(this);
+}
+
+MediaSource::MediaSource(const std::string &fmt, rtc::scoped_refptr<webrtc::MediaStreamInterface> mediaStream) { // Decoder
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  
+}
+
+MediaSource::MediaSource(const std::string &fmt, rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> mediaStreamTrack) { // Decoder
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  if (mediaStreamTrack->kind().compare("video")) {
+    _renderer = VideoRenderer::New(mediaStreamTrack.get(), MediaSource::Format2Worker(fmt));
+  } else if (mediaStreamTrack->kind().compare("audio")) {
+    
   }
 }
 
 MediaSource::~MediaSource() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  if (_worker) {
-    _worker->SetEmitter();
-    _worker->End();
-    
-    delete _worker;
-  }
 }
 
 NAN_METHOD(MediaSource::New) {
@@ -178,9 +285,32 @@ NAN_METHOD(MediaSource::New) {
 
   if (args.IsConstructCall()) {
     String::Utf8Value format_str(format);
-    MediaSource* source = new MediaSource(std::string(*format_str), stream, callback);
-    source->Wrap(args.This(), "MediaSource");
-    NanReturnValue(args.This());
+    MediaSource* source = 0;
+    
+    if (!stream.IsEmpty()) {
+      rtc::scoped_refptr<webrtc::MediaStreamInterface> mediaStream = MediaStream::Unwrap(stream);
+      
+      if (mediaStream.get()) {
+        source = new MediaSource(std::string(*format_str), mediaStream);
+      } else {
+        rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track = MediaStreamTrack::Unwrap(stream);
+        
+        if (track.get()) {
+          source = new MediaSource(std::string(*format_str), track);
+        } else {
+          NanThrowError("Invalid Arguments");
+        }
+      }
+    } else if (!callback.IsEmpty()) {
+      source = new MediaSource(std::string(*format_str), callback);
+    } else {
+      NanThrowError("Invalid Arguments");
+    }
+
+    if (source) {
+      source->Wrap(args.This(), "MediaSource");
+      NanReturnValue(args.This());
+    }
   } else {
     const int argc = 3;
     Local<Value> argv[3] = {
@@ -200,12 +330,11 @@ NAN_METHOD(MediaSource::Write) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   NanScope();
-  MediaSource *self = RTCWrap::Unwrap<MediaSource>(args.This(), "MediaSource");
-  Thread *worker = self->_worker;
+  //MediaSource *self = RTCWrap::Unwrap<MediaSource>(args.This(), "MediaSource");
   
   if (args.Length() >= 1) {
-    node::ArrayBuffer *arrayBuffer = node::ArrayBuffer::New(args[0]);
-    worker->Emit(kMediaSourceDecode, arrayBuffer->ToCString());
+    //node::ArrayBuffer *arrayBuffer = node::ArrayBuffer::New(args[0]);
+    //worker->Emit(kMediaSourceDecode, MediaSourceBuffer(arrayBuffer->ToUtf8(), arrayBuffer->Length()));
   }
   
   NanReturnUndefined();
@@ -216,8 +345,11 @@ NAN_METHOD(MediaSource::End) {
   
   NanScope();
   MediaSource *self = RTCWrap::Unwrap<MediaSource>(args.This(), "MediaSource");
-
-  self->_worker->End();
+  
+  if (self->_renderer.get()) {
+    self->_renderer->End();
+    (void) self->_renderer.release();
+  }
 
   NanReturnUndefined();
 }
@@ -265,5 +397,24 @@ NAN_SETTER(MediaSource::OnError) {
 }
 
 void MediaSource::On(Event *event) {
-
+  MediaSourceEvent type = event->Type<MediaSourceEvent>();
+  
+  if (type == kMediaSourceData) {
+    MediaSourceContext ctx = event->Unwrap<MediaSourceContext>();
+    MediaSourceImage image = event->Unwrap<MediaSourceImage>();
+    MediaSourceAudio audio = event->Unwrap<MediaSourceAudio>();
+    
+    switch (ctx.type) {
+      case kMediaSourceNone:
+        break;
+      case kMediaSourceImage:
+        printf("MediaSource::On(kMediaSourceImage)\n");
+        
+        break;
+      case kMediaSourceAudio:
+        
+        
+        break;
+    }
+  }
 }

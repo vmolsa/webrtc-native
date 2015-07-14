@@ -32,13 +32,35 @@
 #include "MediaStreamTrack.h"
 
 namespace WebRTC {
+  class VideoRenderer : public webrtc::VideoRendererInterface, public rtc::RefCountInterface {
+      friend class rtc::RefCountedObject<VideoRenderer>;
+    public:
+      static rtc::scoped_refptr<VideoRenderer> New(webrtc::MediaStreamTrackInterface *track = 0, Thread *worker = 0);
+      
+      void End();
+    
+    private:
+      explicit VideoRenderer(webrtc::MediaStreamTrackInterface *track = 0, Thread *worker = 0);
+      virtual ~VideoRenderer();
+     
+      virtual void RenderFrame(const cricket::VideoFrame* frame);
+            
+    protected:
+      rtc::scoped_refptr<webrtc::VideoTrackInterface> _track;
+      Thread* _worker;
+  };
+  
   class MediaSource : public RTCWrap, public EventEmitter { 
     public:
       static void Init(v8::Handle<v8::Object> exports);
       
     private:
-      MediaSource(const std::string &format, v8::Local<v8::Object> stream, v8::Local<v8::Function> callback);
+      explicit MediaSource(const std::string &fmt, v8::Local<v8::Function> callback);
+      MediaSource(const std::string &fmt, rtc::scoped_refptr<webrtc::MediaStreamInterface> mediaStream);
+      MediaSource(const std::string &fmt, rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> mediaStreamTrack);
       ~MediaSource() final;
+      
+      Thread *Format2Worker(const std::string &fmt);
       
       static NAN_METHOD(New);
       static NAN_METHOD(Write);
@@ -53,12 +75,12 @@ namespace WebRTC {
       
       void On(Event *event) final;
       
-    protected:
-      Thread* _worker;
-    
+    protected:   
       v8::Persistent<v8::Function> _callback;
       v8::Persistent<v8::Function> _ondata;
       v8::Persistent<v8::Function> _onerror;
+      
+      rtc::scoped_refptr<VideoRenderer> _renderer;
       
       static v8::Persistent<v8::Function> constructor;
   };
