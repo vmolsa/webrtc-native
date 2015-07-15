@@ -29,6 +29,7 @@
 #include "Platform.h"
 #include "webrtc/base/logging.h"
 #include "webrtc/base/win32socketserver.h"
+#include "webrtc/base/win32socketinit.h"
 
 using namespace WebRTC;
 
@@ -46,6 +47,7 @@ PlatformWorker worker;
 
 void Platform::Init() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  rtc::EnsureWinsockInit();
   
   worker.Start();
 }
