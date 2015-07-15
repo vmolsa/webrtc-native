@@ -31,13 +31,6 @@
 
 #include "webrtc/base/cpumonitor.h"
 
-#ifdef WIN32
-#include "webrtc/base/win32socketinit.h"
-#include "webrtc/base/win32socketserver.h"
-#else
-#include "webrtc/base/physicalsocketserver.h"
-#endif
-
 using namespace v8;
 using namespace WebRTC;
 
@@ -166,10 +159,6 @@ rtc::scoped_ptr<cricket::DeviceManagerInterface> _manager;
 
 void Core::Init() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-#ifdef WIN32
-  rtc::EnsureWinsockInit();
-#endif
   rtc::InitializeSSL();
 
   _signal = new BlockingThread();
