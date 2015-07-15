@@ -26,37 +26,44 @@
 #include "Platform.h"
 #include "webrtc/base/logging.h"
 #include "webrtc/base/thread.h"
-#include "webrtc/base/macsocketserver.h"
+#include "webrtc/base/maccocoathreadhelper.h"
+
+#import <QTKit/QTKit.h>
 
 using namespace WebRTC;
 
 class PlatformWorker : public rtc::Thread {
-  public:
-    PlatformWorker(rtc::SocketServer* server) : _server(ss) {
-	    LOG(LS_INFO) << __PRETTY_FUNCTION__;
-	  }
-	
-  	virtual ~PlatformWorker() {
-      LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  	  rtc::Thread::Stop();
-  	}
-    
-    virtual void Run() {
-      LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-      _server->WakeUp();
-    }
-	
-  protected:
-    rtc::SocketServer* _server;
+  public:    
+    virtual void Run();
 };
 
-rtc::MacCarbonSocketServer server;
-PlatformWorker worker(&server);
+void PlatformWorker::Run() {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+  double waitTime = 0.01;
+  bool running = false;
+  
+  NSRunLoop* loop = [NSRunLoop mainRunLoop];
+  NSDate* until = [NSDate dateWithTimeIntervalSinceNow:waitTime];
+  [NSTimer scheduledTimerWithTimeInterval:100 target:nil selector:@selector(doFireTimer:) userInfo:nil repeats:YES];
+
+  do {
+    //[[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:waitTime]];
+    running = [loop runMode:NSDefaultRunLoopMode beforeDate:until];
+    running = rtc::Thread::ProcessMessages(1);
+    until = [NSDate dateWithTimeIntervalSinceNow:waitTime];
+  } while (running);
+  
+  [pool drain];
+}
+
+PlatformWorker worker;
 
 void Platform::Init() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
+  rtc::InitCocoaMultiThreading();
   worker.Start();
 }
 
