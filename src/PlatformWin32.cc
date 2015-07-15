@@ -23,6 +23,7 @@
 *
 */
 
+#include <uv.h>
 #include <conio.h>
 #include <Windows.h>
 
@@ -33,28 +34,34 @@
 
 using namespace WebRTC;
 
-class PlatformWorker : public rtc::Win32Thread {
+class PlatformWorker : public rtc::Thread {
   public:
-    virtual void Run() {
+    PlatformWorker(rtc::SocketServer *server) : rtc::Thread(server) {
       LOG(LS_INFO) << __PRETTY_FUNCTION__;
-      
-      rtc::Thread::SetAllowBlockingCalls(true);
-      rtc::Win32Thread::Run();
+    }
+    
+    virtual void Run() {
+      rtc::Thread::ProcessMessages(0);
     }
 };
 
-PlatformWorker worker;
+rtc::Win32SocketServer server;
+PlatformWorker worker(&server);
+uv_prepare_t runLoop;
+
+void OnRunLoop(uv_prepare_t *handle) {
+  worker.Run();
+}
 
 void Platform::Init() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  rtc::EnsureWinsockInit();
   
-  worker.Start();
+  uv_prepare_init(uv_default_loop(), &runLoop);
+  uv_prepare_start(&runLoop, OnRunLoop);
 }
 
 void Platform::Dispose() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  worker.Quit();
-  worker.Stop();
+  uv_prepare_stop(&runLoop);
 }
