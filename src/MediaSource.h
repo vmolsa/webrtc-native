@@ -31,7 +31,33 @@
 #include "MediaStream.h"
 #include "MediaStreamTrack.h"
 
+#include "talk/media/base/videoframe.h"
+#include "webrtc/video_frame.h"
+#include "webrtc/base/buffer.h"
+#include "webrtc/modules/video_capture/include/video_capture.h"
+#include "webrtc/modules/video_capture/include/video_capture_factory.h"
+#include "webrtc/modules/utility/interface/process_thread.h"
+
 namespace WebRTC {
+  class WebcamCapturer : public webrtc::VideoCaptureDataCallback, public rtc::RefCountInterface {
+      friend class rtc::RefCountedObject<WebcamCapturer>;
+    public:
+      static rtc::scoped_refptr<WebcamCapturer> New(Thread *worker = 0);
+      
+      void End();
+    private:
+      explicit WebcamCapturer(Thread *worker = 0);
+      virtual ~WebcamCapturer();
+     
+      virtual void OnIncomingCapturedFrame(const int32_t id, const webrtc::VideoFrame& frame);
+      virtual void OnCaptureDelayChanged(const int32_t id, const int32_t delay);
+      
+    protected:
+      rtc::scoped_ptr<webrtc::VideoCaptureModule::DeviceInfo> _deviceInfo;
+      rtc::scoped_refptr<webrtc::VideoCaptureModule> _module;
+      Thread* _worker;
+  };
+  
   class VideoRenderer : public webrtc::VideoRendererInterface, public rtc::RefCountInterface {
       friend class rtc::RefCountedObject<VideoRenderer>;
     public:
@@ -81,6 +107,7 @@ namespace WebRTC {
       v8::Persistent<v8::Function> _onerror;
       
       rtc::scoped_refptr<VideoRenderer> _renderer;
+      rtc::scoped_refptr<WebcamCapturer> _capturer;
       
       static v8::Persistent<v8::Function> constructor;
   };

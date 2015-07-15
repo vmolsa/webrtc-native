@@ -26,8 +26,6 @@
 #include "ArrayBuffer.h"
 #include "MediaSource.h"
 
-#include "talk/media/base/videoframe.h"
-
 using namespace v8;
 using namespace WebRTC;
 
@@ -41,7 +39,6 @@ enum MediaSourceEvent {
 
 enum MediaSourceType {
   kMediaSourceNone = 1,
-  kMediaSourceBuffer,
   kMediaSourceImage,
   kMediaSourceAudio,
 };
@@ -53,53 +50,6 @@ class MediaSourceContext {
     MediaSourceType type;
 };
 
-class MediaSourceBuffer : public MediaSourceContext {
-  public:
-    explicit MediaSourceBuffer(size_t length = 0) : MediaSourceContext(kMediaSourceBuffer), _length(length), _data(0) {
-      if (_length) {
-        _data = new uint8_t[_length];
-      }
-    }
-
-    MediaSourceBuffer(uint8_t *data, size_t length) : MediaSourceContext(kMediaSourceBuffer), _length(0), _data(0) {
-      if (length) {
-        _data = new uint8_t[_length];
-      }
-      
-      for (size_t index = 0; index < _length; index++) {
-        _data[index] = data[index];
-      }
-    }
-    
-    MediaSourceBuffer(const char *data, size_t length) : MediaSourceContext(kMediaSourceBuffer), _length(0), _data(0) {
-      if (length) {
-        _data = new uint8_t[_length];
-      }
-      
-      for (size_t index = 0; index < _length; index++) {
-        _data[index] = data[index];
-      }
-    }    
-    
-    virtual ~MediaSourceBuffer() {
-      if (_length) {
-        delete [] _data;
-      }
-    }
-
-    uint8_t *Data() const {
-      return _data;
-    }
-    
-    size_t Length() const {
-      return _length;
-    }
-
-  protected:
-    size_t _length;
-    uint8_t* _data;
-};
-
 class MediaSourceImage : public MediaSourceContext {
   public:
     MediaSourceImage() : MediaSourceContext(kMediaSourceImage) { }
@@ -108,7 +58,7 @@ class MediaSourceImage : public MediaSourceContext {
     size_t height;
     
     std::string mime;
-    MediaSourceBuffer buffer;
+    rtc::Buffer buffer;
 };
 
 class MediaSourceAudio : public MediaSourceContext {
@@ -121,14 +71,16 @@ class MediaSourceAudio : public MediaSourceContext {
     int frames;
     
     std::string mime;
-    MediaSourceBuffer buffer;
+    rtc::Buffer buffer;
 };
 
-class yuv_transformer : public Thread {
+class YuvTransformer : public Thread {
   public:
-    yuv_transformer(EventEmitter *listener) : Thread(listener) { }
+    YuvTransformer(EventEmitter *listener) : Thread(listener) { }
 
     void On(Event *event) final {
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;
+      
       MediaSourceEvent type = event->Type<MediaSourceEvent>();
 
       switch (type) {
@@ -142,6 +94,70 @@ class yuv_transformer : public Thread {
     }
 };
 
+rtc::scoped_refptr<WebcamCapturer> WebcamCapturer::New(Thread *worker) {
+  return new rtc::RefCountedObject<WebcamCapturer>(worker);
+}
+
+WebcamCapturer::WebcamCapturer(Thread *worker) : _worker(worker) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  unsigned int device = 0;
+  char device_name[256];
+  char unique_name[256];
+  webrtc::VideoCaptureCapability capability;
+  
+  capability.width = 1024;
+  capability.height = 720;
+  capability.rawType = webrtc::kVideoYV12;
+  capability.maxFPS = 30; 
+  
+  _deviceInfo.reset(webrtc::VideoCaptureFactory::CreateDeviceInfo(0));
+  _deviceInfo->GetDeviceName(device, device_name, 256, unique_name, 256);
+  
+  _module = webrtc::VideoCaptureFactory::Create(device, unique_name);
+  _module->RegisterCaptureDataCallback(*(this));
+  _module->StartCapture(capability);
+}
+
+WebcamCapturer::~WebcamCapturer() {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  WebcamCapturer::End();
+}
+
+void WebcamCapturer::End() {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  if (_worker) {
+    Thread *worker = _worker;
+    _worker = 0;
+    
+    worker->SetEmitter();
+    worker->End();
+    
+    delete worker;
+  }
+}
+
+void WebcamCapturer::OnIncomingCapturedFrame(const int32_t id, const webrtc::VideoFrame& frame) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  MediaSourceImage image;
+
+  image.mime = std::string("image/i420");
+  image.width = frame.width();
+  image.height = frame.height();
+  image.buffer = rtc::Buffer(frame.buffer(webrtc::kYPlane), frame.allocated_size(webrtc::kYPlane));
+
+  if (_worker) {
+    _worker->Emit(kMediaSourceEncode, image);
+  }
+}
+
+void WebcamCapturer::OnCaptureDelayChanged(const int32_t id, const int32_t delay) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+}
+
 rtc::scoped_refptr<VideoRenderer> VideoRenderer::New(webrtc::MediaStreamTrackInterface *track, Thread *worker) {
   return new rtc::RefCountedObject<VideoRenderer>(track, worker);
 }
@@ -150,25 +166,31 @@ VideoRenderer::VideoRenderer(webrtc::MediaStreamTrackInterface *track, Thread *w
   _track(static_cast<webrtc::VideoTrackInterface*>(track)), 
   _worker(worker)
 {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   if (_track.get()) {
     _track->AddRenderer(this);
   }
 }
       
 VideoRenderer::~VideoRenderer() {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   VideoRenderer::End();
 }
 
 void VideoRenderer::RenderFrame(const cricket::VideoFrame* frame) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   size_t total = frame->CopyToBuffer(0, 0); // Get Buffer Size
   MediaSourceImage image;
   
   image.mime = std::string("image/i420");
   image.width = frame->GetWidth();
   image.height = frame->GetHeight();
-  image.buffer = MediaSourceBuffer(total);
+  image.buffer = rtc::Buffer(total);
   
-  frame->CopyToBuffer(image.buffer.Data(), image.buffer.Length());
+  frame->CopyToBuffer(image.buffer.data(), image.buffer.size());
   
   if (_worker) {
     _worker->Emit(kMediaSourceEncode, image);
@@ -176,6 +198,8 @@ void VideoRenderer::RenderFrame(const cricket::VideoFrame* frame) {
 }
 
 void VideoRenderer::End() {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   if (_worker) {
     Thread *worker = _worker;
     _worker = 0;
@@ -193,8 +217,12 @@ void VideoRenderer::End() {
 }
 
 Thread *MediaSource::Format2Worker(const std::string &fmt) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
   if (!fmt.compare("image/i420")) {
-    return Thread::New<yuv_transformer>(this);
+    return Thread::New<YuvTransformer>(this);
+  } else if (!fmt.compare("device/webcam")) {
+    return Thread::New<YuvTransformer>(this);
   }
   
   return 0;
@@ -229,12 +257,12 @@ MediaSource::MediaSource(const std::string &fmt, v8::Local<v8::Function> callbac
   
   NanAssignPersistent(_callback, callback);
   
+  _capturer = WebcamCapturer::New(MediaSource::Format2Worker(fmt));
 }
 
 MediaSource::MediaSource(const std::string &fmt, rtc::scoped_refptr<webrtc::MediaStreamInterface> mediaStream) { // Decoder
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  
+    
 }
 
 MediaSource::MediaSource(const std::string &fmt, rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> mediaStreamTrack) { // Decoder
@@ -406,10 +434,8 @@ void MediaSource::On(Event *event) {
     
     switch (ctx.type) {
       case kMediaSourceNone:
-      case kMediaSourceBuffer:
         break;
       case kMediaSourceImage:
-        printf("MediaSource::On(kMediaSourceImage)\n");
         
         break;
       case kMediaSourceAudio:
