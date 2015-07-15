@@ -49,9 +49,12 @@ void PlatformWorker::Run() {
   [NSTimer scheduledTimerWithTimeInterval:100 target:nil selector:@selector(doFireTimer:) userInfo:nil repeats:YES];
 
   do {
-    //[[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:waitTime]];
     running = [loop runMode:NSDefaultRunLoopMode beforeDate:until];
-    running = rtc::Thread::ProcessMessages(1);
+    
+    if (running) {
+      running = rtc::Thread::ProcessMessages(1);
+    }
+    
     until = [NSDate dateWithTimeIntervalSinceNow:waitTime];
   } while (running);
   
