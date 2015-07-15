@@ -1,6 +1,6 @@
 var WebRTC = require('../');
 
-WebRTC.setDebug(false);
+//WebRTC.setDebug(true);
 
 var capturer = new WebRTC.MediaSource("device/webcam", function() {
   
