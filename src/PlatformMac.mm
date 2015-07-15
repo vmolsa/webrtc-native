@@ -44,18 +44,14 @@ void PlatformWorker::Run() {
   double waitTime = 0.01;
   bool running = false;
   
+  [NSApplication sharedApplication];
   NSRunLoop* loop = [NSRunLoop mainRunLoop];
-  NSDate* until = [NSDate dateWithTimeIntervalSinceNow:waitTime];
   [NSTimer scheduledTimerWithTimeInterval:100 target:nil selector:@selector(doFireTimer:) userInfo:nil repeats:YES];
 
   do {
-    running = [loop runMode:NSDefaultRunLoopMode beforeDate:until];
-    
-    if (running) {
-      running = rtc::Thread::ProcessMessages(1);
-    }
-    
-    until = [NSDate dateWithTimeIntervalSinceNow:waitTime];
+    NSDate* until = [NSDate dateWithTimeIntervalSinceNow:waitTime];
+    [loop runMode:NSDefaultRunLoopMode beforeDate:until];
+    running = rtc::Thread::ProcessMessages(1);
   } while (running);
   
   [pool drain];
