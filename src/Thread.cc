@@ -39,8 +39,12 @@ void EventLoop::Run() {
   bool running = false;
   
   do {
-    running = (uv_run(&_loop, UV_RUN_NOWAIT) != 0) ? true : false;
+    running = EventLoop::Once();
   } while (running);
+}
+
+bool EventLoop::Once() {
+  return (uv_run(&_loop, UV_RUN_NOWAIT) != 0) ? true : false;
 }
 
 uv_loop_t* EventLoop::GetLoop() {

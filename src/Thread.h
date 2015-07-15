@@ -35,6 +35,7 @@ namespace WebRTC {
       virtual ~EventLoop();
       
       virtual void Run();
+      virtual bool Once();
     
       uv_loop_t* GetLoop();
       
