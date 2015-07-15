@@ -90,7 +90,7 @@
             'USE_BACKTRACE',
           ],
           'sources': [
-            'PlatformMac.mm'
+            'PlatformMac.cc'
           ],
         }],
       ],      
