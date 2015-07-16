@@ -1,4 +1,6 @@
-var WEBRTC = require('../');
+var WebRTC = require('../');
+
+//WebRTC.setDebug(true);
 
 function P2P(alice, bob) {
   alice.onicecandidate = function(event) {
@@ -142,8 +144,8 @@ function sctpTest() {
     },
   };
 
-  var alice = new WEBRTC.RTCPeerConnection(config, sctpDataChannelConstraints);
-  var bob = new WEBRTC.RTCPeerConnection(config, sctpDataChannelConstraints);
+  var alice = new WebRTC.RTCPeerConnection(config, sctpDataChannelConstraints);
+  var bob = new WebRTC.RTCPeerConnection(config, sctpDataChannelConstraints);
 
   P2P(alice, bob);
 
@@ -184,8 +186,8 @@ function rtpTest() {
     },
   };
 
-  var alice = new WEBRTC.RTCPeerConnection(config, rtpDataChannelConstraints);
-  var bob = new WEBRTC.RTCPeerConnection(config, rtpDataChannelConstraints);
+  var alice = new WebRTC.RTCPeerConnection(config, rtpDataChannelConstraints);
+  var bob = new WebRTC.RTCPeerConnection(config, rtpDataChannelConstraints);
 
   P2P(alice, bob);
 
