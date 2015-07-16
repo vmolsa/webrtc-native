@@ -4,6 +4,8 @@ var tape = require('tape');
 var SimplePeer = require('simple-peer');
 var wrtc = require('..');
 
+//wrtc.setDebug(true);
+
 tape('connect once', function(t) {
     t.plan(1);
     console.log('###########################\n');
@@ -72,13 +74,13 @@ function connect(callback) {
 
     // when peer1 has signaling data, give it to peer2, and vice versa
     peer1.on('signal', function(data) {
-        console.log(connName, 'signal peer1 -> peer2:');
-        console.log(' ', data);
+        //console.log(connName, 'signal peer1 -> peer2:');
+        //console.log(' ', data);
         peer2.signal(data);
     });
     peer2.on('signal', function(data) {
-        console.log(connName, 'signal peer2 -> peer1:');
-        console.log(' ', data);
+        //console.log(connName, 'signal peer2 -> peer1:');
+        //console.log(' ', data);
         peer1.signal(data);
     });
 
@@ -94,12 +96,12 @@ function connect(callback) {
 
     // wait for 'connect' event
     peer1.on('connect', function() {
-        console.log(connName, 'sending message');
+        //console.log(connName, 'sending message');
         peer1.send('peers are for kids');
     });
 
     peer2.on('data', function() {
-        console.log(connName, 'completed');
+        //console.log(connName, 'completed');
 
         clearTimeout(timeout);
 
