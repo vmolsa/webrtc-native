@@ -34,9 +34,9 @@
 
 using namespace WebRTC;
 
-class PlatformWorker : public rtc::Thread {
+class PlatformWorker : public rtc::Win32SocketServer, public rtc::Thread {
   public:
-    PlatformWorker(rtc::SocketServer *server) : rtc::Thread(server) {
+    PlatformWorker() : rtc::Win32SocketServer(this), rtc::Thread(this) {
       LOG(LS_INFO) << __PRETTY_FUNCTION__;
     }
     
@@ -45,8 +45,7 @@ class PlatformWorker : public rtc::Thread {
     }
 };
 
-rtc::Win32SocketServer server;
-PlatformWorker worker(&server);
+PlatformWorker worker;
 uv_prepare_t runLoop;
 
 void OnRunLoop(uv_prepare_t *handle) {
