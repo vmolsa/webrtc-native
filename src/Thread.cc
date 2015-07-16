@@ -51,8 +51,10 @@ uv_loop_t* EventLoop::GetLoop() {
   return &_loop;
 }
 
-Thread::Thread(EventEmitter *listener) : EventEmitter(EventLoop::GetLoop()), _listener(listener) {
+Thread::Thread(EventEmitter *listener) : EventEmitter(EventLoop::GetLoop()) {
   EventEmitter::SetReference(true);
+  EventEmitter::AddListener(listener);
+  
   (void) uv_thread_create(&_worker, Thread::onStart, this);
 }
 
@@ -65,24 +67,9 @@ void Thread::Run() {
 }
 
 void Thread::End() {
+  EventEmitter::RemoveAllListeners();
   EventEmitter::SetReference(false);
   uv_thread_join(&_worker);
-}
-
-void Thread::SetEmitter(EventEmitter *listener) {
-  _listener = listener;
-}
-
-void Thread::Notify(Event *event) {
-  if (_listener) {
-    _listener->Emit(event);
-  }
-}
-
-void Thread::Notify(int event) {
-  if (_listener) {
-    _listener->Emit(event);
-  }
 }
 
 void Thread::onStart(void *arg) {

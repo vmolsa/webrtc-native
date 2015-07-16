@@ -35,13 +35,17 @@
 #include <queue>
 #include <string>
 #include <uv.h>
+
 #include "webrtc/base/logging.h"
+#include "webrtc/base/refcount.h"
+#include "webrtc/base/scoped_ref_ptr.h"
 
 namespace WebRTC { 
   template<class T> class EventWrapper;
   
-  class Event {
+  class Event : public rtc::RefCountInterface {
     template<class T> friend class EventWrapper;
+    friend class rtc::RefCountedObject<Event>;
     friend class EventEmitter;
     
    public:
@@ -89,6 +93,7 @@ namespace WebRTC {
   };
   
   template<class T> class EventWrapper : public Event {
+    friend class rtc::RefCountedObject<EventWrapper<T> >;
     friend class Event;
     friend class EventEmitter;
 
@@ -104,34 +109,56 @@ namespace WebRTC {
 
    protected:
     T _content;
-  };  
-
-  class EventEmitter {    
+  };
+  
+  class EventEmitter {
+    friend class NotifyEmitter;
+     
    public:
-    explicit EventEmitter(uv_loop_t *loop = 0);
+    explicit EventEmitter(uv_loop_t *loop = 0, bool notify = false);
     virtual ~EventEmitter();
     
+    void AddListener(EventEmitter *listener = 0);
+    void RemoveListener(EventEmitter *listener = 0);
+    void RemoveAllListeners();
+
     void SetReference(bool alive = true);
-    void Emit(Event *event);  
-    void Emit(int event = 0);
     
+    void Emit(int event = 0);
+    void Emit(rtc::scoped_refptr<Event> event);
+
     template <class T> inline void Emit(int event, const T &content) {
-      LOG(LS_INFO) << __PRETTY_FUNCTION__;    
-      EventWrapper<T> *wrap = new EventWrapper<T>(event, content);
-      EventEmitter::Emit(wrap);
+      LOG(LS_INFO) << __PRETTY_FUNCTION__;
+      EventEmitter::Emit(new rtc::RefCountedObject<EventWrapper<T> >(event, content));
     }
     
     virtual void On(Event *event) = 0;
     
-   private:
+   private:   
     static void onAsync(uv_async_t *handle, int status);
     static void onEnded(uv_handle_t *handle);
+    
+    void Dispose();
     void DispatchEvents();
     
+    void AddParent(EventEmitter *listener = 0);
+    void RemoveParent(EventEmitter *listener = 0);
+    
    protected:
+    bool _notify;
     uv_mutex_t _lock;
+    uv_mutex_t _list;
     uv_async_t* _async;
-    std::queue<Event*> _events;
+    std::queue<rtc::scoped_refptr<Event> > _events;
+    std::vector<EventEmitter*> _listeners;
+    std::vector<EventEmitter*> _parents;
+  };
+  
+  class NotifyEmitter : public EventEmitter {
+   public:
+    NotifyEmitter(EventEmitter *listener = 0);
+    
+    virtual void On(Event *event);
   };
 };
 

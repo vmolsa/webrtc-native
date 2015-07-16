@@ -68,7 +68,8 @@
 
 namespace WebRTC {
   enum PeerConnectionEvent {
-    kPeerConnectionCreateOffer = 1,
+    kPeerConnectionCreateClosed = 1,
+    kPeerConnectionCreateOffer,
     kPeerConnectionCreateOfferError,
     kPeerConnectionCreateAnswer,
     kPeerConnectionCreateAnswerError,
@@ -101,62 +102,46 @@ namespace WebRTC {
     kMediaStreamTrackChanged
   };
   
-  class OfferObserver : public webrtc::CreateSessionDescriptionObserver {
+  class OfferObserver : public webrtc::CreateSessionDescriptionObserver, public NotifyEmitter {
    public:
     OfferObserver(EventEmitter *listener = 0);
     
-    void SetEmitter(EventEmitter *listener = 0);
     void OnSuccess(webrtc::SessionDescriptionInterface* sdp) final;
     void OnFailure(const std::string &error) final;
-    
-   protected:
-    EventEmitter* _listener;
   };
   
-  class AnswerObserver : public webrtc::CreateSessionDescriptionObserver {    
+  class AnswerObserver : public webrtc::CreateSessionDescriptionObserver, public NotifyEmitter {    
    public:
     AnswerObserver(EventEmitter *listener = 0);
-   
-    void SetEmitter(EventEmitter *listener = 0);
+    
     void OnSuccess(webrtc::SessionDescriptionInterface* sdp) final;
     void OnFailure(const std::string &error) final;
-    
-   protected:
-    EventEmitter* _listener;
   };
 
-  class LocalDescriptionObserver : public webrtc::SetSessionDescriptionObserver {
+  class LocalDescriptionObserver : public webrtc::SetSessionDescriptionObserver, public NotifyEmitter {
    public:
     LocalDescriptionObserver(EventEmitter *listener = 0);
-    
-    void SetEmitter(EventEmitter *listener = 0);
+
     void OnSuccess() final;
     void OnFailure(const std::string &error) final;
-
-   protected:
-    EventEmitter* _listener;
   };
     
-  class RemoteDescriptionObserver : public webrtc::SetSessionDescriptionObserver {    
+  class RemoteDescriptionObserver : public webrtc::SetSessionDescriptionObserver, public NotifyEmitter {    
    public:
     RemoteDescriptionObserver(EventEmitter *listener = 0);
     
-    void SetEmitter(EventEmitter *listener = 0);
     void OnSuccess() final;
     void OnFailure(const std::string &error) final;
-
-   protected:
-    EventEmitter* _listener;
   };
   
   class PeerConnectionObserver : 
     public webrtc::PeerConnectionObserver, 
-    public rtc::RefCountInterface 
+    public rtc::RefCountInterface,
+    public NotifyEmitter
   {
    public:
     PeerConnectionObserver(EventEmitter *listener = 0);
     
-    void SetEmitter(EventEmitter *listener = 0);
     void OnSignalingChange(webrtc::PeerConnectionInterface::SignalingState state) final;
     void OnIceConnectionChange(webrtc::PeerConnectionInterface::IceConnectionState state) final;
     void OnIceGatheringChange(webrtc::PeerConnectionInterface::IceGatheringState state) final;
@@ -167,63 +152,47 @@ namespace WebRTC {
 
     void OnAddStream(webrtc::MediaStreamInterface* stream) final;
     void OnRemoveStream(webrtc::MediaStreamInterface* stream) final;
-
-   protected:
-    EventEmitter* _listener;
   };
   
   class DataChannelObserver : 
     public webrtc::DataChannelObserver, 
-    public rtc::RefCountInterface 
+    public rtc::RefCountInterface,
+    public NotifyEmitter 
   {
    public:
     DataChannelObserver(EventEmitter *listener = 0);
-    
-    void SetEmitter(EventEmitter *listener = 0);
+
     void OnStateChange() final;
     void OnMessage(const webrtc::DataBuffer& buffer) final;
-    
-   protected:
-    EventEmitter* _listener;
   };
 
   class MediaStreamObserver :
     public webrtc::ObserverInterface,
-    public rtc::RefCountInterface
+    public rtc::RefCountInterface,
+    public NotifyEmitter 
   {
    public:
      MediaStreamObserver(EventEmitter *listener = 0);
      
-     void SetEmitter(EventEmitter *listener = 0);
      void OnChanged() final;
-
-   protected:
-    EventEmitter* _listener;
   };
 
   class MediaStreamTrackObserver :
     public webrtc::ObserverInterface,
-    public rtc::RefCountInterface
+    public rtc::RefCountInterface,
+    public NotifyEmitter
   {
    public:
     MediaStreamTrackObserver(EventEmitter *listener = 0);
     
-    void SetEmitter(EventEmitter *listener = 0);
     void OnChanged() final;
-
-   protected:
-    EventEmitter* _listener;
   };
 
-  class StatsObserver : public webrtc::StatsObserver {
+  class StatsObserver : public webrtc::StatsObserver, public NotifyEmitter {
    public:
     StatsObserver(EventEmitter *listener = 0);
-    
-    void SetEmitter(EventEmitter *listener = 0);
-    void OnComplete(const webrtc::StatsReports& reports) final;
 
-   protected:
-    EventEmitter* _listener;
+    void OnComplete(const webrtc::StatsReports& reports) final;
   };
 };
 

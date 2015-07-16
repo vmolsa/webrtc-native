@@ -28,7 +28,7 @@
 using namespace WebRTC;
 
 OfferObserver::OfferObserver(EventEmitter *listener) : 
-  _listener(listener) { }
+  NotifyEmitter(listener) { }
 
 void OfferObserver::OnSuccess(webrtc::SessionDescriptionInterface* desc) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
@@ -41,31 +41,19 @@ void OfferObserver::OnSuccess(webrtc::SessionDescriptionInterface* desc) {
     msg["type"] = desc->type();
     msg["sdp"] = sdp;
 
-    if (_listener) {
-      _listener->Emit(kPeerConnectionCreateOffer, writer.write(msg));
-    }
+    Emit(kPeerConnectionCreateOffer, writer.write(msg));
   }
-}
-
-void OfferObserver::SetEmitter(EventEmitter *listener) {
-  _listener = listener;
 }
 
 void OfferObserver::OnFailure(const std::string &error) {
   LOG(LS_ERROR) << __PRETTY_FUNCTION__;
   
-  if (_listener) {
-    _listener->Emit(kPeerConnectionCreateOfferError, error);
-  }
+  Emit(kPeerConnectionCreateOfferError, error);
 }
 
 AnswerObserver::AnswerObserver(EventEmitter *listener) : 
-  _listener(listener) { }
- 
-void AnswerObserver::SetEmitter(EventEmitter *listener) {
-  _listener = listener;
-}
-   
+  NotifyEmitter(listener) { }
+  
 void AnswerObserver::OnSuccess(webrtc::SessionDescriptionInterface* desc) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
@@ -77,99 +65,69 @@ void AnswerObserver::OnSuccess(webrtc::SessionDescriptionInterface* desc) {
     msg["type"] = desc->type();
     msg["sdp"] = sdp;
     
-    if (_listener) {
-      _listener->Emit(kPeerConnectionCreateAnswer, writer.write(msg));
-    }
+    Emit(kPeerConnectionCreateAnswer, writer.write(msg));
   }
 }
 
 void AnswerObserver::OnFailure(const std::string &error) {
   LOG(LS_ERROR) << __PRETTY_FUNCTION__;
   
-  if (_listener) {
-    _listener->Emit(kPeerConnectionCreateAnswerError, error);
-  }
+  Emit(kPeerConnectionCreateAnswerError, error);
 }
 
 LocalDescriptionObserver::LocalDescriptionObserver(EventEmitter *listener) : 
-  _listener(listener) { }
+  NotifyEmitter(listener) { }
 
-void LocalDescriptionObserver::SetEmitter(EventEmitter *listener) {
-  _listener = listener;
-}
-    
 void LocalDescriptionObserver::OnSuccess() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  if (_listener) {
-    _listener->Emit(kPeerConnectionSetLocalDescription);
-  }
+  Emit(kPeerConnectionSetLocalDescription);
 }
 
 void LocalDescriptionObserver::OnFailure(const std::string &error) {
   LOG(LS_ERROR) << __PRETTY_FUNCTION__;
   
-  if (_listener) {
-    _listener->Emit(kPeerConnectionSetLocalDescriptionError, error);
-  }
+  Emit(kPeerConnectionSetLocalDescriptionError, error);
 }
 
 RemoteDescriptionObserver::RemoteDescriptionObserver(EventEmitter *listener) : 
-  _listener(listener) { }
+  NotifyEmitter(listener) { }
 
-void RemoteDescriptionObserver::SetEmitter(EventEmitter *listener) {
-  _listener = listener;
-}
-    
 void RemoteDescriptionObserver::OnSuccess() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  if (_listener) {
-    _listener->Emit(kPeerConnectionSetRemoteDescription);
-  }
+  Emit(kPeerConnectionSetRemoteDescription);
 }
 
 void RemoteDescriptionObserver::OnFailure(const std::string &error) {
   LOG(LS_ERROR) << __PRETTY_FUNCTION__;
   
-  if (_listener) {
-    _listener->Emit(kPeerConnectionSetRemoteDescriptionError, error);
-  }
+  Emit(kPeerConnectionSetRemoteDescriptionError, error);
 }
 
 PeerConnectionObserver::PeerConnectionObserver(EventEmitter *listener) : 
-  _listener(listener) { }
-
-void PeerConnectionObserver::SetEmitter(EventEmitter *listener) {
-  _listener = listener;
-}
+  NotifyEmitter(listener) { }
 
 void PeerConnectionObserver::OnSignalingChange(webrtc::PeerConnectionInterface::SignalingState state) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  if (_listener) {
-    _listener->Emit(kPeerConnectionSignalChange);
+  Emit(kPeerConnectionSignalChange);
   
-    if (state == webrtc::PeerConnectionInterface::kClosed) {
-      _listener->SetReference(false);
-    }
+  if (state == webrtc::PeerConnectionInterface::kClosed) {
+    Emit(kPeerConnectionCreateClosed);
   }
 }
 
 void PeerConnectionObserver::OnIceConnectionChange(webrtc::PeerConnectionInterface::IceConnectionState state) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  if (_listener) {
-    _listener->Emit(kPeerConnectionIceChange);
-  }
+  Emit(kPeerConnectionIceChange);
 }
 
 void PeerConnectionObserver::OnIceGatheringChange(webrtc::PeerConnectionInterface::IceGatheringState state) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  if (_listener) {
-    _listener->Emit(kPeerConnectionIceGathering);
-  }
+  Emit(kPeerConnectionIceGathering);
 }
 
 void PeerConnectionObserver::OnStateChange(webrtc::PeerConnectionObserver::StateType state) {
@@ -181,8 +139,8 @@ void PeerConnectionObserver::OnDataChannel(webrtc::DataChannelInterface *channel
   
   rtc::scoped_refptr<webrtc::DataChannelInterface> dataChannel = channel;
   
-  if (dataChannel.get() && _listener) {
-    _listener->Emit(kPeerConnectionDataChannel, dataChannel);
+  if (dataChannel.get()) {
+    Emit(kPeerConnectionDataChannel, dataChannel);
   }
 }
 
@@ -191,8 +149,8 @@ void PeerConnectionObserver::OnAddStream(webrtc::MediaStreamInterface *stream) {
   
   rtc::scoped_refptr<webrtc::MediaStreamInterface> mediaStream = stream;
 
-  if (mediaStream.get() && _listener) {
-    _listener->Emit(kPeerConnectionAddStream, mediaStream);
+  if (mediaStream.get()) {
+    Emit(kPeerConnectionAddStream, mediaStream);
   }
 }
 
@@ -201,17 +159,15 @@ void PeerConnectionObserver::OnRemoveStream(webrtc::MediaStreamInterface *stream
   
   rtc::scoped_refptr<webrtc::MediaStreamInterface> mediaStream = stream;
 
-  if (mediaStream.get() && _listener) {
-    _listener->Emit(kPeerConnectionRemoveStream, mediaStream);
+  if (mediaStream.get()) {
+    Emit(kPeerConnectionRemoveStream, mediaStream);
   }
 }
 
 void PeerConnectionObserver::OnRenegotiationNeeded() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  if (_listener) {
-    _listener->Emit(kPeerConnectionRenegotiation);
-  }
+  Emit(kPeerConnectionRenegotiation);
 }
 
 void PeerConnectionObserver::OnIceCandidate(const webrtc::IceCandidateInterface* candidate) {
@@ -226,80 +182,52 @@ void PeerConnectionObserver::OnIceCandidate(const webrtc::IceCandidateInterface*
     msg["sdpMLineIndex"] = candidate->sdp_mline_index();
     msg["candidate"] = sdp;
     
-    if (_listener) {
-      _listener->Emit(kPeerConnectionIceCandidate, writer.write(msg));
-    }
+    Emit(kPeerConnectionIceCandidate, writer.write(msg));
   }
 }
 
 DataChannelObserver::DataChannelObserver(EventEmitter *listener) : 
-  _listener(listener) { }
+  NotifyEmitter(listener) { }
 
-void DataChannelObserver::SetEmitter(EventEmitter *listener) {
-  _listener = listener;
-}
-  
 void DataChannelObserver::OnStateChange() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  if (_listener) {
-    _listener->Emit(kDataChannelStateChange);
-  }
+
+  Emit(kDataChannelStateChange);
 }
 
 void DataChannelObserver::OnMessage(const webrtc::DataBuffer& buffer) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  if (_listener) {
-    if (buffer.binary) {
-      _listener->Emit(kDataChannelBinary, buffer.data);
-    } else {
-      _listener->Emit(kDataChannelData, buffer.data);
-    }
+  if (buffer.binary) {
+    Emit(kDataChannelBinary, buffer.data);
+  } else {
+    Emit(kDataChannelData, buffer.data);
   }
 }
 
 MediaStreamObserver::MediaStreamObserver(EventEmitter *listener) :
-  _listener(listener) { }
+  NotifyEmitter(listener) { }
 
 void MediaStreamObserver::OnChanged() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  if (_listener) {
-    _listener->Emit(kMediaStreamChanged);
-  }
-}
-
-void MediaStreamObserver::SetEmitter(EventEmitter *listener) {
-  _listener = listener;
+  Emit(kMediaStreamChanged);
 }
 
 MediaStreamTrackObserver::MediaStreamTrackObserver(EventEmitter *listener) :
-  _listener(listener) { }
-
-void MediaStreamTrackObserver::SetEmitter(EventEmitter *listener) {
-  _listener = listener;
-}
+  NotifyEmitter(listener) { }
 
 void MediaStreamTrackObserver::OnChanged() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  if (_listener) {
-    _listener->Emit(kMediaStreamTrackChanged);
-  }
+  Emit(kMediaStreamTrackChanged);
 }
 
 StatsObserver::StatsObserver(EventEmitter *listener) :
-  _listener(listener) { }
-
-void StatsObserver::SetEmitter(EventEmitter *listener) {
-  _listener = listener;
-}
+  NotifyEmitter(listener) { }
 
 void StatsObserver::OnComplete(const webrtc::StatsReports &reports) {
   LOG(LS_INFO) << "StatsObserver::OnComplete()";
   
-  if (_listener) {
-    _listener->Emit(kPeerConnectionStats, reports);
-  }
+  Emit(kPeerConnectionStats, reports);
 }

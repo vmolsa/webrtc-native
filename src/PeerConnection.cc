@@ -184,12 +184,12 @@ PeerConnection::~PeerConnection() {
     }
   }
   
-  _stats->SetEmitter();
-  _offer->SetEmitter();
-  _answer->SetEmitter();
-  _local->SetEmitter();
-  _remote->SetEmitter();
-  _peer->SetEmitter();
+  _stats->RemoveListener(this);
+  _offer->RemoveListener(this);
+  _answer->RemoveListener(this);
+  _local->RemoveListener(this);
+  _remote->RemoveListener(this);
+  _peer->RemoveListener(this);
 }
 
 webrtc::PeerConnectionInterface *PeerConnection::GetSocket() {
@@ -1022,6 +1022,10 @@ void PeerConnection::On(Event *event) {
   int argc = 0;
   
   switch (type) {
+    case kPeerConnectionCreateClosed:
+      EventEmitter::SetReference(false);
+      
+      break;
     case kPeerConnectionCreateOffer:
       callback = NanNew(_offerCallback);
       

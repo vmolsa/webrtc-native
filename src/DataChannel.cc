@@ -116,7 +116,7 @@ DataChannel::~DataChannel() {
   
   if (_socket.get()) {  
     _socket->UnregisterObserver();
-    _observer->SetEmitter();
+    _observer->RemoveListener(this);
     
     webrtc::DataChannelInterface::DataState state(_socket->state());
     

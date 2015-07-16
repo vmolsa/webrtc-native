@@ -53,17 +53,6 @@ namespace WebRTC {
       explicit Thread(EventEmitter *listener = 0);
       virtual ~Thread();
       
-      void SetEmitter(EventEmitter *listener = 0);
-      
-      void Notify(int event = 0);
-      void Notify(Event *event);
-    
-      template <class T> inline void Notify(int event, const T &content) {
-        if (_listener) {
-          _listener->Emit(event, content);
-        }
-      }
-
       virtual void Run();
       void End();
     
@@ -71,7 +60,6 @@ namespace WebRTC {
       static void onStart(void *arg);
     
     protected:
-      EventEmitter* _listener;
       uv_thread_t _worker;
   };
 };

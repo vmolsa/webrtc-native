@@ -88,7 +88,7 @@ class YuvTransformer : public Thread {
         case kMediaSourceDecode:
           break;
         case kMediaSourceEncode:
-          Notify(kMediaSourceData, event->Unwrap<MediaSourceImage>());
+          Emit(kMediaSourceData, event->Unwrap<MediaSourceImage>());
           break;
       }
     }
@@ -109,7 +109,7 @@ WebcamCapturer::WebcamCapturer(Thread *worker) : _worker(worker) {
   capability.width = 1024;
   capability.height = 720;
   capability.rawType = webrtc::kVideoYV12;
-  capability.maxFPS = 30; 
+  capability.maxFPS = 30;
   
   _deviceInfo.reset(webrtc::VideoCaptureFactory::CreateDeviceInfo(0));
   _deviceInfo->GetDeviceName(device, device_name, 256, unique_name, 256);
@@ -129,13 +129,9 @@ void WebcamCapturer::End() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   if (_worker) {
-    Thread *worker = _worker;
+    _worker->End();
+    delete _worker;
     _worker = 0;
-    
-    worker->SetEmitter();
-    worker->End();
-    
-    delete worker;
   }
 }
 
@@ -201,13 +197,9 @@ void VideoRenderer::End() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   if (_worker) {
-    Thread *worker = _worker;
+    _worker->End();
+    delete _worker;
     _worker = 0;
-    
-    worker->SetEmitter();
-    worker->End();
-    
-    delete worker;
   }
   
   if (_track.get()) {
@@ -436,10 +428,10 @@ void MediaSource::On(Event *event) {
       case kMediaSourceNone:
         break;
       case kMediaSourceImage:
+        printf("MediaSource::On()\n");
         
         break;
       case kMediaSourceAudio:
-        
         
         break;
     }

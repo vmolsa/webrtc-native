@@ -109,7 +109,7 @@ MediaStream::~MediaStream() {
   
   if (_stream.get()) {
     _stream->UnregisterObserver(_observer.get());
-    _observer->SetEmitter();
+    _observer->RemoveListener(this);
   }
 }
 

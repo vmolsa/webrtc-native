@@ -134,7 +134,7 @@ MediaStreamTrack::~MediaStreamTrack() {
   
   if (_track.get()) {
     _track->UnregisterObserver(_observer.get());
-    _observer->SetEmitter();
+    _observer->RemoveListener(this);
   }
 }
 
