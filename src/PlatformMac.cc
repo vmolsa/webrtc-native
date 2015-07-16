@@ -55,6 +55,7 @@ void Platform::Init() {
   
   uv_prepare_init(uv_default_loop(), &runLoop);
   uv_prepare_start(&runLoop, OnRunLoop);
+  uv_unref(reinterpret_cast<uv_handle_t*>(&runLoop));
 }
 
 void Platform::Dispose() {
