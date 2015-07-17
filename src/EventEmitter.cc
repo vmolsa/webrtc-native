@@ -102,7 +102,7 @@ void EventEmitter::RemoveListener(EventEmitter *listener) {
         break;
       }
     }
-        
+    
     uv_mutex_unlock(&_list);
   }
 }
@@ -124,13 +124,11 @@ void EventEmitter::RemoveAllListeners() {
 
 void EventEmitter::Dispose() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  std::vector<EventEmitter*>::iterator index;
-  
-  for (index = _parents.begin(); index < _parents.end(); index++) {
-    (*index)->RemoveListener(this);
+
+  if (_parents.size()) {
+    LOG(LS_ERROR) << "EventEmitter::Dispose()";
   }
-  
+
   if (!_notify) {
     while (!_events.empty()) {
       rtc::scoped_refptr<Event> event = _events.front();

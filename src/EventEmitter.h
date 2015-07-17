@@ -134,7 +134,7 @@ namespace WebRTC {
     
     virtual void On(Event *event) = 0;
     
-   private:   
+   private:
     static void onAsync(uv_async_t *handle, int status);
     static void onEnded(uv_handle_t *handle);
     
