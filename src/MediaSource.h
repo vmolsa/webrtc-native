@@ -38,78 +38,72 @@
 #include "webrtc/modules/video_capture/include/video_capture_factory.h"
 #include "webrtc/modules/utility/interface/process_thread.h"
 
-namespace WebRTC {
-  class WebcamCapturer : public webrtc::VideoCaptureDataCallback, public rtc::RefCountInterface {
-      friend class rtc::RefCountedObject<WebcamCapturer>;
+namespace WebRTC { 
+  enum MediaSourceEvent {
+    kMediaSourceImage = 1,
+    kMediaSourceAudio,
+    kMediaSourceData,
+  };
+
+  class MediaSourceImage {
     public:
-      static rtc::scoped_refptr<WebcamCapturer> New(Thread *worker = 0);
+      explicit MediaSourceImage();
+    
+      int width;
+      int height;
       
-      void End();
-    private:
-      explicit WebcamCapturer(Thread *worker = 0);
-      virtual ~WebcamCapturer();
-     
-      virtual void OnIncomingCapturedFrame(const int32_t id, const webrtc::VideoFrame& frame);
-      virtual void OnCaptureDelayChanged(const int32_t id, const int32_t delay);
-      
-    protected:
-      rtc::scoped_ptr<webrtc::VideoCaptureModule::DeviceInfo> _deviceInfo;
-      rtc::scoped_refptr<webrtc::VideoCaptureModule> _module;
-      Thread* _worker;
+      std::string mime;
+      rtc::Buffer buffer;
   };
   
-  class VideoRenderer : public webrtc::VideoRendererInterface, public rtc::RefCountInterface {
-      friend class rtc::RefCountedObject<VideoRenderer>;
+  class MediaSourceAudio {
     public:
-      static rtc::scoped_refptr<VideoRenderer> New(webrtc::MediaStreamTrackInterface *track = 0, Thread *worker = 0);
-      
-      void End();
+      explicit MediaSourceAudio();
     
-    private:
-      explicit VideoRenderer(webrtc::MediaStreamTrackInterface *track = 0, Thread *worker = 0);
-      virtual ~VideoRenderer();
-     
-      virtual void RenderFrame(const cricket::VideoFrame* frame);
-            
-    protected:
-      rtc::scoped_refptr<webrtc::VideoTrackInterface> _track;
-      Thread* _worker;
+      int bits;
+      int rate;
+      int channels;
+      int frames;
+      
+      std::string mime;
+      rtc::Buffer buffer;
   };
   
   class MediaSource : public RTCWrap, public EventEmitter { 
     public:
-      static void Init(v8::Handle<v8::Object> exports);
+      explicit MediaSource();
+      virtual ~MediaSource();
+      
+      static void Init(v8::Local<v8::Object> exports);
+
+      bool Connect(MediaSource *source = 0);
+      bool Disconnect(MediaSource *source = 0);
+            
+      virtual bool End(v8::Local<v8::Value> data) = 0;
+      virtual bool Write(v8::Local<v8::Value> data) = 0;
       
     private:
-      explicit MediaSource(const std::string &fmt, v8::Local<v8::Function> callback);
-      MediaSource(const std::string &fmt, rtc::scoped_refptr<webrtc::MediaStreamInterface> mediaStream);
-      MediaSource(const std::string &fmt, rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> mediaStreamTrack);
-      ~MediaSource() final;
-      
-      Thread *Format2Worker(const std::string &fmt);
-      
       static NAN_METHOD(New);
+      static NAN_METHOD(Connect);
+      static NAN_METHOD(Disconnect);
       static NAN_METHOD(Write);
       static NAN_METHOD(End);
 
       static NAN_GETTER(OnData);
       static NAN_GETTER(OnError);
       
-      static NAN_SETTER(ReadOnly);
       static NAN_SETTER(OnData);
       static NAN_SETTER(OnError);
       
-      void On(Event *event) final;
+      virtual void On(Event *event);
       
-    protected:   
-      v8::Persistent<v8::Function> _callback;
+    protected:
+      bool _callback;
+      
       v8::Persistent<v8::Function> _ondata;
       v8::Persistent<v8::Function> _onerror;
       
-      rtc::scoped_refptr<VideoRenderer> _renderer;
-      rtc::scoped_refptr<WebcamCapturer> _capturer;
-      
-      static v8::Persistent<v8::Function> constructor;
+      static v8::Persistent<v8::Object> constructor;
   };
 };
 

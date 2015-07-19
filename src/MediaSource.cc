@@ -25,202 +25,18 @@
 
 #include "ArrayBuffer.h"
 #include "MediaSource.h"
+#include "WebcamCapturer.h"
+#include "MediaStreamCapturer.h"
 
 using namespace v8;
 using namespace WebRTC;
 
-Persistent<Function> MediaSource::constructor;
+MediaSourceImage::MediaSourceImage() { }
+MediaSourceAudio::MediaSourceAudio() { }
 
-enum MediaSourceEvent {
-  kMediaSourceData = 1,
-  kMediaSourceEncode,
-  kMediaSourceDecode,
-};
+Persistent<Object> MediaSource::constructor;
 
-enum MediaSourceType {
-  kMediaSourceNone = 1,
-  kMediaSourceImage,
-  kMediaSourceAudio,
-};
-
-class MediaSourceContext {
-  public:
-    explicit MediaSourceContext(MediaSourceType contentType = kMediaSourceNone) : type(contentType) { }
-    
-    MediaSourceType type;
-};
-
-class MediaSourceImage : public MediaSourceContext {
-  public:
-    MediaSourceImage() : MediaSourceContext(kMediaSourceImage) { }
-  
-    size_t width;
-    size_t height;
-    
-    std::string mime;
-    rtc::Buffer buffer;
-};
-
-class MediaSourceAudio : public MediaSourceContext {
-  public:
-    MediaSourceAudio() : MediaSourceContext(kMediaSourceAudio) { }
-  
-    int bits;
-    int rate;
-    int channels;
-    int frames;
-    
-    std::string mime;
-    rtc::Buffer buffer;
-};
-
-class YuvTransformer : public Thread {
-  public:
-    YuvTransformer(EventEmitter *listener) : Thread(listener) { }
-
-    void On(Event *event) final {
-      LOG(LS_INFO) << __PRETTY_FUNCTION__;
-      
-      MediaSourceEvent type = event->Type<MediaSourceEvent>();
-
-      switch (type) {
-        case kMediaSourceData:
-        case kMediaSourceDecode:
-          break;
-        case kMediaSourceEncode:
-          Emit(kMediaSourceData, event->Unwrap<MediaSourceImage>());
-          break;
-      }
-    }
-};
-
-rtc::scoped_refptr<WebcamCapturer> WebcamCapturer::New(Thread *worker) {
-  return new rtc::RefCountedObject<WebcamCapturer>(worker);
-}
-
-WebcamCapturer::WebcamCapturer(Thread *worker) : _worker(worker) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  unsigned int device = 0;
-  char device_name[256];
-  char unique_name[256];
-  webrtc::VideoCaptureCapability capability;
-  
-  capability.width = 1024;
-  capability.height = 720;
-  capability.rawType = webrtc::kVideoYV12;
-  capability.maxFPS = 30;
-  
-  _deviceInfo.reset(webrtc::VideoCaptureFactory::CreateDeviceInfo(0));
-  _deviceInfo->GetDeviceName(device, device_name, 256, unique_name, 256);
-  
-  _module = webrtc::VideoCaptureFactory::Create(device, unique_name);
-  _module->RegisterCaptureDataCallback(*(this));
-  _module->StartCapture(capability);
-}
-
-WebcamCapturer::~WebcamCapturer() {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  WebcamCapturer::End();
-}
-
-void WebcamCapturer::End() {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  if (_worker) {
-    _worker->End();
-    delete _worker;
-    _worker = 0;
-  }
-}
-
-void WebcamCapturer::OnIncomingCapturedFrame(const int32_t id, const webrtc::VideoFrame& frame) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  MediaSourceImage image;
-
-  image.mime = std::string("image/i420");
-  image.width = frame.width();
-  image.height = frame.height();
-  image.buffer = rtc::Buffer(frame.buffer(webrtc::kYPlane), frame.allocated_size(webrtc::kYPlane));
-
-  if (_worker) {
-    _worker->Emit(kMediaSourceEncode, image);
-  }
-}
-
-void WebcamCapturer::OnCaptureDelayChanged(const int32_t id, const int32_t delay) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-}
-
-rtc::scoped_refptr<VideoRenderer> VideoRenderer::New(webrtc::MediaStreamTrackInterface *track, Thread *worker) {
-  return new rtc::RefCountedObject<VideoRenderer>(track, worker);
-}
-
-VideoRenderer::VideoRenderer(webrtc::MediaStreamTrackInterface *track, Thread *worker) : 
-  _track(static_cast<webrtc::VideoTrackInterface*>(track)), 
-  _worker(worker)
-{
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  if (_track.get()) {
-    _track->AddRenderer(this);
-  }
-}
-      
-VideoRenderer::~VideoRenderer() {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  VideoRenderer::End();
-}
-
-void VideoRenderer::RenderFrame(const cricket::VideoFrame* frame) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  size_t total = frame->CopyToBuffer(0, 0); // Get Buffer Size
-  MediaSourceImage image;
-  
-  image.mime = std::string("image/i420");
-  image.width = frame->GetWidth();
-  image.height = frame->GetHeight();
-  image.buffer = rtc::Buffer(total);
-  
-  frame->CopyToBuffer(image.buffer.data(), image.buffer.size());
-  
-  if (_worker) {
-    _worker->Emit(kMediaSourceEncode, image);
-  }
-}
-
-void VideoRenderer::End() {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  if (_worker) {
-    _worker->End();
-    delete _worker;
-    _worker = 0;
-  }
-  
-  if (_track.get()) {
-    _track->RemoveRenderer(this);
-    (void) _track.release();
-  }
-}
-
-Thread *MediaSource::Format2Worker(const std::string &fmt) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  if (!fmt.compare("image/i420")) {
-    return Thread::New<YuvTransformer>(this);
-  } else if (!fmt.compare("device/webcam")) {
-    return Thread::New<YuvTransformer>(this);
-  }
-  
-  return 0;
-}
-
-void MediaSource::Init(Handle<Object> exports) {
+void MediaSource::Init(Local<Object> exports) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   NanScope();
@@ -229,6 +45,8 @@ void MediaSource::Init(Handle<Object> exports) {
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->SetClassName(NanNew("MediaSource"));
   
+  tpl->PrototypeTemplate()->Set(NanNew("connect"), NanNew<FunctionTemplate>(MediaSource::Connect)->GetFunction());
+  tpl->PrototypeTemplate()->Set(NanNew("disconnect"), NanNew<FunctionTemplate>(MediaSource::Disconnect)->GetFunction());
   tpl->PrototypeTemplate()->Set(NanNew("write"), NanNew<FunctionTemplate>(MediaSource::Write)->GetFunction());
   tpl->PrototypeTemplate()->Set(NanNew("end"), NanNew<FunctionTemplate>(MediaSource::End)->GetFunction());
 
@@ -239,125 +57,102 @@ void MediaSource::Init(Handle<Object> exports) {
   tpl->InstanceTemplate()->SetAccessor(NanNew("onerror"),
                                        MediaSource::OnError,
                                        MediaSource::OnError);
-                                       
-  NanAssignPersistent(constructor, tpl->GetFunction());
-  exports->Set(NanNew("MediaSource"), tpl->GetFunction());                                   
+  
+  exports->Set(NanNew("MediaSource"), tpl->GetFunction());
+                 
+  Local<Object> sources = NanNew<Object>();
+  
+  WebcamCapturer::Init(sources);
+  MediaStreamCapturer::Init(sources);
+  
+  NanAssignPersistent(constructor, sources);
 }
 
-MediaSource::MediaSource(const std::string &fmt, v8::Local<v8::Function> callback) { // Encoder
+MediaSource::MediaSource() : _callback(false) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  NanAssignPersistent(_callback, callback);
-  
-  _capturer = WebcamCapturer::New(MediaSource::Format2Worker(fmt));
-}
-
-MediaSource::MediaSource(const std::string &fmt, rtc::scoped_refptr<webrtc::MediaStreamInterface> mediaStream) { // Decoder
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-    
-}
-
-MediaSource::MediaSource(const std::string &fmt, rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> mediaStreamTrack) { // Decoder
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  if (mediaStreamTrack->kind().compare("video")) {
-    _renderer = VideoRenderer::New(mediaStreamTrack.get(), MediaSource::Format2Worker(fmt));
-  } else if (mediaStreamTrack->kind().compare("audio")) {
-    
-  }
 }
 
 MediaSource::~MediaSource() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
+
+  EventEmitter::RemoveAllListeners();
 }
 
 NAN_METHOD(MediaSource::New) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   NanScope();
-  
-  Local<String> format = NanNew("image/i420");
-  Local<Object> stream;
-  Local<Function> callback;
-  
-  switch (args.Length()) {
-    case 1:
-      NanThrowError("Invalid Argument");
-              
-      break;
-    case 2:
-      if (args[0]->IsObject() && args[1]->IsString()) {
-        stream = Local<Object>::Cast(args[0]);
-        format = args[1]->ToString();
-      } else if (args[0]->IsString() && args[1]->IsFunction()) {
-        format = args[0]->ToString();
-        callback = Local<Function>::Cast(args[1]);
-      } else {
-        NanThrowError("Invalid Arguments");
-      }
-      
-      break;
-    default:
-      NanThrowError("Invalid Arguments");
-      break;
-  }
 
-  if (args.IsConstructCall()) {
-    String::Utf8Value format_str(format);
-    MediaSource* source = 0;
+  if (args.IsConstructCall() && args.Length() >= 1 && args[0]->IsString()) {
+    Local<String> type = args[0]->ToString();
+    Local<Object> instances = NanNew(MediaSource::constructor);
+    Local<Function> instance = Local<Function>::Cast(instances->Get(type));
     
-    if (!stream.IsEmpty()) {
-      rtc::scoped_refptr<webrtc::MediaStreamInterface> mediaStream = MediaStream::Unwrap(stream);
+    if (!instance.IsEmpty()) {
+      Local<Object> properties = Local<Object>::Cast(args[1]);
+      Local<Value> argv[1] = {
+        properties
+      };
       
-      if (mediaStream.get()) {
-        source = new MediaSource(std::string(*format_str), mediaStream);
-      } else {
-        rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track = MediaStreamTrack::Unwrap(stream);
-        
-        if (track.get()) {
-          source = new MediaSource(std::string(*format_str), track);
-        } else {
-          NanThrowError("Invalid Arguments");
-        }
-      }
-    } else if (!callback.IsEmpty()) {
-      source = new MediaSource(std::string(*format_str), callback);
-    } else {
-      NanThrowError("Invalid Arguments");
+      NanReturnValue(instance->Call(args.This(), 1, argv));
     }
-
-    if (source) {
-      source->Wrap(args.This(), "MediaSource");
-      NanReturnValue(args.This());
-    }
-  } else {
-    const int argc = 3;
-    Local<Value> argv[3] = {
-      format,
-      stream,
-      callback
-    };
-    
-    Local<Function> instance = NanNew(MediaSource::constructor);
-    NanReturnValue(instance->NewInstance(argc, argv));
   }
   
   NanReturnUndefined();
+}
+
+bool MediaSource::Connect(MediaSource *source) {
+  if (source) {
+    EventEmitter::AddListener(source);
+    
+    return true;
+  }
+  
+  return false;
+}
+
+bool MediaSource::Disconnect(MediaSource *source) {
+  if (source) {
+    EventEmitter::RemoveListener(source);
+    
+    return true;
+  }
+  
+  return false;
+}
+
+NAN_METHOD(MediaSource::Connect) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  NanScope();
+  MediaSource *self = RTCWrap::Unwrap<MediaSource>(args.This(), "MediaSource");
+  
+  if (args.Length() >= 1 && args[0]->IsObject()) {
+    NanReturnValue(NanNew(self->Connect(RTCWrap::Unwrap<MediaSource>(Local<Object>::Cast(args[0]), "MediaSource"))));
+  }
+  
+  NanReturnValue(NanFalse());
+}
+
+NAN_METHOD(MediaSource::Disconnect) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  NanScope();
+  MediaSource *self = RTCWrap::Unwrap<MediaSource>(args.This(), "MediaSource");
+  
+  if (args.Length() >= 1 && args[0]->IsObject()) {
+    NanReturnValue(NanNew(self->Disconnect(RTCWrap::Unwrap<MediaSource>(Local<Object>::Cast(args[0]), "MediaSource"))));
+  }
+  
+  NanReturnValue(NanFalse());
 }
 
 NAN_METHOD(MediaSource::Write) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   NanScope();
-  //MediaSource *self = RTCWrap::Unwrap<MediaSource>(args.This(), "MediaSource");
-  
-  if (args.Length() >= 1) {
-    //node::ArrayBuffer *arrayBuffer = node::ArrayBuffer::New(args[0]);
-    //worker->Emit(kMediaSourceDecode, MediaSourceBuffer(arrayBuffer->ToUtf8(), arrayBuffer->Length()));
-  }
-  
-  NanReturnUndefined();
+  MediaSource *self = RTCWrap::Unwrap<MediaSource>(args.This(), "MediaSource");
+  NanReturnValue(NanNew(self->Write(args[0])));
 }
 
 NAN_METHOD(MediaSource::End) {
@@ -365,13 +160,7 @@ NAN_METHOD(MediaSource::End) {
   
   NanScope();
   MediaSource *self = RTCWrap::Unwrap<MediaSource>(args.This(), "MediaSource");
-  
-  if (self->_renderer.get()) {
-    self->_renderer->End();
-    (void) self->_renderer.release();
-  }
-
-  NanReturnUndefined();
+  NanReturnValue(NanNew(self->End(args[0])));
 }
 
 NAN_GETTER(MediaSource::OnData) {
@@ -397,8 +186,10 @@ NAN_SETTER(MediaSource::OnData) {
   MediaSource *self = RTCWrap::Unwrap<MediaSource>(args.Holder(), "MediaSource");
   
   if (!value.IsEmpty() && value->IsFunction()) {
+    self->_callback = true;
     NanAssignPersistent(self->_ondata, Local<Function>::Cast(value));
   } else {
+    self->_callback = false;
     NanDisposePersistent(self->_ondata);
   }
 }
@@ -418,22 +209,51 @@ NAN_SETTER(MediaSource::OnError) {
 
 void MediaSource::On(Event *event) {
   MediaSourceEvent type = event->Type<MediaSourceEvent>();
-  
-  if (type == kMediaSourceData) {
-    MediaSourceContext ctx = event->Unwrap<MediaSourceContext>();
-    MediaSourceImage image = event->Unwrap<MediaSourceImage>();
-    MediaSourceAudio audio = event->Unwrap<MediaSourceAudio>();
+
+  NanScope();
+
+  if (_callback) {
+    Local<Function> callback = NanNew(_ondata);
+    Local<Object> container;
+    node::ArrayBuffer *arrayBuffer = 0;
     
-    switch (ctx.type) {
-      case kMediaSourceNone:
-        break;
-      case kMediaSourceImage:
-        printf("MediaSource::On()\n");
-        
-        break;
-      case kMediaSourceAudio:
-        
-        break;
+    if (type == kMediaSourceImage) {
+      MediaSourceImage image = event->Unwrap<MediaSourceImage>();
+      arrayBuffer = node::ArrayBuffer::New(reinterpret_cast<char *>(image.buffer.data()), image.buffer.size());
+      container = NanNew<Object>();
+      
+      container->Set(NanNew("type"), NanNew(image.mime.c_str()));
+      container->Set(NanNew("width"), NanNew(image.width));
+      container->Set(NanNew("height"), NanNew(image.height));
+      
+    } else if (type == kMediaSourceAudio) {
+      MediaSourceAudio audio = event->Unwrap<MediaSourceAudio>();
+      arrayBuffer = node::ArrayBuffer::New(reinterpret_cast<char *>(audio.buffer.data()), audio.buffer.size());
+      container = NanNew<Object>();
+
+      container->Set(NanNew("type"), NanNew(audio.mime.c_str()));
+      container->Set(NanNew("bits"), NanNew(audio.bits));
+      container->Set(NanNew("rate"), NanNew(audio.rate));
+      container->Set(NanNew("channels"), NanNew(audio.channels));
+      container->Set(NanNew("frames"), NanNew(audio.frames));
+    } else if (type == kMediaSourceData) {
+      rtc::Buffer buffer = event->Unwrap<rtc::Buffer>();
+      arrayBuffer = node::ArrayBuffer::New(reinterpret_cast<char *>(buffer.data()), buffer.size());
+      container = NanNew<Object>();
+      
+      container->Set(NanNew("type"), NanNew("application/octet-stream"));
+    }
+    
+    if (!container.IsEmpty()) {
+      if (arrayBuffer) {
+        container->Set(NanNew("data"), arrayBuffer->ToArrayBuffer());
+      }
+      
+      Local<Value> argv[1] = {
+        container
+      };
+      
+      callback->Call(RTCWrap::This(), 1, argv);
     }
   }
 }
