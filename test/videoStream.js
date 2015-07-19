@@ -1,17 +1,24 @@
-var WEBRTC = require('../');
+var WebRTC = require('../');
 
-WEBRTC.setDebug(true);
+//WebRTC.setDebug(true);
 
 function onSuccess(stream) {
-  console.log('Got VideoStream');
-}
-
-function onError(error) {
-  throw error;
+  var capturer = new WebRTC.MediaSource('mediastream/capturer', {
+    stream: stream
+  });
+  
+  capturer.ondata = function(frame) {
+    console.log(frame);
+    console.log(frame.data.byteLength);
+  };
+  
+  setTimeout(function() {
+    console.log('Closing...');
+    capturer.end();
+  }, 5000);
 }
 
 var constraints = {
-/*
   audio: {
     optional: [
       {
@@ -28,7 +35,8 @@ var constraints = {
       },
     ],
   },
-*/
+  video: true,
+/*
   video: {
     optional: [
       {
@@ -56,4 +64,4 @@ var constraints = {
 */
 };
 
-WEBRTC.getUserMedia(constraints, onSuccess, onError);
+WebRTC.getUserMedia(constraints, onSuccess);
