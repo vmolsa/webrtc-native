@@ -33,6 +33,8 @@ var constraints = {
       },
     ],
   },
+  video: true,
+/*
   video: {
     optional: [
       {
@@ -47,6 +49,7 @@ var constraints = {
       },
     ],
   },
+*/
   optional: [
     {
       DtlsSrtpKeyAgreement: true,
