@@ -27,6 +27,8 @@
         'MediaConstraints.cc',
         'Stats.cc',
         'MediaSource.cc',
+        'WebcamCapturer.cc',
+        'MediaStreamCapturer.cc',
       ],
       'dependencies': [
         '<(DEPTH)/talk/libjingle.gyp:libjingle_peerconnection', 
