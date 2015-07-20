@@ -37,6 +37,7 @@
 #include "webrtc/modules/video_capture/include/video_capture.h"
 #include "webrtc/modules/video_capture/include/video_capture_factory.h"
 #include "webrtc/modules/utility/interface/process_thread.h"
+#include "webrtc/modules/video_render/include/video_render.h"
 
 namespace WebRTC { 
   enum MediaSourceEvent {
