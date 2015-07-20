@@ -3,6 +3,9 @@ var WebRTC = require('../');
 //WebRTC.setDebug(true);
 
 function onSuccess(stream) {
+  console.log(stream.getAudioTracks());
+  console.log(stream.getVideoTracks());
+  
   var capturer = new WebRTC.MediaSource('mediastream/capturer', {
     stream: stream
   });
@@ -19,6 +22,9 @@ function onSuccess(stream) {
 }
 
 var constraints = {
+  audio: true,
+  video: true,
+/*
   audio: {
     optional: [
       {
@@ -35,8 +41,6 @@ var constraints = {
       },
     ],
   },
-  video: true,
-/*
   video: {
     optional: [
       {
@@ -51,7 +55,6 @@ var constraints = {
       },
     ],
   },
-/*
   optional: [
     {
       DtlsSrtpKeyAgreement: true,
