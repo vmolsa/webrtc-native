@@ -83,6 +83,7 @@ void MediaStreamCapturer::Start() {
 
     if (track.get()) {
       found = true;
+      track->set_enabled(true);
       track->AddSink(this);
     }
   }
@@ -92,6 +93,7 @@ void MediaStreamCapturer::Start() {
 
     if (track.get()) {
       found = true;
+      track->set_enabled(true);
       track->AddRenderer(this);
     }
   }
