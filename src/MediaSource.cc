@@ -27,6 +27,7 @@
 #include "MediaSource.h"
 #include "WebcamCapturer.h"
 #include "MediaStreamCapturer.h"
+#include "WindowRenderer.h"
 
 using namespace v8;
 using namespace WebRTC;
@@ -64,6 +65,7 @@ void MediaSource::Init(Local<Object> exports) {
   
   WebcamCapturer::Init(sources);
   MediaStreamCapturer::Init(sources);
+  WindowRenderer::Init(sources);
   
   NanAssignPersistent(constructor, sources);
 }
