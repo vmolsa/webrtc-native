@@ -55,9 +55,10 @@ NAN_METHOD(GetUserMedia::GetMediaStream) {
   std::string videoId = constraints->VideoId();
 
   if (constraints->UseAudio() || constraints->UseVideo()) {
-    webrtc::PeerConnectionFactoryInterface *factory = Core::GetFactory();
+    //webrtc::PeerConnectionFactoryInterface *factory = Core::GetFactory();
+    rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory = Core::CreateFactory();
 
-    if (factory) {
+    if (factory.get()) {
       stream = factory->CreateLocalMediaStream("stream");
 
       if (stream.get()) {

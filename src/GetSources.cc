@@ -40,10 +40,11 @@ void GetSources::Init(Handle<Object> exports) {
 rtc::scoped_refptr<webrtc::AudioTrackInterface> GetSources::GetAudioSource(const rtc::scoped_refptr<MediaConstraints> &constraints) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  webrtc::PeerConnectionFactoryInterface *factory = Core::GetFactory();
+  //webrtc::PeerConnectionFactoryInterface *factory = Core::GetFactory();
+  rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory = Core::CreateFactory();
   rtc::scoped_refptr<webrtc::AudioTrackInterface> track;
 
-  if (factory) {
+  if (factory.get()) {
     rtc::scoped_refptr<webrtc::AudioSourceInterface> src = factory->CreateAudioSource(constraints->ToConstraints());
     track = factory->CreateAudioTrack("audio", src);
   }
@@ -78,9 +79,10 @@ rtc::scoped_refptr<webrtc::VideoTrackInterface> GetSources::GetVideoSource(const
   }
 
   if (cap) {
-    webrtc::PeerConnectionFactoryInterface *factory = Core::GetFactory();
+    //webrtc::PeerConnectionFactoryInterface *factory = Core::GetFactory();
+    rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory = Core::CreateFactory();
 
-    if (factory) {
+    if (factory.get()) {
       rtc::scoped_refptr<webrtc::VideoSourceInterface> src = factory->CreateVideoSource(cap, constraints->ToConstraints());
       track = factory->CreateVideoTrack("video", src);
     }
@@ -105,9 +107,10 @@ rtc::scoped_refptr<webrtc::VideoTrackInterface> GetSources::GetVideoSource(const
   }
 
   if (cap) {
-    webrtc::PeerConnectionFactoryInterface *factory = Core::GetFactory();
+    //webrtc::PeerConnectionFactoryInterface *factory = Core::GetFactory();
+    rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory = Core::CreateFactory();
 
-    if (factory) {
+    if (factory.get()) {
       rtc::scoped_refptr<webrtc::VideoSourceInterface> src = factory->CreateVideoSource(cap, constraints->ToConstraints());
       track = factory->CreateVideoTrack("video", src);
     }
