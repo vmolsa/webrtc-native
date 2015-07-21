@@ -101,6 +101,10 @@ WindowRenderer::WindowRenderer(v8::Local<v8::Object> properties) :
 
   _renderer = cricket::VideoRendererFactory::CreateGuiVideoRenderer(_width, _height);
   
+  if (!_renderer) {
+    NanThrowError("Internal Error");
+  }
+  
   DrawBlackFrame();
 }
 
