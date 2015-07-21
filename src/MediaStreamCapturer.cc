@@ -58,7 +58,7 @@ void MediaStreamCapturer::Init(v8::Local<v8::Object> constructor) {
   NanScope();
   
   Local<FunctionTemplate> tpl = NanNew<FunctionTemplate>(MediaStreamCapturer::New);
-  constructor->Set(NanNew("mediastream/capturer"), tpl->GetFunction());
+  constructor->Set(NanNew("mediastream"), tpl->GetFunction());
 }
 
 NAN_METHOD(MediaStreamCapturer::New) {

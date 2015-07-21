@@ -64,7 +64,7 @@ void WebcamCapturer::Init(v8::Local<v8::Object> constructor) {
   NanScope();
   
   Local<FunctionTemplate> tpl = NanNew<FunctionTemplate>(WebcamCapturer::New);
-  constructor->Set(NanNew("device/webcam"), tpl->GetFunction());
+  constructor->Set(NanNew("webcam"), tpl->GetFunction());
 }
 
 NAN_METHOD(WebcamCapturer::New) {

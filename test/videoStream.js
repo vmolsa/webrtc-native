@@ -6,7 +6,7 @@ function onSuccess(stream) {
   console.log(stream.getAudioTracks());
   console.log(stream.getVideoTracks());
   
-  var capturer = new WebRTC.MediaSource('mediastream/capturer', {
+  var capturer = new WebRTC.MediaSource('mediastream', {
     stream: stream
   });
   
