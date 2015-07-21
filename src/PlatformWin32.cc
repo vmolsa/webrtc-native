@@ -55,6 +55,8 @@ void OnRunLoop(uv_prepare_t *handle) {
 void Platform::Init() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
+  rtc::EnsureWinsockInit();
+
   uv_prepare_init(uv_default_loop(), &runLoop);
   uv_prepare_start(&runLoop, OnRunLoop);
   uv_unref(reinterpret_cast<uv_handle_t*>(&runLoop));
@@ -62,6 +64,6 @@ void Platform::Init() {
 
 void Platform::Dispose() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
+    
   uv_prepare_stop(&runLoop);
 }
