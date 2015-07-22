@@ -325,7 +325,7 @@ NAN_METHOD(PeerConnection::SetLocalDescription) {
         String::Utf8Value type(type_value->ToString());
         String::Utf8Value sdp(sdp_value->ToString());
 
-        webrtc::SessionDescriptionInterface *desc(webrtc::CreateSessionDescription(*type, *sdp));
+        webrtc::SessionDescriptionInterface *desc(webrtc::CreateSessionDescription(*type, *sdp, 0));
         
         if (desc) {
           if (socket) {
@@ -386,7 +386,7 @@ NAN_METHOD(PeerConnection::SetRemoteDescription) {
         String::Utf8Value type(type_value->ToString());
         String::Utf8Value sdp(sdp_value->ToString());
 
-        webrtc::SessionDescriptionInterface *desc(webrtc::CreateSessionDescription(*type, *sdp));
+        webrtc::SessionDescriptionInterface *desc(webrtc::CreateSessionDescription(*type, *sdp, 0));
         
         if (desc) {
           if (socket) {
@@ -440,7 +440,7 @@ NAN_METHOD(PeerConnection::AddIceCandidate) {
           String::Utf8Value sdpMid(sdpMid_value->ToString());
           String::Utf8Value sdp(sdp_value->ToString());
           
-          rtc::scoped_ptr<webrtc::IceCandidateInterface> candidate(webrtc::CreateIceCandidate(*sdpMid, sdpMLineIndex->Value(), *sdp));
+          rtc::scoped_ptr<webrtc::IceCandidateInterface> candidate(webrtc::CreateIceCandidate(*sdpMid, sdpMLineIndex->Value(), *sdp, 0));
   
           if (candidate.get()) {
             if (socket) {
