@@ -37,6 +37,7 @@
 #include "MediaStream.h"
 #include "MediaStreamTrack.h"
 #include "MediaSource.h"
+#include "WindowRenderer.h"
 
 using namespace v8;
 
@@ -125,6 +126,7 @@ void WebrtcModuleInit(Handle<Object> exports) {
   WebRTC::MediaStream::Init();
   WebRTC::MediaStreamTrack::Init();
   WebRTC::MediaSource::Init(exports);
+  WebRTC::WindowRenderer::Init();
   
   exports->Set(NanNew("RTCGarbageCollect"), NanNew<FunctionTemplate>(RTCGarbageCollect)->GetFunction()); 
   exports->Set(NanNew("RTCIceCandidate"), NanNew<FunctionTemplate>(RTCIceCandidate)->GetFunction());

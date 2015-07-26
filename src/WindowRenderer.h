@@ -31,11 +31,12 @@
 namespace WebRTC { 
   class WindowRenderer : public MediaSource  {
     public:
+      static void Init();
       static void Init(v8::Local<v8::Object> constructor);
       
-      void End();
-      void DrawFrame(const MediaSourceImage &image);
-      void DrawBlackFrame();
+      virtual void End();
+      
+      void DrawFrame(rtc::scoped_refptr<webrtc::VideoFrameBuffer> buffer);
             
     private:
       explicit WindowRenderer(v8::Local<v8::Object> properties);
@@ -43,15 +44,19 @@ namespace WebRTC {
   
       static NAN_METHOD(New);
       
-      virtual bool End(v8::Local<v8::Value> data);
-      virtual bool Write(v8::Local<v8::Value> data);
+      virtual void On(Event *event);
 
     protected:
       int _id;
       int _width;
       int _height;
+      void* _window;
       bool _fullScreen;
-      cricket::VideoRenderer* _renderer;
+      webrtc::VideoRender* _module;
+      webrtc::VideoRenderType _type;
+      webrtc::VideoRenderCallback* _renderer;
+      
+      static int StreamId;
   };
 };
 

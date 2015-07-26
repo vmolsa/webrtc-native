@@ -23,14 +23,6 @@
 *
 */
 
-#include "WindowRenderer.h"
-#include "talk/media/devices/videorendererfactory.h"
- 
-using namespace v8;
-using namespace WebRTC;
-
-#ifdef WIN32
-
 #include <tchar.h>
 #include <windows.h>
 #include <assert.h>
@@ -39,6 +31,17 @@ using namespace WebRTC;
 #include <string>
 #include <windows.h>
 #include <ddraw.h>
+
+#include "WindowRenderer.h"
+
+#include "talk/media/devices/videorendererfactory.h"
+ 
+using namespace v8;
+using namespace WebRTC;
+
+WNDCLASSEX wcx;
+HINSTANCE hinst;
+int WindowRenderer::StreamId = 0;
 
 LRESULT CALLBACK WebRtcWinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
   switch (uMsg) {
@@ -51,12 +54,64 @@ LRESULT CALLBACK WebRtcWinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
   return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
 
-int WebRtcCreateWindow(HWND &hwndMain, int winNum, int width, int height) {
-  HINSTANCE hinst = GetModuleHandle(0);
-  WNDCLASSEX wcx;
+WindowRenderer::WindowRenderer(v8::Local<v8::Object> properties) : 
+  _id(WindowRenderer::StreamId++), 
+  _width(600), 
+  _height(480),
+  _window(0),
+  _fullScreen(false),
+  _module(0),
+  _type(webrtc::kRenderDefault),
+  _renderer(0)
+{
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+
+  EventEmitter::SetReference(true);
+  const char *error = 0;
+
+  HWND window = CreateWindowEx(0, TEXT("WebRTC"), TEXT("WebRTC @ NodeJS"), WS_OVERLAPPED | WS_THICKFRAME,
+                               0, 0, _width, _height, (HWND) NULL, (HMENU) NULL, hinst, NULL);
+    
+  if (window) {
+    ShowWindow(window, SW_SHOWDEFAULT);
+    UpdateWindow(window);
+    
+    _window = window;
+    _type = webrtc::kRenderWindows;
+    
+    _module = webrtc::VideoRender::CreateVideoRender(1337, _window, _fullScreen, _type);    
+  }
+
+  if (_module) {
+    _renderer = _module->AddIncomingRenderStream(_id, 0, 0.0f, 0.0f, 1.0f, 1.0f);
+    
+    if (_renderer) {
+      if (_module->StartRender(_id)) {
+        error = "Unable to start renderer";
+      }
+    } else {
+      error = "Unable to create renderer";
+    }
+  } else {
+    error = "Unable to create window";
+  }
+
+  if (error) {
+    NanThrowError(error);
+  }
+}
+
+WindowRenderer::~WindowRenderer() {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  WindowRenderer::End();
+}
+
+void WindowRenderer::Init() {
+  hinst = GetModuleHandle(0);
   
   wcx.hInstance = hinst;
-  wcx.lpszClassName = TEXT("WebRTCWindow");
+  wcx.lpszClassName = TEXT("WebRTC");
   wcx.lpfnWndProc = (WNDPROC) WebRtcWinProc;
   wcx.style = CS_DBLCLKS;
   wcx.hIcon = LoadIcon(NULL, IDI_APPLICATION);
@@ -69,48 +124,8 @@ int WebRtcCreateWindow(HWND &hwndMain, int winNum, int width, int height) {
   wcx.hbrBackground = GetSysColorBrush(COLOR_3DFACE);
   
   if (!RegisterClassEx(&wcx)) {
-    MessageBox(0, TEXT("Failed to register window class!"), TEXT("Error!"), MB_OK | MB_ICONERROR);
-    return 0;
+    NanThrowError("WindowRenderer: Failed to register window class!");
   }
-  
-  hwndMain = CreateWindowEx(0, TEXT("WebRTCWindow"), TEXT("WebRTC @ NodeJS"), WS_OVERLAPPED | WS_THICKFRAME,
-                            0, 0, width, height, (HWND) NULL, (HMENU) NULL, hinst, NULL);
-    
-  if (!hwndMain) {
-    return -1;
-  }
-
-  ShowWindow(hwndMain, SW_SHOWDEFAULT);
-  UpdateWindow(hwndMain);
-  
-  return 0;
-}
-
-#endif
-
-WindowRenderer::WindowRenderer(v8::Local<v8::Object> properties) : 
-  _id(0), 
-  _width(600), 
-  _height(480), 
-  _fullScreen(false), 
-  _renderer(0)
-{
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-
-  EventEmitter::SetReference(true);
-
-  _renderer = cricket::VideoRendererFactory::CreateGuiVideoRenderer(_width, _height);
-  
-  if (!_renderer) {
-    NanThrowError("Internal Error");
-  }
-  
-  DrawBlackFrame();
-}
-
-WindowRenderer::~WindowRenderer() {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-
 }
 
 void WindowRenderer::Init(v8::Local<v8::Object> constructor) {
@@ -132,29 +147,40 @@ NAN_METHOD(WindowRenderer::New) {
   NanReturnValue(args.This());
 }
 
-bool WindowRenderer::End(Local<Value> data) {
+void WindowRenderer::End() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  EventEmitter::SetReference(false);
+  if (_module && _renderer) {
+    _module->StopRender(_id);
+    _module->DeleteIncomingRenderStream(_id);
+    
+    delete _module;
+    
+    _renderer = 0;
+    _module = 0;
+  }
   
-  return true;
+  MediaSource::End();
 }
 
-bool WindowRenderer::Write(Local<Value> data) {
+void WindowRenderer::DrawFrame(rtc::scoped_refptr<webrtc::VideoFrameBuffer> buffer) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  return false;
+  if (_renderer && buffer.get()) {
+    webrtc::VideoFrame frame;
+    
+    frame.set_video_frame_buffer(buffer);
+    
+    _renderer->RenderFrame(_id, frame);
+  }
 }
 
-void WindowRenderer::DrawBlackFrame() {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+void WindowRenderer::On(Event *event) {
+  MediaSourceEvent type = event->Type<MediaSourceEvent>();
   
-  cricket::WebRtcVideoFrame frame;
-  frame.InitToBlack(_width, _height, 1, 1, 0, 0);
-  
-  _renderer->RenderFrame(&frame);
-}
-
-void WindowRenderer::DrawFrame(const MediaSourceImage &image) {
-  
+  if (type == kMediaSourceFrame) {
+    WindowRenderer::DrawFrame(event->Unwrap<rtc::scoped_refptr<webrtc::VideoFrameBuffer> >());
+  } else if (type == kMediaSourceEnd) {
+    WindowRenderer::End();
+  }
 }
