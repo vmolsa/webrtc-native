@@ -32,9 +32,6 @@
 using namespace v8;
 using namespace WebRTC;
 
-MediaSourceImage::MediaSourceImage() { }
-MediaSourceAudio::MediaSourceAudio() { }
-
 Persistent<Object> MediaSource::constructor;
 
 void MediaSource::Init(Local<Object> exports) {
@@ -58,6 +55,10 @@ void MediaSource::Init(Local<Object> exports) {
   tpl->InstanceTemplate()->SetAccessor(NanNew("onerror"),
                                        MediaSource::OnError,
                                        MediaSource::OnError);
+                                       
+  tpl->InstanceTemplate()->SetAccessor(NanNew("onend"),
+                                       MediaSource::OnEnd,
+                                       MediaSource::OnEnd);
   
   exports->Set(NanNew("MediaSource"), tpl->GetFunction());
                  
@@ -70,7 +71,7 @@ void MediaSource::Init(Local<Object> exports) {
   NanAssignPersistent(constructor, sources);
 }
 
-MediaSource::MediaSource() : _callback(false) {
+MediaSource::MediaSource() : _closing(false), _callback(false) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
 }
 
@@ -118,6 +119,88 @@ bool MediaSource::Disconnect(MediaSource *source) {
     EventEmitter::RemoveListener(source);
     
     return true;
+  }
+  
+  return false;
+}
+
+void MediaSource::End() {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  NanScope();
+  
+  if (!_closing) {
+    _closing = true;
+    
+    EventEmitter::Emit(kMediaSourceEnd);
+    EventEmitter::SetReference(false);
+    
+    Local<Function> callback = NanNew<Function>(_onend);
+      
+    if (!callback.IsEmpty()) {
+      Local<Value> argv[1];
+      callback->Call(RTCWrap::This(), 1, argv);
+    }
+  }
+}
+
+bool MediaSource::End(Local<Value> data) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  bool retval = true;
+  
+  if (!data.IsEmpty()) {
+    retval = Write(data);
+  }
+  
+  End();
+  
+  return retval;
+}
+
+bool MediaSource::Write(Local<Value> data) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  NanScope();
+  
+  if (!data.IsEmpty() && data->IsObject()) {
+    Local<Object> frame = Local<Object>::Cast(data);
+    Local<Value> type_value = frame->Get(NanNew("type"));
+      
+    if (!type_value.IsEmpty() && type_value->IsString()) {
+      String::Utf8Value type_utf8(type_value->ToString());
+      std::string type(*type_utf8);
+      
+      if (!type.compare("frame")) {
+        Local<Int32> width(frame->Get(NanNew("width"))->ToInt32());
+        Local<Int32> height(frame->Get(NanNew("height"))->ToInt32());
+        
+        node::ArrayBuffer *ybuf = node::ArrayBuffer::New(frame->Get(NanNew("yplane")));
+        node::ArrayBuffer *ubuf = node::ArrayBuffer::New(frame->Get(NanNew("uplane")));
+        node::ArrayBuffer *vbuf = node::ArrayBuffer::New(frame->Get(NanNew("vplane")));
+
+        if (width->Value() && height->Value()) {
+          webrtc::VideoFrame videoFrame;
+          
+          int uv_plane = ((width->Value() + 1) / 2);
+          videoFrame.CreateEmptyFrame(width->Value(), height->Value(), width->Value(), uv_plane, uv_plane);
+          
+          if (videoFrame.allocated_size(webrtc::kYPlane) == ybuf->Length() && 
+              videoFrame.allocated_size(webrtc::kUPlane) == ubuf->Length() && 
+              videoFrame.allocated_size(webrtc::kVPlane) == vbuf->Length()) 
+          {
+          
+            memcpy(videoFrame.buffer(webrtc::kYPlane), ybuf->ToUtf8(), videoFrame.allocated_size(webrtc::kYPlane));
+            memcpy(videoFrame.buffer(webrtc::kUPlane), ubuf->ToUtf8(), videoFrame.allocated_size(webrtc::kUPlane));
+            memcpy(videoFrame.buffer(webrtc::kVPlane), vbuf->ToUtf8(), videoFrame.allocated_size(webrtc::kVPlane));
+            
+            rtc::scoped_refptr<webrtc::VideoFrameBuffer> buffer = videoFrame.video_frame_buffer();
+            Emit(kMediaSourceFrame, buffer);
+          
+            return true;
+          }
+        }
+      }
+    }
   }
   
   return false;
@@ -181,6 +264,14 @@ NAN_GETTER(MediaSource::OnError) {
   NanReturnValue(NanNew(self->_onerror));
 }
 
+NAN_GETTER(MediaSource::OnEnd) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  NanScope();
+  MediaSource *self = RTCWrap::Unwrap<MediaSource>(args.Holder(), "MediaSource");
+  NanReturnValue(NanNew(self->_onend));
+}
+
 NAN_SETTER(MediaSource::OnData) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
@@ -206,7 +297,20 @@ NAN_SETTER(MediaSource::OnError) {
     NanAssignPersistent(self->_onerror, Local<Function>::Cast(value));
   } else {
     NanDisposePersistent(self->_onerror);
-  }  
+  }
+}
+
+NAN_SETTER(MediaSource::OnEnd) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  NanScope();
+  MediaSource *self = RTCWrap::Unwrap<MediaSource>(args.Holder(), "MediaSource");
+  
+  if (!value.IsEmpty() && value->IsFunction()) {
+    NanAssignPersistent(self->_onend, Local<Function>::Cast(value));
+  } else {
+    NanDisposePersistent(self->_onend);
+  }
 }
 
 void MediaSource::On(Event *event) {
@@ -217,40 +321,29 @@ void MediaSource::On(Event *event) {
   if (_callback) {
     Local<Function> callback = NanNew(_ondata);
     Local<Object> container;
-    node::ArrayBuffer *arrayBuffer = 0;
     
-    if (type == kMediaSourceImage) {
-      MediaSourceImage image = event->Unwrap<MediaSourceImage>();
-      arrayBuffer = node::ArrayBuffer::New(reinterpret_cast<char *>(image.buffer.data()), image.buffer.size());
+    if (type == kMediaSourceFrame) {
       container = NanNew<Object>();
+      webrtc::VideoFrame videoFrame;
       
-      container->Set(NanNew("type"), NanNew(image.mime.c_str()));
-      container->Set(NanNew("width"), NanNew(image.width));
-      container->Set(NanNew("height"), NanNew(image.height));
+      rtc::scoped_refptr<webrtc::VideoFrameBuffer> buffer = event->Unwrap<rtc::scoped_refptr<webrtc::VideoFrameBuffer> >();
+      videoFrame.set_video_frame_buffer(buffer);
       
-    } else if (type == kMediaSourceAudio) {
-      MediaSourceAudio audio = event->Unwrap<MediaSourceAudio>();
-      arrayBuffer = node::ArrayBuffer::New(reinterpret_cast<char *>(audio.buffer.data()), audio.buffer.size());
-      container = NanNew<Object>();
+      node::ArrayBuffer *ybuf = node::ArrayBuffer::New(videoFrame.buffer(webrtc::kYPlane), videoFrame.allocated_size(webrtc::kYPlane));
+      node::ArrayBuffer *ubuf = node::ArrayBuffer::New(videoFrame.buffer(webrtc::kUPlane), videoFrame.allocated_size(webrtc::kUPlane));
+      node::ArrayBuffer *vbuf = node::ArrayBuffer::New(videoFrame.buffer(webrtc::kVPlane), videoFrame.allocated_size(webrtc::kVPlane));
 
-      container->Set(NanNew("type"), NanNew(audio.mime.c_str()));
-      container->Set(NanNew("bits"), NanNew(audio.bits));
-      container->Set(NanNew("rate"), NanNew(audio.rate));
-      container->Set(NanNew("channels"), NanNew(audio.channels));
-      container->Set(NanNew("frames"), NanNew(audio.frames));
-    } else if (type == kMediaSourceData) {
-      rtc::Buffer buffer = event->Unwrap<rtc::Buffer>();
-      arrayBuffer = node::ArrayBuffer::New(reinterpret_cast<char *>(buffer.data()), buffer.size());
-      container = NanNew<Object>();
-      
-      container->Set(NanNew("type"), NanNew("application/octet-stream"));
+      container->Set(NanNew("type"), NanNew("frame"));
+      container->Set(NanNew("yplane"), ybuf->ToArrayBuffer());
+      container->Set(NanNew("uplane"), ubuf->ToArrayBuffer());
+      container->Set(NanNew("vplane"), vbuf->ToArrayBuffer());
+      container->Set(NanNew("width"), NanNew(buffer->width()));
+      container->Set(NanNew("height"), NanNew(buffer->height()));
+    } else if (type == kMediaSourceEnd) {
+      End();
     }
     
-    if (!container.IsEmpty()) {
-      if (arrayBuffer) {
-        container->Set(NanNew("data"), arrayBuffer->ToArrayBuffer());
-      }
-      
+    if (!container.IsEmpty()) {      
       Local<Value> argv[1] = {
         container
       };

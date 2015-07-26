@@ -38,39 +38,15 @@
 #include "webrtc/modules/video_capture/include/video_capture_factory.h"
 #include "webrtc/modules/utility/interface/process_thread.h"
 #include "webrtc/modules/video_render/include/video_render.h"
+#include "webrtc/system_wrappers/interface/tick_util.h"
 #include "talk/media/webrtc/webrtcvideoframe.h"
 
 namespace WebRTC { 
   enum MediaSourceEvent {
-    kMediaSourceImage = 1,
-    kMediaSourceAudio,
-    kMediaSourceData,
+    kMediaSourceEnd = 1,
+    kMediaSourceFrame,
   };
-
-  class MediaSourceImage {
-    public:
-      explicit MediaSourceImage();
-    
-      int width;
-      int height;
-      
-      std::string mime;
-      rtc::Buffer buffer;
-  };
-  
-  class MediaSourceAudio {
-    public:
-      explicit MediaSourceAudio();
-    
-      int bits;
-      int rate;
-      int channels;
-      int frames;
-      
-      std::string mime;
-      rtc::Buffer buffer;
-  };
-  
+ 
   class MediaSource : public RTCWrap, public EventEmitter { 
     public:
       explicit MediaSource();
@@ -80,9 +56,10 @@ namespace WebRTC {
 
       bool Connect(MediaSource *source = 0);
       bool Disconnect(MediaSource *source = 0);
-            
-      virtual bool End(v8::Local<v8::Value> data) = 0;
-      virtual bool Write(v8::Local<v8::Value> data) = 0;
+      
+      virtual void End();
+      virtual bool End(v8::Local<v8::Value> data);
+      virtual bool Write(v8::Local<v8::Value> data);
       
     private:
       static NAN_METHOD(New);
@@ -93,17 +70,21 @@ namespace WebRTC {
 
       static NAN_GETTER(OnData);
       static NAN_GETTER(OnError);
+      static NAN_GETTER(OnEnd);
       
       static NAN_SETTER(OnData);
       static NAN_SETTER(OnError);
+      static NAN_SETTER(OnEnd);
       
       virtual void On(Event *event);
       
     protected:
+      bool _closing;
       bool _callback;
       
       v8::Persistent<v8::Function> _ondata;
       v8::Persistent<v8::Function> _onerror;
+      v8::Persistent<v8::Function> _onend;
       
       static v8::Persistent<v8::Object> constructor;
   };
