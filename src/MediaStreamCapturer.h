@@ -34,7 +34,7 @@ namespace WebRTC {
     public:
       static void Init(v8::Local<v8::Object> constructor);
       
-      void End();
+      virtual void End();
             
     private:
       explicit MediaStreamCapturer(v8::Local<v8::Object> properties);
@@ -43,9 +43,7 @@ namespace WebRTC {
       static NAN_METHOD(New);
       
       void Start();
-      virtual bool End(v8::Local<v8::Value> data);
-      virtual bool Write(v8::Local<v8::Value> data);
-     
+
       virtual void RenderFrame(const cricket::VideoFrame* frame);
       virtual void OnData(const void* data, int bits, int rate, int channels, int frames);
   

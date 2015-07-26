@@ -105,8 +105,7 @@ void MediaStreamCapturer::Start() {
 
 void MediaStreamCapturer::End() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  EventEmitter::SetReference(false);
-  
+ 
   std::vector<rtc::scoped_refptr<webrtc::AudioTrackInterface> >::iterator audio;
   std::vector<rtc::scoped_refptr<webrtc::VideoTrackInterface> >::iterator video;
   
@@ -124,48 +123,20 @@ void MediaStreamCapturer::End() {
     if (track.get()) {
       track->RemoveRenderer(this);
     }
-  }  
-}
-
-bool MediaStreamCapturer::End(Local<Value> data) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  }
   
-  MediaStreamCapturer::End();
-  return true;
-}
-
-bool MediaStreamCapturer::Write(Local<Value> data) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  return false;
+  MediaSource::End();
 }
 
 void MediaStreamCapturer::RenderFrame(const cricket::VideoFrame* frame) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  size_t total = frame->CopyToBuffer(0, 0); // Get Buffer Size
-  MediaSourceImage image;
-  
-  image.mime = std::string("image/i420");
-  image.width = frame->GetWidth();
-  image.height = frame->GetHeight();
-  image.buffer = rtc::Buffer(total);
-  
-  frame->CopyToBuffer(image.buffer.data(), image.buffer.size());
-  
-  Emit(kMediaSourceImage, image);
+  rtc::scoped_refptr<webrtc::VideoFrameBuffer> buffer = frame->GetVideoFrameBuffer();  
+  Emit(kMediaSourceFrame, buffer);
 }
 
 void MediaStreamCapturer::OnData(const void* data, int bits, int rate, int channels, int frames) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  MediaSourceAudio audio;
-  
-  audio.mime = std::string("audio/buffer");
-  audio.bits = bits;
-  audio.rate = rate;
-  audio.channels = channels;
-  audio.buffer = rtc::Buffer(reinterpret_cast<const char *>(data), rate * frames);
-  
-  Emit(kMediaSourceAudio, audio);
+  //Emit(kMediaSourceAudio, audio);
 }
