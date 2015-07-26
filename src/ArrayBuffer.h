@@ -53,6 +53,10 @@ namespace node {
     }
 
 #if (NODE_MODULE_VERSION >= NODE_0_12_MODULE_VERSION)
+    template <class T = char> inline static ArrayBuffer* New(T *str, size_t length) {
+      return ArrayBuffer::New(v8::Isolate::GetCurrent(), reinterpret_cast<char*>(str), length);
+    }
+
     inline static ArrayBuffer* New(const char *str, size_t length) {
       return ArrayBuffer::New(v8::Isolate::GetCurrent(), str, length);
     }
@@ -188,6 +192,9 @@ namespace node {
     }
 
 #else
+    template <class T = char> inline static ArrayBuffer* New(T *str, size_t length) {
+      return ArrayBuffer::New(reinterpret_cast<char*>(str), length);
+    }
 
     inline static ArrayBuffer* New(const char *str, size_t length) {
       ArrayBuffer *buffer = new ArrayBuffer();
@@ -274,6 +281,18 @@ namespace node {
       return std::string(ArrayBuffer::ToUtf8(), ArrayBuffer::Length());
     }
 
+    template <class T = char> inline T* To() {
+      return reinterpret_cast<T*>(_data);
+    }
+    
+    template <class T = char> inline const T* To() const {
+      return reinterpret_cast<const T*>(_data);
+    }
+
+    inline char *ToUtf8() {
+      return _data;
+    }
+    
     inline const char *ToUtf8() const {
       return _data;
     }
