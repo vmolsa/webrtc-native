@@ -79,34 +79,22 @@ NAN_METHOD(WebcamCapturer::New) {
 
 void WebcamCapturer::End() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  EventEmitter::SetReference(false);
-  _module->StopCapture();
+  
+  if (_module.get()) {
+    _module->StopCapture();
+    
+    _module.release();
+    _deviceInfo.release();
+  } 
+  
+  MediaSource::End();
 }
 
-bool WebcamCapturer::End(Local<Value> data) {
+void WebcamCapturer::OnIncomingCapturedFrame(const int32_t id, const webrtc::VideoFrame &frame) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  WebcamCapturer::End();
-  return true;
-}
-
-bool WebcamCapturer::Write(Local<Value> data) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  return false;
-}
-
-void WebcamCapturer::OnIncomingCapturedFrame(const int32_t id, const webrtc::VideoFrame& frame) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  MediaSourceImage image;
-
-  image.mime = std::string("image/i420");
-  image.width = frame.width();
-  image.height = frame.height();
-  image.buffer = rtc::Buffer(frame.buffer(webrtc::kYPlane), frame.allocated_size(webrtc::kYPlane));
-  
-  Emit(kMediaSourceImage, image);
+  rtc::scoped_refptr<webrtc::VideoFrameBuffer> buffer = frame.video_frame_buffer();
+  Emit(kMediaSourceFrame, buffer);
 }
 
 void WebcamCapturer::OnCaptureDelayChanged(const int32_t id, const int32_t delay) {

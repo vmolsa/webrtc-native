@@ -33,17 +33,14 @@ namespace WebRTC {
     public:
       static void Init(v8::Local<v8::Object> constructor);
       
-      void End();
+      virtual void End();
             
     private:
       explicit WebcamCapturer(v8::Local<v8::Object> properties);
       virtual ~WebcamCapturer();
   
       static NAN_METHOD(New);
-      
-      virtual bool End(v8::Local<v8::Value> data);
-      virtual bool Write(v8::Local<v8::Value> data);
-      
+
       virtual void OnIncomingCapturedFrame(const int32_t id, const webrtc::VideoFrame& frame);
       virtual void OnCaptureDelayChanged(const int32_t id, const int32_t delay);
   
