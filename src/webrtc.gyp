@@ -29,7 +29,6 @@
         'MediaSource.cc',
         'WebcamCapturer.cc',
         'MediaStreamCapturer.cc',
-        'WindowRenderer.cc',
       ],
       'dependencies': [
         '<(DEPTH)/talk/libjingle.gyp:libjingle_peerconnection', 
@@ -68,6 +67,9 @@
           'defines': [
             'USE_BACKTRACE',
           ],
+          'sources': [
+            'WindowRendererLinux.cc',
+          ],
         }],
         ['OS=="win"', {
           'msvs_disabled_warnings': [
@@ -77,7 +79,8 @@
             4506,
           ],
           'sources': [
-            'PlatformWin32.cc'
+            'PlatformWin32.cc',
+            'WindowRendererWin32.cc',
           ],
         }],
         ['OS=="mac"', {
@@ -93,7 +96,8 @@
             'USE_BACKTRACE',
           ],
           'sources': [
-            'PlatformMac.cc'
+            'PlatformMac.cc',
+            'WindowRendererMac.mm',
           ],
         }],
       ],      
