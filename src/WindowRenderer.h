@@ -35,9 +35,7 @@ namespace WebRTC {
       static void Init(v8::Local<v8::Object> constructor);
       
       virtual void End();
-      
-      void DrawFrame(rtc::scoped_refptr<webrtc::VideoFrameBuffer> buffer);
-            
+                 
     private:
       explicit WindowRenderer(v8::Local<v8::Object> properties);
       virtual ~WindowRenderer();
