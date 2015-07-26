@@ -524,7 +524,7 @@ void DataChannel::On(Event *event) {
     if (type == kDataChannelData) {
       container->Set(NanNew("data"), NanNew(reinterpret_cast<char *>(buffer.data()), buffer.size()));
     } else {
-      arrayBuffer = node::ArrayBuffer::New(reinterpret_cast<char *>(buffer.data()), buffer.size());                                
+      arrayBuffer = node::ArrayBuffer::New(buffer.data(), buffer.size());                                
       container->Set(NanNew("data"), arrayBuffer->ToArrayBuffer());
     }
   }
