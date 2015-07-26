@@ -6,14 +6,12 @@ function onSuccess(stream) {
   console.log(stream.getAudioTracks());
   console.log(stream.getVideoTracks());
   
+  var renderer = new WebRTC.MediaSource('window');
   var capturer = new WebRTC.MediaSource('mediastream', {
     stream: stream
   });
   
-  capturer.ondata = function(frame) {
-    console.log(frame);
-    console.log(frame.data.byteLength);
-  };
+  capturer.connect(renderer);
   
   setTimeout(function() {
     console.log('Closing...');
