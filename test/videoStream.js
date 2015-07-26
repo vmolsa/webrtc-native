@@ -3,9 +3,6 @@ var WebRTC = require('../');
 //WebRTC.setDebug(true);
 
 function onSuccess(stream) {
-  console.log(stream.getAudioTracks());
-  console.log(stream.getVideoTracks());
-  
   var renderer = new WebRTC.MediaSource('window');
   var capturer = new WebRTC.MediaSource('mediastream', {
     stream: stream
