@@ -4,20 +4,18 @@ var spawn = require('child_process').spawn;
 var path = require('path');
 var request = require('request');
 
+var ROOT = process.cwd();
 var ARCH = os.arch();
 var NODEVER = process.version.split('.');
 var PKGNAME = require(ROOT + path.sep + 'package.json').name;
 var URL = 'http://cide.cc:8080/webrtc/';
 
-var ROOT = process.cwd();
-  
-if (os.platform() == 'win32') {
-  process.chdir(path.resolve(ROOT, '..'));
-  ROOT = process.cwd();
-}
-
 function build() {
-  var res = spawn('pangyp', [ 'rebuild' ], {
+  console.log('Building module...');
+ 
+  var pangyp = path.resolve(ROOT, 'node_modules', 'pangyp', 'bin', 'node-gyp.js');
+   
+  var res = spawn('node', [ pangyp, 'rebuild' ], {
     cwd: ROOT,
     env: process.env,
     stdio: 'inherit',
@@ -54,6 +52,8 @@ function prebuilt(PLATFORM) {
   if (process.env['BUILD_WEBRTC'] == 'true') {
     return build();
   }
+  
+  console.log('Downloading module...');
   
   if (!fs.existsSync(path.resolve(ROOT, 'build', 'Release'))) {
     if (!fs.existsSync(path.resolve(ROOT, 'build'))) {
