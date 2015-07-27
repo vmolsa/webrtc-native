@@ -49,6 +49,7 @@
             '<(DEPTH)/talk/libjingle_tests.gyp:libjingle_unittest_main',
             '<(DEPTH)/talk/libjingle_tests.gyp:libjingle_media_unittest',
             '<(DEPTH)/webrtc/modules/modules.gyp:video_capture_tests',
+            '<(DEPTH)/webrtc/modules/modules.gyp:video_render_tests',
           ],
         }],
         ['OS=="linux"', {
