@@ -184,9 +184,9 @@ bool MediaSource::Write(Local<Value> data) {
           int uv_plane = ((width->Value() + 1) / 2);
           videoFrame.CreateEmptyFrame(width->Value(), height->Value(), width->Value(), uv_plane, uv_plane);
           
-          if (videoFrame.allocated_size(webrtc::kYPlane) == ybuf->Length() && 
-              videoFrame.allocated_size(webrtc::kUPlane) == ubuf->Length() && 
-              videoFrame.allocated_size(webrtc::kVPlane) == vbuf->Length()) 
+          if (videoFrame.allocated_size(webrtc::kYPlane) == static_cast<int>(ybuf->Length()) && 
+              videoFrame.allocated_size(webrtc::kUPlane) == static_cast<int>(ubuf->Length()) && 
+              videoFrame.allocated_size(webrtc::kVPlane) == static_cast<int>(vbuf->Length())) 
           {
           
             memcpy(videoFrame.buffer(webrtc::kYPlane), ybuf->ToUtf8(), videoFrame.allocated_size(webrtc::kYPlane));
