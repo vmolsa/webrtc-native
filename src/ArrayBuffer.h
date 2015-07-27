@@ -193,7 +193,8 @@ namespace node {
 
 #else
     template <class T = char> inline static ArrayBuffer* New(T *str, size_t length) {
-      return ArrayBuffer::New(reinterpret_cast<char*>(str), length);
+      const char *ptr = reinterpret_cast<char*>(str);
+      return ArrayBuffer::New(ptr, length);
     }
 
     inline static ArrayBuffer* New(const char *str, size_t length) {
