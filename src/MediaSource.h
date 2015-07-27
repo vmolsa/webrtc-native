@@ -52,7 +52,7 @@ namespace WebRTC {
       explicit MediaSource();
       virtual ~MediaSource();
       
-      static void Init(v8::Local<v8::Object> exports);
+      static void Init(v8::Handle<v8::Object> exports);
 
       bool Connect(MediaSource *source = 0);
       bool Disconnect(MediaSource *source = 0);

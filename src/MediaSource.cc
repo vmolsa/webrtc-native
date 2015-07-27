@@ -34,7 +34,7 @@ using namespace WebRTC;
 
 Persistent<Object> MediaSource::constructor;
 
-void MediaSource::Init(Local<Object> exports) {
+void MediaSource::Init(Handle<Object> exports) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   NanScope();
