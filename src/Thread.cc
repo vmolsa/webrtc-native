@@ -28,11 +28,20 @@
 using namespace WebRTC;
 
 EventLoop::EventLoop() {
+#if (UV_VERSION_MAJOR > 0)
   (void) uv_loop_init(&_loop);
+#else
+  _loop = uv_loop_new();
+#endif
 }
 
 EventLoop::~EventLoop() {
+#if (UV_VERSION_MAJOR > 0)
   (void) uv_loop_close(&_loop);
+#else
+  uv_loop_delete(_loop);
+  _loop = 0;
+#endif
 }
 
 void EventLoop::Run() {
@@ -44,11 +53,15 @@ void EventLoop::Run() {
 }
 
 bool EventLoop::Once() {
-  return (uv_run(&_loop, UV_RUN_NOWAIT) != 0) ? true : false;
+  return (uv_run(EventLoop::GetLoop(), UV_RUN_NOWAIT) != 0) ? true : false;
 }
 
 uv_loop_t* EventLoop::GetLoop() {
+#if (UV_VERSION_MAJOR > 0)
   return &_loop;
+#else
+  return _loop;
+#endif
 }
 
 Thread::Thread(EventEmitter *listener) : EventEmitter(EventLoop::GetLoop()) {

@@ -40,7 +40,11 @@ namespace WebRTC {
       uv_loop_t* GetLoop();
       
     protected:
+#if (UV_VERSION_MAJOR > 0)
       uv_loop_t _loop;
+#else
+      uv_loop_t* _loop;
+#endif
   };
   
   class Thread : public EventLoop, public EventEmitter {
