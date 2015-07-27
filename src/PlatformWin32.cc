@@ -48,7 +48,11 @@ class PlatformWorker : public rtc::Win32SocketServer, public rtc::Thread {
 PlatformWorker worker;
 uv_prepare_t runLoop;
 
+#if (UV_VERSION_MAJOR > 0)
 void OnRunLoop(uv_prepare_t *handle) {
+#else
+void OnRunLoop(uv_prepare_t *handle, int unused) {
+#endif
   worker.Run();
 }
 
