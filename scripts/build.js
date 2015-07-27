@@ -20,7 +20,6 @@ function init(PLATFORM) {
   var RUNTIME = process.argv[3].substring(10);
   var NODEJS = path.resolve(process.argv[4]);
   var NODEVER = process.version.split('.');
-  var PKGNAME = require(ROOT + path.sep + 'package.json').name;
   var URL = 'http://cide.cc:8080/webrtc/';
   var SYNC = false;
   
@@ -30,7 +29,7 @@ function init(PLATFORM) {
   URL += PLATFORM + '/';
   URL += ARCH + '/';
   URL += NODEVER + '/';
-  URL += PKGNAME + '.node';
+  URL += 'webrtc.node';
   
   if (fs.existsSync(ROOT + path.sep + 'nodejs.gypi')) {
     fs.unlinkSync(ROOT + path.sep + 'nodejs.gypi');

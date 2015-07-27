@@ -7,7 +7,6 @@ var request = require('request');
 var ROOT = process.cwd();
 var ARCH = os.arch();
 var NODEVER = process.version.split('.');
-var PKGNAME = require(ROOT + path.sep + 'package.json').name;
 var URL = 'http://cide.cc:8080/webrtc/';
 
 function build() {
@@ -47,7 +46,7 @@ function prebuilt(PLATFORM) {
   URL += PLATFORM + '/';
   URL += ARCH + '/';
   URL += NODEVER + '/';
-  URL += PKGNAME + '.node';
+  URL += 'webrtc.node';
   
   if (process.env['BUILD_WEBRTC'] == 'true') {
     return build();
