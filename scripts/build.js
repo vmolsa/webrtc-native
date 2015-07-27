@@ -29,7 +29,6 @@ function init(PLATFORM) {
   
   URL += PLATFORM + '/';
   URL += ARCH + '/';
-  URL += RUNTIME + '/';
   URL += NODEVER + '/';
   URL += PKGNAME + '.node';
   

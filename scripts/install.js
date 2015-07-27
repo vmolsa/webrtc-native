@@ -26,7 +26,7 @@ function test() {
   console.log('Loading module...');
   
   try {
-    var WebRTC = require('build/Release/webrtc-native.node');
+    var WebRTC = require('build/Release/webrtc.node');
     
     console.log('Done! :)');
   } catch (ignored) {
