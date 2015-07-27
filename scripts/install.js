@@ -19,6 +19,14 @@ function build() {
     env: process.env,
     stdio: 'inherit',
   });
+  
+  res.on('error', function(error) {
+    var res = spawn('iojs', [ pangyp, 'rebuild' ], {
+      cwd: ROOT,
+      env: process.env,
+      stdio: 'inherit',
+    });
+  });
 }
 
 function test() {
