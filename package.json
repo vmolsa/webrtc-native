@@ -1,6 +1,6 @@
 {
   "name": "webrtc-native",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "WebRTC for NodeJS",
   "homepage": "https://github.com/vmolsa/webrtc-native",
   "author": "https://github.com/vmolsa",
@@ -17,16 +17,16 @@
   "license": "MIT",
   "main": "index.js",
   "scripts": {
-    "install": "pangyp rebuild",
+    "install": "node scripts/install.js",
     "test": "node test/all.js"
   },
   "dependencies": {
     "lsb-release": "^0.1.0",
-    "nan": "^1.8.4",
-    "pangyp": "^2.2.1",
     "request": "^2.58.0"
   },
   "devDependencies": {
+    "nan": "^1.8.4",
+    "pangyp": "^2.2.1",
     "minimist": "^1.1.1",
     "simple-peer": "^5.11.2",
     "tape": "^4.0.0"
