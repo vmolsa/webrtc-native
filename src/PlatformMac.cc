@@ -28,6 +28,7 @@
 #include "webrtc/base/logging.h"
 #include "webrtc/base/thread.h"
 #include "webrtc/base/maccocoasocketserver.h"
+#include "webrtc/base/maccocoathreadhelper.h"
 
 using namespace WebRTC;
 
@@ -52,6 +53,8 @@ void OnRunLoop(uv_prepare_t *handle) {
 
 void Platform::Init() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  rtc::InitCocoaMultiThreading();
   
   uv_prepare_init(uv_default_loop(), &runLoop);
   uv_prepare_start(&runLoop, OnRunLoop);
