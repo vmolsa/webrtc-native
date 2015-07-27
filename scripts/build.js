@@ -21,7 +21,6 @@ function init(PLATFORM) {
   var NODEJS = path.resolve(process.argv[4]);
   var NODEVER = process.version.split('.');
   var PKGNAME = require(ROOT + path.sep + 'package.json').name;
-  var VERSION = require(ROOT + path.sep + 'package.json').version;
   var URL = 'http://cide.cc:8080/webrtc/';
   var SYNC = false;
   
@@ -32,7 +31,7 @@ function init(PLATFORM) {
   URL += ARCH + '/';
   URL += RUNTIME + '/';
   URL += NODEVER + '/';
-  URL += PKGNAME + '-' + VERSION + '.node';
+  URL += PKGNAME + '.node';
   
   if (fs.existsSync(ROOT + path.sep + 'nodejs.gypi')) {
     fs.unlinkSync(ROOT + path.sep + 'nodejs.gypi');
@@ -97,7 +96,7 @@ function init(PLATFORM) {
       }
   
       process.exit(1);
-    }); 
+    });
   }
   
   function build() { 
@@ -265,27 +264,7 @@ function init(PLATFORM) {
     }
   }
   
-  function prebuilt() {
-    if (process.env['BUILD_WEBRTC'] == 'true') {
-      return prep();
-    }
-    
-    request.get(URL, function (error, response, body) {
-      if (!error && response.statusCode == 200) {
-        console.log('Done! :)');
-      } else {
-        if (os.platform() == 'win32') {
-          throw new Error('prebuilt module not found. "set BUILD_WEBRTC=true" and rerun "npm install" to begin to build from source.');
-        } else {
-          throw new Error('prebuilt module not found. "export BUILD_WEBRTC=true" and rerun "npm install" to begin to build from source.');
-        }
-        
-        process.exit(1);
-      }
-    }).pipe(fs.createWriteStream(path.resolve(ROOT, 'build', CONFIG, 'webrtc.node')));
-  }
-  
-  prebuilt();
+  prep();
 }
 
 if (os.platform() == 'linux') {
