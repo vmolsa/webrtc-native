@@ -28,7 +28,7 @@
 #import <Cocoa/Cocoa.h>
 #import <AppKit/AppKit.h>
 #import <QTKit/QTKit.h>
-#include <sys/time.h>
+#import <sys/time.h>
 
 #import "talk/media/devices/videorendererfactory.h"
 #import "webrtc/modules/video_render/mac/cocoa_render_view.h"
@@ -44,7 +44,7 @@ WindowRenderer::WindowRenderer(v8::Local<v8::Object> properties) :
   _width(600), 
   _height(480),
   _window(0),
-  _fullScreen(false),
+  _fullScreen(true),
   _module(0),
   _type(webrtc::kRenderDefault),
   _renderer(0)
@@ -54,17 +54,17 @@ WindowRenderer::WindowRenderer(v8::Local<v8::Object> properties) :
   EventEmitter::SetReference(true);
   const char *error = 0;
 
-  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+  NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
   CocoaRenderView *view = 0;
   
-  NSRect parent = NSMakeRect(0, 0, _width + 20, _height + 20);
+  NSRect parent = NSMakeRect(0, 0, _width, _height);
   NSWindow* window = [[NSWindow alloc] initWithContentRect:parent styleMask:NSTitledWindowMask backing:NSBackingStoreBuffered defer:NO];
   
   [window orderOut:nil];
   [window setTitle:@"WebRTC @ NodeJS"];
   [window setBackgroundColor:[NSColor blackColor]];
 
-  NSRect child = NSMakeRect(10, 10, width, height);
+  NSRect child = NSMakeRect(0, 0, _width, _height);
   view = [[CocoaRenderView alloc] initWithFrame:child];
   
   [[window contentView] addSubview:(NSView*) view];
@@ -99,7 +99,7 @@ WindowRenderer::WindowRenderer(v8::Local<v8::Object> properties) :
 
 WindowRenderer::~WindowRenderer() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
+
   WindowRenderer::End();
 }
 
