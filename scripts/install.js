@@ -64,7 +64,7 @@ function prebuilt(PLATFORM) {
   
   request.get(URL, function (error, response, body) {
     if (!error && response.statusCode == 200) {
-      setTimeout(test, 1000);
+      setTimeout(test, 200);
     } else {
       if (os.platform() == 'win32') {
         throw new Error('prebuilt module not found. "set BUILD_WEBRTC=true" and rerun "npm install" to begin to build from source.');
