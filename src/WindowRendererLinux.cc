@@ -23,14 +23,13 @@
 *
 */
 
+#include "WindowRenderer.h"
+#include "talk/media/devices/videorendererfactory.h"
+
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <iostream>
 #include <sys/time.h>
-
-#include "WindowRenderer.h"
-
-#include "talk/media/devices/videorendererfactory.h"
  
 //using namespace v8;
 using namespace WebRTC;
