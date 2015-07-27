@@ -58,6 +58,7 @@
             '-Wno-unused-variable',
             '-Wno-unknown-pragmas',
             '-Wno-unused-result',
+            '-Wno-overloaded-virtual'
           ],
           'cflags_cc': [
             '-std=gnu++11',
