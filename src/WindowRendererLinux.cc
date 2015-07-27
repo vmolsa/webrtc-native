@@ -32,7 +32,7 @@
 
 #include "talk/media/devices/videorendererfactory.h"
  
-using namespace v8;
+//using namespace v8;
 using namespace WebRTC;
 
 int WindowRenderer::StreamId = 0;
@@ -134,7 +134,7 @@ NAN_METHOD(WindowRenderer::New) {
 
   NanScope();
 
-  WindowRenderer* renderer = new WindowRenderer(Local<Object>::Cast(args[0]));
+  WindowRenderer* renderer = new WindowRenderer(v8::Local<v8::Object>::Cast(args[0]));
   renderer->Wrap(args.This(), "MediaSource");
   NanReturnValue(args.This());
 }
