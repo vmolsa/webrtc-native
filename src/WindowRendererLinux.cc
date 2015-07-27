@@ -86,7 +86,7 @@ WindowRenderer::WindowRenderer(v8::Local<v8::Object> properties) :
         XNextEvent(display, &event);
     } while (event.type != MapNotify || event.xmap.event != window);    
     
-    _window = static_cast<void*>(window);
+    _window = (void *) window;
     _type = webrtc::kRenderX11;
     _module = webrtc::VideoRender::CreateVideoRender(1337, _window, _fullScreen, _type);    
   }
