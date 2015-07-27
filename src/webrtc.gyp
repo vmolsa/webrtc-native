@@ -58,10 +58,10 @@
             '-Wno-unused-variable',
             '-Wno-unknown-pragmas',
             '-Wno-unused-result',
-            '-Wno-overloaded-virtual'
           ],
           'cflags_cc': [
             '-std=gnu++11',
+            '-Wno-overloaded-virtual',
           ],
           'ldflags': [
             '-Wl,--unresolved-symbols=ignore-in-object-files',
