@@ -57,6 +57,7 @@ WindowRenderer::WindowRenderer(v8::Local<v8::Object> properties) :
   XVisualInfo info;
   Window window = 0;
   Display* display = XOpenDisplay(NULL);
+  unsigned long mask;
   
   if (display) {
     screen = DefaultScreen(display);
@@ -85,7 +86,7 @@ WindowRenderer::WindowRenderer(v8::Local<v8::Object> properties) :
         XNextEvent(display, &event);
     } while (event.type != MapNotify || event.xmap.event != window);    
     
-    _window = window;
+    _window = static_cast<void*>(window);
     _type = webrtc::kRenderX11;
     _module = webrtc::VideoRender::CreateVideoRender(1337, _window, _fullScreen, _type);    
   }
@@ -124,7 +125,7 @@ void WindowRenderer::Init(v8::Local<v8::Object> constructor) {
   
   NanScope();
   
-  Local<FunctionTemplate> tpl = NanNew<FunctionTemplate>(WindowRenderer::New);
+  v8::Local<v8::FunctionTemplate> tpl = NanNew<v8::FunctionTemplate>(WindowRenderer::New);
   constructor->Set(NanNew("window"), tpl->GetFunction());
 }
 
