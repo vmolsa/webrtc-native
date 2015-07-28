@@ -46,9 +46,9 @@
 
 #include "webrtc/system_wrappers/interface/tick_util.h"
 
+#include "webrtc/modules/utility/interface/process_thread.h"
 #include "webrtc/modules/video_capture/include/video_capture.h"
 #include "webrtc/modules/video_capture/include/video_capture_factory.h"
-#include "webrtc/modules/utility/interface/process_thread.h"
 #include "webrtc/modules/video_render/include/video_render.h"
 
 #include "talk/app/webrtc/jsep.h"
@@ -72,7 +72,6 @@
 #include "talk/media/webrtc/webrtcvideoframe.h"
 
 #include "talk/session/media/mediasession.h"
-
 
 #ifdef WEBRTC_MAC
 #include "webrtc/base/maccocoasocketserver.h"
