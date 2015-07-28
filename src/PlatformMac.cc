@@ -23,12 +23,7 @@
 *
 */
 
-#include <uv.h>
 #include "Platform.h"
-#include "webrtc/base/logging.h"
-#include "webrtc/base/thread.h"
-#include "webrtc/base/maccocoasocketserver.h"
-#include "webrtc/base/maccocoathreadhelper.h"
 
 using namespace WebRTC;
 

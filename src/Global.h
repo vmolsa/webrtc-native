@@ -26,7 +26,7 @@
 #ifndef WEBRTC_GLOBAL_H
 #define WEBRTC_GLOBAL_H
 
-#include <nan.h>
+#include "Common.h"
 
 namespace WebRTC {
   class Global {

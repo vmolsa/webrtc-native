@@ -26,6 +26,7 @@
 #ifndef WEBRTC_THREAD_H
 #define WEBRTC_THREAD_H
 
+#include "Common.h" 
 #include "EventEmitter.h"
 
 namespace WebRTC {

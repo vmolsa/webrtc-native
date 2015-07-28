@@ -26,8 +26,7 @@
 #ifndef WEBRTC_STATS_H
 #define WEBRTC_STATS_H
 
-#include <nan.h>
-
+#include "Common.h"
 #include "Observers.h" 
 #include "EventEmitter.h"
 #include "Wrap.h"

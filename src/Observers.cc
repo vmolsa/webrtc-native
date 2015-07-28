@@ -24,6 +24,10 @@
 */
 
 #include "Observers.h"
+#include "PeeerConnection.h"
+#include "DataChannel.h"
+#include "MediaStream.h"
+#include "MediaStreamTrack.h"
 
 using namespace WebRTC;
 

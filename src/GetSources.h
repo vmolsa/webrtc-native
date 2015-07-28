@@ -26,8 +26,7 @@
 #ifndef WEBRTC_GETSOURCES_H
 #define WEBRTC_GETSOURCES_H
 
-#include <nan.h>
-#include "Observers.h"
+#include "Common.h"
 #include "MediaConstraints.h"
 
 namespace WebRTC {

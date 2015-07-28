@@ -26,7 +26,7 @@
 #ifndef WEBRTC_GETUSERMEDIA_H
 #define WEBRTC_GETUSERMEDIA_H
 
-#include <nan.h>
+#include "Common.h"
 
 namespace WebRTC {
   class GetUserMedia {

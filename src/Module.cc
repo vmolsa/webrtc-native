@@ -23,7 +23,7 @@
 *
 */
 
-#include <nan.h>
+#include "Common.h"
 
 #include "Global.h"
 #include "Platform.h"

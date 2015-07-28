@@ -26,15 +26,7 @@
 #ifndef WEBRTC_WRAP_H
 #define WEBRTC_WRAP_H
 
-#ifdef WIN32
-#ifndef __PRETTY_FUNCTION__
-#define __PRETTY_FUNCTION__ __FUNCTION__
-#endif
-#endif
-
-#include <nan.h>
-#include <node_object_wrap.h>
-#include "webrtc/base/logging.h"
+#include "Common.h"
 
 namespace WebRTC {
   class RTCWrap : public node::ObjectWrap {

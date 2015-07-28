@@ -26,16 +26,19 @@
 #ifndef WEBRTC_DATACHANNEL_H
 #define WEBRTC_DATACHANNEL_H
 
-#pragma warning( disable : 4005 )
-
-#include <nan.h>
-
+#include "Common.h"
 #include "Observers.h"
 #include "EventEmitter.h"
 #include "Wrap.h"
 #include "ArrayBuffer.h"
 
 namespace WebRTC {
+  enum DataChannelEvent {
+    kDataChannelStateChange,
+    kDataChannelBinary,
+    kDataChannelData,
+  };  
+  
   class DataChannel : public RTCWrap, public EventEmitter {    
    public:    
     static void Init();

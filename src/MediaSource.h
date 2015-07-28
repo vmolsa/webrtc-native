@@ -26,20 +26,10 @@
 #ifndef WEBRTC_MEDIASOURCE_H
 #define WEBRTC_MEDIASOURCE_H
 
-#include <nan.h>
+#include "Common.h"
 #include "Thread.h"
 #include "MediaStream.h"
 #include "MediaStreamTrack.h"
-
-#include "talk/media/base/videoframe.h"
-#include "webrtc/video_frame.h"
-#include "webrtc/base/buffer.h"
-#include "webrtc/modules/video_capture/include/video_capture.h"
-#include "webrtc/modules/video_capture/include/video_capture_factory.h"
-#include "webrtc/modules/utility/interface/process_thread.h"
-#include "webrtc/modules/video_render/include/video_render.h"
-#include "webrtc/system_wrappers/interface/tick_util.h"
-#include "talk/media/webrtc/webrtcvideoframe.h"
 
 namespace WebRTC { 
   enum MediaSourceEvent {

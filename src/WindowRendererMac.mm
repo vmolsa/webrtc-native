@@ -30,8 +30,6 @@
 #import <QTKit/QTKit.h>
 #import <sys/time.h>
 
-#import "talk/media/devices/videorendererfactory.h"
-#import "webrtc/modules/video_render/mac/cocoa_render_view.h"
 #import "WindowRenderer.h"
  
 using namespace v8;

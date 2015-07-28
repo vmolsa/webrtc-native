@@ -33,8 +33,6 @@
 #include <ddraw.h>
 
 #include "WindowRenderer.h"
-
-#include "talk/media/devices/videorendererfactory.h"
  
 using namespace v8;
 using namespace WebRTC;

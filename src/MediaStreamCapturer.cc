@@ -23,6 +23,7 @@
 *
 */
 
+#include "Common.h"
 #include "MediaStreamCapturer.h"
 #include "MediaStream.h"
  

@@ -26,6 +26,7 @@
 #ifndef WEBRTC_WINDOWRENDERER_H
 #define WEBRTC_WINDOWRENDERER_H
 
+#include "Common.h"
 #include "MediaSource.h"
 
 namespace WebRTC { 

@@ -27,7 +27,6 @@
 #define WEBRTC_MEDIASTREAMCAPTURER_H
 
 #include "MediaSource.h"
-#include "talk/app/webrtc/mediastreaminterface.h"
 
 namespace WebRTC { 
   class MediaStreamCapturer : public MediaSource, public webrtc::VideoRendererInterface, public webrtc::AudioTrackSinkInterface  {

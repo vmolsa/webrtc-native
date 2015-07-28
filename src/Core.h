@@ -26,8 +26,7 @@
 #ifndef WEBRTC_CORE_H
 #define WEBRTC_CORE_H
 
-#include "Observers.h"
-#include "webrtc/base/thread.h"
+#include "Common.h"
 
 namespace WebRTC {
   class Core {

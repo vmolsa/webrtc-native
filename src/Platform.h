@@ -26,11 +26,7 @@
 #ifndef WEBRTC_PLATFORM_H
 #define WEBRTC_PLATFORM_H
 
-#ifdef WIN32
-#ifndef __PRETTY_FUNCTION__
-#define __PRETTY_FUNCTION__ __FUNCTION__
-#endif
-#endif
+#include "Common.h"
 
 namespace WebRTC {
   class Platform {

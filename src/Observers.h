@@ -26,82 +26,9 @@
 #ifndef WEBRTC_OBSERVERS_H
 #define WEBRTC_OBSERVERS_H
 
-#include "webrtc/base/logging.h"
-#include "webrtc/base/json.h"
-#include "webrtc/base/basictypes.h"
-#include "webrtc/base/common.h"
-#include "webrtc/base/scoped_ptr.h"
-#include "webrtc/base/ssladapter.h"
-#include "webrtc/base/sslstreamadapter.h"
-#include "webrtc/base/stringutils.h"
-#include "webrtc/base/thread.h"
-#include "webrtc/base/buffer.h"
-#include "webrtc/base/scoped_ref_ptr.h"
-#include "webrtc/base/refcount.h"
-
-#include "talk/app/webrtc/jsep.h"
-#include "talk/app/webrtc/jsepsessiondescription.h"
-#include "talk/app/webrtc/mediaconstraintsinterface.h"
-#include "talk/app/webrtc/mediastreaminterface.h"
-#include "talk/app/webrtc/peerconnectionfactory.h"
-#include "talk/app/webrtc/peerconnectioninterface.h"
-#include "talk/app/webrtc/test/fakeconstraints.h"
-#include "talk/app/webrtc/datachannelinterface.h"
-#include "talk/app/webrtc/videosourceinterface.h"
-#include "talk/app/webrtc/videosource.h"
-
-#include "talk/media/base/videocapturerfactory.h"
-#include "talk/media/base/videocapturer.h"
-#include "talk/media/sctp/sctpdataengine.h"
-#include "talk/media/devices/devicemanager.h"
-#include "talk/media/webrtc/webrtcvideocapturerfactory.h"
-
-#include "talk/session/media/mediasession.h"
-
-#ifdef WIN32
-#ifndef __PRETTY_FUNCTION__
-#define __PRETTY_FUNCTION__ __FUNCTION__
-#endif
-#endif
-
 #include "EventEmitter.h"
 
-namespace WebRTC {
-  enum PeerConnectionEvent {
-    kPeerConnectionCreateClosed = 1,
-    kPeerConnectionCreateOffer,
-    kPeerConnectionCreateOfferError,
-    kPeerConnectionCreateAnswer,
-    kPeerConnectionCreateAnswerError,
-    kPeerConnectionSetLocalDescription,
-    kPeerConnectionSetLocalDescriptionError,
-    kPeerConnectionSetRemoteDescription,
-    kPeerConnectionSetRemoteDescriptionError,
-    kPeerConnectionIceCandidate,
-    kPeerConnectionSignalChange,
-    kPeerConnectionIceChange,
-    kPeerConnectionIceGathering,
-    kPeerConnectionDataChannel,
-    kPeerConnectionAddStream,
-    kPeerConnectionRemoveStream,
-    kPeerConnectionRenegotiation,
-    kPeerConnectionStats
-  };
-  
-  enum DataChannelEvent {
-    kDataChannelStateChange,
-    kDataChannelBinary,
-    kDataChannelData,
-  };
-
-  enum MediaStreamEvent {
-    kMediaStreamChanged
-  };
-
-  enum MediaStreamTrackEvent {
-    kMediaStreamTrackChanged
-  };
-  
+namespace WebRTC {  
   class OfferObserver : public webrtc::CreateSessionDescriptionObserver, public NotifyEmitter {
    public:
     OfferObserver(EventEmitter *listener = 0);

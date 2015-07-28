@@ -27,10 +27,7 @@
 #ifndef WEBRTC_MEDIACONSTRAINTS_H
 #define WEBRTC_MEDIACONSTRAINTS_H
 
-#include <nan.h>
-#include "Observers.h"
-#include "talk/app/webrtc/mediaconstraintsinterface.h"
-#include "webrtc/base/stringencode.h"
+#include "Common.h"
 
 namespace WebRTC {
   class MediaConstraints : public webrtc::MediaConstraintsInterface, public rtc::RefCountInterface {

@@ -26,13 +26,16 @@
 #ifndef WEBRTC_MEDIASTREAM_H
 #define WEBRTC_MEDIASTREAM_H
 
-#include <nan.h>
-
+#include "Common.h"
 #include "Observers.h" 
 #include "EventEmitter.h"
 #include "Wrap.h"
 
 namespace WebRTC {
+  enum MediaStreamEvent {
+    kMediaStreamChanged
+  };
+  
   class MediaStream : public RTCWrap, public EventEmitter {
    public:
     static void Init();    

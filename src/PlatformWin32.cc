@@ -23,14 +23,10 @@
 *
 */
 
-#include <uv.h>
 #include <conio.h>
 #include <Windows.h>
 
 #include "Platform.h"
-#include "webrtc/base/logging.h"
-#include "webrtc/base/win32socketserver.h"
-#include "webrtc/base/win32socketinit.h"
 
 using namespace WebRTC;
 

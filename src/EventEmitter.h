@@ -26,19 +26,7 @@
 #ifndef WEBRTC_EVENTEMITTER_H
 #define WEBRTC_EVENTEMITTER_H
 
-#ifdef WIN32
-#ifndef __PRETTY_FUNCTION__
-#define __PRETTY_FUNCTION__ __FUNCTION__
-#endif
-#endif
-
-#include <queue>
-#include <string>
-#include <uv.h>
-
-#include "webrtc/base/logging.h"
-#include "webrtc/base/refcount.h"
-#include "webrtc/base/scoped_ref_ptr.h"
+#include "Common.h"
 
 namespace WebRTC { 
   template<class T> class EventWrapper;

@@ -27,7 +27,6 @@
 #include "GetUserMedia.h"
 #include "GetSources.h"
 #include "MediaStream.h"
-#include "Observers.h"
 #include "MediaConstraints.h"
 
 using namespace v8;

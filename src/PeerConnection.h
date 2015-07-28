@@ -26,14 +26,34 @@
 #ifndef WEBRTC_PEERCONNECTION_H
 #define WEBRTC_PEERCONNECTION_H
 
-#include <v8.h>
-
+#include "Common.h"
 #include "Observers.h" 
 #include "EventEmitter.h"
 #include "MediaConstraints.h"
 #include "Wrap.h"
 
 namespace WebRTC {
+  enum PeerConnectionEvent {
+    kPeerConnectionCreateClosed = 1,
+    kPeerConnectionCreateOffer,
+    kPeerConnectionCreateOfferError,
+    kPeerConnectionCreateAnswer,
+    kPeerConnectionCreateAnswerError,
+    kPeerConnectionSetLocalDescription,
+    kPeerConnectionSetLocalDescriptionError,
+    kPeerConnectionSetRemoteDescription,
+    kPeerConnectionSetRemoteDescriptionError,
+    kPeerConnectionIceCandidate,
+    kPeerConnectionSignalChange,
+    kPeerConnectionIceChange,
+    kPeerConnectionIceGathering,
+    kPeerConnectionDataChannel,
+    kPeerConnectionAddStream,
+    kPeerConnectionRemoveStream,
+    kPeerConnectionRenegotiation,
+    kPeerConnectionStats
+  };  
+  
   class PeerConnection : public RTCWrap, public EventEmitter {
    public:
     static void Init(v8::Handle<v8::Object> exports);
