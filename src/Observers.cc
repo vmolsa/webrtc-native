@@ -24,7 +24,7 @@
 */
 
 #include "Observers.h"
-#include "PeeerConnection.h"
+#include "PeerConnection.h"
 #include "DataChannel.h"
 #include "MediaStream.h"
 #include "MediaStreamTrack.h"
