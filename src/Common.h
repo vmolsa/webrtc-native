@@ -30,6 +30,7 @@
 
 #include "webrtc/video_frame.h"
 
+#include "webrtc/base/atomicops.h"
 #include "webrtc/base/logging.h"
 #include "webrtc/base/json.h"
 #include "webrtc/base/basictypes.h"
