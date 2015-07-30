@@ -30,40 +30,19 @@
 
 using namespace WebRTC;
 
-class PlatformWorker : public rtc::Win32SocketServer, public rtc::Thread {
-  public:
-    PlatformWorker() : rtc::Win32SocketServer(this), rtc::Thread(this) {
-      LOG(LS_INFO) << __PRETTY_FUNCTION__;
-    }
-    
-    virtual void Run() {
-      rtc::Thread::ProcessMessages(0);
-    }
-};
-
-PlatformWorker worker;
-uv_prepare_t runLoop;
-
-#if (UV_VERSION_MAJOR > 0)
-void OnRunLoop(uv_prepare_t *handle) {
-#else
-void OnRunLoop(uv_prepare_t *handle, int unused) {
-#endif
-  worker.Run();
-}
+rtc::Win32Thread worker;
 
 void Platform::Init() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   rtc::EnsureWinsockInit();
 
-  uv_prepare_init(uv_default_loop(), &runLoop);
-  uv_prepare_start(&runLoop, OnRunLoop);
-  uv_unref(reinterpret_cast<uv_handle_t*>(&runLoop));
+  worker.Start();
 }
 
 void Platform::Dispose() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-    
-  uv_prepare_stop(&runLoop);
+
+  worker.Quit();
+  worker.Stop();
 }
