@@ -31,11 +31,7 @@
         'MediaStreamCapturer.cc',
       ],
       'dependencies': [
-        '<(DEPTH)/talk/libjingle.gyp:libjingle_peerconnection', 
-        '<(DEPTH)/webrtc/modules/modules.gyp:video_capture_module',
-        '<(DEPTH)/webrtc/modules/modules.gyp:video_capture_module_internal_impl',
-        '<(DEPTH)/webrtc/modules/modules.gyp:video_render_module',
-        '<(DEPTH)/webrtc/modules/modules.gyp:video_render_module_internal_impl',
+        '<(DEPTH)/talk/libjingle.gyp:libjingle_peerconnection',
       ],
       'include_dirs': [
         '<(DEPTH)/third_party/jsoncpp/source/include',
@@ -102,7 +98,7 @@
             'WindowRendererMac.mm',
           ],
         }],
-      ],      
+      ],
     },
     {
       'target_name': 'All',
