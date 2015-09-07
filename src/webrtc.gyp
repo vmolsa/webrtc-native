@@ -67,6 +67,7 @@
           ],
           'sources': [
             'WindowRendererLinux.cc',
+            'LinuxWindow.cc',
           ],
         }],
         ['OS=="win"', {
