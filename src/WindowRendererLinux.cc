@@ -23,12 +23,8 @@
 *
 */
 
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <iostream>
-#include <sys/time.h>
-
 #include "WindowRenderer.h"
+#include "LinuxWindow.h"
  
 //using namespace v8;
 using namespace WebRTC;
@@ -50,44 +46,13 @@ WindowRenderer::WindowRenderer(v8::Local<v8::Object> properties) :
   EventEmitter::SetReference(true);
   const char *error = 0;
 
-  int screen;
-  XEvent event;
-  XSetWindowAttributes attr;
-  XVisualInfo info;
-  Window window = 0;
-  Display* display = XOpenDisplay(NULL);
-  unsigned long mask;
+  _window = LinuxWindow::CreateWindow(_width, _height);
   
-  if (display) {
-    screen = DefaultScreen(display);
-    
-    (void) XMatchVisualInfo(display, screen, 24, TrueColor, &info);
-    
-    attr.colormap = XCreateColormap(display, DefaultRootWindow(display), info.visual, AllocNone);
-    attr.event_mask = StructureNotifyMask | ExposureMask;
-    attr.background_pixel = 0;
-    attr.border_pixel = 0;
-
-    mask = CWBackPixel | CWBorderPixel | CWColormap | CWEventMask;
-    
-    window = XCreateWindow(display, DefaultRootWindow(display), 0, 0, _width, _height, 0, info.depth, InputOutput, info.visual, mask, &attr);    
-  } else {
-    error = "Unable to connect X11";
-  }
-    
-  if (window) {
-    XStoreName(display, window, "WebRTC @ NodeJS");
-    XSetIconName(display, window, "WebRTC @ NodeJS");
-    XSelectInput(display, window, StructureNotifyMask);
-    XMapWindow(display, window);
-    
-    do {
-        XNextEvent(display, &event);
-    } while (event.type != MapNotify || event.xmap.event != window);    
-    
-    _window = (void *) window;
+  if (_window) {
     _type = webrtc::kRenderX11;
     _module = webrtc::VideoRender::CreateVideoRender(1337, _window, _fullScreen, _type);    
+  } else {
+    error = "Unable to connect X11";
   }
 
   if (_module) {
