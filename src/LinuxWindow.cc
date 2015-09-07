@@ -64,7 +64,7 @@ void *LinuxWindow::CreateWindow(int width, int height) {
         XNextEvent(display, &event);
     } while (event.type != MapNotify || event.xmap.event != window);
     
-    return window;
+    return (void*) window;
   } 
   
   return 0;
