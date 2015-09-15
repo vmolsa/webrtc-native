@@ -1,0 +1,257 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Webrtc-native by vmolsa</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-dark.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/respond.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+      <div id="header">
+        <nav>
+          <li class="fork"><a href="https://github.com/vmolsa/webrtc-native">View On GitHub</a></li>
+          <li class="downloads"><a href="https://github.com/vmolsa/webrtc-native/zipball/master">ZIP</a></li>
+          <li class="downloads"><a href="https://github.com/vmolsa/webrtc-native/tarball/master">TAR</a></li>
+          <li class="title">DOWNLOADS</li>
+        </nav>
+      </div><!-- end header -->
+
+    <div class="wrapper">
+
+      <section>
+        <div id="title">
+          <h1>Webrtc-native</h1>
+          <p>WebRTC for NodeJS</p>
+          <hr>
+          <span class="credits left">Project maintained by <a href="https://github.com/vmolsa">vmolsa</a></span>
+          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
+        </div>
+
+        <p><a href="http://en.wikipedia.org/wiki/WebRTC">WebRTC</a> for NodeJS</p>
+
+<h1>
+<a id="install" class="anchor" href="#install" aria-hidden="true"><span class="octicon octicon-link"></span></a>Install</h1>
+
+<pre><code>npm install webrtc-native --save
+</code></pre>
+
+<h3>
+<a id="compatibility-x64" class="anchor" href="#compatibility-x64" aria-hidden="true"><span class="octicon octicon-link"></span></a>Compatibility x64</h3>
+
+<table>
+<thead>
+<tr>
+<th>npm install &amp;&amp; test</th>
+<th>Windows 8.1</th>
+<th>OSX</th>
+<th>Ubuntu 14.04</th>
+<th>Fedora 22</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NodeJS v0.10.x</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>NodeJS v0.12.x</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Io.js v2.3.1</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+
+<h3>
+<a id="features" class="anchor" href="#features" aria-hidden="true"><span class="octicon octicon-link"></span></a>Features</h3>
+
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Windows 8.1</th>
+<th>OSX</th>
+<th>Ubuntu 14.04</th>
+<th>Fedora 22</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RTP DataChannels</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>SCTP DataChannels</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Audio Capture</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Untested</td>
+<td>Untested</td>
+</tr>
+<tr>
+<td>Video Capture</td>
+<td>Yes</td>
+<td>No</td>
+<td>Untested</td>
+<td>Untested</td>
+</tr>
+<tr>
+<td>Screen Capture</td>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Window Capture</td>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+
+<h1>
+<a id="api" class="anchor" href="#api" aria-hidden="true"><span class="octicon octicon-link"></span></a>API</h1>
+
+<h3>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h3>
+
+<pre><code>var WebRTC = require('webrtc-native');
+</code></pre>
+
+<h4>
+<a id="webrtcrtcpeerconnection" class="anchor" href="#webrtcrtcpeerconnection" aria-hidden="true"><span class="octicon octicon-link"></span></a>WebRTC.<a href="https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection">RTCPeerConnection</a>
+</h4>
+
+<h4>
+<a id="webrtcrtcicecandidate" class="anchor" href="#webrtcrtcicecandidate" aria-hidden="true"><span class="octicon octicon-link"></span></a>WebRTC.<a href="https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnectionIceEvent">RTCIceCandidate</a>
+</h4>
+
+<h4>
+<a id="webrtcrtcsessiondescription" class="anchor" href="#webrtcrtcsessiondescription" aria-hidden="true"><span class="octicon octicon-link"></span></a>WebRTC.<a href="https://developer.mozilla.org/en-US/docs/Web/API/RTCSessionDescription">RTCSessionDescription</a>
+</h4>
+
+<h4>
+<a id="webrtcrtcdatachannel" class="anchor" href="#webrtcrtcdatachannel" aria-hidden="true"><span class="octicon octicon-link"></span></a>WebRTC.<a href="https://developer.mozilla.org/en-US/docs/Web/API/RTCDataChannel">RTCDataChannel</a>
+</h4>
+
+<h4>
+<a id="webrtcmediastream" class="anchor" href="#webrtcmediastream" aria-hidden="true"><span class="octicon octicon-link"></span></a>WebRTC.<a href="https://developer.mozilla.org/en-US/docs/Web/API/MediaStream">MediaStream</a>
+</h4>
+
+<h4>
+<a id="webrtcmediastreamtrack" class="anchor" href="#webrtcmediastreamtrack" aria-hidden="true"><span class="octicon octicon-link"></span></a>WebRTC.<a href="https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack">MediaStreamTrack</a>
+</h4>
+
+<h4>
+<a id="webrtcgetusermedia" class="anchor" href="#webrtcgetusermedia" aria-hidden="true"><span class="octicon octicon-link"></span></a>WebRTC.<a href="https://developer.mozilla.org/en-US/docs/Web/API/Navigator/getUserMedia">getUserMedia</a>
+</h4>
+
+<h4>
+<a id="webrtcgetsources" class="anchor" href="#webrtcgetsources" aria-hidden="true"><span class="octicon octicon-link"></span></a>WebRTC.<a href="http://simpl.info/getusermedia/sources/index.html">getSources</a>
+</h4>
+
+<ul>
+<li>Returns array of available device inputs</li>
+</ul>
+
+<h4>
+<a id="webrtcrtcgarbagecollect" class="anchor" href="#webrtcrtcgarbagecollect" aria-hidden="true"><span class="octicon octicon-link"></span></a>WebRTC.RTCGarbageCollect()</h4>
+
+<ul>
+<li>Notify V8 Engine to attempt to free memory.</li>
+</ul>
+
+<h4>
+<a id="webrtcsetdebugboolean" class="anchor" href="#webrtcsetdebugboolean" aria-hidden="true"><span class="octicon octicon-link"></span></a>WebRTC.setDebug(boolean)</h4>
+
+<ul>
+<li>Enable / Disable WebRTC log messages</li>
+</ul>
+
+<h1>
+<a id="build-from-source" class="anchor" href="#build-from-source" aria-hidden="true"><span class="octicon octicon-link"></span></a>Build from source</h1>
+
+<pre><code>git clone https://github.com/vmolsa/webrtc-native
+cd webrtc-native
+export BUILD_WEBRTC=true
+npm install
+</code></pre>
+
+<h1>
+<a id="prerequisite-software" class="anchor" href="#prerequisite-software" aria-hidden="true"><span class="octicon octicon-link"></span></a>Prerequisite software</h1>
+
+<h2>
+<a id="windows" class="anchor" href="#windows" aria-hidden="true"><span class="octicon octicon-link"></span></a>Windows</h2>
+
+<pre><code>You must build with Visual Studio 2013 Update 4, no other versions are supported.
+You must have Windows 7 x64 or later. x86 OSs are unsupported.
+You must run "npm install" with administrator privileges.
+</code></pre>
+
+<ul>
+<li><p><a href="http://git-scm.com/">Git</a></p></li>
+<li><p><a href="https://www.python.org/downloads/">Python 2.7.x</a></p></li>
+<li><p><a href="https://www.visualstudio.com/products/visual-studio-community-vs">Visual Studio Community</a></p></li>
+<li><p><a href="https://www.microsoft.com/en-us/download/details.aspx?id=6812">DirectX SDK</a></p></li>
+</ul>
+
+<h2>
+<a id="os-x" class="anchor" href="#os-x" aria-hidden="true"><span class="octicon octicon-link"></span></a>OS X</h2>
+
+<pre><code>XCode 3.0 or higher
+</code></pre>
+
+<h2>
+<a id="ubuntu-1404-lts" class="anchor" href="#ubuntu-1404-lts" aria-hidden="true"><span class="octicon octicon-link"></span></a>Ubuntu 14.04 LTS</h2>
+
+<pre><code>sudo apt-get install --yes build-essential python2.7 git pkg-config libnss3-dev libasound2-dev libpulse-dev libjpeg62-dev libxv-dev libgtk2.0-dev libexpat1-dev default-jdk libxtst-dev libxss-dev libpci-dev libgconf2-dev libgnome-keyring-dev libudev-dev
+</code></pre>
+
+<h2>
+<a id="fedora-22" class="anchor" href="#fedora-22" aria-hidden="true"><span class="octicon octicon-link"></span></a>Fedora 22</h2>
+
+<pre><code>sudo dnf update -y
+sudo dnf groupinstall -y "Development tools"
+sudo dnf install -y git gcc-c++ nss-devel SAASound-devel alsa-lib-devel systemd-devel pulseaudio-libs-devel turbojpeg-devel libXv-devel gtk+-devel expat-devel java-1.8.0-openjdk-devel gtk2-devel libXtst-devel libXScrnSaver-devel redhat-lsb pciutils-devel dbus-devel pkgconfig GConf2-devel libgnome-keyring-devel
+</code></pre>
+      </section>
+
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>
