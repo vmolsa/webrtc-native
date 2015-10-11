@@ -28,14 +28,16 @@
 using namespace v8;
 using namespace WebRTC;
 
-Nan::PersistentBase<Function> _require;
+Nan::Persistent<Function> _require;
 
 #if (NODE_MODULE_VERSION <= NODE_0_10_MODULE_VERSION)
-Nan::PersistentBase<Function> _parse;
+Nan::Persistent<Function> _parse;
 #endif
 
-void Global::Init(Handle<Object> exports) {
-  Nan::HandleScope();
+void WebRTC::Global::Init(Handle<Object> exports) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  Nan::HandleScope scope;
   
   Local<Object> global = Nan::GetCurrentContext()->Global();
   _require.Reset(Local<Function>::Cast(global->Get(Nan::New("require").ToLocalChecked())));
@@ -46,7 +48,7 @@ void Global::Init(Handle<Object> exports) {
 #endif
 }
 
-Local<Function> Global::Require(Local<String> library) {
+Local<Function> WebRTC::Global::Require(Local<String> library) {
   Nan::EscapableHandleScope scope;
   Local<Value> argv[] = { library };
   Local<Value> retval = Nan::MakeCallback(Nan::GetCurrentContext()->Global(), Nan::New(_require), 1, argv);

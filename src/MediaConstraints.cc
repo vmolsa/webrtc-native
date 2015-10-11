@@ -48,7 +48,7 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New() {
 rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(const Local<Object> &constraints) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Nan::HandleScope();
+  Nan::HandleScope scope;
   
   rtc::scoped_refptr<MediaConstraints> self = MediaConstraints::New();
 
@@ -228,7 +228,7 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(const Local<Object> &
 rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(const Local<Value> &constraints) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Nan::HandleScope();
+  Nan::HandleScope scope;
   
   if (!constraints.IsEmpty() && constraints->IsObject()) {
     Local<Object> obj = Local<Object>::Cast(constraints);

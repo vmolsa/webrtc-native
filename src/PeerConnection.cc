@@ -37,7 +37,7 @@ using namespace WebRTC;
 void PeerConnection::Init(Handle<Object> exports) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Nan::HandleScope();
+  Nan::HandleScope scope;
   
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(PeerConnection::New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
@@ -74,7 +74,7 @@ void PeerConnection::Init(Handle<Object> exports) {
   exports->Set(Nan::New("RTCPeerConnection").ToLocalChecked(), tpl->GetFunction());
 }
 
-Nan::PersistentBase<Function> PeerConnection::constructor;
+Nan::Persistent<Function> PeerConnection::constructor;
 
 PeerConnection::PeerConnection(const Local<Object> &configuration,
                                const Local<Object> &constraints)
@@ -941,7 +941,7 @@ void PeerConnection::SetOnRemoveStream(Local<String> property, Local<Value> valu
 void PeerConnection::On(Event *event) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Nan::HandleScope();
+  Nan::HandleScope scope;
   PeerConnectionEvent type = event->Type<PeerConnectionEvent>();
   Local<Function> callback;
   Local<Object> container;

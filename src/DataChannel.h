@@ -83,14 +83,14 @@ namespace WebRTC {
     rtc::scoped_refptr<DataChannelObserver> _observer;
     rtc::scoped_refptr<webrtc::DataChannelInterface> _socket;
     
-    Nan::PersistentBase<v8::String> _binaryType;
+    Nan::Persistent<v8::String> _binaryType;
     
-    Nan::PersistentBase<v8::Function> _onopen;
-    Nan::PersistentBase<v8::Function> _onmessage;
-    Nan::PersistentBase<v8::Function> _onclose;
-    Nan::PersistentBase<v8::Function> _onerror;
+    Nan::Persistent<v8::Function> _onopen;
+    Nan::Persistent<v8::Function> _onmessage;
+    Nan::Persistent<v8::Function> _onclose;
+    Nan::Persistent<v8::Function> _onerror;
     
-    static Nan::PersistentBase<v8::Function> constructor;
+    static Nan::Persistent<v8::Function> constructor;
   };
 };
 

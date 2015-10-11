@@ -85,13 +85,13 @@ namespace WebRTC {
     rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> _track;
     rtc::scoped_refptr<MediaStreamTrackObserver> _observer;
 
-    Nan::PersistentBase<v8::Function> _onstarted;
-    Nan::PersistentBase<v8::Function> _onmute;
-    Nan::PersistentBase<v8::Function> _onunmute;
-    Nan::PersistentBase<v8::Function> _onoverconstrained;
-    Nan::PersistentBase<v8::Function> _onended;
+    Nan::Persistent<v8::Function> _onstarted;
+    Nan::Persistent<v8::Function> _onmute;
+    Nan::Persistent<v8::Function> _onunmute;
+    Nan::Persistent<v8::Function> _onoverconstrained;
+    Nan::Persistent<v8::Function> _onended;
 
-    static Nan::PersistentBase<v8::Function> constructor;
+    static Nan::Persistent<v8::Function> constructor;
   };
 };
 

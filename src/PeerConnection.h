@@ -108,32 +108,32 @@ namespace WebRTC {
     webrtc::PeerConnectionInterface *GetSocket();
     
    protected:
-    Nan::PersistentBase<v8::Function> _onsignalingstatechange;
-    Nan::PersistentBase<v8::Function> _oniceconnectionstatechange;
-    Nan::PersistentBase<v8::Function> _onicecandidate;
-    Nan::PersistentBase<v8::Function> _ondatachannel;
-    Nan::PersistentBase<v8::Function> _onnegotiationneeded;
-    Nan::PersistentBase<v8::Function> _onaddstream;
-    Nan::PersistentBase<v8::Function> _onremovestream;
+    Nan::Persistent<v8::Function> _onsignalingstatechange;
+    Nan::Persistent<v8::Function> _oniceconnectionstatechange;
+    Nan::Persistent<v8::Function> _onicecandidate;
+    Nan::Persistent<v8::Function> _ondatachannel;
+    Nan::Persistent<v8::Function> _onnegotiationneeded;
+    Nan::Persistent<v8::Function> _onaddstream;
+    Nan::Persistent<v8::Function> _onremovestream;
     
-    Nan::PersistentBase<v8::Function> _offerCallback;
-    Nan::PersistentBase<v8::Function> _offerErrorCallback;
+    Nan::Persistent<v8::Function> _offerCallback;
+    Nan::Persistent<v8::Function> _offerErrorCallback;
     
-    Nan::PersistentBase<v8::Function> _answerCallback;
-    Nan::PersistentBase<v8::Function> _answerErrorCallback;
+    Nan::Persistent<v8::Function> _answerCallback;
+    Nan::Persistent<v8::Function> _answerErrorCallback;
     
-    Nan::PersistentBase<v8::Function> _localCallback;
-    Nan::PersistentBase<v8::Function> _localErrorCallback;
+    Nan::Persistent<v8::Function> _localCallback;
+    Nan::Persistent<v8::Function> _localErrorCallback;
     
-    Nan::PersistentBase<v8::Function> _remoteCallback;
-    Nan::PersistentBase<v8::Function> _remoteErrorCallback;
+    Nan::Persistent<v8::Function> _remoteCallback;
+    Nan::Persistent<v8::Function> _remoteErrorCallback;
 
-    Nan::PersistentBase<v8::Function> _onstats;
+    Nan::Persistent<v8::Function> _onstats;
     
-    Nan::PersistentBase<v8::Object> _localsdp;
-    Nan::PersistentBase<v8::Object> _remotesdp;
+    Nan::Persistent<v8::Object> _localsdp;
+    Nan::Persistent<v8::Object> _remotesdp;
     
-    static Nan::PersistentBase<v8::Function> constructor;
+    static Nan::Persistent<v8::Function> constructor;
     
     rtc::scoped_refptr<StatsObserver> _stats;
     rtc::scoped_refptr<OfferObserver> _offer;

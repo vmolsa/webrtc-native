@@ -48,7 +48,7 @@ namespace WebRTC {
     static void Timestamp(const Nan::FunctionCallbackInfo<v8::Value> &info);
     
    protected:
-    static Nan::PersistentBase<v8::Function> constructor;
+    static Nan::Persistent<v8::Function> constructor;
     webrtc::StatsReport* _report;
   };
   
@@ -64,7 +64,7 @@ namespace WebRTC {
     static void Result(const Nan::FunctionCallbackInfo<v8::Value> &info);
     
    protected:
-    static Nan::PersistentBase<v8::Function> constructor;
+    static Nan::Persistent<v8::Function> constructor;
     webrtc::StatsReports _reports;
   };
 };

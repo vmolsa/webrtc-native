@@ -72,9 +72,9 @@ namespace WebRTC {
    protected:
     bool _ended;
 
-    Nan::PersistentBase<v8::Function> _onaddtrack;
-    Nan::PersistentBase<v8::Function> _onremovetrack;
-    Nan::PersistentBase<v8::Function> _onended;
+    Nan::Persistent<v8::Function> _onaddtrack;
+    Nan::Persistent<v8::Function> _onremovetrack;
+    Nan::Persistent<v8::Function> _onended;
 
     rtc::scoped_refptr<MediaStreamObserver> _observer;
     rtc::scoped_refptr<webrtc::MediaStreamInterface> _stream;
@@ -82,7 +82,7 @@ namespace WebRTC {
     webrtc::AudioTrackVector _audio_tracks;
     webrtc::VideoTrackVector _video_tracks;
 
-    static Nan::PersistentBase<v8::Function> constructor;
+    static Nan::Persistent<v8::Function> constructor;
   };
 };
 

@@ -72,11 +72,11 @@ namespace WebRTC {
       bool _closing;
       bool _callback;
       
-      Nan::PersistentBase<v8::Function> _ondata;
-      Nan::PersistentBase<v8::Function> _onerror;
-      Nan::PersistentBase<v8::Function> _onend;
+      Nan::Persistent<v8::Function> _ondata;
+      Nan::Persistent<v8::Function> _onerror;
+      Nan::Persistent<v8::Function> _onend;
       
-      static Nan::PersistentBase<v8::Object> constructor;
+      static Nan::Persistent<v8::Object> constructor;
   };
 };
 

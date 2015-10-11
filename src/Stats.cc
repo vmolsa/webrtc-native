@@ -28,14 +28,14 @@
 using namespace v8;
 using namespace WebRTC;
 
-Nan::PersistentBase<Function> RTCStatsReport::constructor;
+Nan::Persistent<Function> RTCStatsReport::constructor;
 
 RTCStatsReport::~RTCStatsReport() {
   
 }
 
 void RTCStatsReport::Init() {
-  Nan::HandleScope();
+  Nan::HandleScope scope;
   
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(RTCStatsReport::New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
@@ -159,14 +159,14 @@ void RTCStatsReport::Timestamp(const Nan::FunctionCallbackInfo<Value> &info) {
   return info.GetReturnValue().Set(Nan::New(stats->_report->timestamp()));
 }
 
-Nan::PersistentBase<Function> RTCStatsResponse::constructor;
+Nan::Persistent<Function> RTCStatsResponse::constructor;
 
 RTCStatsResponse::~RTCStatsResponse() {
   
 }
 
 void RTCStatsResponse::Init() {
-  Nan::HandleScope();
+  Nan::HandleScope scope;
 
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(RTCStatsResponse::New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);

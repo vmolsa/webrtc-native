@@ -32,12 +32,12 @@
 using namespace v8;
 using namespace WebRTC;
 
-Nan::PersistentBase<Object> MediaSource::constructor;
+Nan::Persistent<Object> MediaSource::constructor;
 
 void MediaSource::Init(Handle<Object> exports) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Nan::HandleScope();
+  Nan::HandleScope scope;
   
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(MediaSource::New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
@@ -117,7 +117,7 @@ bool MediaSource::Disconnect(MediaSource *source) {
 void MediaSource::End() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Nan::HandleScope();
+  Nan::HandleScope scope;
   
   if (!_closing) {
     _closing = true;
@@ -150,7 +150,7 @@ bool MediaSource::End(Local<Value> data) {
 bool MediaSource::Write(Local<Value> data) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Nan::HandleScope();
+  Nan::HandleScope scope;
   
   if (!data.IsEmpty() && data->IsObject()) {
     Local<Object> frame = Local<Object>::Cast(data);

@@ -104,6 +104,8 @@ void WebrtcModuleDispose(void *arg) {
 
 void WebrtcModuleInit(Handle<Object> exports) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  Nan::HandleScope scope;
 
   WebRTC::Global::Init(exports);
   WebRTC::Platform::Init();

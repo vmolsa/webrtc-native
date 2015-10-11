@@ -61,7 +61,7 @@ WebcamCapturer::~WebcamCapturer() {
 void WebcamCapturer::Init(v8::Local<v8::Object> constructor) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Nan::HandleScope();
+  Nan::HandleScope scope;
   
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(WebcamCapturer::New);
   constructor->Set(Nan::New("webcam").ToLocalChecked(), tpl->GetFunction());

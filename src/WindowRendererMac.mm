@@ -108,7 +108,7 @@ void WindowRenderer::Init() {
 void WindowRenderer::Init(v8::Local<v8::Object> constructor) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Nan::HandleScope();
+  Nan::HandleScope scope;
   
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(WindowRenderer::New);
   constructor->Set(Nan::New("window").ToLocalChecked(), tpl->GetFunction());

@@ -28,12 +28,12 @@
 using namespace v8;
 using namespace WebRTC;
 
-Nan::PersistentBase<Function> MediaStreamTrack::constructor;
+Nan::Persistent<Function> MediaStreamTrack::constructor;
 
 void MediaStreamTrack::Init() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Nan::HandleScope();
+  Nan::HandleScope scope;
 
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(MediaStreamTrack::New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);

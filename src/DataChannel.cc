@@ -28,10 +28,12 @@
 using namespace v8;
 using namespace WebRTC;
 
-Nan::PersistentBase<Function> DataChannel::constructor;
+Nan::Persistent<Function> DataChannel::constructor;
 
 void DataChannel::Init() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  Nan::HandleScope scope;
   
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(DataChannel::New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
@@ -413,6 +415,7 @@ void DataChannel::SetOnError(Local<String> property, Local<Value> value, const N
 void DataChannel::On(Event *event) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
+  Nan::HandleScope scope;
   DataChannelEvent type = event->Type<DataChannelEvent>();
   node::ArrayBuffer *arrayBuffer = 0;
   Local<Function> callback;

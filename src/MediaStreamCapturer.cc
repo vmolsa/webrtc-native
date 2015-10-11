@@ -56,7 +56,7 @@ MediaStreamCapturer::~MediaStreamCapturer() {
 void MediaStreamCapturer::Init(Local<Object> constructor) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Nan::HandleScope();
+  Nan::HandleScope scope;
   
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(MediaStreamCapturer::New);
   constructor->Set(Nan::New("mediastream").ToLocalChecked(), tpl->GetFunction());
