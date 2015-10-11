@@ -41,64 +41,57 @@
 
 using namespace v8;
 
-NAN_METHOD(SetDebug) {
+void SetDebug(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-
-  if (args.Length() && !args[0].IsEmpty()) {
-    if (args[0]->IsTrue()) {
+  if (info.Length() && !info[0].IsEmpty()) {
+    if (info[0]->IsTrue()) {
       rtc::LogMessage::LogToDebug(rtc::LS_VERBOSE);
     } else {
       rtc::LogMessage::LogToDebug(rtc::LS_NONE);
     }
   }
 
-  NanReturnUndefined();
+  info.GetReturnValue().SetUndefined();
 }
 
-NAN_METHOD(RTCGarbageCollect) {
+void RTCGarbageCollect(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  NanLowMemoryNotification();
-  NanReturnUndefined();
+  Nan::LowMemoryNotification();
+  info.GetReturnValue().SetUndefined();
 }
 
-NAN_METHOD(RTCIceCandidate) {
+void RTCIceCandidate(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  
-  if (args.Length() == 1 && args[0]->IsObject() && args.IsConstructCall()) {
-    Local<Object> arg = args[0]->ToObject();
-    Local<Object> retval = NanNew<Object>();
+  if (info.Length() == 1 && info[0]->IsObject() && info.IsConstructCall()) {
+    Local<Object> arg = info[0]->ToObject();
+    Local<Object> retval = Nan::New<Object>();
     
-    retval->Set(NanNew("candidate"), arg->Get(NanNew("candidate")));               
-    retval->Set(NanNew("sdpMLineIndex"), arg->Get(NanNew("sdpMLineIndex")));
-    retval->Set(NanNew("sdpMid"), arg->Get(NanNew("sdpMid")));
+    retval->Set(Nan::New("candidate").ToLocalChecked(), arg->Get(Nan::New("candidate").ToLocalChecked()));               
+    retval->Set(Nan::New("sdpMLineIndex").ToLocalChecked(), arg->Get(Nan::New("sdpMLineIndex").ToLocalChecked()));
+    retval->Set(Nan::New("sdpMid").ToLocalChecked(), arg->Get(Nan::New("sdpMid").ToLocalChecked()));
     
-    NanReturnValue(retval);
+    return info.GetReturnValue().Set(retval);
   } else {
-    NanReturnValue(args[0]);
+    return info.GetReturnValue().Set(info[0]);
   }
 }
 
-NAN_METHOD(RTCSessionDescription) {
+void RTCSessionDescription(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  
-  if (args.Length() == 1 && args[0]->IsObject() && args.IsConstructCall()) {
-    Local<Object> arg = args[0]->ToObject();
-    Local<Object> retval = NanNew<Object>();
+  if (info.Length() == 1 && info[0]->IsObject() && info.IsConstructCall()) {
+    Local<Object> arg = info[0]->ToObject();
+    Local<Object> retval = Nan::New<Object>();
     
-    retval->Set(NanNew("type"), arg->Get(NanNew("type")));
-    retval->Set(NanNew("sdp"), arg->Get(NanNew("sdp")));
+    retval->Set(Nan::New("type").ToLocalChecked(), arg->Get(Nan::New("type").ToLocalChecked()));
+    retval->Set(Nan::New("sdp").ToLocalChecked(), arg->Get(Nan::New("sdp").ToLocalChecked()));
 
-    NanReturnValue(retval);
+    return info.GetReturnValue().Set(retval);
   } else {
-    NanReturnValue(args[0]);
+    return info.GetReturnValue().Set(info[0]);
   }
 }
 
@@ -111,8 +104,6 @@ void WebrtcModuleDispose(void *arg) {
 
 void WebrtcModuleInit(Handle<Object> exports) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-
-  NanScope();
 
   WebRTC::Global::Init(exports);
   WebRTC::Platform::Init();
@@ -128,10 +119,10 @@ void WebrtcModuleInit(Handle<Object> exports) {
   WebRTC::MediaSource::Init(exports);
   WebRTC::WindowRenderer::Init();
   
-  exports->Set(NanNew("RTCGarbageCollect"), NanNew<FunctionTemplate>(RTCGarbageCollect)->GetFunction()); 
-  exports->Set(NanNew("RTCIceCandidate"), NanNew<FunctionTemplate>(RTCIceCandidate)->GetFunction());
-  exports->Set(NanNew("RTCSessionDescription"), NanNew<FunctionTemplate>(RTCSessionDescription)->GetFunction());
-  exports->Set(NanNew("setDebug"), NanNew<FunctionTemplate>(SetDebug)->GetFunction());
+  exports->Set(Nan::New("RTCGarbageCollect").ToLocalChecked(), Nan::New<FunctionTemplate>(RTCGarbageCollect)->GetFunction()); 
+  exports->Set(Nan::New("RTCIceCandidate").ToLocalChecked(), Nan::New<FunctionTemplate>(RTCIceCandidate)->GetFunction());
+  exports->Set(Nan::New("RTCSessionDescription").ToLocalChecked(), Nan::New<FunctionTemplate>(RTCSessionDescription)->GetFunction());
+  exports->Set(Nan::New("setDebug").ToLocalChecked(), Nan::New<FunctionTemplate>(SetDebug)->GetFunction());
 
   node::AtExit(WebrtcModuleDispose);
 }

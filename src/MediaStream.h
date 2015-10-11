@@ -48,33 +48,33 @@ namespace WebRTC {
     MediaStream();
     ~MediaStream() final;
     
-    static NAN_METHOD(New);
-    static NAN_METHOD(AddTrack);
-    static NAN_METHOD(Clone);
-    static NAN_METHOD(GetTrackById);
-    static NAN_METHOD(GetAudioTracks);
-    static NAN_METHOD(GetVideoTracks);
-    static NAN_METHOD(RemoveTrack);
+    static void New(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void AddTrack(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void Clone(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void GetTrackById(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void GetAudioTracks(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void GetVideoTracks(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void RemoveTrack(const Nan::FunctionCallbackInfo<v8::Value> &info);
     
-    static NAN_GETTER(GetEnded);
-    static NAN_GETTER(GetId);
-    static NAN_GETTER(GetOnAddTrack);
-    static NAN_GETTER(GetOnRemoveTrack);
-    static NAN_GETTER(GetOnEnded);
+    static void GetEnded(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetId(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetOnAddTrack(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetOnRemoveTrack(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetOnEnded(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
 
-    static NAN_SETTER(ReadOnly);
-    static NAN_SETTER(SetOnAddTrack);
-    static NAN_SETTER(SetOnRemoveTrack);
-    static NAN_SETTER(SetOnEnded);
-
+    static void ReadOnly(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+    static void SetOnAddTrack(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+    static void SetOnRemoveTrack(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+    static void SetOnEnded(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+    
     void On(Event *event) final;
 
    protected:
-     bool _ended;
+    bool _ended;
 
-    v8::Persistent<v8::Function> _onaddtrack;
-    v8::Persistent<v8::Function> _onremovetrack;
-    v8::Persistent<v8::Function> _onended;
+    Nan::PersistentBase<v8::Function> _onaddtrack;
+    Nan::PersistentBase<v8::Function> _onremovetrack;
+    Nan::PersistentBase<v8::Function> _onended;
 
     rtc::scoped_refptr<MediaStreamObserver> _observer;
     rtc::scoped_refptr<webrtc::MediaStreamInterface> _stream;
@@ -82,7 +82,7 @@ namespace WebRTC {
     webrtc::AudioTrackVector _audio_tracks;
     webrtc::VideoTrackVector _video_tracks;
 
-    static v8::Persistent<v8::Function> constructor;
+    static Nan::PersistentBase<v8::Function> constructor;
   };
 };
 

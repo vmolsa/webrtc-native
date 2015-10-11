@@ -48,32 +48,32 @@ namespace WebRTC {
     DataChannel();
     ~DataChannel() final;
     
-    static NAN_METHOD(New);
-    static NAN_METHOD(Close);
-    static NAN_METHOD(Send);
+    static void New(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void Close(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void Send(const Nan::FunctionCallbackInfo<v8::Value> &info);
 
-    static NAN_GETTER(GetId);
-    static NAN_GETTER(GetLabel);
-    static NAN_GETTER(GetOrdered);
-    static NAN_GETTER(GetProtocol);
-    static NAN_GETTER(GetReadyState);
-    static NAN_GETTER(GetBufferedAmount);
-    static NAN_GETTER(GetBinaryType);
-    static NAN_GETTER(GetMaxPacketLifeType);
-    static NAN_GETTER(GetMaxRetransmits);
-    static NAN_GETTER(GetNegotiated);
-    static NAN_GETTER(GetReliable);
-    static NAN_GETTER(GetOnOpen);
-    static NAN_GETTER(GetOnMessage);
-    static NAN_GETTER(GetOnClose);
-    static NAN_GETTER(GetOnError);
+    static void GetId(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetLabel(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetOrdered(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetProtocol(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetReadyState(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetBufferedAmount(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetBinaryType(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetMaxPacketLifeType(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetMaxRetransmits(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetNegotiated(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetReliable(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetOnOpen(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetOnMessage(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetOnClose(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetOnError(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
 
-    static NAN_SETTER(ReadOnly);
-    static NAN_SETTER(SetBinaryType);
-    static NAN_SETTER(SetOnOpen);
-    static NAN_SETTER(SetOnMessage);
-    static NAN_SETTER(SetOnClose);
-    static NAN_SETTER(SetOnError);
+    static void ReadOnly(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+    static void SetBinaryType(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+    static void SetOnOpen(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+    static void SetOnMessage(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+    static void SetOnClose(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+    static void SetOnError(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
 
     void On(Event *event) final;
     
@@ -83,14 +83,14 @@ namespace WebRTC {
     rtc::scoped_refptr<DataChannelObserver> _observer;
     rtc::scoped_refptr<webrtc::DataChannelInterface> _socket;
     
-    v8::Persistent<v8::String> _binaryType;
+    Nan::PersistentBase<v8::String> _binaryType;
     
-    v8::Persistent<v8::Function> _onopen;
-    v8::Persistent<v8::Function> _onmessage;
-    v8::Persistent<v8::Function> _onclose;
-    v8::Persistent<v8::Function> _onerror;
+    Nan::PersistentBase<v8::Function> _onopen;
+    Nan::PersistentBase<v8::Function> _onmessage;
+    Nan::PersistentBase<v8::Function> _onclose;
+    Nan::PersistentBase<v8::Function> _onerror;
     
-    static v8::Persistent<v8::Function> constructor;
+    static Nan::PersistentBase<v8::Function> constructor;
   };
 };
 

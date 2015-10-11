@@ -28,81 +28,35 @@
 using namespace v8;
 using namespace WebRTC;
 
-Persistent<Function> DataChannel::constructor;
+Nan::PersistentBase<Function> DataChannel::constructor;
 
 void DataChannel::Init() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  
-  Local<FunctionTemplate> tpl = NanNew<FunctionTemplate>(DataChannel::New);
+  Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(DataChannel::New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
-  tpl->SetClassName(NanNew("RTCDataChannel"));
+  tpl->SetClassName(Nan::New("RTCDataChannel").ToLocalChecked());
   
-  tpl->PrototypeTemplate()->Set(NanNew("close"), NanNew<FunctionTemplate>(DataChannel::Close)->GetFunction());
-  tpl->PrototypeTemplate()->Set(NanNew("send"), NanNew<FunctionTemplate>(DataChannel::Send)->GetFunction());
- 
-  tpl->InstanceTemplate()->SetAccessor(NanNew("id"),
-                                       DataChannel::GetId,
-                                       DataChannel::ReadOnly);
-                                       
-  tpl->InstanceTemplate()->SetAccessor(NanNew("label"),
-                                       DataChannel::GetLabel,
-                                       DataChannel::ReadOnly);
-                                       
-  tpl->InstanceTemplate()->SetAccessor(NanNew("ordered"),
-                                       DataChannel::GetOrdered,
-                                       DataChannel::ReadOnly);
-                                       
-  tpl->InstanceTemplate()->SetAccessor(NanNew("protocol"),
-                                       DataChannel::GetProtocol,
-                                       DataChannel::ReadOnly);
-                                       
-  tpl->InstanceTemplate()->SetAccessor(NanNew("readyState"),
-                                       DataChannel::GetReadyState,
-                                       DataChannel::ReadOnly);
-                                       
-  tpl->InstanceTemplate()->SetAccessor(NanNew("bufferedAmount"),
-                                       DataChannel::GetBufferedAmount,
-                                       DataChannel::ReadOnly);
-                                       
-  tpl->InstanceTemplate()->SetAccessor(NanNew("binaryType"),
-                                       DataChannel::GetBinaryType,
-                                       DataChannel::SetBinaryType);
-                                       
-  tpl->InstanceTemplate()->SetAccessor(NanNew("maxPacketLifeType"),
-                                       DataChannel::GetMaxPacketLifeType,
-                                       DataChannel::ReadOnly);
-                                       
-  tpl->InstanceTemplate()->SetAccessor(NanNew("maxRetransmits"),
-                                       DataChannel::GetMaxRetransmits,
-                                       DataChannel::ReadOnly);
-                                       
-  tpl->InstanceTemplate()->SetAccessor(NanNew("negotiated"),
-                                       DataChannel::GetNegotiated,
-                                       DataChannel::ReadOnly);
-                                       
-  tpl->InstanceTemplate()->SetAccessor(NanNew("reliable"),
-                                       DataChannel::GetReliable,
-                                       DataChannel::ReadOnly); 
-                                       
-  tpl->InstanceTemplate()->SetAccessor(NanNew("onopen"),
-                                       DataChannel::GetOnOpen,
-                                       DataChannel::SetOnOpen); 
-                                       
-  tpl->InstanceTemplate()->SetAccessor(NanNew("onmessage"),
-                                       DataChannel::GetOnMessage,
-                                       DataChannel::SetOnMessage);
-                                       
-  tpl->InstanceTemplate()->SetAccessor(NanNew("onclose"),
-                                       DataChannel::GetOnClose,
-                                       DataChannel::SetOnClose);
-                                       
-  tpl->InstanceTemplate()->SetAccessor(NanNew("onerror"),
-                                       DataChannel::GetOnError,
-                                       DataChannel::SetOnError); 
+  Nan::SetPrototypeMethod(tpl, "close", DataChannel::Close);
+  Nan::SetPrototypeMethod(tpl, "send", DataChannel::Send);
   
-  NanAssignPersistent(constructor, tpl->GetFunction());
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("id").ToLocalChecked(), DataChannel::GetId);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("label").ToLocalChecked(), DataChannel::GetLabel);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("ordered").ToLocalChecked(), DataChannel::GetOrdered);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("protocol").ToLocalChecked(), DataChannel::GetProtocol);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("readyState").ToLocalChecked(), DataChannel::GetReadyState);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("bufferedAmount").ToLocalChecked(), DataChannel::GetBufferedAmount);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("binaryType").ToLocalChecked(), DataChannel::GetBinaryType, DataChannel::SetBinaryType);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("maxPacketLifeType").ToLocalChecked(), DataChannel::GetMaxPacketLifeType);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("maxRetransmits").ToLocalChecked(), DataChannel::GetMaxRetransmits);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("negotiated").ToLocalChecked(), DataChannel::GetNegotiated);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("reliable").ToLocalChecked(), DataChannel::GetReliable);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("onopen").ToLocalChecked(), DataChannel::GetOnOpen, DataChannel::SetOnOpen);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("onmessage").ToLocalChecked(), DataChannel::GetOnMessage, DataChannel::SetOnMessage);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("onclose").ToLocalChecked(), DataChannel::GetOnClose, DataChannel::SetOnClose);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("onerror").ToLocalChecked(), DataChannel::GetOnError, DataChannel::SetOnError);
+  
+  constructor.Reset<Function>(tpl->GetFunction());
 }
 
 DataChannel::DataChannel() {
@@ -128,29 +82,27 @@ DataChannel::~DataChannel() {
   }
 }
 
-NAN_METHOD(DataChannel::New) {
+void DataChannel::New(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
 
-  NanScope();
-
-  if (args.IsConstructCall()) {
+  if (info.IsConstructCall()) {
     DataChannel* dataChannel = new DataChannel();
-    dataChannel->Wrap(args.This(), "DataChannel");
-    NanReturnValue(args.This());
+    dataChannel->Wrap(info.This(), "DataChannel");
+    return info.GetReturnValue().Set(info.This());
   }
 
-  NanThrowError("Internal Error");
-  NanReturnUndefined();
+  Nan::ThrowError("Internal Error");
+  info.GetReturnValue().SetUndefined();
 }
 
 Local<Value> DataChannel::New(rtc::scoped_refptr<webrtc::DataChannelInterface> dataChannel) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanEscapableScope();
-  Local<Function> instance = NanNew(DataChannel::constructor);
+  Nan::EscapableHandleScope scope;
+  Local<Function> instance = Nan::New(DataChannel::constructor);
   
   if (instance.IsEmpty() || !dataChannel.get()) {
-    return NanEscapeScope(NanNull());
+    return scope.Escape(Nan::Null());
   }
   
   Local<Object> ret = instance->NewInstance();
@@ -161,9 +113,9 @@ Local<Value> DataChannel::New(rtc::scoped_refptr<webrtc::DataChannelInterface> d
   self->_socket->RegisterObserver(self->_observer.get());
   self->Emit(kDataChannelStateChange);
 
-  NanAssignPersistent(self->_binaryType, NanNew("arraybuffer"));
+  self->_binaryType.Reset(Nan::New("arraybuffer").ToLocalChecked());
 
-  return NanEscapeScope(ret);
+  return scope.Escape(ret);
 }
 
 webrtc::DataChannelInterface *DataChannel::GetSocket() const {
@@ -172,10 +124,10 @@ webrtc::DataChannelInterface *DataChannel::GetSocket() const {
   return _socket.get();
 }
 
-NAN_METHOD(DataChannel::Close) {
+void DataChannel::Close(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.This(), "DataChannel");
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.This(), "DataChannel");
   webrtc::DataChannelInterface *socket = self->GetSocket();
   
   if (socket) {
@@ -188,94 +140,88 @@ NAN_METHOD(DataChannel::Close) {
     }
   }
   
-  NanReturnUndefined();
+  info.GetReturnValue().SetUndefined();
 }
 
-NAN_METHOD(DataChannel::Send) {
+void DataChannel::Send(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
 
-  NanScope();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.This(), "DataChannel");
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.This(), "DataChannel");
   webrtc::DataChannelInterface *socket = self->GetSocket();
   bool retval = false;
 
   if (socket) {
-    if(args[0]->IsString()) {
-      std::string data(*NanUtf8String(args[0]));
+    if(info[0]->IsString()) {
+      std::string data(*Nan::Utf8String(info[0]));
       webrtc::DataBuffer buffer(data);
       retval = socket->Send(buffer);
     } else {
-      node::ArrayBuffer *container = node::ArrayBuffer::New(args[0]);
+      node::ArrayBuffer *container = node::ArrayBuffer::New(info[0]);
       rtc::Buffer data(reinterpret_cast<char *>(container->Data()), container->Length());
       webrtc::DataBuffer buffer(data, true);
       retval = socket->Send(buffer);
     }
   }
   
-  NanReturnValue(NanNew(retval));
+  return info.GetReturnValue().Set(Nan::New(retval));
 }
 
-NAN_GETTER(DataChannel::GetId) {
+void DataChannel::GetId(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder(), "DataChannel");
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
   webrtc::DataChannelInterface *socket = self->GetSocket();
   
   if (socket) {
-    NanReturnValue(NanNew(socket->id()));
+    return info.GetReturnValue().Set(Nan::New(socket->id()));
   }
 
-  NanReturnUndefined();
+  info.GetReturnValue().SetUndefined();
 }
 
-NAN_GETTER(DataChannel::GetLabel) {
+void DataChannel::GetLabel(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
 
-  NanScope();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder(), "DataChannel");
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
   webrtc::DataChannelInterface *socket = self->GetSocket();
   
   if (socket) {
-    NanReturnValue(NanNew(socket->label().c_str()));
+    return info.GetReturnValue().Set(Nan::New(socket->label().c_str()).ToLocalChecked());
   }
   
-  NanReturnUndefined();
+  info.GetReturnValue().SetUndefined();
 }
 
-NAN_GETTER(DataChannel::GetOrdered) {
+void DataChannel::GetOrdered(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder(), "DataChannel");
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
   webrtc::DataChannelInterface *socket = self->GetSocket();
   
   if (socket) {
-    NanReturnValue(NanNew(socket->ordered()));
+    return info.GetReturnValue().Set(Nan::New(socket->ordered()));
   }
   
-  NanReturnUndefined();
+  info.GetReturnValue().SetUndefined();
 }
 
-NAN_GETTER(DataChannel::GetProtocol) {
+void DataChannel::GetProtocol(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder(), "DataChannel");
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
   webrtc::DataChannelInterface *socket = self->GetSocket();
   
   if (socket) {
-    NanReturnValue(NanNew(socket->protocol().c_str()));
+    return info.GetReturnValue().Set(Nan::New(socket->protocol().c_str()).ToLocalChecked());
   }
   
-  NanReturnUndefined();
+  info.GetReturnValue().SetUndefined();
 }
 
-NAN_GETTER(DataChannel::GetReadyState) {
+void DataChannel::GetReadyState(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  NanScope();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder(), "DataChannel");
+
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
   webrtc::DataChannelInterface *socket = self->GetSocket();
   
   if (socket) {
@@ -283,206 +229,190 @@ NAN_GETTER(DataChannel::GetReadyState) {
   
     switch (state) {
       case webrtc::DataChannelInterface::kConnecting:
-        NanReturnValue(NanNew("connecting"));
+        return info.GetReturnValue().Set(Nan::New("connecting").ToLocalChecked());
         break;
       case webrtc::DataChannelInterface::kOpen:
-        NanReturnValue(NanNew("open"));
+        return info.GetReturnValue().Set(Nan::New("open").ToLocalChecked());
         break;
       case webrtc::DataChannelInterface::kClosing:
-        NanReturnValue(NanNew("closing"));
+        return info.GetReturnValue().Set(Nan::New("closing").ToLocalChecked());
         break;
       case webrtc::DataChannelInterface::kClosed:
-        NanReturnValue(NanNew("closed"));
+        return info.GetReturnValue().Set(Nan::New("closed").ToLocalChecked());
         break;
     }
   }
 
-  NanReturnUndefined();
+  info.GetReturnValue().SetUndefined();
 }
 
-NAN_GETTER(DataChannel::GetBufferedAmount) {
+void DataChannel::GetBufferedAmount(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
 
-  NanScope();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder(), "DataChannel");
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
   webrtc::DataChannelInterface *socket = self->GetSocket();
   
   if (socket) {
-    NanReturnValue(NanNew(static_cast<uint32_t>(socket->buffered_amount())));
+    return info.GetReturnValue().Set(Nan::New(static_cast<uint32_t>(socket->buffered_amount())));
   }
   
-  NanReturnUndefined();
+  info.GetReturnValue().SetUndefined();
 }
 
-NAN_GETTER(DataChannel::GetBinaryType) {
+void DataChannel::GetBinaryType(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder(), "DataChannel");
-  NanReturnValue(NanNew(self->_binaryType));
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
+  return info.GetReturnValue().Set(Nan::New(self->_binaryType));
 }
 
-NAN_GETTER(DataChannel::GetMaxPacketLifeType) {
+void DataChannel::GetMaxPacketLifeType(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder(), "DataChannel");
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
   webrtc::DataChannelInterface *socket = self->GetSocket();
   
   if (socket) {
-    NanReturnValue(NanNew(static_cast<uint32_t>(socket->maxRetransmitTime())));
+    return info.GetReturnValue().Set(Nan::New(static_cast<uint32_t>(socket->maxRetransmitTime())));
   }
   
-  NanReturnUndefined();
+  info.GetReturnValue().SetUndefined();
 }
 
-NAN_GETTER(DataChannel::GetMaxRetransmits) {
+void DataChannel::GetMaxRetransmits(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder(), "DataChannel");
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
   webrtc::DataChannelInterface *socket = self->GetSocket();
   
   if (socket) {
-    NanReturnValue(NanNew(static_cast<uint32_t>(socket->maxRetransmits())));
+    return info.GetReturnValue().Set(Nan::New(static_cast<uint32_t>(socket->maxRetransmits())));
   }
   
-  NanReturnUndefined();
+  info.GetReturnValue().SetUndefined();
 }
 
-NAN_GETTER(DataChannel::GetNegotiated) {
+void DataChannel::GetNegotiated(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder(), "DataChannel");
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
   webrtc::DataChannelInterface *socket = self->GetSocket();
   
   if (socket) {
-    NanReturnValue(NanNew(socket->negotiated()));
+    return info.GetReturnValue().Set(Nan::New(socket->negotiated()));
   }
   
-  NanReturnValue(NanFalse());
+  return info.GetReturnValue().Set(Nan::False());
 }
 
-NAN_GETTER(DataChannel::GetReliable) {
+void DataChannel::GetReliable(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder(), "DataChannel");
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
   webrtc::DataChannelInterface *socket = self->GetSocket();
   
   if (socket) {
-    NanReturnValue(NanNew(socket->reliable()));
+    return info.GetReturnValue().Set(Nan::New(socket->reliable()));
   }
   
-  NanReturnValue(NanFalse());
+  return info.GetReturnValue().Set(Nan::False());
 }
 
-NAN_GETTER(DataChannel::GetOnOpen) {
+void DataChannel::GetOnOpen(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  NanScope();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder(), "DataChannel");
-  NanReturnValue(NanNew(self->_onopen));
+
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
+  return info.GetReturnValue().Set(Nan::New<Function>(self->_onopen));
 }
 
-NAN_GETTER(DataChannel::GetOnMessage) {
+void DataChannel::GetOnMessage(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder(), "DataChannel");
-  NanReturnValue(NanNew(self->_onmessage));
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
+  return info.GetReturnValue().Set(Nan::New<Function>(self->_onmessage));
 }
 
-NAN_GETTER(DataChannel::GetOnClose) {
+void DataChannel::GetOnClose(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder(), "DataChannel");
-  NanReturnValue(NanNew(self->_onclose));
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
+  return info.GetReturnValue().Set(Nan::New<Function>(self->_onclose));
 }
 
-NAN_GETTER(DataChannel::GetOnError) {
+void DataChannel::GetOnError(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder(), "DataChannel");
-  NanReturnValue(NanNew(self->_onerror));
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
+  return info.GetReturnValue().Set(Nan::New<Function>(self->_onerror));
 }  
 
-NAN_SETTER(DataChannel::ReadOnly) {
+void DataChannel::ReadOnly(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
 }
 
-NAN_SETTER(DataChannel::SetBinaryType) {
+void DataChannel::SetBinaryType(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder(), "DataChannel");
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
 
   if (!value.IsEmpty() && value->IsString()) {
-    NanAssignPersistent(self->_binaryType, value->ToString());
+    self->_binaryType.Reset(value->ToString());
   } else {
-    NanAssignPersistent(self->_binaryType, NanNew("arraybuffer"));
+    self->_binaryType.Reset(Nan::New("arraybuffer").ToLocalChecked());
   }
 }
 
-NAN_SETTER(DataChannel::SetOnOpen) {
+void DataChannel::SetOnOpen(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  NanScope();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder(), "DataChannel");
+
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
 
   if (!value.IsEmpty() && value->IsFunction()) {
-    NanAssignPersistent(self->_onopen, Local<Function>::Cast(value));
+    self->_onopen.Reset<Function>(Local<Function>::Cast(value));
   } else {
-    NanDisposePersistent(self->_onopen);
+    self->_onopen.Reset();
   }
 }
 
-NAN_SETTER(DataChannel::SetOnMessage) {
+void DataChannel::SetOnMessage(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder(), "DataChannel");
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
 
   if (!value.IsEmpty() && value->IsFunction()) {
-    NanAssignPersistent(self->_onmessage, Local<Function>::Cast(value));
+    self->_onmessage.Reset<Function>(Local<Function>::Cast(value));
   } else {
-    NanDisposePersistent(self->_onmessage);
+    self->_onmessage.Reset();
   }
 }
 
-NAN_SETTER(DataChannel::SetOnClose) {
+void DataChannel::SetOnClose(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  NanScope();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder(), "DataChannel");
+
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
 
   if (!value.IsEmpty() && value->IsFunction()) {
-    NanAssignPersistent(self->_onclose, Local<Function>::Cast(value));
+    self->_onclose.Reset<Function>(Local<Function>::Cast(value));
   } else {
-    NanDisposePersistent(self->_onclose);
+    self->_onclose.Reset();
   }
 }
 
-NAN_SETTER(DataChannel::SetOnError) {
+void DataChannel::SetOnError(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(args.Holder(), "DataChannel");
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
 
   if (!value.IsEmpty() && value->IsFunction()) {
-    NanAssignPersistent(self->_onerror, Local<Function>::Cast(value));
+    self->_onerror.Reset<Function>(Local<Function>::Cast(value));
   } else {
-    NanDisposePersistent(self->_onclose);
+    self->_onclose.Reset();
   }
 }
 
 void DataChannel::On(Event *event) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
   DataChannelEvent type = event->Type<DataChannelEvent>();
   node::ArrayBuffer *arrayBuffer = 0;
   Local<Function> callback;
@@ -499,7 +429,7 @@ void DataChannel::On(Event *event) {
 
           break;
         case webrtc::DataChannelInterface::kOpen:
-          callback = NanNew(_onopen);
+          callback = Nan::New<Function>(_onopen);
 
           break;
         case webrtc::DataChannelInterface::kClosing:
@@ -508,30 +438,30 @@ void DataChannel::On(Event *event) {
         case webrtc::DataChannelInterface::kClosed:
           EventEmitter::SetReference(false);
           
-          callback = NanNew(_onclose);
-          NanDisposePersistent(_onclose);
+          callback = Nan::New<Function>(_onclose);
+          _onclose.Reset();
 
           break;
       }
     }
   } else {
-    callback = NanNew(_onmessage);
+    callback = Nan::New<Function>(_onmessage);
     rtc::Buffer buffer = event->Unwrap<rtc::Buffer>();
-    Local<Object> container = NanNew<Object>();
+    Local<Object> container = Nan::New<Object>();
     argv[0] = container;
     argc = 1;
 
     if (type == kDataChannelData) {
-      container->Set(NanNew("data"), NanNew(reinterpret_cast<char *>(buffer.data()), buffer.size()));
+      container->Set(Nan::New("data").ToLocalChecked(), Nan::New(reinterpret_cast<char *>(buffer.data()), buffer.size()).ToLocalChecked());
     } else {
       arrayBuffer = node::ArrayBuffer::New(buffer.data(), buffer.size());                                
-      container->Set(NanNew("data"), arrayBuffer->ToArrayBuffer());
+      container->Set(Nan::New("data").ToLocalChecked(), arrayBuffer->ToArrayBuffer());
     }
   }
   
   if (!callback.IsEmpty() && callback->IsFunction()) {
     callback->Call(RTCWrap::This(), argc, argv);
   } else if (isError) {
-    NanThrowError(argv[0]);
+    Nan::ThrowError(argv[0]);
   }
 }

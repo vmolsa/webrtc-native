@@ -32,43 +32,35 @@
 using namespace v8;
 using namespace WebRTC;
 
-Persistent<Object> MediaSource::constructor;
+Nan::PersistentBase<Object> MediaSource::constructor;
 
 void MediaSource::Init(Handle<Object> exports) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
+  Nan::HandleScope();
   
-  Local<FunctionTemplate> tpl = NanNew<FunctionTemplate>(MediaSource::New);
+  Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(MediaSource::New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
-  tpl->SetClassName(NanNew("MediaSource"));
-  
-  tpl->PrototypeTemplate()->Set(NanNew("connect"), NanNew<FunctionTemplate>(MediaSource::Connect)->GetFunction());
-  tpl->PrototypeTemplate()->Set(NanNew("disconnect"), NanNew<FunctionTemplate>(MediaSource::Disconnect)->GetFunction());
-  tpl->PrototypeTemplate()->Set(NanNew("write"), NanNew<FunctionTemplate>(MediaSource::Write)->GetFunction());
-  tpl->PrototypeTemplate()->Set(NanNew("end"), NanNew<FunctionTemplate>(MediaSource::End)->GetFunction());
+  tpl->SetClassName(Nan::New("MediaSource").ToLocalChecked());
 
-  tpl->InstanceTemplate()->SetAccessor(NanNew("ondata"),
-                                       MediaSource::OnData,
-                                       MediaSource::OnData);
-                                       
-  tpl->InstanceTemplate()->SetAccessor(NanNew("onerror"),
-                                       MediaSource::OnError,
-                                       MediaSource::OnError);
-                                       
-  tpl->InstanceTemplate()->SetAccessor(NanNew("onend"),
-                                       MediaSource::OnEnd,
-                                       MediaSource::OnEnd);
+  Nan::SetPrototypeMethod(tpl, "connect", MediaSource::Connect);
+  Nan::SetPrototypeMethod(tpl, "disconnect", MediaSource::Disconnect);
+  Nan::SetPrototypeMethod(tpl, "write", MediaSource::Write);
+  Nan::SetPrototypeMethod(tpl, "end", MediaSource::End);
   
-  exports->Set(NanNew("MediaSource"), tpl->GetFunction());
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("ondata").ToLocalChecked(), MediaSource::OnData, MediaSource::OnData);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("onerror").ToLocalChecked(), MediaSource::OnError, MediaSource::OnError);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("onend").ToLocalChecked(), MediaSource::OnEnd, MediaSource::OnEnd);
+  
+  exports->Set(Nan::New("MediaSource").ToLocalChecked(), tpl->GetFunction());
                  
-  Local<Object> sources = NanNew<Object>();
+  Local<Object> sources = Nan::New<Object>();
   
   WebcamCapturer::Init(sources);
   MediaStreamCapturer::Init(sources);
   WindowRenderer::Init(sources);
   
-  NanAssignPersistent(constructor, sources);
+  constructor.Reset(sources);
 }
 
 MediaSource::MediaSource() : _closing(false), _callback(false) {
@@ -81,27 +73,25 @@ MediaSource::~MediaSource() {
   EventEmitter::RemoveAllListeners();
 }
 
-NAN_METHOD(MediaSource::New) {
+void MediaSource::New(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  NanScope();
 
-  if (args.IsConstructCall() && args.Length() >= 1 && args[0]->IsString()) {
-    Local<String> type = args[0]->ToString();
-    Local<Object> instances = NanNew(MediaSource::constructor);
+  if (info.IsConstructCall() && info.Length() >= 1 && info[0]->IsString()) {
+    Local<String> type = info[0]->ToString();
+    Local<Object> instances = Nan::New(MediaSource::constructor);
     Local<Function> instance = Local<Function>::Cast(instances->Get(type));
     
     if (!instance.IsEmpty()) {
-      Local<Object> properties = Local<Object>::Cast(args[1]);
+      Local<Object> properties = Local<Object>::Cast(info[1]);
       Local<Value> argv[1] = {
         properties
       };
       
-      NanReturnValue(instance->Call(args.This(), 1, argv));
+      return info.GetReturnValue().Set(instance->Call(info.This(), 1, argv));
     }
   }
   
-  NanReturnUndefined();
+  info.GetReturnValue().SetUndefined();
 }
 
 bool MediaSource::Connect(MediaSource *source) {
@@ -127,7 +117,7 @@ bool MediaSource::Disconnect(MediaSource *source) {
 void MediaSource::End() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
+  Nan::HandleScope();
   
   if (!_closing) {
     _closing = true;
@@ -135,7 +125,7 @@ void MediaSource::End() {
     EventEmitter::Emit(kMediaSourceEnd);
     EventEmitter::SetReference(false);
     
-    Local<Function> callback = NanNew<Function>(_onend);
+    Local<Function> callback = Nan::New<Function>(_onend);
       
     if (!callback.IsEmpty()) {
       Local<Value> argv[1];
@@ -160,23 +150,23 @@ bool MediaSource::End(Local<Value> data) {
 bool MediaSource::Write(Local<Value> data) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
+  Nan::HandleScope();
   
   if (!data.IsEmpty() && data->IsObject()) {
     Local<Object> frame = Local<Object>::Cast(data);
-    Local<Value> type_value = frame->Get(NanNew("type"));
+    Local<Value> type_value = frame->Get(Nan::New("type").ToLocalChecked());
       
     if (!type_value.IsEmpty() && type_value->IsString()) {
       String::Utf8Value type_utf8(type_value->ToString());
       std::string type(*type_utf8);
       
       if (!type.compare("frame")) {
-        Local<Int32> width(frame->Get(NanNew("width"))->ToInt32());
-        Local<Int32> height(frame->Get(NanNew("height"))->ToInt32());
+        Local<Int32> width(frame->Get(Nan::New("width").ToLocalChecked())->ToInt32());
+        Local<Int32> height(frame->Get(Nan::New("height").ToLocalChecked())->ToInt32());
         
-        node::ArrayBuffer *ybuf = node::ArrayBuffer::New(frame->Get(NanNew("yplane")));
-        node::ArrayBuffer *ubuf = node::ArrayBuffer::New(frame->Get(NanNew("uplane")));
-        node::ArrayBuffer *vbuf = node::ArrayBuffer::New(frame->Get(NanNew("vplane")));
+        node::ArrayBuffer *ybuf = node::ArrayBuffer::New(frame->Get(Nan::New("yplane").ToLocalChecked()));
+        node::ArrayBuffer *ubuf = node::ArrayBuffer::New(frame->Get(Nan::New("uplane").ToLocalChecked()));
+        node::ArrayBuffer *vbuf = node::ArrayBuffer::New(frame->Get(Nan::New("vplane").ToLocalChecked()));
 
         if (width->Value() && height->Value()) {
           webrtc::VideoFrame videoFrame;
@@ -206,124 +196,112 @@ bool MediaSource::Write(Local<Value> data) {
   return false;
 }
 
-NAN_METHOD(MediaSource::Connect) {
+void MediaSource::Connect(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  MediaSource *self = RTCWrap::Unwrap<MediaSource>(args.This(), "MediaSource");
+  MediaSource *self = RTCWrap::Unwrap<MediaSource>(info.This(), "MediaSource");
   
-  if (args.Length() >= 1 && args[0]->IsObject()) {
-    NanReturnValue(NanNew(self->Connect(RTCWrap::Unwrap<MediaSource>(Local<Object>::Cast(args[0]), "MediaSource"))));
+  if (info.Length() >= 1 && info[0]->IsObject()) {
+    return info.GetReturnValue().Set(Nan::New(self->Connect(RTCWrap::Unwrap<MediaSource>(Local<Object>::Cast(info[0]), "MediaSource"))));
   }
   
-  NanReturnValue(NanFalse());
+  return info.GetReturnValue().Set(Nan::False());
 }
 
-NAN_METHOD(MediaSource::Disconnect) {
+void MediaSource::Disconnect(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
+
+  MediaSource *self = RTCWrap::Unwrap<MediaSource>(info.This(), "MediaSource");
   
-  NanScope();
-  MediaSource *self = RTCWrap::Unwrap<MediaSource>(args.This(), "MediaSource");
-  
-  if (args.Length() >= 1 && args[0]->IsObject()) {
-    NanReturnValue(NanNew(self->Disconnect(RTCWrap::Unwrap<MediaSource>(Local<Object>::Cast(args[0]), "MediaSource"))));
+  if (info.Length() >= 1 && info[0]->IsObject()) {
+    return info.GetReturnValue().Set(Nan::New(self->Disconnect(RTCWrap::Unwrap<MediaSource>(Local<Object>::Cast(info[0]), "MediaSource"))));
   }
   
-  NanReturnValue(NanFalse());
+  return info.GetReturnValue().Set(Nan::False());
 }
 
-NAN_METHOD(MediaSource::Write) {
+void MediaSource::Write(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  MediaSource *self = RTCWrap::Unwrap<MediaSource>(args.This(), "MediaSource");
-  NanReturnValue(NanNew(self->Write(args[0])));
+  MediaSource *self = RTCWrap::Unwrap<MediaSource>(info.This(), "MediaSource");
+  return info.GetReturnValue().Set(Nan::New(self->Write(info[0])));
 }
 
-NAN_METHOD(MediaSource::End) {
+void MediaSource::End(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  MediaSource *self = RTCWrap::Unwrap<MediaSource>(args.This(), "MediaSource");
-  NanReturnValue(NanNew(self->End(args[0])));
+  MediaSource *self = RTCWrap::Unwrap<MediaSource>(info.This(), "MediaSource");
+  return info.GetReturnValue().Set(Nan::New(self->End(info[0])));
 }
 
-NAN_GETTER(MediaSource::OnData) {
+void MediaSource::OnData(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  MediaSource *self = RTCWrap::Unwrap<MediaSource>(args.Holder(), "MediaSource");
-  NanReturnValue(NanNew(self->_ondata));
+  MediaSource *self = RTCWrap::Unwrap<MediaSource>(info.Holder(), "MediaSource");
+  return info.GetReturnValue().Set(Nan::New<Function>(self->_ondata));
 }
 
-NAN_GETTER(MediaSource::OnError) {
+void MediaSource::OnError(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  MediaSource *self = RTCWrap::Unwrap<MediaSource>(args.Holder(), "MediaSource");
-  NanReturnValue(NanNew(self->_onerror));
+  MediaSource *self = RTCWrap::Unwrap<MediaSource>(info.Holder(), "MediaSource");
+  return info.GetReturnValue().Set(Nan::New<Function>(self->_onerror));
 }
 
-NAN_GETTER(MediaSource::OnEnd) {
+void MediaSource::OnEnd(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  NanScope();
-  MediaSource *self = RTCWrap::Unwrap<MediaSource>(args.Holder(), "MediaSource");
-  NanReturnValue(NanNew(self->_onend));
+
+  MediaSource *self = RTCWrap::Unwrap<MediaSource>(info.Holder(), "MediaSource");
+  return info.GetReturnValue().Set(Nan::New<Function>(self->_onend));
 }
 
-NAN_SETTER(MediaSource::OnData) {
+void MediaSource::OnData(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  MediaSource *self = RTCWrap::Unwrap<MediaSource>(args.Holder(), "MediaSource");
+  MediaSource *self = RTCWrap::Unwrap<MediaSource>(info.Holder(), "MediaSource");
   
   if (!value.IsEmpty() && value->IsFunction()) {
     self->_callback = true;
-    NanAssignPersistent(self->_ondata, Local<Function>::Cast(value));
+    self->_ondata.Reset<Function>(Local<Function>::Cast(value));
   } else {
     self->_callback = false;
-    NanDisposePersistent(self->_ondata);
+    self->_ondata.Reset();
   }
 }
 
-NAN_SETTER(MediaSource::OnError) {
+void MediaSource::OnError(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  MediaSource *self = RTCWrap::Unwrap<MediaSource>(args.Holder(), "MediaSource");
+  MediaSource *self = RTCWrap::Unwrap<MediaSource>(info.Holder(), "MediaSource");
   
   if (!value.IsEmpty() && value->IsFunction()) {
-    NanAssignPersistent(self->_onerror, Local<Function>::Cast(value));
+    self->_onerror.Reset<Function>(Local<Function>::Cast(value));
   } else {
-    NanDisposePersistent(self->_onerror);
+    self->_onerror.Reset();
   }
 }
 
-NAN_SETTER(MediaSource::OnEnd) {
+void MediaSource::OnEnd(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  MediaSource *self = RTCWrap::Unwrap<MediaSource>(args.Holder(), "MediaSource");
+  MediaSource *self = RTCWrap::Unwrap<MediaSource>(info.Holder(), "MediaSource");
   
   if (!value.IsEmpty() && value->IsFunction()) {
-    NanAssignPersistent(self->_onend, Local<Function>::Cast(value));
+    self->_onend.Reset<Function>(Local<Function>::Cast(value));
   } else {
-    NanDisposePersistent(self->_onend);
+    self->_onend.Reset();
   }
 }
 
 void MediaSource::On(Event *event) {
   MediaSourceEvent type = event->Type<MediaSourceEvent>();
 
-  NanScope();
-
   if (_callback) {
-    Local<Function> callback = NanNew(_ondata);
+    Local<Function> callback = Nan::New<Function>(_ondata);
     Local<Object> container;
     
     if (type == kMediaSourceFrame) {
-      container = NanNew<Object>();
+      container = Nan::New<Object>();
       webrtc::VideoFrame videoFrame;
       
       rtc::scoped_refptr<webrtc::VideoFrameBuffer> buffer = event->Unwrap<rtc::scoped_refptr<webrtc::VideoFrameBuffer> >();
@@ -333,12 +311,12 @@ void MediaSource::On(Event *event) {
       node::ArrayBuffer *ubuf = node::ArrayBuffer::New(videoFrame.buffer(webrtc::kUPlane), videoFrame.allocated_size(webrtc::kUPlane));
       node::ArrayBuffer *vbuf = node::ArrayBuffer::New(videoFrame.buffer(webrtc::kVPlane), videoFrame.allocated_size(webrtc::kVPlane));
 
-      container->Set(NanNew("type"), NanNew("frame"));
-      container->Set(NanNew("yplane"), ybuf->ToArrayBuffer());
-      container->Set(NanNew("uplane"), ubuf->ToArrayBuffer());
-      container->Set(NanNew("vplane"), vbuf->ToArrayBuffer());
-      container->Set(NanNew("width"), NanNew(buffer->width()));
-      container->Set(NanNew("height"), NanNew(buffer->height()));
+      container->Set(Nan::New("type").ToLocalChecked(), Nan::New("frame").ToLocalChecked());
+      container->Set(Nan::New("yplane").ToLocalChecked(), ybuf->ToArrayBuffer());
+      container->Set(Nan::New("uplane").ToLocalChecked(), ubuf->ToArrayBuffer());
+      container->Set(Nan::New("vplane").ToLocalChecked(), vbuf->ToArrayBuffer());
+      container->Set(Nan::New("width").ToLocalChecked(), Nan::New(buffer->width()));
+      container->Set(Nan::New("height").ToLocalChecked(), Nan::New(buffer->height()));
     } else if (type == kMediaSourceEnd) {
       End();
     }

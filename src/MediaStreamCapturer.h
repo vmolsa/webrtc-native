@@ -39,7 +39,7 @@ namespace WebRTC {
       explicit MediaStreamCapturer(v8::Local<v8::Object> properties);
       virtual ~MediaStreamCapturer();
   
-      static NAN_METHOD(New);
+      static void New(const Nan::FunctionCallbackInfo<v8::Value> &info);
       
       void Start();
 

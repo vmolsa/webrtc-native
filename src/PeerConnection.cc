@@ -37,89 +37,52 @@ using namespace WebRTC;
 void PeerConnection::Init(Handle<Object> exports) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
+  Nan::HandleScope();
   
-  Local<FunctionTemplate> tpl = NanNew<FunctionTemplate>(PeerConnection::New);
+  Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(PeerConnection::New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
-  tpl->SetClassName(NanNew("RTCPeerConnection"));
-  
-  tpl->PrototypeTemplate()->Set(NanNew("createOffer"), NanNew<FunctionTemplate>(PeerConnection::CreateOffer)->GetFunction());                      
-  tpl->PrototypeTemplate()->Set(NanNew("createAnswer"), NanNew<FunctionTemplate>(PeerConnection::CreateAnswer)->GetFunction());                        
-  tpl->PrototypeTemplate()->Set(NanNew("setLocalDescription"), NanNew<FunctionTemplate>(PeerConnection::SetLocalDescription)->GetFunction());                   
-  tpl->PrototypeTemplate()->Set(NanNew("setRemoteDescription"), NanNew<FunctionTemplate>(PeerConnection::SetRemoteDescription)->GetFunction());                           
-  tpl->PrototypeTemplate()->Set(NanNew("addIceCandidate"), NanNew<FunctionTemplate>(PeerConnection::AddIceCandidate)->GetFunction());                       
-  tpl->PrototypeTemplate()->Set(NanNew("createDataChannel"), NanNew<FunctionTemplate>(PeerConnection::CreateDataChannel)->GetFunction());
-  tpl->PrototypeTemplate()->Set(NanNew("addStream"), NanNew<FunctionTemplate>(PeerConnection::AddStream)->GetFunction());
-  tpl->PrototypeTemplate()->Set(NanNew("removeStream"), NanNew<FunctionTemplate>(PeerConnection::RemoveStream)->GetFunction());
-  tpl->PrototypeTemplate()->Set(NanNew("getLocalStreams"), NanNew<FunctionTemplate>(PeerConnection::GetLocalStreams)->GetFunction());
-  tpl->PrototypeTemplate()->Set(NanNew("getRemoteStreams"), NanNew<FunctionTemplate>(PeerConnection::GetRemoteStreams)->GetFunction());
-  tpl->PrototypeTemplate()->Set(NanNew("getStreamById"), NanNew<FunctionTemplate>(PeerConnection::GetStreamById)->GetFunction());
-  tpl->PrototypeTemplate()->Set(NanNew("getStats"), NanNew<FunctionTemplate>(PeerConnection::GetStats)->GetFunction());
-  tpl->PrototypeTemplate()->Set(NanNew("close"), NanNew<FunctionTemplate>(PeerConnection::Close)->GetFunction());
-                                
-  tpl->InstanceTemplate()->SetAccessor(NanNew("signalingState"),
-                                       PeerConnection::GetSignalingState,
-                                       PeerConnection::ReadOnly);
-                                       
-  tpl->InstanceTemplate()->SetAccessor(NanNew("iceConnectionState"),
-                                       PeerConnection::GetIceConnectionState,
-                                       PeerConnection::ReadOnly);
-                                       
-  tpl->InstanceTemplate()->SetAccessor(NanNew("iceGatheringState"),
-                                       PeerConnection::GetIceGatheringState,
-                                       PeerConnection::ReadOnly);
-                                       
-  tpl->InstanceTemplate()->SetAccessor(NanNew("localDescription"),
-                                       PeerConnection::GetLocalDescription,
-                                       PeerConnection::ReadOnly);
-                                       
-  tpl->InstanceTemplate()->SetAccessor(NanNew("remoteDescription"),
-                                       PeerConnection::GetRemoteDescription,
-                                       PeerConnection::ReadOnly);
-  
-  tpl->InstanceTemplate()->SetAccessor(NanNew("onsignalingstatechange"),
-                                       PeerConnection::GetOnSignalingStateChange,
-                                       PeerConnection::SetOnSignalingStateChange);
-  
-  tpl->InstanceTemplate()->SetAccessor(NanNew("oniceconnectionstatechange"),
-                                       PeerConnection::GetOnIceConnectionStateChange,
-                                       PeerConnection::SetOnIceConnectionStateChange);
-  
-  tpl->InstanceTemplate()->SetAccessor(NanNew("onicecandidate"),
-                                       PeerConnection::GetOnIceCandidate,
-                                       PeerConnection::SetOnIceCandidate);
-                                       
-  tpl->InstanceTemplate()->SetAccessor(NanNew("ondatachannel"),
-                                       PeerConnection::GetOnDataChannel,
-                                       PeerConnection::SetOnDataChannel);
-                                       
-  tpl->InstanceTemplate()->SetAccessor(NanNew("onnegotiationneeded"),
-                                       PeerConnection::GetOnNegotiationNeeded,
-                                       PeerConnection::SetOnNegotiationNeeded);
-                                       
-  tpl->InstanceTemplate()->SetAccessor(NanNew("onaddstream"),
-                                       PeerConnection::GetOnAddStream,
-                                       PeerConnection::SetOnAddStream);
+  tpl->SetClassName(Nan::New("RTCPeerConnection").ToLocalChecked());
 
-  tpl->InstanceTemplate()->SetAccessor(NanNew("onremovestream"),
-                                       PeerConnection::GetOnRemoveStream,
-                                       PeerConnection::SetOnRemoveStream);
+  Nan::SetPrototypeMethod(tpl, "createOffer", PeerConnection::CreateOffer);
+  Nan::SetPrototypeMethod(tpl, "createAnswer", PeerConnection::CreateAnswer);
+  Nan::SetPrototypeMethod(tpl, "setLocalDescription", PeerConnection::SetLocalDescription);
+  Nan::SetPrototypeMethod(tpl, "setRemoteDescription", PeerConnection::SetRemoteDescription);
+  Nan::SetPrototypeMethod(tpl, "addIceCandidate", PeerConnection::AddIceCandidate);
+  Nan::SetPrototypeMethod(tpl, "createDataChannel", PeerConnection::CreateDataChannel);
+  Nan::SetPrototypeMethod(tpl, "addStream", PeerConnection::AddStream);
+  Nan::SetPrototypeMethod(tpl, "removeStream", PeerConnection::RemoveStream);
+  Nan::SetPrototypeMethod(tpl, "getLocalStreams", PeerConnection::GetLocalStreams);
+  Nan::SetPrototypeMethod(tpl, "getRemoteStreams", PeerConnection::GetRemoteStreams);
+  Nan::SetPrototypeMethod(tpl, "getStreamById", PeerConnection::GetStreamById);
+  Nan::SetPrototypeMethod(tpl, "getStats", PeerConnection::GetStats);
+  Nan::SetPrototypeMethod(tpl, "close", PeerConnection::Close);
 
-  NanAssignPersistent(constructor, tpl->GetFunction());
-  exports->Set(NanNew("RTCPeerConnection"), tpl->GetFunction());
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("signalingState").ToLocalChecked(), PeerConnection::GetSignalingState);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("iceConnectionState").ToLocalChecked(), PeerConnection::GetIceConnectionState);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("iceGatheringState").ToLocalChecked(), PeerConnection::GetIceGatheringState);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("localDescription").ToLocalChecked(), PeerConnection::GetLocalDescription);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("remoteDescription").ToLocalChecked(), PeerConnection::GetRemoteDescription);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("onsignalingstatechange").ToLocalChecked(), PeerConnection::GetOnSignalingStateChange, PeerConnection::SetOnSignalingStateChange);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("oniceconnectionstatechange").ToLocalChecked(), PeerConnection::GetOnIceConnectionStateChange, PeerConnection::SetOnIceConnectionStateChange);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("onicecandidate").ToLocalChecked(), PeerConnection::GetOnIceCandidate, PeerConnection::SetOnIceCandidate);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("ondatachannel").ToLocalChecked(), PeerConnection::GetOnDataChannel, PeerConnection::SetOnDataChannel);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("onnegotiationneeded").ToLocalChecked(), PeerConnection::GetOnNegotiationNeeded, PeerConnection::SetOnNegotiationNeeded);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("onaddstream").ToLocalChecked(), PeerConnection::GetOnAddStream, PeerConnection::SetOnAddStream);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("onremovestream").ToLocalChecked(), PeerConnection::GetOnRemoveStream, PeerConnection::SetOnRemoveStream);
+
+  constructor.Reset<Function>(tpl->GetFunction());
+  exports->Set(Nan::New("RTCPeerConnection").ToLocalChecked(), tpl->GetFunction());
 }
 
-Persistent<Function> PeerConnection::constructor;
+Nan::PersistentBase<Function> PeerConnection::constructor;
 
 PeerConnection::PeerConnection(const Local<Object> &configuration,
                                const Local<Object> &constraints)
 { 
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  NanScope();
     
   if (!configuration.IsEmpty()) {
-    Local<Value> iceservers_value = configuration->Get(NanNew("iceServers"));
+    Local<Value> iceservers_value = configuration->Get(Nan::New("iceServers").ToLocalChecked());
     
     if (!iceservers_value.IsEmpty() && iceservers_value->IsArray()) {
       Local<Array> list = Local<Array>::Cast(iceservers_value);
@@ -129,9 +92,9 @@ PeerConnection::PeerConnection(const Local<Object> &configuration,
 
         if (!server_value.IsEmpty() && server_value->IsObject()) {
           Local<Object> server = Local<Object>::Cast(server_value);
-          Local<Value> url_value = server->Get(NanNew("url"));
-          Local<Value> username_value = server->Get(NanNew("username"));
-          Local<Value> credential_value = server->Get(NanNew("credential"));
+          Local<Value> url_value = server->Get(Nan::New("url").ToLocalChecked());
+          Local<Value> username_value = server->Get(Nan::New("username").ToLocalChecked());
+          Local<Value> credential_value = server->Get(Nan::New("credential").ToLocalChecked());
 
           if (!url_value.IsEmpty() && url_value->IsString()) {
             v8::String::Utf8Value url(url_value->ToString());
@@ -200,33 +163,31 @@ webrtc::PeerConnectionInterface *PeerConnection::GetSocket() {
       EventEmitter::SetReference(true);
       _socket = _factory->CreatePeerConnection(_servers, _constraints->ToConstraints(), NULL, NULL, _peer.get());
     } else {
-      NanThrowError("Internal Factory Error");
+      Nan::ThrowError("Internal Factory Error");
     }
   }
    
   return _socket.get();
 }
 
-NAN_METHOD(PeerConnection::New) {
+void PeerConnection::New(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  NanScope();
   
   Local<Object> configuration;
   Local<Object> constraints;
   
-  if (args.Length() >= 1 && args[0]->IsObject()) {
-    configuration = Local<Object>::Cast(args[0]);
+  if (info.Length() >= 1 && info[0]->IsObject()) {
+    configuration = Local<Object>::Cast(info[0]);
     
-    if (args.Length() >= 2 && args[1]->IsObject()) {
-      constraints = Local<Object>::Cast(args[1]);
+    if (info.Length() >= 2 && info[1]->IsObject()) {
+      constraints = Local<Object>::Cast(info[1]);
     }
   }
 
-  if (args.IsConstructCall()) {
+  if (info.IsConstructCall()) {
     PeerConnection* peer = new PeerConnection(configuration, constraints);
-    peer->Wrap(args.This(), "PeerConnection");
-    NanReturnValue(args.This());
+    peer->Wrap(info.This(), "PeerConnection");
+    return info.GetReturnValue().Set(info.This());
   } else {
     const int argc = 2;
     Local<Value> argv[argc] = {
@@ -234,92 +195,89 @@ NAN_METHOD(PeerConnection::New) {
       constraints
     };
     
-    Local<Function> instance = NanNew(PeerConnection::constructor);
-    NanReturnValue(instance->NewInstance(argc, argv));
+    Local<Function> instance = Nan::New(PeerConnection::constructor);
+    return info.GetReturnValue().Set(instance->NewInstance(argc, argv));
   }
 }
 
-NAN_METHOD(PeerConnection::CreateOffer) {
+void PeerConnection::CreateOffer(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(args.This(), "PeerConnection");
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.This(), "PeerConnection");
   webrtc::PeerConnectionInterface *socket = self->GetSocket();
   
-  if (!args[0].IsEmpty() && args[0]->IsFunction()) {
-    NanAssignPersistent(self->_offerCallback, Local<Function>::Cast(args[0]));
+  if (!info[0].IsEmpty() && info[0]->IsFunction()) {
+    self->_offerCallback.Reset<Function>(Local<Function>::Cast(info[0]));
   } else {
-    NanDisposePersistent(self->_offerCallback);
+    self->_offerCallback.Reset();
   }
   
-  if (!args[1].IsEmpty() && args[1]->IsFunction()) {
-    NanAssignPersistent(self->_offerErrorCallback, Local<Function>::Cast(args[1]));
+  if (!info[1].IsEmpty() && info[1]->IsFunction()) {
+    self->_offerErrorCallback.Reset<Function>(Local<Function>::Cast(info[1]));
   } else {
-    NanDisposePersistent(self->_offerErrorCallback);
+    self->_offerErrorCallback.Reset();
   }
   
   if (socket) {
     socket->CreateOffer(self->_offer.get(), self->_constraints->ToConstraints());
   } else {
-    NanThrowError("Internal Error");
+    Nan::ThrowError("Internal Error");
   }
   
-  NanReturnUndefined();
+  info.GetReturnValue().SetUndefined();
 }
 
-NAN_METHOD(PeerConnection::CreateAnswer) {
+void PeerConnection::CreateAnswer(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(args.This(), "PeerConnection");
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.This(), "PeerConnection");
   webrtc::PeerConnectionInterface *socket = self->GetSocket();
   
-  if (!args[0].IsEmpty() && args[0]->IsFunction()) {
-    NanAssignPersistent(self->_answerCallback, Local<Function>::Cast(args[0]));
+  if (!info[0].IsEmpty() && info[0]->IsFunction()) {
+    self->_answerCallback.Reset<Function>(Local<Function>::Cast(info[0]));
   } else {
-    NanDisposePersistent(self->_answerCallback);
+    self->_answerCallback.Reset();
   }
   
-  if (!args[1].IsEmpty() && args[1]->IsFunction()) {
-    NanAssignPersistent(self->_answerErrorCallback, Local<Function>::Cast(args[1]));
+  if (!info[1].IsEmpty() && info[1]->IsFunction()) {
+    self->_answerErrorCallback.Reset<Function>(Local<Function>::Cast(info[1]));
   } else {
-    NanDisposePersistent(self->_answerErrorCallback);
+    self->_answerErrorCallback.Reset();
   }
   
   if (socket) {
     socket->CreateAnswer(self->_answer.get(), self->_constraints->ToConstraints());
   } else {
-    NanThrowError("Internal Error");
+    Nan::ThrowError("Internal Error");
   }
   
-  NanReturnUndefined();
+  info.GetReturnValue().SetUndefined();
 }
 
-NAN_METHOD(PeerConnection::SetLocalDescription) {
+void PeerConnection::SetLocalDescription(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(args.This(), "PeerConnection");
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.This(), "PeerConnection");
   webrtc::PeerConnectionInterface *socket = self->GetSocket();
   const char *error = "Invalid SessionDescription";
 
-  if (!args[0].IsEmpty() && args[0]->IsObject()) {
-    Local<Object> desc_obj = Local<Object>::Cast(args[0]);
-    Local<Value> type_value = desc_obj->Get(NanNew("type"));
-    Local<Value> sdp_value = desc_obj->Get(NanNew("sdp"));
+  if (!info[0].IsEmpty() && info[0]->IsObject()) {
+    Local<Object> desc_obj = Local<Object>::Cast(info[0]);
+    Local<Value> type_value = desc_obj->Get(Nan::New("type").ToLocalChecked());
+    Local<Value> sdp_value = desc_obj->Get(Nan::New("sdp").ToLocalChecked());
     
     if (!type_value.IsEmpty() && type_value->IsString()) {
       if (!sdp_value.IsEmpty() && sdp_value->IsString()) {
-        if (!args[1].IsEmpty() && args[1]->IsFunction()) {
-          NanAssignPersistent(self->_localCallback, Local<Function>::Cast(args[1]));
+        if (!info[1].IsEmpty() && info[1]->IsFunction()) {
+          self->_localCallback.Reset<Function>(Local<Function>::Cast(info[1]));
         } else {
-          NanDisposePersistent(self->_localCallback);
+          self->_localCallback.Reset();
         }
 
-        if (!args[2].IsEmpty() && args[2]->IsFunction()) {
-          NanAssignPersistent(self->_localErrorCallback, Local<Function>::Cast(args[2]));
+        if (!info[2].IsEmpty() && info[2]->IsFunction()) {
+          self->_localErrorCallback.Reset<Function>(Local<Function>::Cast(info[2]));
         } else {
-          NanDisposePersistent(self->_localErrorCallback);
+          self->_localErrorCallback.Reset();
         }
     
         String::Utf8Value type(type_value->ToString());
@@ -329,7 +287,7 @@ NAN_METHOD(PeerConnection::SetLocalDescription) {
         
         if (desc) {
           if (socket) {
-            NanAssignPersistent(self->_localsdp, desc_obj);
+            self->_localsdp.Reset<Object>(desc_obj);
             socket->SetLocalDescription(self->_local.get(), desc);
             error = 0;
           } else {
@@ -341,46 +299,45 @@ NAN_METHOD(PeerConnection::SetLocalDescription) {
   }
   
   if (error) {
-    if (!args[2].IsEmpty() && args[2]->IsFunction()) {
+    if (!info[2].IsEmpty() && info[2]->IsFunction()) {
       Local<Value> argv[1] = {
-        NanError(error)
+        Nan::Error(error)
       };
 
-      Local<Function> onerror = Local<Function>::Cast(args[2]);
-      onerror->Call(args.This(), 1, argv);
+      Local<Function> onerror = Local<Function>::Cast(info[2]);
+      onerror->Call(info.This(), 1, argv);
     } else {
-      NanThrowError(error);
+      Nan::ThrowError(error);
     }
   }
   
-  NanReturnUndefined();
+  info.GetReturnValue().SetUndefined();
 }
 
-NAN_METHOD(PeerConnection::SetRemoteDescription) {
+void PeerConnection::SetRemoteDescription(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(args.This(), "PeerConnection");
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.This(), "PeerConnection");
   webrtc::PeerConnectionInterface *socket = self->GetSocket();
   const char *error = "Invalid SessionDescription";
   
-  if (!args[0].IsEmpty() && args[0]->IsObject()) {
-    Local<Object> desc_obj = Local<Object>::Cast(args[0]);
-    Local<Value> type_value = desc_obj->Get(NanNew("type"));
-    Local<Value> sdp_value = desc_obj->Get(NanNew("sdp"));
+  if (!info[0].IsEmpty() && info[0]->IsObject()) {
+    Local<Object> desc_obj = Local<Object>::Cast(info[0]);
+    Local<Value> type_value = desc_obj->Get(Nan::New("type").ToLocalChecked());
+    Local<Value> sdp_value = desc_obj->Get(Nan::New("sdp").ToLocalChecked());
     
     if (!type_value.IsEmpty() && type_value->IsString()) {
       if (!sdp_value.IsEmpty() && sdp_value->IsString()) {
-        if (!args[1].IsEmpty() && args[1]->IsFunction()) {
-          NanAssignPersistent(self->_remoteCallback, Local<Function>::Cast(args[1]));
+        if (!info[1].IsEmpty() && info[1]->IsFunction()) {
+          self->_remoteCallback.Reset<Function>(Local<Function>::Cast(info[1]));
         } else {
-          NanDisposePersistent(self->_remoteCallback);
+          self->_remoteCallback.Reset();
         }
 
-        if (!args[2].IsEmpty() && args[2]->IsFunction()) {
-          NanAssignPersistent(self->_remoteErrorCallback, Local<Function>::Cast(args[2]));
+        if (!info[2].IsEmpty() && info[2]->IsFunction()) {
+          self->_remoteErrorCallback.Reset<Function>(Local<Function>::Cast(info[2]));
         } else {
-          NanDisposePersistent(self->_remoteErrorCallback);
+          self->_remoteErrorCallback.Reset();
         }
     
         String::Utf8Value type(type_value->ToString());
@@ -390,7 +347,7 @@ NAN_METHOD(PeerConnection::SetRemoteDescription) {
         
         if (desc) {
           if (socket) {
-            NanAssignPersistent(self->_remotesdp, desc_obj);
+            self->_remotesdp.Reset<Object>(desc_obj);
             socket->SetRemoteDescription(self->_remote.get(), desc);
             error = 0;
           } else {
@@ -402,36 +359,35 @@ NAN_METHOD(PeerConnection::SetRemoteDescription) {
   }
 
   if (error) {
-    if (!args[2].IsEmpty() && args[2]->IsFunction()) {
+    if (!info[2].IsEmpty() && info[2]->IsFunction()) {
       Local<Value> argv[1] = {
-        NanError(error)
+        Nan::Error(error)
       };
 
-      Local<Function> onerror = Local<Function>::Cast(args[2]);
-      onerror->Call(args.This(), 1, argv);
+      Local<Function> onerror = Local<Function>::Cast(info[2]);
+      onerror->Call(info.This(), 1, argv);
     } else {
-      NanThrowError(error);
+      Nan::ThrowError(error);
     }
   }
   
-  NanReturnUndefined();
+  info.GetReturnValue().SetUndefined();
 }
 
-NAN_METHOD(PeerConnection::AddIceCandidate) {
+void PeerConnection::AddIceCandidate(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(args.This(), "PeerConnection");
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.This(), "PeerConnection");
   webrtc::PeerConnectionInterface *socket = self->GetSocket();
   
   const char *error = 0;
   Local<Value> argv[1];
 
-  if (!args[0].IsEmpty() && args[0]->IsObject()) {
-    Local<Object> desc = Local<Object>::Cast(args[0]);
-    Local<Value> sdpMid_value = desc->Get(NanNew("sdpMid"));
-    Local<Value> sdpMLineIndex_value = desc->Get(NanNew("sdpMLineIndex"));
-    Local<Value> sdp_value = desc->Get(NanNew("candidate"));
+  if (!info[0].IsEmpty() && info[0]->IsObject()) {
+    Local<Object> desc = Local<Object>::Cast(info[0]);
+    Local<Value> sdpMid_value = desc->Get(Nan::New("sdpMid").ToLocalChecked());
+    Local<Value> sdpMLineIndex_value = desc->Get(Nan::New("sdpMLineIndex").ToLocalChecked());
+    Local<Value> sdp_value = desc->Get(Nan::New("candidate").ToLocalChecked());
     
     if (!sdpMid_value.IsEmpty() && sdpMid_value->IsString()) {
       if (!sdpMLineIndex_value.IsEmpty() && sdpMLineIndex_value->IsInt32()) {
@@ -445,9 +401,9 @@ NAN_METHOD(PeerConnection::AddIceCandidate) {
           if (candidate.get()) {
             if (socket) {
               if (socket->AddIceCandidate(candidate.get())) {
-                if (!args[1].IsEmpty() && args[1]->IsFunction()) {
-                  Local<Function> success = Local<Function>::Cast(args[1]);
-                  success->Call(args.This(), 0, argv);
+                if (!info[1].IsEmpty() && info[1]->IsFunction()) {
+                  Local<Function> success = Local<Function>::Cast(info[1]);
+                  success->Call(info.This(), 0, argv);
                 }
               }
             } else {            
@@ -468,43 +424,42 @@ NAN_METHOD(PeerConnection::AddIceCandidate) {
   }
   
   if (error) {
-    if (!args[2].IsEmpty() && args[2]->IsFunction()) {
-      argv[0] = NanError(error);
+    if (!info[2].IsEmpty() && info[2]->IsFunction()) {
+      argv[0] = Nan::Error(error);
       
-      Local<Function> onerror = Local<Function>::Cast(args[2]);
-      onerror->Call(args.This(), 1, argv);
+      Local<Function> onerror = Local<Function>::Cast(info[2]);
+      onerror->Call(info.This(), 1, argv);
     } else {
-      NanThrowError(error);
+      Nan::ThrowError(error);
     }
   }
   
-  NanReturnUndefined();
+  info.GetReturnValue().SetUndefined();
 }
 
-NAN_METHOD(PeerConnection::CreateDataChannel) {
+void PeerConnection::CreateDataChannel(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(args.This(), "PeerConnection");
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.This(), "PeerConnection");
   webrtc::PeerConnectionInterface *socket = self->GetSocket();
 
   std::string label;
   webrtc::DataChannelInit config;
   
-  if (!args[0].IsEmpty() && args[0]->IsString()) {
-    String::Utf8Value label_utf8(args[0]->ToString());
+  if (!info[0].IsEmpty() && info[0]->IsString()) {
+    String::Utf8Value label_utf8(info[0]->ToString());
     label = *label_utf8;
   }
   
-  if (!args[1].IsEmpty() && args[1]->IsObject()) {
-    Local<Object> config_obj = Local<Object>::Cast(args[0]);
+  if (!info[1].IsEmpty() && info[1]->IsObject()) {
+    Local<Object> config_obj = Local<Object>::Cast(info[0]);
     
-    Local<Value> reliable_value = config_obj->Get(NanNew("reliable"));
-    Local<Value> ordered_value = config_obj->Get(NanNew("ordered"));
-    Local<Value> maxRetransmitTime_value = config_obj->Get(NanNew("maxRetransmitTime"));
-    Local<Value> maxRetransmits_value = config_obj->Get(NanNew("maxRetransmits"));
-    Local<Value> protocol_value = config_obj->Get(NanNew("protocol"));
-    Local<Value> id_value = config_obj->Get(NanNew("id"));
+    Local<Value> reliable_value = config_obj->Get(Nan::New("reliable").ToLocalChecked());
+    Local<Value> ordered_value = config_obj->Get(Nan::New("ordered").ToLocalChecked());
+    Local<Value> maxRetransmitTime_value = config_obj->Get(Nan::New("maxRetransmitTime").ToLocalChecked());
+    Local<Value> maxRetransmits_value = config_obj->Get(Nan::New("maxRetransmits").ToLocalChecked());
+    Local<Value> protocol_value = config_obj->Get(Nan::New("protocol").ToLocalChecked());
+    Local<Value> id_value = config_obj->Get(Nan::New("id").ToLocalChecked());
 
     if (!reliable_value.IsEmpty()) {
       if (reliable_value->IsTrue()) {
@@ -547,44 +502,42 @@ NAN_METHOD(PeerConnection::CreateDataChannel) {
     rtc::scoped_refptr<webrtc::DataChannelInterface> dataChannel = socket->CreateDataChannel(label, &config);
     
     if (dataChannel.get()) {
-      NanReturnValue(DataChannel::New(dataChannel));
+      return info.GetReturnValue().Set(DataChannel::New(dataChannel));
     }
   }
   
-  NanThrowError("Internal Error");
-  NanReturnUndefined();
+  Nan::ThrowError("Internal Error");
+  info.GetReturnValue().SetUndefined();
 }
 
-NAN_METHOD(PeerConnection::AddStream) {
+void PeerConnection::AddStream(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(args.This(), "PeerConnection");
-  rtc::scoped_refptr<webrtc::MediaStreamInterface> mediaStream = MediaStream::Unwrap(args[0]);
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.This(), "PeerConnection");
+  rtc::scoped_refptr<webrtc::MediaStreamInterface> mediaStream = MediaStream::Unwrap(info[0]);
 
   if (mediaStream.get()) {
     webrtc::PeerConnectionInterface *socket = self->GetSocket();
 
     if (socket) {
       if (!socket->AddStream(mediaStream)) {
-        NanThrowError("AddStream Failed");
+        Nan::ThrowError("AddStream Failed");
       }
     } else {
-      NanThrowError("Internal Error");
+      Nan::ThrowError("Internal Error");
     }
   } else {
-    NanThrowError("Invalid MediaStream Object");
+    Nan::ThrowError("Invalid MediaStream Object");
   }
   
-  NanReturnUndefined();
+  info.GetReturnValue().SetUndefined();
 }
 
-NAN_METHOD(PeerConnection::RemoveStream) {
+void PeerConnection::RemoveStream(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(args.This(), "PeerConnection");
-  rtc::scoped_refptr<webrtc::MediaStreamInterface> mediaStream = MediaStream::Unwrap(args[0]);
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.This(), "PeerConnection");
+  rtc::scoped_refptr<webrtc::MediaStreamInterface> mediaStream = MediaStream::Unwrap(info[0]);
 
   if (mediaStream.get()) {
     webrtc::PeerConnectionInterface *socket = self->GetSocket();
@@ -592,27 +545,26 @@ NAN_METHOD(PeerConnection::RemoveStream) {
     if (socket) {
       socket->RemoveStream(mediaStream);
     } else {
-      NanThrowError("Internal Error");
+      Nan::ThrowError("Internal Error");
     }
   } else {
-    NanThrowError("Invalid MediaStream Object");
+    Nan::ThrowError("Invalid MediaStream Object");
   }
   
-  NanReturnUndefined();
+  info.GetReturnValue().SetUndefined();
 }
 
-NAN_METHOD(PeerConnection::GetLocalStreams) {
+void PeerConnection::GetLocalStreams(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(args.This(), "PeerConnection");
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.This(), "PeerConnection");
   webrtc::PeerConnectionInterface *socket = self->GetSocket();
 
   if (socket) {
     rtc::scoped_refptr<webrtc::StreamCollectionInterface> local = socket->local_streams();
 
     if (local.get()) {
-      Local<Array> list = NanNew<Array>();
+      Local<Array> list = Nan::New<Array>();
       uint32_t index = 0;
       size_t count;
 
@@ -620,26 +572,25 @@ NAN_METHOD(PeerConnection::GetLocalStreams) {
         list->Set(index, MediaStream::New(local->at(count)));
       }
 
-      NanReturnValue(list);
+      return info.GetReturnValue().Set(list);
     }
   }
     
-  NanThrowError("Internal Error");
-  NanReturnUndefined();
+  Nan::ThrowError("Internal Error");
+  info.GetReturnValue().SetUndefined();
 }
 
-NAN_METHOD(PeerConnection::GetRemoteStreams) {
+void PeerConnection::GetRemoteStreams(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(args.This(), "PeerConnection");
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.This(), "PeerConnection");
   webrtc::PeerConnectionInterface *socket = self->GetSocket();
 
   if (socket) {
     rtc::scoped_refptr<webrtc::StreamCollectionInterface> remote = socket->remote_streams();
 
     if (remote.get()) {
-      Local<Array> list = NanNew<Array>();
+      Local<Array> list = Nan::New<Array>();
       uint32_t index = 0;
       size_t count;
 
@@ -647,24 +598,23 @@ NAN_METHOD(PeerConnection::GetRemoteStreams) {
         list->Set(index, MediaStream::New(remote->at(count)));
       }
 
-      NanReturnValue(list);
+      return info.GetReturnValue().Set(list);
     }
   }
 
-  NanThrowError("Internal Error");
-  NanReturnUndefined();
+  Nan::ThrowError("Internal Error");
+  info.GetReturnValue().SetUndefined();
 }
 
-NAN_METHOD(PeerConnection::GetStreamById) {
+void PeerConnection::GetStreamById(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(args.This(), "PeerConnection");
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.This(), "PeerConnection");
   webrtc::PeerConnectionInterface *socket = self->GetSocket();
 
   if (socket) {
-    if (args.Length() >= 1 && args[0]->IsString()) {
-      v8::String::Utf8Value idValue(args[0]->ToString());
+    if (info.Length() >= 1 && info[0]->IsString()) {
+      v8::String::Utf8Value idValue(info[0]->ToString());
       std::string id(*idValue);
 
       rtc::scoped_refptr<webrtc::StreamCollectionInterface> local = socket->local_streams();
@@ -680,68 +630,65 @@ NAN_METHOD(PeerConnection::GetStreamById) {
       }
 
       if (stream.get()) {
-        NanReturnValue(MediaStream::New(stream));
+        return info.GetReturnValue().Set(MediaStream::New(stream));
       } else {
-        NanReturnValue(NanNull());
+        return info.GetReturnValue().Set(Nan::Null());
       }
     } else {
-      NanThrowError("Invalid Argument");
+      Nan::ThrowError("Invalid Argument");
     }
   }
 
-  NanThrowError("Internal Error");
-  NanReturnUndefined();
+  Nan::ThrowError("Internal Error");
+  info.GetReturnValue().SetUndefined();
 }
 
-NAN_METHOD(PeerConnection::GetStats) {
+void PeerConnection::GetStats(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(args.This(), "PeerConnection");
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.This(), "PeerConnection");
   webrtc::PeerConnectionInterface *socket = self->GetSocket();
 
-  if (!args[0].IsEmpty() && args[0]->IsFunction()) {
-    NanAssignPersistent(self->_onstats, Local<Function>::Cast(args[0]));
+  if (!info[0].IsEmpty() && info[0]->IsFunction()) {
+    self->_onstats.Reset<Function>(Local<Function>::Cast(info[0]));
 
     if (socket) {
       if (!socket->GetStats(self->_stats.get(), 0, webrtc::PeerConnectionInterface::kStatsOutputLevelStandard)) {
-        Local<Function> callback = NanNew(self->_onstats);
-        Local<Value> argv[1] = { NanNull() };
+        Local<Function> callback = Nan::New<Function>(self->_onstats);
+        Local<Value> argv[1] = { Nan::Null() };
 
-        callback->Call(args.This(), 1, argv);
-        NanDisposePersistent(self->_onstats);
+        callback->Call(info.This(), 1, argv);
+        self->_onstats.Reset();
       }
     } else {
-      NanThrowError("Internal Error");
+      Nan::ThrowError("Internal Error");
     }
   } else {
-    NanThrowError("Missing Callback");
+    Nan::ThrowError("Missing Callback");
   }
   
-  NanReturnUndefined();
+  info.GetReturnValue().SetUndefined();
 }
 
-NAN_METHOD(PeerConnection::Close) {
+void PeerConnection::Close(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(args.This(), "PeerConnection"); 
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.This(), "PeerConnection"); 
   webrtc::PeerConnectionInterface *socket = self->GetSocket();
   
   if (socket) {
     socket->Close();
   } else {
-    NanThrowError("Internal Error");
+    Nan::ThrowError("Internal Error");
   }
   
-  NanReturnUndefined();
+  info.GetReturnValue().SetUndefined();
 }
 
-NAN_GETTER(PeerConnection::GetSignalingState) {
+void PeerConnection::GetSignalingState(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(args.Holder(), "PeerConnection");
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
   webrtc::PeerConnectionInterface *socket = self->GetSocket();
 
   if (socket) {
@@ -749,36 +696,35 @@ NAN_GETTER(PeerConnection::GetSignalingState) {
     
     switch (state) {
       case webrtc::PeerConnectionInterface::kStable:
-        NanReturnValue(NanNew("stable"));
+        return info.GetReturnValue().Set(Nan::New("stable").ToLocalChecked());
         break;
       case webrtc::PeerConnectionInterface::kHaveLocalOffer:
-        NanReturnValue(NanNew("have-local-offer"));
+        return info.GetReturnValue().Set(Nan::New("have-local-offer").ToLocalChecked());
         break;
       case webrtc::PeerConnectionInterface::kHaveLocalPrAnswer:
-        NanReturnValue(NanNew("have-local-pranswer"));
+        return info.GetReturnValue().Set(Nan::New("have-local-pranswer").ToLocalChecked());
         break;
       case webrtc::PeerConnectionInterface::kHaveRemoteOffer:
-        NanReturnValue(NanNew("have-remote-offer"));
+        return info.GetReturnValue().Set(Nan::New("have-remote-offer").ToLocalChecked());
         break;
       case webrtc::PeerConnectionInterface::kHaveRemotePrAnswer:
-        NanReturnValue(NanNew("have-remote-pranswer"));
+        return info.GetReturnValue().Set(Nan::New("have-remote-pranswer").ToLocalChecked());
         break;
       default: 
-        NanReturnValue(NanNew("closed"));
+        return info.GetReturnValue().Set(Nan::New("closed").ToLocalChecked());
         break;
     }
   } else {
-    NanThrowError("Internal Error");
+    Nan::ThrowError("Internal Error");
   }
   
-  NanReturnUndefined();
+  info.GetReturnValue().SetUndefined();
 }
 
-NAN_GETTER(PeerConnection::GetIceConnectionState) {
+void PeerConnection::GetIceConnectionState(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(args.Holder(), "PeerConnection");
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
   webrtc::PeerConnectionInterface *socket = self->GetSocket();
 
   if (socket) {
@@ -786,39 +732,38 @@ NAN_GETTER(PeerConnection::GetIceConnectionState) {
 
     switch (state) {
       case webrtc::PeerConnectionInterface::kIceConnectionNew:
-        NanReturnValue(NanNew("new"));
+        return info.GetReturnValue().Set(Nan::New("new").ToLocalChecked());
         break;
       case webrtc::PeerConnectionInterface::kIceConnectionChecking:
-        NanReturnValue(NanNew("checking"));
+        return info.GetReturnValue().Set(Nan::New("checking").ToLocalChecked());
         break;
       case webrtc::PeerConnectionInterface::kIceConnectionConnected:
-        NanReturnValue(NanNew("connected"));
+        return info.GetReturnValue().Set(Nan::New("connected").ToLocalChecked());
         break;
       case webrtc::PeerConnectionInterface::kIceConnectionCompleted:
-        NanReturnValue(NanNew("completed"));
+        return info.GetReturnValue().Set(Nan::New("completed").ToLocalChecked());
         break;
       case webrtc::PeerConnectionInterface::kIceConnectionFailed:
-        NanReturnValue(NanNew("failed"));
+        return info.GetReturnValue().Set(Nan::New("failed").ToLocalChecked());
         break;
       case webrtc::PeerConnectionInterface::kIceConnectionDisconnected:
-        NanReturnValue(NanNew("disconnected"));
+        return info.GetReturnValue().Set(Nan::New("disconnected").ToLocalChecked());
         break;
       default:
-        NanReturnValue(NanNew("closed"));
+        return info.GetReturnValue().Set(Nan::New("closed").ToLocalChecked());
         break;
     }
   } else {
-    NanThrowError("Internal Error");
+    Nan::ThrowError("Internal Error");
   }
   
-  NanReturnUndefined();
+  info.GetReturnValue().SetUndefined();
 }
 
-NAN_GETTER(PeerConnection::GetIceGatheringState) {
+void PeerConnection::GetIceGatheringState(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(args.Holder(), "PeerConnection");
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
   webrtc::PeerConnectionInterface *socket = self->GetSocket();
 
   if (socket) {
@@ -826,193 +771,177 @@ NAN_GETTER(PeerConnection::GetIceGatheringState) {
 
     switch (state) {
       case webrtc::PeerConnectionInterface::kIceGatheringNew:
-        NanReturnValue(NanNew("new"));
+        return info.GetReturnValue().Set(Nan::New("new").ToLocalChecked());
         break;
       case webrtc::PeerConnectionInterface::kIceGatheringGathering:
-        NanReturnValue(NanNew("gathering"));
+        return info.GetReturnValue().Set(Nan::New("gathering").ToLocalChecked());
         break;
       default:
-        NanReturnValue(NanNew("complete"));
+        return info.GetReturnValue().Set(Nan::New("complete").ToLocalChecked());
         break;
     }   
   } else {
-    NanThrowError("Internal Error");
+    Nan::ThrowError("Internal Error");
   }
   
-  NanReturnUndefined();
+  info.GetReturnValue().SetUndefined();
 }
 
-NAN_GETTER(PeerConnection::GetOnSignalingStateChange) {
+void PeerConnection::GetOnSignalingStateChange(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
+  return info.GetReturnValue().Set(Nan::New<Function>(self->_onsignalingstatechange));
+}
+
+void PeerConnection::GetOnIceConnectionStateChange(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
+  return info.GetReturnValue().Set(Nan::New<Function>(self->_oniceconnectionstatechange));
+}
+
+void PeerConnection::GetOnIceCandidate(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
+  return info.GetReturnValue().Set(Nan::New<Function>(self->_onicecandidate));
+}
+
+void PeerConnection::GetLocalDescription(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
+  return info.GetReturnValue().Set(Nan::New<Object>(self->_localsdp));
+}
+
+void PeerConnection::GetRemoteDescription(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(args.Holder(), "PeerConnection");
-  NanReturnValue(NanNew(self->_onsignalingstatechange));
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
+  return info.GetReturnValue().Set(Nan::New<Object>(self->_remotesdp));
 }
 
-NAN_GETTER(PeerConnection::GetOnIceConnectionStateChange) {
+void PeerConnection::GetOnDataChannel(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(args.Holder(), "PeerConnection");
-  NanReturnValue(NanNew(self->_oniceconnectionstatechange));
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
+  return info.GetReturnValue().Set(Nan::New<Function>(self->_ondatachannel));
 }
 
-NAN_GETTER(PeerConnection::GetOnIceCandidate) {
+void PeerConnection::GetOnNegotiationNeeded(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(args.Holder(), "PeerConnection");
-  NanReturnValue(NanNew(self->_onicecandidate));
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
+  return info.GetReturnValue().Set(Nan::New<Function>(self->_onnegotiationneeded));
 }
 
-NAN_GETTER(PeerConnection::GetLocalDescription) {
+void PeerConnection::GetOnAddStream(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
+  return info.GetReturnValue().Set(Nan::New<Function>(self->_onaddstream));
+}
+
+void PeerConnection::GetOnRemoveStream(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(args.Holder(), "PeerConnection");
-  NanReturnValue(NanNew<Object>(self->_localsdp));
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
+  return info.GetReturnValue().Set(Nan::New<Function>(self->_onremovestream));
 }
 
-NAN_GETTER(PeerConnection::GetRemoteDescription) {
+void PeerConnection::ReadOnly(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+}
+
+void PeerConnection::SetOnSignalingStateChange(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(args.Holder(), "PeerConnection");
-  NanReturnValue(NanNew<Object>(self->_remotesdp));
-}
-
-NAN_GETTER(PeerConnection::GetOnDataChannel) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  NanScope();
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(args.Holder(), "PeerConnection");
-  NanReturnValue(NanNew(self->_ondatachannel));
-}
-
-NAN_GETTER(PeerConnection::GetOnNegotiationNeeded) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  NanScope();
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(args.Holder(), "PeerConnection");
-  NanReturnValue(NanNew(self->_onnegotiationneeded));
-}
-
-NAN_GETTER(PeerConnection::GetOnAddStream) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  NanScope();
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(args.Holder(), "PeerConnection");
-  NanReturnValue(NanNew(self->_onaddstream));
-}
-
-NAN_GETTER(PeerConnection::GetOnRemoveStream) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  NanScope();
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(args.Holder(), "PeerConnection");
-  NanReturnValue(NanNew(self->_onremovestream));
-}
-
-NAN_SETTER(PeerConnection::ReadOnly) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-}
-
-NAN_SETTER(PeerConnection::SetOnSignalingStateChange) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  NanScope();
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(args.Holder(), "PeerConnection");
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
 
   if (!value.IsEmpty() && value->IsFunction()) {
-    NanAssignPersistent(self->_onsignalingstatechange, Local<Function>::Cast(value));
+    self->_onsignalingstatechange.Reset<Function>(Local<Function>::Cast(value));
   } else {
-    NanDisposePersistent(self->_onsignalingstatechange);
+    self->_onsignalingstatechange.Reset();
   }
 }
 
-NAN_SETTER(PeerConnection::SetOnIceConnectionStateChange) {
+void PeerConnection::SetOnIceConnectionStateChange(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(args.Holder(), "PeerConnection");
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
 
   if (!value.IsEmpty() && value->IsFunction()) {
-    NanAssignPersistent(self->_oniceconnectionstatechange, Local<Function>::Cast(value));
+    self->_oniceconnectionstatechange.Reset<Function>(Local<Function>::Cast(value));
   } else {
-    NanDisposePersistent(self->_oniceconnectionstatechange);
+    self->_oniceconnectionstatechange.Reset();
   }
 }
 
-NAN_SETTER(PeerConnection::SetOnIceCandidate) {
+void PeerConnection::SetOnIceCandidate(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(args.Holder(), "PeerConnection");
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
 
   if (!value.IsEmpty() && value->IsFunction()) {
-    NanAssignPersistent(self->_onicecandidate, Local<Function>::Cast(value));
+    self->_onicecandidate.Reset<Function>(Local<Function>::Cast(value));
   } else {
-    NanDisposePersistent(self->_onicecandidate);
+    self->_onicecandidate.Reset();
   }
 }
 
-NAN_SETTER(PeerConnection::SetOnDataChannel) {
+void PeerConnection::SetOnDataChannel(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(args.Holder(), "PeerConnection");
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
 
   if (!value.IsEmpty() && value->IsFunction()) {
-    NanAssignPersistent(self->_ondatachannel, Local<Function>::Cast(value));
+    self->_ondatachannel.Reset<Function>(Local<Function>::Cast(value));
   } else {
-    NanDisposePersistent(self->_ondatachannel);
+    self->_ondatachannel.Reset();
   }
 }
 
-NAN_SETTER(PeerConnection::SetOnNegotiationNeeded) {
+void PeerConnection::SetOnNegotiationNeeded(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(args.Holder(), "PeerConnection");
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
 
   if (!value.IsEmpty() && value->IsFunction()) {
-    NanAssignPersistent(self->_onnegotiationneeded, Local<Function>::Cast(value));
+    self->_onnegotiationneeded.Reset<Function>(Local<Function>::Cast(value));
   } else {
-    NanDisposePersistent(self->_onnegotiationneeded);
+    self->_onnegotiationneeded.Reset();
   }
 }
 
-NAN_SETTER(PeerConnection::SetOnAddStream) {
+void PeerConnection::SetOnAddStream(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(args.Holder(), "PeerConnection");
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
 
   if (!value.IsEmpty() && value->IsFunction()) {
-    NanAssignPersistent(self->_onaddstream, Local<Function>::Cast(value));
+    self->_onaddstream.Reset<Function>(Local<Function>::Cast(value));
   } else {
-    NanDisposePersistent(self->_onaddstream);
+    self->_onaddstream.Reset();
   }
 }
 
-NAN_SETTER(PeerConnection::SetOnRemoveStream) {
+void PeerConnection::SetOnRemoveStream(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(args.Holder(), "PeerConnection");
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
 
   if (!value.IsEmpty() && value->IsFunction()) {
-    NanAssignPersistent(self->_onremovestream, Local<Function>::Cast(value));
+    self->_onremovestream.Reset<Function>(Local<Function>::Cast(value));
   } else {
-    NanDisposePersistent(self->_onremovestream);
+    self->_onremovestream.Reset();
   }
 }
 
 void PeerConnection::On(Event *event) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
+  Nan::HandleScope();
   PeerConnectionEvent type = event->Type<PeerConnectionEvent>();
   Local<Function> callback;
   Local<Object> container;
@@ -1027,144 +956,144 @@ void PeerConnection::On(Event *event) {
       
       break;
     case kPeerConnectionCreateOffer:
-      callback = NanNew(_offerCallback);
+      callback = Nan::New<Function>(_offerCallback);
       
-      NanDisposePersistent(_offerCallback);
-      NanDisposePersistent(_offerErrorCallback);
+      _offerCallback.Reset();
+      _offerErrorCallback.Reset();
 
       data = event->Unwrap<std::string>();
-      argv[0] = JSON::Parse(NanNew(data.c_str()));
+      argv[0] = JSON::Parse(Nan::New(data.c_str()).ToLocalChecked());
       argc = 1;
       
       break;
     case kPeerConnectionCreateOfferError:
-      callback = NanNew(_offerErrorCallback);
+      callback = Nan::New<Function>(_offerErrorCallback);
       
-      NanDisposePersistent(_offerCallback);
-      NanDisposePersistent(_offerErrorCallback);
+      _offerCallback.Reset();
+      _offerErrorCallback.Reset();
       
       isError = true;
       data = event->Unwrap<std::string>();
-      argv[0] = NanError(data.c_str());
+      argv[0] = Nan::Error(data.c_str());
       argc = 1;
       
       break;
     case kPeerConnectionCreateAnswer:
-      callback = NanNew(_answerCallback);
+      callback = Nan::New<Function>(_answerCallback);
       
-      NanDisposePersistent(_answerCallback);
-      NanDisposePersistent(_answerErrorCallback);
+      _answerCallback.Reset();
+      _answerErrorCallback.Reset();
       
       data = event->Unwrap<std::string>();
-      argv[0] = JSON::Parse(NanNew(data.c_str()));
+      argv[0] = JSON::Parse(Nan::New(data.c_str()).ToLocalChecked());
       argc = 1;
       
       break;
     case kPeerConnectionCreateAnswerError:
-      callback = NanNew(_answerErrorCallback);
+      callback = Nan::New<Function>(_answerErrorCallback);
       
-      NanDisposePersistent(_answerCallback);
-      NanDisposePersistent(_answerErrorCallback);
+      _answerCallback.Reset();
+      _answerErrorCallback.Reset();
       
       isError = true;
       data = event->Unwrap<std::string>();
-      argv[0] = NanError(data.c_str());
+      argv[0] = Nan::Error(data.c_str());
       argc = 1;
       
       break;
     case kPeerConnectionSetLocalDescription:
-      callback = NanNew(_localCallback);
+      callback = Nan::New<Function>(_localCallback);
       
-      NanDisposePersistent(_localCallback);
-      NanDisposePersistent(_localErrorCallback);
+      _localCallback.Reset();
+      _localErrorCallback.Reset();
       
       break;
     case kPeerConnectionSetLocalDescriptionError:
-      callback = NanNew(_localErrorCallback);
+      callback = Nan::New<Function>(_localErrorCallback);
       
-      NanDisposePersistent(_localCallback);
-      NanDisposePersistent(_localErrorCallback);
-      NanDisposePersistent(_localsdp);
+      _localCallback.Reset();
+      _localErrorCallback.Reset();
+      _localsdp.Reset();
       
       isError = true;
       data = event->Unwrap<std::string>();
-      argv[0] = NanError(data.c_str());
+      argv[0] = Nan::Error(data.c_str());
       argc = 1;
       
       break;
     case kPeerConnectionSetRemoteDescription:
-      callback = NanNew(_remoteCallback);
+      callback = Nan::New<Function>(_remoteCallback);
       
-      NanDisposePersistent(_remoteCallback);
-      NanDisposePersistent(_remoteErrorCallback);
+      _remoteCallback.Reset();
+      _remoteErrorCallback.Reset();
       
       break;
     case kPeerConnectionSetRemoteDescriptionError:
-      callback = NanNew(_remoteErrorCallback);
+      callback = Nan::New<Function>(_remoteErrorCallback);
       
-      NanDisposePersistent(_remoteCallback);
-      NanDisposePersistent(_remoteErrorCallback);
-      NanDisposePersistent(_remotesdp);
+      _remoteCallback.Reset();
+      _remoteErrorCallback.Reset();
+      _remotesdp.Reset();
       
       isError = true;
       data = event->Unwrap<std::string>();
-      argv[0] = NanError(data.c_str());
+      argv[0] = Nan::Error(data.c_str());
       argc = 1;
       
       break;
     case kPeerConnectionIceCandidate:
-      callback = NanNew(_onicecandidate);
+      callback = Nan::New<Function>(_onicecandidate);
       
       data = event->Unwrap<std::string>();
       
-      container = NanNew<Object>();
-      container->Set(NanNew("candidate"), JSON::Parse(NanNew(data.c_str())));
+      container = Nan::New<Object>();
+      container->Set(Nan::New("candidate").ToLocalChecked(), JSON::Parse(Nan::New(data.c_str()).ToLocalChecked()));
 
       argv[0] = container;
       argc = 1;
       
       break;
     case kPeerConnectionSignalChange:
-      callback = NanNew(_onsignalingstatechange);
+      callback = Nan::New<Function>(_onsignalingstatechange);
       
       break;
     case kPeerConnectionIceChange:
-      callback = NanNew(_oniceconnectionstatechange);
+      callback = Nan::New<Function>(_oniceconnectionstatechange);
       
       break;
     case kPeerConnectionIceGathering:
       
       break;
     case kPeerConnectionDataChannel:
-      callback = NanNew(_ondatachannel);
+      callback = Nan::New<Function>(_ondatachannel);
       
-      container = NanNew<Object>();
-      container->Set(NanNew("channel"), DataChannel::New(event->Unwrap<rtc::scoped_refptr<webrtc::DataChannelInterface> >()));
+      container = Nan::New<Object>();
+      container->Set(Nan::New("channel").ToLocalChecked(), DataChannel::New(event->Unwrap<rtc::scoped_refptr<webrtc::DataChannelInterface> >()));
 
       argv[0] = container;
       argc = 1;
       
       break;
     case kPeerConnectionAddStream:
-      callback = NanNew(_onaddstream);
+      callback = Nan::New<Function>(_onaddstream);
 
       argv[0] = MediaStream::New(event->Unwrap<rtc::scoped_refptr<webrtc::MediaStreamInterface> >());
       argc = 1;
 
       break;
     case kPeerConnectionRemoveStream:
-      callback = NanNew(_onremovestream);
+      callback = Nan::New<Function>(_onremovestream);
       
       argv[0] = MediaStream::New(event->Unwrap<rtc::scoped_refptr<webrtc::MediaStreamInterface> >());
       argc = 1;
 
       break;
     case kPeerConnectionRenegotiation:
-      callback = NanNew(_onnegotiationneeded);
+      callback = Nan::New<Function>(_onnegotiationneeded);
       
       break;
     case kPeerConnectionStats:
-      callback = NanNew(_onstats);
+      callback = Nan::New<Function>(_onstats);
 
       argv[0] = RTCStatsResponse::New(event->Unwrap<webrtc::StatsReports>());
       argc = 1;
@@ -1175,7 +1104,7 @@ void PeerConnection::On(Event *event) {
   if (!callback.IsEmpty() && callback->IsFunction()) {
     callback->Call(RTCWrap::This(), argc, argv);
   } else if (isError) {
-    NanThrowError(argv[0]);
+    Nan::ThrowError(argv[0]);
   }
 }
 

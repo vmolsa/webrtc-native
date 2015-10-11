@@ -30,13 +30,13 @@
 using namespace v8;
 using namespace WebRTC;
 
-MediaStreamCapturer::MediaStreamCapturer(v8::Local<v8::Object> properties) {
+MediaStreamCapturer::MediaStreamCapturer(Local<Object> properties) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   rtc::scoped_refptr<webrtc::MediaStreamInterface> mediaStream;
   
   if (!properties.IsEmpty()) {
-    mediaStream = MediaStream::Unwrap(properties->Get(NanNew("stream")));
+    mediaStream = MediaStream::Unwrap(properties->Get(Nan::New("stream").ToLocalChecked()));
   }
   
   if (mediaStream.get()) {
@@ -53,23 +53,21 @@ MediaStreamCapturer::~MediaStreamCapturer() {
   MediaStreamCapturer::End();
 }
 
-void MediaStreamCapturer::Init(v8::Local<v8::Object> constructor) {
+void MediaStreamCapturer::Init(Local<Object> constructor) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
+  Nan::HandleScope();
   
-  Local<FunctionTemplate> tpl = NanNew<FunctionTemplate>(MediaStreamCapturer::New);
-  constructor->Set(NanNew("mediastream"), tpl->GetFunction());
+  Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(MediaStreamCapturer::New);
+  constructor->Set(Nan::New("mediastream").ToLocalChecked(), tpl->GetFunction());
 }
 
-NAN_METHOD(MediaStreamCapturer::New) {
+void MediaStreamCapturer::New(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-
-  NanScope();
-
-  MediaStreamCapturer* capturer = new MediaStreamCapturer(Local<Object>::Cast(args[0]));
-  capturer->Wrap(args.This(), "MediaSource");
-  NanReturnValue(args.This());
+  
+  MediaStreamCapturer* capturer = new MediaStreamCapturer(Local<Object>::Cast(info[0]));
+  capturer->Wrap(info.This(), "MediaSource");
+  return info.GetReturnValue().Set(info.This());
 }
 
 void MediaStreamCapturer::Start() {

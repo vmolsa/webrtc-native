@@ -40,15 +40,15 @@ namespace WebRTC {
    private:
     ~RTCStatsReport() final;
     
-    static NAN_METHOD(New);
-    static NAN_METHOD(Names);
-    static NAN_METHOD(Stat);
-    static NAN_METHOD(Id);
-    static NAN_METHOD(Type);
-    static NAN_METHOD(Timestamp);
+    static void New(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void Names(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void Stat(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void Id(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void Type(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void Timestamp(const Nan::FunctionCallbackInfo<v8::Value> &info);
     
    protected:
-    static v8::Persistent<v8::Function> constructor;
+    static Nan::PersistentBase<v8::Function> constructor;
     webrtc::StatsReport* _report;
   };
   
@@ -60,11 +60,11 @@ namespace WebRTC {
    private:
     ~RTCStatsResponse() final;
    
-    static NAN_METHOD(New);
-    static NAN_METHOD(Result);
+    static void New(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void Result(const Nan::FunctionCallbackInfo<v8::Value> &info);
     
    protected:
-    static v8::Persistent<v8::Function> constructor;
+    static Nan::PersistentBase<v8::Function> constructor;
     webrtc::StatsReports _reports;
   };
 };

@@ -28,35 +28,35 @@
 using namespace v8;
 using namespace WebRTC;
 
-Persistent<Function> _require;
+Nan::PersistentBase<Function> _require;
 
 #if (NODE_MODULE_VERSION <= NODE_0_10_MODULE_VERSION)
-Persistent<Function> _parse;
+Nan::PersistentBase<Function> _parse;
 #endif
 
 void Global::Init(Handle<Object> exports) {
-  NanScope();
+  Nan::HandleScope();
   
-  Local<Object> global = NanGetCurrentContext()->Global();
-  NanAssignPersistent(_require, Local<Function>::Cast(global->Get(NanNew("require"))));
+  Local<Object> global = Nan::GetCurrentContext()->Global();
+  _require.Reset(Local<Function>::Cast(global->Get(Nan::New("require").ToLocalChecked())));
   
 #if (NODE_MODULE_VERSION <= NODE_0_10_MODULE_VERSION)
-  Local<Object> json = Local<Object>::Cast(global->Get(NanNew("JSON")));
-  NanAssignPersistent(_parse, Local<Function>::Cast(json->Get(NanNew("parse"))));   
+  Local<Object> json = Local<Object>::Cast(global->Get(Nan::New("JSON").ToLocalChecked()));
+  _parse.Reset(Local<Function>::Cast(json->Get(Nan::New("parse").ToLocalChecked())));   
 #endif
 }
 
 Local<Function> Global::Require(Local<String> library) {
-  NanEscapableScope();
+  Nan::EscapableHandleScope scope;
   Local<Value> argv[] = { library };
-  Local<Value> retval = NanMakeCallback(NanGetCurrentContext()->Global(), NanNew(_require), 1, argv);
-  return NanEscapeScope(Local<Function>::Cast(retval));
+  Local<Value> retval = Nan::MakeCallback(Nan::GetCurrentContext()->Global(), Nan::New(_require), 1, argv);
+  return scope.Escape(Local<Function>::Cast(retval));
 }
 
 #if (NODE_MODULE_VERSION <= NODE_0_10_MODULE_VERSION)
 Local<Value> JSON::Parse(Local<Value> str) {
-  NanEscapableScope();
+  Nan::EscapableHandleScope scope;
   Local<Value> argv[] = { str };
-  return NanEscapeScope(NanMakeCallback(NanGetCurrentContext()->Global(), NanNew(_parse), 1, argv));
+  return scope.Escape(Nan::MakeCallback(Nan::GetCurrentContext()->Global(), Nan::New(_parse), 1, argv));
 };
 #endif

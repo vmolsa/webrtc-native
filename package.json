@@ -25,7 +25,7 @@
     "request": "^2.58.0"
   },
   "devDependencies": {
-    "nan": "^1.9.0",
+    "nan": "^2.1.0",
     "pangyp": "^2.2.1",
     "minimist": "^1.1.1",
     "simple-peer": "^5.11.2",

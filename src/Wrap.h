@@ -42,8 +42,8 @@ namespace WebRTC {
         LOG(LS_INFO) << __PRETTY_FUNCTION__;
         
 #if (NODE_MODULE_VERSION < NODE_0_12_MODULE_VERSION)
-        NanEscapableScope();
-        return NanEscapeScope(NanNew<v8::Object>(node::ObjectWrap::handle_));
+        Nan::EscapableHandleScope scope;
+        return scope.Escape(Nan::New<v8::Object>(node::ObjectWrap::handle_));
 #else
         return node::ObjectWrap::handle();
 #endif

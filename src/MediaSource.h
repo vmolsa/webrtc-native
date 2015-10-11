@@ -52,19 +52,19 @@ namespace WebRTC {
       virtual bool Write(v8::Local<v8::Value> data);
       
     private:
-      static NAN_METHOD(New);
-      static NAN_METHOD(Connect);
-      static NAN_METHOD(Disconnect);
-      static NAN_METHOD(Write);
-      static NAN_METHOD(End);
+      static void New(const Nan::FunctionCallbackInfo<v8::Value> &info);
+      static void Connect(const Nan::FunctionCallbackInfo<v8::Value> &info);
+      static void Disconnect(const Nan::FunctionCallbackInfo<v8::Value> &info);
+      static void Write(const Nan::FunctionCallbackInfo<v8::Value> &info);
+      static void End(const Nan::FunctionCallbackInfo<v8::Value> &info);
 
-      static NAN_GETTER(OnData);
-      static NAN_GETTER(OnError);
-      static NAN_GETTER(OnEnd);
-      
-      static NAN_SETTER(OnData);
-      static NAN_SETTER(OnError);
-      static NAN_SETTER(OnEnd);
+      static void OnData(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+      static void OnError(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+      static void OnEnd(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);    
+
+      static void OnData(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+      static void OnError(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+      static void OnEnd(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
       
       virtual void On(Event *event);
       
@@ -72,11 +72,11 @@ namespace WebRTC {
       bool _closing;
       bool _callback;
       
-      v8::Persistent<v8::Function> _ondata;
-      v8::Persistent<v8::Function> _onerror;
-      v8::Persistent<v8::Function> _onend;
+      Nan::PersistentBase<v8::Function> _ondata;
+      Nan::PersistentBase<v8::Function> _onerror;
+      Nan::PersistentBase<v8::Function> _onend;
       
-      static v8::Persistent<v8::Object> constructor;
+      static Nan::PersistentBase<v8::Object> constructor;
   };
 };
 

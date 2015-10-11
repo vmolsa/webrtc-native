@@ -184,7 +184,7 @@ void Core::Init() {
 void Core::Dispose() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanLowMemoryNotification();
+  Nan::LowMemoryNotification();
   
   _factory.release();
 

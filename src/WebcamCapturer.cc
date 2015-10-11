@@ -61,20 +61,18 @@ WebcamCapturer::~WebcamCapturer() {
 void WebcamCapturer::Init(v8::Local<v8::Object> constructor) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
+  Nan::HandleScope();
   
-  Local<FunctionTemplate> tpl = NanNew<FunctionTemplate>(WebcamCapturer::New);
-  constructor->Set(NanNew("webcam"), tpl->GetFunction());
+  Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(WebcamCapturer::New);
+  constructor->Set(Nan::New("webcam").ToLocalChecked(), tpl->GetFunction());
 }
 
-NAN_METHOD(WebcamCapturer::New) {
+void WebcamCapturer::New(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
 
-  NanScope();
-
-  WebcamCapturer* capturer = new WebcamCapturer(Local<Object>::Cast(args[0]));
-  capturer->Wrap(args.This(), "MediaSource");
-  NanReturnValue(args.This());
+  WebcamCapturer* capturer = new WebcamCapturer(Local<Object>::Cast(info[0]));
+  capturer->Wrap(info.This(), "MediaSource");
+  return info.GetReturnValue().Set(info.This());
 }
 
 void WebcamCapturer::End() {

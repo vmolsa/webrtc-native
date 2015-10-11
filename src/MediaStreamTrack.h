@@ -49,49 +49,49 @@ namespace WebRTC {
     MediaStreamTrack();
     ~MediaStreamTrack() final;
 
-    static NAN_METHOD(New);
-    static NAN_METHOD(GetConstraints);
-    static NAN_METHOD(ApplyConstraints);
-    static NAN_METHOD(GetSettings);
-    static NAN_METHOD(GetCapabilities);
-    static NAN_METHOD(Clone);
-    static NAN_METHOD(Stop);
+    static void New(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void GetConstraints(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void ApplyConstraints(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void GetSettings(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void GetCapabilities(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void Clone(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void Stop(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    
+    static void GetEnabled(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetId(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetKind(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetLabel(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetMuted(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetReadOnly(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetReadyState(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetRemote(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetOnStarted(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetOnMute(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetOnUnMute(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetOnOverConstrained(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetOnEnded(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
 
-    static NAN_GETTER(GetEnabled);
-    static NAN_GETTER(GetId);
-    static NAN_GETTER(GetKind);
-    static NAN_GETTER(GetLabel);
-    static NAN_GETTER(GetMuted);
-    static NAN_GETTER(GetReadOnly);
-    static NAN_GETTER(GetReadyState);
-    static NAN_GETTER(GetRemote);
-    static NAN_GETTER(GetOnStarted);
-    static NAN_GETTER(GetOnMute);
-    static NAN_GETTER(GetOnUnMute);
-    static NAN_GETTER(GetOnOverConstrained);
-    static NAN_GETTER(GetOnEnded);
-   
-    static NAN_SETTER(ReadOnly);
-    static NAN_SETTER(SetEnabled);
-    static NAN_SETTER(SetOnStarted);
-    static NAN_SETTER(SetOnMute);
-    static NAN_SETTER(SetOnUnMute);
-    static NAN_SETTER(SetOnOverConstrained);
-    static NAN_SETTER(SetOnEnded);
-
+    static void ReadOnly(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+    static void SetEnabled(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+    static void SetOnStarted(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+    static void SetOnMute(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+    static void SetOnUnMute(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+    static void SetOnOverConstrained(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+    static void SetOnEnded(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+    
     void On(Event *event) final;
 
    protected:
     rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> _track;
     rtc::scoped_refptr<MediaStreamTrackObserver> _observer;
 
-    v8::Persistent<v8::Function> _onstarted;
-    v8::Persistent<v8::Function> _onmute;
-    v8::Persistent<v8::Function> _onunmute;
-    v8::Persistent<v8::Function> _onoverconstrained;
-    v8::Persistent<v8::Function> _onended;
+    Nan::PersistentBase<v8::Function> _onstarted;
+    Nan::PersistentBase<v8::Function> _onmute;
+    Nan::PersistentBase<v8::Function> _onunmute;
+    Nan::PersistentBase<v8::Function> _onoverconstrained;
+    Nan::PersistentBase<v8::Function> _onended;
 
-    static v8::Persistent<v8::Function> constructor;
+    static Nan::PersistentBase<v8::Function> constructor;
   };
 };
 

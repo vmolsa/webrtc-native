@@ -41,8 +41,8 @@ namespace WebRTC {
       explicit WindowRenderer(v8::Local<v8::Object> properties);
       virtual ~WindowRenderer();
   
-      static NAN_METHOD(New);
-      
+      static void New(const Nan::FunctionCallbackInfo<v8::Value> &info);
+
       virtual void On(Event *event);
 
     protected:

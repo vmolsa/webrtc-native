@@ -34,7 +34,7 @@ namespace WebRTC {
     static void Init(v8::Handle<v8::Object> exports);
 
    private:
-    static NAN_METHOD(GetMediaStream);
+    static void GetMediaStream(const Nan::FunctionCallbackInfo<v8::Value> &info);
   };
 };
 

@@ -89,7 +89,7 @@ WindowRenderer::WindowRenderer(v8::Local<v8::Object> properties) :
   }
 
   if (error) {
-    NanThrowError(error);
+    Nan::ThrowError(error);
   }
   
   [pool drain];
@@ -108,20 +108,18 @@ void WindowRenderer::Init() {
 void WindowRenderer::Init(v8::Local<v8::Object> constructor) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
+  Nan::HandleScope();
   
-  Local<FunctionTemplate> tpl = NanNew<FunctionTemplate>(WindowRenderer::New);
-  constructor->Set(NanNew("window"), tpl->GetFunction());
+  Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(WindowRenderer::New);
+  constructor->Set(Nan::New("window").ToLocalChecked(), tpl->GetFunction());
 }
 
-NAN_METHOD(WindowRenderer::New) {
+void WindowRenderer::New(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
 
-  NanScope();
-
-  WindowRenderer* renderer = new WindowRenderer(Local<Object>::Cast(args[0]));
-  renderer->Wrap(args.This(), "MediaSource");
-  NanReturnValue(args.This());
+  WindowRenderer* renderer = new WindowRenderer(Local<Object>::Cast(info[0]));
+  renderer->Wrap(info.This(), "MediaSource");
+  return info.GetReturnValue().Set(info.This());
 }
 
 void WindowRenderer::End() {

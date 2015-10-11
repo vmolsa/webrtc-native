@@ -64,43 +64,43 @@ namespace WebRTC {
                       
     ~PeerConnection() final;
    
-    static NAN_METHOD(New);
-    static NAN_METHOD(CreateOffer);
-    static NAN_METHOD(CreateAnswer);
-    static NAN_METHOD(SetLocalDescription);
-    static NAN_METHOD(SetRemoteDescription);
-    static NAN_METHOD(AddIceCandidate);
-    static NAN_METHOD(CreateDataChannel);
-    static NAN_METHOD(AddStream);
-    static NAN_METHOD(RemoveStream);
-    static NAN_METHOD(GetLocalStreams);
-    static NAN_METHOD(GetRemoteStreams);
-    static NAN_METHOD(GetStreamById);
-    static NAN_METHOD(GetStats);
-    static NAN_METHOD(Close);
+    static void New(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void CreateOffer(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void CreateAnswer(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void SetLocalDescription(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void SetRemoteDescription(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void AddIceCandidate(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void CreateDataChannel(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void AddStream(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void RemoveStream(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void GetLocalStreams(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void GetRemoteStreams(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void GetStreamById(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void GetStats(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void Close(const Nan::FunctionCallbackInfo<v8::Value> &info);
     
-    static NAN_GETTER(GetSignalingState);
-    static NAN_GETTER(GetIceConnectionState);
-    static NAN_GETTER(GetIceGatheringState);
-    static NAN_GETTER(GetOnSignalingStateChange);
-    static NAN_GETTER(GetOnIceConnectionStateChange);
-    static NAN_GETTER(GetOnIceCandidate);
-    static NAN_GETTER(GetOnDataChannel);
-    static NAN_GETTER(GetOnNegotiationNeeded);
-    static NAN_GETTER(GetOnAddStream);
-    static NAN_GETTER(GetOnRemoveStream);
-    static NAN_GETTER(GetLocalDescription);
-    static NAN_GETTER(GetRemoteDescription);
+    static void GetSignalingState(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetIceConnectionState(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetIceGatheringState(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetOnSignalingStateChange(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetOnIceConnectionStateChange(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetOnIceCandidate(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetOnDataChannel(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetOnNegotiationNeeded(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetOnAddStream(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetOnRemoveStream(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetLocalDescription(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetRemoteDescription(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
     
-    static NAN_SETTER(ReadOnly);
-    static NAN_SETTER(SetOnSignalingStateChange);
-    static NAN_SETTER(SetOnIceConnectionStateChange);
-    static NAN_SETTER(SetOnIceCandidate);
-    static NAN_SETTER(SetOnDataChannel);
-    static NAN_SETTER(SetOnNegotiationNeeded);
-    static NAN_SETTER(SetOnAddStream);
-    static NAN_SETTER(SetOnRemoveStream);
-                               
+    static void ReadOnly(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+    static void SetOnSignalingStateChange(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+    static void SetOnIceConnectionStateChange(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+    static void SetOnIceCandidate(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+    static void SetOnDataChannel(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+    static void SetOnNegotiationNeeded(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+    static void SetOnAddStream(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+    static void SetOnRemoveStream(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+
     void On(Event *event) final;
     
     bool IsStable();
@@ -108,32 +108,32 @@ namespace WebRTC {
     webrtc::PeerConnectionInterface *GetSocket();
     
    protected:
-    v8::Persistent<v8::Function> _onsignalingstatechange;
-    v8::Persistent<v8::Function> _oniceconnectionstatechange;
-    v8::Persistent<v8::Function> _onicecandidate;
-    v8::Persistent<v8::Function> _ondatachannel;
-    v8::Persistent<v8::Function> _onnegotiationneeded;
-    v8::Persistent<v8::Function> _onaddstream;
-    v8::Persistent<v8::Function> _onremovestream;
+    Nan::PersistentBase<v8::Function> _onsignalingstatechange;
+    Nan::PersistentBase<v8::Function> _oniceconnectionstatechange;
+    Nan::PersistentBase<v8::Function> _onicecandidate;
+    Nan::PersistentBase<v8::Function> _ondatachannel;
+    Nan::PersistentBase<v8::Function> _onnegotiationneeded;
+    Nan::PersistentBase<v8::Function> _onaddstream;
+    Nan::PersistentBase<v8::Function> _onremovestream;
     
-    v8::Persistent<v8::Function> _offerCallback;
-    v8::Persistent<v8::Function> _offerErrorCallback;
+    Nan::PersistentBase<v8::Function> _offerCallback;
+    Nan::PersistentBase<v8::Function> _offerErrorCallback;
     
-    v8::Persistent<v8::Function> _answerCallback;
-    v8::Persistent<v8::Function> _answerErrorCallback;
+    Nan::PersistentBase<v8::Function> _answerCallback;
+    Nan::PersistentBase<v8::Function> _answerErrorCallback;
     
-    v8::Persistent<v8::Function> _localCallback;
-    v8::Persistent<v8::Function> _localErrorCallback;
+    Nan::PersistentBase<v8::Function> _localCallback;
+    Nan::PersistentBase<v8::Function> _localErrorCallback;
     
-    v8::Persistent<v8::Function> _remoteCallback;
-    v8::Persistent<v8::Function> _remoteErrorCallback;
+    Nan::PersistentBase<v8::Function> _remoteCallback;
+    Nan::PersistentBase<v8::Function> _remoteErrorCallback;
 
-    v8::Persistent<v8::Function> _onstats;
+    Nan::PersistentBase<v8::Function> _onstats;
     
-    v8::Persistent<v8::Object> _localsdp;
-    v8::Persistent<v8::Object> _remotesdp;   
+    Nan::PersistentBase<v8::Object> _localsdp;
+    Nan::PersistentBase<v8::Object> _remotesdp;
     
-    static v8::Persistent<v8::Function> constructor;
+    static Nan::PersistentBase<v8::Function> constructor;
     
     rtc::scoped_refptr<StatsObserver> _stats;
     rtc::scoped_refptr<OfferObserver> _offer;

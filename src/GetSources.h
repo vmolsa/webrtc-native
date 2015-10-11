@@ -43,7 +43,7 @@ namespace WebRTC {
     static v8::Local<v8::Value> GetDevices();
 
    private:
-    static NAN_METHOD(GetDevices);
+    static void GetDevices(const Nan::FunctionCallbackInfo<v8::Value> &info);
   };
 };
 

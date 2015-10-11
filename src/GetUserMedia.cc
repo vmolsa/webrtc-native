@@ -34,19 +34,15 @@ using namespace WebRTC;
 
 void GetUserMedia::Init(Handle<Object> exports) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  NanScope();
 
-  exports->Set(NanNew("getUserMedia"), NanNew<FunctionTemplate>(GetUserMedia::GetMediaStream)->GetFunction());
+  exports->Set(Nan::New("getUserMedia").ToLocalChecked(), Nan::New<FunctionTemplate>(GetUserMedia::GetMediaStream)->GetFunction());
 }
 
-NAN_METHOD(GetUserMedia::GetMediaStream) {
+void GetUserMedia::GetMediaStream(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-  
   rtc::scoped_refptr<webrtc::MediaStreamInterface> stream;
-  rtc::scoped_refptr<MediaConstraints> constraints = MediaConstraints::New(args[0]);
+  rtc::scoped_refptr<MediaConstraints> constraints = MediaConstraints::New(info[0]);
   const char *error = 0;
   bool have_source = false;
 
@@ -125,20 +121,20 @@ NAN_METHOD(GetUserMedia::GetMediaStream) {
   }
 
   if (error) {
-    if (!args[2].IsEmpty() && args[2]->IsFunction()) {
-      Local<Function> onerror = Local<Function>::Cast(args[2]);
-      argv[0] = NanError(error);
+    if (!info[2].IsEmpty() && info[2]->IsFunction()) {
+      Local<Function> onerror = Local<Function>::Cast(info[2]);
+      argv[0] = Nan::Error(error);
 
-      onerror->Call(args.This(), 1, argv);
+      onerror->Call(info.This(), 1, argv);
     } else {
-      NanThrowError(error);
+      Nan::ThrowError(error);
     }
   } else {
-    if (!args[1].IsEmpty() && args[1]->IsFunction()) {
-      Local<Function> onsuccess = Local<Function>::Cast(args[1]);
-      onsuccess->Call(args.This(), 1, argv);
+    if (!info[1].IsEmpty() && info[1]->IsFunction()) {
+      Local<Function> onsuccess = Local<Function>::Cast(info[1]);
+      onsuccess->Call(info.This(), 1, argv);
     }
   }
   
-  NanReturnUndefined();
+  info.GetReturnValue().SetUndefined();
 }

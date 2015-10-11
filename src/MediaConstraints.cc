@@ -48,7 +48,7 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New() {
 rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(const Local<Object> &constraints) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
+  Nan::HandleScope();
   
   rtc::scoped_refptr<MediaConstraints> self = MediaConstraints::New();
 
@@ -56,7 +56,7 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(const Local<Object> &
     return self;
   }
 
-  Local<Value> optional_value = constraints->Get(NanNew("optional"));
+  Local<Value> optional_value = constraints->Get(Nan::New("optional").ToLocalChecked());
 
   if (!optional_value.IsEmpty() && optional_value->IsArray()) {
     Local<Array> options = Local<Array>::Cast(optional_value);
@@ -66,22 +66,22 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(const Local<Object> &
 
       if (!option_value.IsEmpty() && option_value->IsObject()) {
         Local<Object> option = Local<Object>::Cast(option_value);
-        Local<Value> DtlsSrtpKeyAgreement = option->Get(NanNew("DtlsSrtpKeyAgreement"));
-        Local<Value> RtpDataChannels = option->Get(NanNew("RtpDataChannels"));
-        Local<Value> googDscp = option->Get(NanNew("googDscp"));
-        Local<Value> googIPv6 = option->Get(NanNew("googIPv6"));
-        Local<Value> googSuspendBelowMinBitrate = option->Get(NanNew("googSuspendBelowMinBitrate"));
-        Local<Value> googNumUnsignalledRecvStreams = option->Get(NanNew("googNumUnsignalledRecvStreams"));
-        Local<Value> googCombinedAudioVideoBwe = option->Get(NanNew("googCombinedAudioVideoBwe"));
-        Local<Value> googScreencastMinBitrate = option->Get(NanNew("googScreencastMinBitrate"));
-        Local<Value> googCpuOveruseDetection = option->Get(NanNew("googCpuOveruseDetection"));
-        Local<Value> googCpuUnderuseThreshold = option->Get(NanNew("googCpuUnderuseThreshold"));
-        Local<Value> googCpuOveruseThreshold = option->Get(NanNew("googCpuOveruseThreshold"));
-        Local<Value> googCpuOveruseEncodeUsage = option->Get(NanNew("googCpuOveruseEncodeUsage"));
-        Local<Value> googHighStartBitrate = option->Get(NanNew("googHighStartBitrate"));
-        Local<Value> googHighBitrate = option->Get(NanNew("googHighBitrate"));
-        Local<Value> googVeryHighBitrate = option->Get(NanNew("googVeryHighBitrate"));
-        Local<Value> googPayloadPadding = option->Get(NanNew("googPayloadPadding"));
+        Local<Value> DtlsSrtpKeyAgreement = option->Get(Nan::New("DtlsSrtpKeyAgreement").ToLocalChecked());
+        Local<Value> RtpDataChannels = option->Get(Nan::New("RtpDataChannels").ToLocalChecked());
+        Local<Value> googDscp = option->Get(Nan::New("googDscp").ToLocalChecked());
+        Local<Value> googIPv6 = option->Get(Nan::New("googIPv6").ToLocalChecked());
+        Local<Value> googSuspendBelowMinBitrate = option->Get(Nan::New("googSuspendBelowMinBitrate").ToLocalChecked());
+        Local<Value> googNumUnsignalledRecvStreams = option->Get(Nan::New("googNumUnsignalledRecvStreams").ToLocalChecked());
+        Local<Value> googCombinedAudioVideoBwe = option->Get(Nan::New("googCombinedAudioVideoBwe").ToLocalChecked());
+        Local<Value> googScreencastMinBitrate = option->Get(Nan::New("googScreencastMinBitrate").ToLocalChecked());
+        Local<Value> googCpuOveruseDetection = option->Get(Nan::New("googCpuOveruseDetection").ToLocalChecked());
+        Local<Value> googCpuUnderuseThreshold = option->Get(Nan::New("googCpuUnderuseThreshold").ToLocalChecked());
+        Local<Value> googCpuOveruseThreshold = option->Get(Nan::New("googCpuOveruseThreshold").ToLocalChecked());
+        Local<Value> googCpuOveruseEncodeUsage = option->Get(Nan::New("googCpuOveruseEncodeUsage").ToLocalChecked());
+        Local<Value> googHighStartBitrate = option->Get(Nan::New("googHighStartBitrate").ToLocalChecked());
+        Local<Value> googHighBitrate = option->Get(Nan::New("googHighBitrate").ToLocalChecked());
+        Local<Value> googVeryHighBitrate = option->Get(Nan::New("googVeryHighBitrate").ToLocalChecked());
+        Local<Value> googPayloadPadding = option->Get(Nan::New("googPayloadPadding").ToLocalChecked());
 
         self->SetOptional(webrtc::MediaConstraintsInterface::kEnableDtlsSrtp, DtlsSrtpKeyAgreement);
         self->SetOptional(webrtc::MediaConstraintsInterface::kEnableRtpDataChannels, RtpDataChannels);
@@ -103,15 +103,15 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(const Local<Object> &
     }
   }
 
-  Local<Value> mandatory_value = constraints->Get(NanNew("mandatory"));
+  Local<Value> mandatory_value = constraints->Get(Nan::New("mandatory").ToLocalChecked());
 
   if (!mandatory_value.IsEmpty() && mandatory_value->IsObject()) {
     Local<Object> mandatory = Local<Object>::Cast(mandatory_value);
-    Local<Value> OfferToReceiveAudio = mandatory->Get(NanNew("OfferToReceiveAudio"));
-    Local<Value> OfferToReceiveVideo = mandatory->Get(NanNew("OfferToReceiveVideo"));
-    Local<Value> VoiceActivityDetection = mandatory->Get(NanNew("VoiceActivityDetection"));
-    Local<Value> IceRestart = mandatory->Get(NanNew("IceRestart"));
-    Local<Value> googUseRtpMUX = mandatory->Get(NanNew("googUseRtpMUX"));
+    Local<Value> OfferToReceiveAudio = mandatory->Get(Nan::New("OfferToReceiveAudio").ToLocalChecked());
+    Local<Value> OfferToReceiveVideo = mandatory->Get(Nan::New("OfferToReceiveVideo").ToLocalChecked());
+    Local<Value> VoiceActivityDetection = mandatory->Get(Nan::New("VoiceActivityDetection").ToLocalChecked());
+    Local<Value> IceRestart = mandatory->Get(Nan::New("IceRestart").ToLocalChecked());
+    Local<Value> googUseRtpMUX = mandatory->Get(Nan::New("googUseRtpMUX").ToLocalChecked());
 
     self->SetMandatory(webrtc::MediaConstraintsInterface::kOfferToReceiveAudio, OfferToReceiveAudio);
     self->SetMandatory(webrtc::MediaConstraintsInterface::kOfferToReceiveVideo, OfferToReceiveVideo);
@@ -120,14 +120,14 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(const Local<Object> &
     self->SetMandatory(webrtc::MediaConstraintsInterface::kUseRtpMux, googUseRtpMUX);
   }
 
-  Local<Value> audio_value = constraints->Get(NanNew("audio"));
+  Local<Value> audio_value = constraints->Get(Nan::New("audio").ToLocalChecked());
 
   if (!audio_value.IsEmpty()) {
     if (audio_value->IsTrue() || audio_value->IsFalse()) {
       self->_audio = true;
     } else if (audio_value->IsObject()) {
       Local<Object> audio = Local<Object>::Cast(audio_value);
-      optional_value = audio->Get(NanNew("optional"));
+      optional_value = audio->Get(Nan::New("optional").ToLocalChecked());
 
       if (!optional_value.IsEmpty() && optional_value->IsArray()) {
         Local<Array> options = Local<Array>::Cast(optional_value);
@@ -137,17 +137,17 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(const Local<Object> &
 
           if (!option_value.IsEmpty() && option_value->IsObject()) {
             Local<Object> option = Local<Object>::Cast(option_value);
-            Local<Value> googEchoCancellation = option->Get(NanNew("googEchoCancellation"));
-            Local<Value> googEchoCancellation2 = option->Get(NanNew("googEchoCancellation2"));
-            Local<Value> googDAEchoCancellation = option->Get(NanNew("googDAEchoCancellation"));
-            Local<Value> googAutoGainControl = option->Get(NanNew("googAutoGainControl"));
-            Local<Value> googAutoGainControl2 = option->Get(NanNew("googAutoGainControl2"));
-            Local<Value> googNoiseSuppression = option->Get(NanNew("googNoiseSuppression"));
-            Local<Value> googNoiseSuppression2 = option->Get(NanNew("googNoiseSuppression2"));
-            Local<Value> googHighpassFilter = option->Get(NanNew("googHighpassFilter"));
-            Local<Value> googTypingNoiseDetection = option->Get(NanNew("googTypingNoiseDetection"));
-            Local<Value> googAudioMirroring = option->Get(NanNew("googAudioMirroring"));
-            Local<Value> sourceId = option->Get(NanNew("sourceId"));
+            Local<Value> googEchoCancellation = option->Get(Nan::New("googEchoCancellation").ToLocalChecked());
+            Local<Value> googEchoCancellation2 = option->Get(Nan::New("googEchoCancellation2").ToLocalChecked());
+            Local<Value> googDAEchoCancellation = option->Get(Nan::New("googDAEchoCancellation").ToLocalChecked());
+            Local<Value> googAutoGainControl = option->Get(Nan::New("googAutoGainControl").ToLocalChecked());
+            Local<Value> googAutoGainControl2 = option->Get(Nan::New("googAutoGainControl2").ToLocalChecked());
+            Local<Value> googNoiseSuppression = option->Get(Nan::New("googNoiseSuppression").ToLocalChecked());
+            Local<Value> googNoiseSuppression2 = option->Get(Nan::New("googNoiseSuppression2").ToLocalChecked());
+            Local<Value> googHighpassFilter = option->Get(Nan::New("googHighpassFilter").ToLocalChecked());
+            Local<Value> googTypingNoiseDetection = option->Get(Nan::New("googTypingNoiseDetection").ToLocalChecked());
+            Local<Value> googAudioMirroring = option->Get(Nan::New("googAudioMirroring").ToLocalChecked());
+            Local<Value> sourceId = option->Get(Nan::New("sourceId").ToLocalChecked());
 
             self->SetOptional(webrtc::MediaConstraintsInterface::kEchoCancellation, googEchoCancellation);
             self->SetOptional(webrtc::MediaConstraintsInterface::kExtendedFilterEchoCancellation, googEchoCancellation2);
@@ -172,14 +172,14 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(const Local<Object> &
     }
   }
 
-  Local<Value> video_value = constraints->Get(NanNew("video"));
+  Local<Value> video_value = constraints->Get(Nan::New("video").ToLocalChecked());
 
   if (!video_value.IsEmpty()) {
     if (video_value->IsTrue() || video_value->IsFalse()) {
       self->_video = true;
     } else if (video_value->IsObject()) {
       Local<Object> video = Local<Object>::Cast(audio_value);
-      optional_value = video->Get(NanNew("optional"));
+      optional_value = video->Get(Nan::New("optional").ToLocalChecked());
 
       if (!optional_value.IsEmpty() && optional_value->IsArray()) {
         Local<Array> options = Local<Array>::Cast(optional_value);
@@ -190,15 +190,15 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(const Local<Object> &
           if (!option_value.IsEmpty() && option_value->IsObject()) {
             Local<Object> option = Local<Object>::Cast(option_value);
 
-            Local<Value> minAspectRatio = option->Get(NanNew("minAspectRatio"));
-            Local<Value> maxAspectRatio = option->Get(NanNew("maxAspectRatio"));
-            Local<Value> maxWidth = option->Get(NanNew("maxWidth"));
-            Local<Value> minWidth = option->Get(NanNew("minWidth"));
-            Local<Value> maxHeight = option->Get(NanNew("maxHeight"));
-            Local<Value> minHeight = option->Get(NanNew("minHeight"));
-            Local<Value> maxFrameRate = option->Get(NanNew("maxFrameRate"));
-            Local<Value> minFrameRate = option->Get(NanNew("minFrameRate"));
-            Local<Value> sourceId = option->Get(NanNew("sourceId"));
+            Local<Value> minAspectRatio = option->Get(Nan::New("minAspectRatio").ToLocalChecked());
+            Local<Value> maxAspectRatio = option->Get(Nan::New("maxAspectRatio").ToLocalChecked());
+            Local<Value> maxWidth = option->Get(Nan::New("maxWidth").ToLocalChecked());
+            Local<Value> minWidth = option->Get(Nan::New("minWidth").ToLocalChecked());
+            Local<Value> maxHeight = option->Get(Nan::New("maxHeight").ToLocalChecked());
+            Local<Value> minHeight = option->Get(Nan::New("minHeight").ToLocalChecked());
+            Local<Value> maxFrameRate = option->Get(Nan::New("maxFrameRate").ToLocalChecked());
+            Local<Value> minFrameRate = option->Get(Nan::New("minFrameRate").ToLocalChecked());
+            Local<Value> sourceId = option->Get(Nan::New("sourceId").ToLocalChecked());
 
             self->SetOptional(webrtc::MediaConstraintsInterface::kMinAspectRatio, minAspectRatio);
             self->SetOptional(webrtc::MediaConstraintsInterface::kMaxAspectRatio, maxAspectRatio);
@@ -228,7 +228,7 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(const Local<Object> &
 rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(const Local<Value> &constraints) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
+  Nan::HandleScope();
   
   if (!constraints.IsEmpty() && constraints->IsObject()) {
     Local<Object> obj = Local<Object>::Cast(constraints);
@@ -254,7 +254,7 @@ void MediaConstraints::SetOptional(std::string key, Local<Value> value) {
     } else if (value->IsUint32()) {
       MediaConstraints::SetOptional(key, value->Uint32Value());
     } else {
-      NanThrowError("Unknown MediaConstraints Type");
+      Nan::ThrowError("Unknown MediaConstraints Type");
     }
   }
 }
@@ -274,7 +274,7 @@ void MediaConstraints::SetMandatory(std::string key, Local<Value> value) {
     } else if (value->IsUint32()) {
       MediaConstraints::SetMandatory(key, value->Uint32Value());
     } else {
-      NanThrowError("Unknown MediaConstraints Type");
+      Nan::ThrowError("Unknown MediaConstraints Type");
     }
   }
 }

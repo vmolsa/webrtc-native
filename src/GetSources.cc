@@ -32,9 +32,7 @@ using namespace WebRTC;
 void GetSources::Init(Handle<Object> exports) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-
-  exports->Set(NanNew("getSources"), NanNew<FunctionTemplate>(GetSources::GetDevices)->GetFunction());
+  exports->Set(Nan::New("getSources").ToLocalChecked(), Nan::New<FunctionTemplate>(GetSources::GetDevices)->GetFunction());
 }
 
 rtc::scoped_refptr<webrtc::AudioTrackInterface> GetSources::GetAudioSource(const rtc::scoped_refptr<MediaConstraints> &constraints) {
@@ -122,8 +120,8 @@ rtc::scoped_refptr<webrtc::VideoTrackInterface> GetSources::GetVideoSource(const
 Local<Value> GetSources::GetDevices() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanEscapableScope();
-  Local<Array> list = NanNew<Array>();
+  Nan::EscapableHandleScope scope;
+  Local<Array> list = Nan::New<Array>();
   uint32_t index = 0;
 
   cricket::DeviceManagerInterface *manager = Core::GetManager();
@@ -137,11 +135,11 @@ Local<Value> GetSources::GetDevices() {
 
       for (audio_it = audio_devs.begin(); audio_it != audio_devs.end(); audio_it++) {
         const cricket::Device &dev = *audio_it;
-        Local<Object> dev_obj = NanNew<Object>();
+        Local<Object> dev_obj = Nan::New<Object>();
 
-        dev_obj->Set(NanNew("kind"), NanNew("audio"));
-        dev_obj->Set(NanNew("label"), NanNew(dev.name.c_str()));
-        dev_obj->Set(NanNew("id"), NanNew(dev.id.c_str()));
+        dev_obj->Set(Nan::New("kind").ToLocalChecked(), Nan::New("audio").ToLocalChecked());
+        dev_obj->Set(Nan::New("label").ToLocalChecked(), Nan::New(dev.name.c_str()).ToLocalChecked());
+        dev_obj->Set(Nan::New("id").ToLocalChecked(), Nan::New(dev.id.c_str()).ToLocalChecked());
 
         list->Set(index, dev_obj);
         index++;
@@ -153,11 +151,11 @@ Local<Value> GetSources::GetDevices() {
 
       for (video_it = video_devs.begin(); video_it != video_devs.end(); video_it++) {
         const cricket::Device &dev = *video_it;
-        Local<Object> dev_obj = NanNew<Object>();
+        Local<Object> dev_obj = Nan::New<Object>();
 
-        dev_obj->Set(NanNew("kind"), NanNew("video"));
-        dev_obj->Set(NanNew("label"), NanNew(dev.name.c_str()));
-        dev_obj->Set(NanNew("id"), NanNew(dev.id.c_str()));
+        dev_obj->Set(Nan::New("kind").ToLocalChecked(), Nan::New("video").ToLocalChecked());
+        dev_obj->Set(Nan::New("label").ToLocalChecked(), Nan::New(dev.name.c_str()).ToLocalChecked());
+        dev_obj->Set(Nan::New("id").ToLocalChecked(), Nan::New(dev.id.c_str()).ToLocalChecked());
 
         list->Set(index, dev_obj);
         index++;
@@ -165,25 +163,23 @@ Local<Value> GetSources::GetDevices() {
     }
   }
 
-  return NanEscapeScope(list);
+  return scope.Escape(list);
 }
 
-NAN_METHOD(GetSources::GetDevices) {
+void GetSources::GetDevices(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  NanScope();
-
-  if (args.Length() == 1 && args[0]->IsFunction()) {
-    Local<Function> callback = Local<Function>::Cast(args[0]);
+  if (info.Length() == 1 && info[0]->IsFunction()) {
+    Local<Function> callback = Local<Function>::Cast(info[0]);
 
     Local<Value> argv[1] = { 
       GetSources::GetDevices()
     };
 
     if (!callback.IsEmpty()) {
-      callback->Call(args.This(), 1, argv);
+      callback->Call(info.This(), 1, argv);
     }
   }
   
-  NanReturnUndefined();
+  info.GetReturnValue().SetUndefined();
 }
