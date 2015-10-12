@@ -45,13 +45,6 @@
 #include "webrtc/base/refcount.h"
 #include "webrtc/base/stringencode.h"
 
-#include "webrtc/system_wrappers/interface/tick_util.h"
-
-#include "webrtc/modules/utility/interface/process_thread.h"
-#include "webrtc/modules/video_capture/include/video_capture.h"
-#include "webrtc/modules/video_capture/include/video_capture_factory.h"
-#include "webrtc/modules/video_render/include/video_render.h"
-
 #include "talk/app/webrtc/jsep.h"
 #include "talk/app/webrtc/jsepsessiondescription.h"
 #include "talk/app/webrtc/mediaconstraintsinterface.h"
@@ -73,17 +66,6 @@
 #include "talk/media/webrtc/webrtcvideoframe.h"
 
 #include "talk/session/media/mediasession.h"
-
-#ifdef WEBRTC_MAC
-#include "webrtc/base/maccocoasocketserver.h"
-#include "webrtc/base/maccocoathreadhelper.h"
-#include "webrtc/modules/video_render/mac/cocoa_render_view.h"
-#endif
-
-#ifdef WEBRTC_WIN
-#include "webrtc/base/win32socketserver.h"
-#include "webrtc/base/win32socketinit.h"
-#endif
 
 #ifdef WIN32
 #ifndef __PRETTY_FUNCTION__

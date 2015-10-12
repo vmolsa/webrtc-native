@@ -102,6 +102,8 @@ MediaStream::~MediaStream() {
 void MediaStream::New(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
 
+  Nan::HandleScope scope;
+
   if (info.IsConstructCall()) {
     MediaStream* mediaStream = new MediaStream();
     mediaStream->Wrap(info.This(), "MediaStream");
@@ -139,7 +141,7 @@ rtc::scoped_refptr<webrtc::MediaStreamInterface> MediaStream::Unwrap(Local<Value
 
 void MediaStream::AddTrack(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-   
+  
   rtc::scoped_refptr<webrtc::MediaStreamInterface> stream = MediaStream::Unwrap(info.This());
   bool retval = false;
 
@@ -408,6 +410,7 @@ void MediaStream::SetOnEnded(Local<String> property, Local<Value> value, const N
 void MediaStream::On(Event *event) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
+  Nan::HandleScope scope;
   MediaStreamEvent type = event->Type<MediaStreamEvent>();
   Local<Function> onended;
   Local<Value> onended_argv[1];

@@ -13,7 +13,6 @@
       'sources': [
         'Global.cc',
         'Core.cc',
-        'Thread.cc',
         'BackTrace.cc',
         'EventEmitter.cc',
         'Observers.cc',
@@ -26,9 +25,6 @@
         'MediaStreamTrack.cc',
         'MediaConstraints.cc',
         'Stats.cc',
-        'MediaSource.cc',
-        'WebcamCapturer.cc',
-        'MediaStreamCapturer.cc',
       ],
       'dependencies': [
         '<(DEPTH)/talk/libjingle.gyp:libjingle_peerconnection',
@@ -44,8 +40,6 @@
           'dependencies': [
             '<(DEPTH)/talk/libjingle_tests.gyp:libjingle_unittest_main',
             '<(DEPTH)/talk/libjingle_tests.gyp:libjingle_media_unittest',
-            '<(DEPTH)/webrtc/modules/modules.gyp:video_capture_tests',
-            '<(DEPTH)/webrtc/modules/modules.gyp:video_render_tests',
           ],
         }],
         ['OS=="linux"', {
@@ -65,11 +59,6 @@
           'defines': [
             'USE_BACKTRACE',
           ],
-          'sources': [
-            'WindowRendererLinux.cc',
-            'LinuxWindow.cc',
-            'PlatformLinux.cc',
-          ],
         }],
         ['OS=="win"', {
           'msvs_disabled_warnings': [
@@ -77,10 +66,6 @@
             4005,
             4201,
             4506,
-          ],
-          'sources': [
-            'PlatformWin32.cc',
-            'WindowRendererWin32.cc',
           ],
         }],
         ['OS=="mac"', {
@@ -94,10 +79,6 @@
           },
           'defines': [
             'USE_BACKTRACE',
-          ],
-          'sources': [
-            'PlatformMac.cc',
-            'WindowRendererMac.mm',
           ],
         }],
       ],

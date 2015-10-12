@@ -103,6 +103,8 @@ MediaStreamTrack::~MediaStreamTrack() {
 void MediaStreamTrack::New(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
+  Nan::HandleScope scope;
+  
   if (info.IsConstructCall()) {
     MediaStreamTrack* mediaStreamTrack = new MediaStreamTrack();
     mediaStreamTrack->Wrap(info.This(), "MediaStreamTrack");
@@ -377,6 +379,7 @@ void MediaStreamTrack::SetOnEnded(Local<String> property, Local<Value> value, co
 void MediaStreamTrack::On(Event *event) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
+  Nan::HandleScope scope;
   MediaStreamTrackEvent type = event->Type<MediaStreamTrackEvent>();
 
   if (type != kMediaStreamTrackChanged) {

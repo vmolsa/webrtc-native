@@ -26,7 +26,6 @@
 #include "Common.h"
 
 #include "Global.h"
-#include "Platform.h"
 #include "Core.h"
 #include "Stats.h"
 #include "PeerConnection.h"
@@ -36,8 +35,6 @@
 #include "GetUserMedia.h"
 #include "MediaStream.h"
 #include "MediaStreamTrack.h"
-#include "MediaSource.h"
-#include "WindowRenderer.h"
 
 using namespace v8;
 
@@ -98,7 +95,6 @@ void RTCSessionDescription(const Nan::FunctionCallbackInfo<Value> &info) {
 void WebrtcModuleDispose(void *arg) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  WebRTC::Platform::Dispose();
   WebRTC::Core::Dispose(); 
 }
 
@@ -108,7 +104,6 @@ void WebrtcModuleInit(Handle<Object> exports) {
   Nan::HandleScope scope;
 
   WebRTC::Global::Init(exports);
-  WebRTC::Platform::Init();
   WebRTC::Core::Init();
   WebRTC::RTCStatsResponse::Init();
   WebRTC::RTCStatsReport::Init();
@@ -118,8 +113,6 @@ void WebrtcModuleInit(Handle<Object> exports) {
   WebRTC::GetUserMedia::Init(exports);
   WebRTC::MediaStream::Init();
   WebRTC::MediaStreamTrack::Init();
-  WebRTC::MediaSource::Init(exports);
-  WebRTC::WindowRenderer::Init();
   
   exports->Set(Nan::New("RTCGarbageCollect").ToLocalChecked(), Nan::New<FunctionTemplate>(RTCGarbageCollect)->GetFunction()); 
   exports->Set(Nan::New("RTCIceCandidate").ToLocalChecked(), Nan::New<FunctionTemplate>(RTCIceCandidate)->GetFunction());
