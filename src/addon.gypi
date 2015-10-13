@@ -3,20 +3,22 @@
     'type': 'loadable_module',
     'product_prefix': '',
     'product_extension': 'node',
-    'defines': [ 
-      'BUILDING_NODE_EXTENSION' 
-     ],
     'include_dirs': [
+      '<(node_root_dir)/include/node',
       '<(node_root_dir)/src',
       '<(node_root_dir)/deps/uv/include',
       '<(node_root_dir)/deps/v8/include'
+    ],
+    'defines': [
+      'BUILDING_NODE_EXTENSION',
+      'NODE_GYP_MODULE_NAME=>(_target_name)'
     ],
     'conditions': [
       [ 'OS=="mac"', {
         'defines': [ 
           '_DARWIN_USE_64_BIT_INODE=1' 
         ],
-        'libraries': [ 
+        'libraries': [
           '-undefined dynamic_lookup'
         ],
         'xcode_settings': {
@@ -37,13 +39,13 @@
           '-luuid.lib',
           '-lodbc32.lib',
           '-lDelayImp.lib',
-          '-l"<(node_root_dir)\\<(ConfigurationName)\\<(runtime)"'
+          '-l"<(node_root_dir)\\<(ConfigurationName)\\<(node_lib_file)"'
         ],
         'msvs_disabled_warnings': [ 
           4251 
         ],
       }, {
-        'defines': [ 
+        'defines': [
           '_LARGEFILE_SOURCE',
           '_FILE_OFFSET_BITS=64',
         ],
