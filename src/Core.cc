@@ -29,8 +29,6 @@
 #include "talk/app/webrtc/peerconnectionfactoryproxy.h"
 #include "talk/app/webrtc/proxy.h"
 
-#include "webrtc/base/cpumonitor.h"
-
 using namespace v8;
 using namespace WebRTC;
 
@@ -48,15 +46,8 @@ class ThreadPool {
   public:
     static void Init() {
       LOG(LS_INFO) << __PRETTY_FUNCTION__;
-      
-      rtc::CpuSampler info;
-      
-      if (info.Init()) {
-        _instances = info.GetCurrentCpus();
-      } else {
-        _instances = 1;
-      }
-       
+
+      _instances = 4; // TODO(): Get cpu count
       _pool = new ThreadPool[_instances];
     }
     
