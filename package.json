@@ -21,7 +21,6 @@
     "test": "node test/all.js"
   },
   "dependencies": {
-    "lsb-release": "^0.1.0",
     "request": "^2.58.0"
   },
   "devDependencies": {
