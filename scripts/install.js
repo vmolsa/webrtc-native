@@ -5,7 +5,6 @@ var path = require('path');
 var request = require('request');
 
 var PLATFORM = os.platform();
-var SYSTEM = os.release();
 var ROOT = process.cwd();
 var ARCH = os.arch();
 var URL = 'http://cide.cc:8080/webrtc/';
@@ -14,11 +13,7 @@ var NODEVER = process.version.split('.');
 NODEVER[2] = 'x';
 NODEVER = NODEVER.join('.');
 
-URL += PLATFORM + '/';
-URL += SYSTEM + '/';
-URL += ARCH + '/';
-URL += NODEVER + '/';
-URL += 'webrtc.node';
+URL += 'webrtc-' + PLATFORM + '-' + ARCH + '-' + NODEVER + '.node';
 
 function build() {
   console.log('Building module...');

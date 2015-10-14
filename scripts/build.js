@@ -27,11 +27,7 @@ var NODEVER = process.version.split('.');
 NODEVER[2] = 'x';
 NODEVER = NODEVER.join('.');
   
-URL += PLATFORM + '/';
-URL += SYSTEM + '/';
-URL += ARCH + '/';
-URL += NODEVER + '/';
-URL += 'webrtc.node';
+URL += 'webrtc-' + PLATFORM + '-' + ARCH + '-' + NODEVER + '.node';
   
 if (fs.existsSync(ROOT + path.sep + 'nodejs.gypi')) {
   fs.unlinkSync(ROOT + path.sep + 'nodejs.gypi');
