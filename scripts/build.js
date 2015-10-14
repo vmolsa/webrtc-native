@@ -14,6 +14,10 @@ if (!fs.existsSync(ROOT + path.sep + 'build' + path.sep + 'config.gypi')) {
   throw new Error('Run node-gyp rebuild instead of node build.js');
 }
 
+var USE_OPENSSL = (process.env['WEBRTC_USE_OPENSSL']) ? true : false;
+var USE_GTK = (os.platform == 'linux' && !process.env['WEBRTC_NO_GUI']) ? true : false;
+var USE_X11 = (os.platform == 'linux' && !process.env['WEBRTC_NO_GUI']) ? true : false;
+
 var SYNC = false;
 var PLATFORM = os.platform();
 var SYSTEM = os.release();
@@ -163,6 +167,9 @@ function configure() {
   process.env['GYP_DEFINES'] += ' node_lib_file=' + NODELIB;
   process.env['GYP_DEFINES'] += ' node_gyp_dir=' + NODEGYP.replace(/\\/g, '\\\\');
   process.env['GYP_DEFINES'] += ' build_with_chromium=0';
+  process.env['GYP_DEFINES'] += ' use_openssl=' + ((USE_OPENSSL) ? '1' : '0');
+  process.env['GYP_DEFINES'] += ' use_gtk='+ ((USE_GTK) ? '1' : '0');
+  process.env['GYP_DEFINES'] += ' use_x11=' + ((USE_X11) ? '1' : '0');
   process.env['GYP_DEFINES'] += ' ConfigurationName=' + CONFIG;
   
   if (process.env['BUILD_WEBRTC_TESTS'] == 'true') {
