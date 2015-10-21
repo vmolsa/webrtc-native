@@ -1077,14 +1077,20 @@ void PeerConnection::On(Event *event) {
     case kPeerConnectionAddStream:
       callback = Nan::New<Function>(_onaddstream);
 
-      argv[0] = MediaStream::New(event->Unwrap<rtc::scoped_refptr<webrtc::MediaStreamInterface> >());
+      container = Nan::New<Object>();
+      container->Set(Nan::New("stream").ToLocalChecked(), MediaStream::New(event->Unwrap<rtc::scoped_refptr<webrtc::MediaStreamInterface> >()));
+      
+      argv[0] = container;
       argc = 1;
 
       break;
     case kPeerConnectionRemoveStream:
       callback = Nan::New<Function>(_onremovestream);
       
-      argv[0] = MediaStream::New(event->Unwrap<rtc::scoped_refptr<webrtc::MediaStreamInterface> >());
+      container = Nan::New<Object>();
+      container->Set(Nan::New("stream").ToLocalChecked(), MediaStream::New(event->Unwrap<rtc::scoped_refptr<webrtc::MediaStreamInterface> >()));
+      
+      argv[0] = container;
       argc = 1;
 
       break;
