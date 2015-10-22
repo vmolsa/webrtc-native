@@ -8,22 +8,13 @@ npm install webrtc-native --save
 
 ### Compatibility x64
 
-| npm install && test   | Windows 8.1 | OSX | Ubuntu 14.04 | Fedora 22    |
-|-----------------------|-------------|-----|--------------|--------------|
-| NodeJS v0.10.x        | Yes         | Yes | Yes          | Yes          |
-| NodeJS v0.12.x        | Yes         | Yes | Yes          | Yes          |
-| Io.js v2.3.1          | Yes         | Yes | Yes          | Yes          |
-
-### Features
-
-| Feature               | Windows 8.1 | OSX | Ubuntu 14.04 | Fedora 22    |
-|-----------------------|-------------|-----|--------------|--------------|
-| RTP DataChannels      | Yes         | Yes | Yes          | Yes          |
-| SCTP DataChannels     | Yes         | Yes | Yes          | Yes          |
-| Audio Capture         | Yes         | Yes | Untested     | Untested     |
-| Video Capture         | Yes         | No  | Untested     | Untested     |
-| Screen Capture        | No          | No  | No           | No           |
-| Window Capture        | No          | No  | No           | No           |
+| nodejs / io.js | Windows 8.1 | OSX | Ubuntu 14.04 |
+|----------------|-------------|-----|--------------|
+| nodejs-v0.10.x |      x      |  x  |      x       |
+| nodejs-v0.12.x |      x      |  x  |      x       |
+| iojs-v2.3.x",  |      x      |  x  |      x       |
+| iojs-v3.3.x",  |      x      |  x  |      x       |
+| iojs-v4.2.1"   |      x      |  x  |      x       |
 
 # API
 ### Usage
