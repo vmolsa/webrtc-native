@@ -12,9 +12,9 @@ npm install webrtc-native --save
 |----------------|-------------|-----|--------------|
 | nodejs-v0.10.x |      x      |  x  |      x       |
 | nodejs-v0.12.x |      x      |  x  |      x       |
-| iojs-v2.3.x",  |      x      |  x  |      x       |
-| iojs-v3.3.x",  |      x      |  x  |      x       |
-| iojs-v4.2.1"   |      x      |  x  |      x       |
+| iojs-v2.3.x    |      x      |  x  |      x       |
+| iojs-v3.3.x    |      x      |  x  |      x       |
+| iojs-v4.2.1    |      x      |  x  |      x       |
 
 # API
 ### Usage
