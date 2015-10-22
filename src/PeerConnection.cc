@@ -405,9 +405,11 @@ void PeerConnection::AddIceCandidate(const Nan::FunctionCallbackInfo<Value> &inf
                   Local<Function> success = Local<Function>::Cast(info[1]);
                   success->Call(info.This(), 0, argv);
                 }
+              } else {            
+                error = "Failed to add ICECandidate";
               }
-            } else {            
-              error = "Failed to add ICECandidate";
+            } else {
+              error = "Internal Error";
             }
           } else {
             error = "Invalid ICECandidate";
