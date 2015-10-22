@@ -14,9 +14,9 @@ if (!fs.existsSync(ROOT + path.sep + 'build' + path.sep + 'config.gypi')) {
   throw new Error('Run node-gyp rebuild instead of node build.js');
 }
 
-var USE_OPENSSL = (process.env['WEBRTC_USE_OPENSSL']) ? true : false;
-var USE_GTK = (os.platform == 'linux' && !process.env['WEBRTC_NO_GUI']) ? true : false;
-var USE_X11 = (os.platform == 'linux' && !process.env['WEBRTC_NO_GUI']) ? true : false;
+var USE_OPENSSL = false;
+var USE_GTK = false;
+var USE_X11 = false;
 
 var SYNC = false;
 var PLATFORM = os.platform();
