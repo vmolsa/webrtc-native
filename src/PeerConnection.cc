@@ -1045,12 +1045,16 @@ void PeerConnection::On(Event *event) {
       break;
     case kPeerConnectionIceCandidate:
       callback = Nan::New<Function>(_onicecandidate);
+      container = Nan::New<Object>();
       
       data = event->Unwrap<std::string>();
       
-      container = Nan::New<Object>();
-      container->Set(Nan::New("candidate").ToLocalChecked(), JSON::Parse(Nan::New(data.c_str()).ToLocalChecked()));
-
+      if (data.empty()) {
+        container->Set(Nan::New("candidate").ToLocalChecked(), Nan::Null());
+      } else {
+        container->Set(Nan::New("candidate").ToLocalChecked(), JSON::Parse(Nan::New(data.c_str()).ToLocalChecked()));
+      }
+      
       argv[0] = container;
       argc = 1;
       

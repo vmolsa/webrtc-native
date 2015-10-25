@@ -132,6 +132,10 @@ void PeerConnectionObserver::OnIceGatheringChange(webrtc::PeerConnectionInterfac
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Emit(kPeerConnectionIceGathering);
+  
+  if (state == webrtc::PeerConnectionInterface::kIceGatheringComplete) {
+    Emit(kPeerConnectionIceCandidate, std::string());
+  }
 }
 
 void PeerConnectionObserver::OnStateChange(webrtc::PeerConnectionObserver::StateType state) {
