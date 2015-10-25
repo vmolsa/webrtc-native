@@ -27,7 +27,7 @@
     "nan": "^2.1.0",
     "node-gyp": "^3.0.3",
     "minimist": "^1.1.1",
-    "simple-peer": "^5.11.2",
+    "simple-peer": "^5.11.5",
     "tape": "^4.0.0"
   }
 }
