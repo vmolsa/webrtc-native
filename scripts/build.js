@@ -123,8 +123,8 @@ function build() {
   }
 }
 
-function sync() {  
-  if (!SYNC) {
+function sync() {
+  if (!SYNC && process.env['WEBRTC_SYNC'] !== 'false') {
     if (fs.existsSync(THIRD_PARTY + path.sep + 'webrtc_sync')) {
       var stat = fs.statSync(THIRD_PARTY + path.sep + 'webrtc_sync');
 
