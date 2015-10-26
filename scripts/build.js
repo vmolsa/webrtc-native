@@ -85,7 +85,9 @@ function install() {
       }
     }));
   } else {
-    console.log('Done! :)');
+    setTimeout(function() {
+      console.log('Done! :)');
+    }, 200);
   }
 }
 

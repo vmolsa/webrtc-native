@@ -41,7 +41,9 @@ function test() {
   try {
     var WebRTC = require(path.resolve(ROOT, 'build', 'Release', 'webrtc.node'));
     
-    console.log('Done! :)');
+    setTimeout(function() {
+      console.log('Done! :)');
+    }, 200);
   } catch (ignored) {
     if (PLATFORM == 'win32') {
       throw new Error('prebuilt module not working. See the instructions from https://github.com/vmolsa/webrtc-native#build-from-source for building module from source.');
@@ -54,7 +56,7 @@ function test() {
 }
 
 if (process.env['BUILD_WEBRTC'] == 'true') {
-  return build();
+  build();
 }
 
 console.log('Downloading module...');
