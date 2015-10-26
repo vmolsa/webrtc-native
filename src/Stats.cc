@@ -43,10 +43,11 @@ void RTCStatsReport::Init() {
 
   tpl->PrototypeTemplate()->Set(Nan::New("names").ToLocalChecked(), Nan::New<FunctionTemplate>(RTCStatsReport::Names)->GetFunction());
   tpl->PrototypeTemplate()->Set(Nan::New("stat").ToLocalChecked(), Nan::New<FunctionTemplate>(RTCStatsReport::Stat)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("id").ToLocalChecked(), Nan::New<FunctionTemplate>(RTCStatsReport::Id)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("type").ToLocalChecked(), Nan::New<FunctionTemplate>(RTCStatsReport::Type)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("timestamp").ToLocalChecked(), Nan::New<FunctionTemplate>(RTCStatsReport::Timestamp)->GetFunction());
   
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("id").ToLocalChecked(), RTCStatsReport::Id);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("type").ToLocalChecked(), RTCStatsReport::Type);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("timestamp").ToLocalChecked(), RTCStatsReport::Timestamp);
+    
   constructor.Reset(tpl->GetFunction());
 };
 
@@ -143,18 +144,18 @@ void RTCStatsReport::Stat(const Nan::FunctionCallbackInfo<Value> &info) {
   info.GetReturnValue().SetUndefined();
 }
 
-void RTCStatsReport::Id(const Nan::FunctionCallbackInfo<Value> &info) {
+void RTCStatsReport::Id(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   RTCStatsReport *stats = RTCWrap::Unwrap<RTCStatsReport>(info.This(), "RTCStatsReport");
   std::string id(stats->_report->id()->ToString());
   return info.GetReturnValue().Set(Nan::New(id.c_str()).ToLocalChecked()); 
 }
 
-void RTCStatsReport::Type(const Nan::FunctionCallbackInfo<Value> &info) {
+void RTCStatsReport::Type(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   RTCStatsReport *stats = RTCWrap::Unwrap<RTCStatsReport>(info.This(), "RTCStatsReport");
   return info.GetReturnValue().Set(Nan::New(stats->_report->TypeToString()).ToLocalChecked());
 }
 
-void RTCStatsReport::Timestamp(const Nan::FunctionCallbackInfo<Value> &info) {
+void RTCStatsReport::Timestamp(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   RTCStatsReport *stats = RTCWrap::Unwrap<RTCStatsReport>(info.This(), "RTCStatsReport");
   return info.GetReturnValue().Set(Nan::New(stats->_report->timestamp()));
 }

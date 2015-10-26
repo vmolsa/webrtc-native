@@ -43,9 +43,10 @@ namespace WebRTC {
     static void New(const Nan::FunctionCallbackInfo<v8::Value> &info);
     static void Names(const Nan::FunctionCallbackInfo<v8::Value> &info);
     static void Stat(const Nan::FunctionCallbackInfo<v8::Value> &info);
-    static void Id(const Nan::FunctionCallbackInfo<v8::Value> &info);
-    static void Type(const Nan::FunctionCallbackInfo<v8::Value> &info);
-    static void Timestamp(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    
+    static void Id(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void Type(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void Timestamp(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
     
    protected:
     static Nan::Persistent<v8::Function> constructor;
