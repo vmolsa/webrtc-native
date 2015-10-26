@@ -1,6 +1,6 @@
 [WebRTC](http://en.wikipedia.org/wiki/WebRTC) for NodeJS
 
-# Chromium
+### Chromium
 
 webrtc-native is using webrtc from chromium project. code is compiled with branch [47](https://chromium.googlesource.com/external/webrtc/+/branch-heads/47).
 
