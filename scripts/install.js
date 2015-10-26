@@ -44,9 +44,9 @@ function test() {
     console.log('Done! :)');
   } catch (ignored) {
     if (PLATFORM == 'win32') {
-      throw new Error('prebuilt module not working. "set BUILD_WEBRTC=true" and rerun "npm install" to begin to build from source.');
+      throw new Error('prebuilt module not working. See the instructions from https://github.com/vmolsa/webrtc-native#build-from-source for building module from source.');
     } else {
-      throw new Error('prebuilt module not working. "export BUILD_WEBRTC=true" and rerun "npm install" to begin to build from source.');
+      throw new Error('prebuilt module not working. See the instructions from https://github.com/vmolsa/webrtc-native#build-from-source for building module from source.');
     }
     
     console.log('Install Failed! :(');
@@ -72,9 +72,9 @@ request.get(URL, function (error, response, body) {
     setTimeout(test, 200);
   } else {
     if (os.platform() == 'win32') {
-      throw new Error('prebuilt module not found. "set BUILD_WEBRTC=true" and rerun "npm install" to begin to build from source.');
+      throw new Error('prebuilt module not found. See the instructions from https://github.com/vmolsa/webrtc-native#build-from-source for building module from source.');
     } else {
-      throw new Error('prebuilt module not found. "export BUILD_WEBRTC=true" and rerun "npm install" to begin to build from source.');
+      throw new Error('prebuilt module not found. See the instructions from https://github.com/vmolsa/webrtc-native#build-from-source for building module from source.');
     }
     
     process.exit(1);
