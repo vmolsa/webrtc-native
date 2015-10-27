@@ -56,7 +56,7 @@ function test() {
 }
 
 if (process.env['BUILD_WEBRTC'] == 'true') {
-  build();
+  return build();
 }
 
 console.log('Downloading module...');
