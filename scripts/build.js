@@ -14,11 +14,12 @@ if (!fs.existsSync(ROOT + path.sep + 'build' + path.sep + 'config.gypi')) {
   throw new Error('Run node-gyp rebuild instead of node build.js');
 }
 
+var CHROMIUM_BRANCH = 'branch-heads/47';
 var USE_OPENSSL = false;
 var USE_GTK = false;
 var USE_X11 = false;
-
 var SYNC = false;
+
 var PLATFORM = os.platform();
 var SYSTEM = os.release();
 var ARCH = process.argv[2].substring(14);
@@ -125,6 +126,22 @@ function build() {
   }
 }
 
+function checkout() {
+  var res = spawn('git', [ 'checkout', CHROMIUM_BRANCH ], {
+    cwd: WEBRTC_SRC,
+    env: process.env,
+    stdio: 'inherit',
+  });
+
+  res.on('close', function (code) {
+    if (!code) {
+      return build();
+    }
+
+    process.exit(1);
+  });
+}
+
 function sync() {
   if (!SYNC && process.env['WEBRTC_SYNC'] !== 'false') {
     if (fs.existsSync(THIRD_PARTY + path.sep + 'webrtc_sync')) {
@@ -151,7 +168,7 @@ function sync() {
   res.on('close', function (code) {
     if (!code) {
       fs.closeSync(fs.openSync(THIRD_PARTY + path.sep + 'webrtc_sync', 'w'));
-      return build();
+      return checkout();
     }
 
     process.exit(1);
