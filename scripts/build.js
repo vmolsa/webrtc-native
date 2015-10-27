@@ -18,7 +18,7 @@ var CHROMIUM_BRANCH = 'branch-heads/47';
 var USE_OPENSSL = false;
 var USE_GTK = false;
 var USE_X11 = false;
-var SYNC = false;
+var SYNC = (process.env['WEBRTC_SYNC'] === 'true') ? true : false;
 
 var PLATFORM = os.platform();
 var SYSTEM = os.release();
@@ -143,7 +143,7 @@ function checkout() {
 }
 
 function sync() {
-  if (!SYNC && process.env['WEBRTC_SYNC'] !== 'false') {
+  if (!SYNC) {
     if (fs.existsSync(THIRD_PARTY + path.sep + 'webrtc_sync')) {
       var stat = fs.statSync(THIRD_PARTY + path.sep + 'webrtc_sync');
 
