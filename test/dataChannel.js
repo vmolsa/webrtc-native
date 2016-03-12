@@ -4,13 +4,19 @@ var WebRTC = require('../');
 
 function P2P(alice, bob) {
   alice.onicecandidate = function(event) {
-    var candidate = event.candidate || event;
-    bob.addIceCandidate(candidate);
+    var candidate = event.candidate;
+    
+    if (candidate) {
+      bob.addIceCandidate(candidate);
+    }
   };
 
   bob.onicecandidate = function(event) {
-    var candidate = event.candidate || event;
-    alice.addIceCandidate(candidate);
+    var candidate = event.candidate;
+    
+    if (candidate) {
+      alice.addIceCandidate(candidate);
+    }
   };
 
   alice.onnegotiationneeded = function() {      
