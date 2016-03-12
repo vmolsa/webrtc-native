@@ -60,32 +60,50 @@ rtc::scoped_refptr<webrtc::AudioTrackInterface> GetSources::GetAudioSource(const
 rtc::scoped_refptr<webrtc::VideoTrackInterface> GetSources::GetVideoSource(const rtc::scoped_refptr<MediaConstraints> &constraints) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  cricket::DeviceManagerInterface *manager = Core::GetManager();
+  cricket::VideoCapturer* capturer = NULL;
   rtc::scoped_refptr<webrtc::VideoTrackInterface> track;
-  cricket::VideoCapturer *cap = 0;
-
+  cricket::DeviceManagerInterface *manager = Core::GetManager();
+  
   if (manager) {
     std::vector<cricket::Device> video_devs;
-
+    
     if (manager->GetVideoCaptureDevices(&video_devs)) {
-      std::vector<cricket::Device>::iterator video_it = video_devs.begin();
-
-      for (video_it = video_devs.begin(); !cap && video_it != video_devs.end(); video_it++) {
-        cap = manager->CreateVideoCapturer(*video_it);
+      std::vector<cricket::Device>::iterator video_it;
+      
+      for (video_it = video_devs.begin(); video_it != video_devs.end(); ++video_it) {
+        capturer = manager->CreateVideoCapturer(*video_it);
+        
+        if (capturer != NULL) {
+          break;
+        }
       }
+    } else {
+      LOG(LS_ERROR) << "Can't enumerate video devices";
     }
+  } else {
+    LOG(LS_ERROR) << "Can't create device manager";
   }
-
-  if (cap) {
-    //webrtc::PeerConnectionFactoryInterface *factory = Core::GetFactory();
+  
+  if (capturer) {
     rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory = Core::CreateFactory();
 
     if (factory.get()) {
-      rtc::scoped_refptr<webrtc::VideoSourceInterface> src = factory->CreateVideoSource(cap, constraints->ToConstraints());
-      track = factory->CreateVideoTrack("video", src);
+      rtc::scoped_refptr<webrtc::VideoSourceInterface> src = factory->CreateVideoSource(capturer, constraints->ToConstraints());
+      
+      if (src.get()) {
+        track = factory->CreateVideoTrack("video", src);
+        
+        if (!track.get()) {
+          LOG(LS_ERROR) << "Can't create video track";
+        }
+      } else {
+        LOG(LS_ERROR) << "Can't create video source";
+      }
+    } else {
+      LOG(LS_ERROR) << "Can't get Factory";
     }
   }
-
+  
   return track;
 }
 
