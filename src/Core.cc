@@ -26,8 +26,8 @@
 #include <nan.h>
 #include "Core.h"
 
-#include "talk/app/webrtc/peerconnectionfactoryproxy.h"
-#include "talk/app/webrtc/proxy.h"
+#include "webrtc/api/peerconnectionfactoryproxy.h"
+#include "webrtc/api/proxy.h"
 
 using namespace v8;
 using namespace WebRTC;
@@ -144,23 +144,11 @@ class PeerConnectionFactory : public ThreadConstructor, public webrtc::PeerConne
     }    
 };
 
-BlockingThread* _signal;
 rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> _factory;
 rtc::scoped_ptr<cricket::DeviceManagerInterface> _manager;
 
 void Core::Init() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  rtc::InitializeSSL();
-
-  _signal = new BlockingThread();
-  _signal->Start();
-
-  rtc::ThreadManager::Instance()->SetCurrentThread(_signal);
-  
-  if (rtc::ThreadManager::Instance()->CurrentThread() != _signal) {
-    LOG(LS_ERROR) << "Internal Thread Error!";
-    abort();
-  }
 
   ThreadPool::Init();
 
@@ -186,9 +174,6 @@ void Core::Dispose() {
   _manager.release();
   
   ThreadPool::Dispose();
-  
-  _signal->Stop(); 
-  delete _signal;
 }
 
 rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> Core::CreateFactory() {
