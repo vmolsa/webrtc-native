@@ -45,27 +45,16 @@
 #include "webrtc/base/refcount.h"
 #include "webrtc/base/stringencode.h"
 
-#include "talk/app/webrtc/jsep.h"
-#include "talk/app/webrtc/jsepsessiondescription.h"
-#include "talk/app/webrtc/mediaconstraintsinterface.h"
-#include "talk/app/webrtc/mediastreaminterface.h"
-#include "talk/app/webrtc/peerconnectionfactory.h"
-#include "talk/app/webrtc/peerconnectioninterface.h"
-#include "talk/app/webrtc/test/fakeconstraints.h"
-#include "talk/app/webrtc/datachannelinterface.h"
-#include "talk/app/webrtc/videosourceinterface.h"
-#include "talk/app/webrtc/videosource.h"
-
-#include "talk/media/base/videocapturerfactory.h"
-#include "talk/media/base/videocapturer.h"
-#include "talk/media/base/videoframe.h"
-#include "talk/media/sctp/sctpdataengine.h"
-#include "talk/media/devices/devicemanager.h"
-#include "talk/media/devices/videorendererfactory.h"
-#include "talk/media/webrtc/webrtcvideocapturerfactory.h"
-#include "talk/media/webrtc/webrtcvideoframe.h"
-
-#include "talk/session/media/mediasession.h"
+#include "webrtc/api/jsep.h"
+#include "webrtc/api/jsepsessiondescription.h"
+#include "webrtc/api/mediaconstraintsinterface.h"
+#include "webrtc/api/mediastreaminterface.h"
+#include "webrtc/api/peerconnectionfactory.h"
+#include "webrtc/api/peerconnectioninterface.h"
+#include "webrtc/api/test/fakeconstraints.h"
+#include "webrtc/api/datachannelinterface.h"
+#include "webrtc/api/videosourceinterface.h"
+#include "webrtc/api/videosource.h"
 
 #ifdef WIN32
 #ifndef __PRETTY_FUNCTION__
