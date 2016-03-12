@@ -72,7 +72,7 @@ namespace WebRTC {
     void OnSignalingChange(webrtc::PeerConnectionInterface::SignalingState state) final;
     void OnIceConnectionChange(webrtc::PeerConnectionInterface::IceConnectionState state) final;
     void OnIceGatheringChange(webrtc::PeerConnectionInterface::IceGatheringState state) final;
-    void OnStateChange(webrtc::PeerConnectionObserver::StateType state) final;
+    void OnStateChange(webrtc::PeerConnectionObserver::StateType state);
     void OnIceCandidate(const webrtc::IceCandidateInterface* candidate) final;
     void OnDataChannel(webrtc::DataChannelInterface* channel) final;
     void OnRenegotiationNeeded() final;
