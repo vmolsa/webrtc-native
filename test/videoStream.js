@@ -1,23 +1,17 @@
 var WebRTC = require('../');
 
-//WebRTC.setDebug(true);
+WebRTC.setDebug(true);
 
 function onSuccess(stream) {
-  var renderer = new WebRTC.MediaSource('window');
-  var capturer = new WebRTC.MediaSource('mediastream', {
-    stream: stream
+  var video_list = stream.getVideoTracks();
+    
+  video_list.forEach(function (track) {
+    console.log('Video Track');
   });
-  
-  capturer.connect(renderer);
-  
-  setTimeout(function() {
-    console.log('Closing...');
-    capturer.end();
-  }, 5000);
 }
 
 var constraints = {
-  audio: true,
+  audio: false,
   video: true,
 /*
   audio: {
