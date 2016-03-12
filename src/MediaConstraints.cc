@@ -71,16 +71,9 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(const Local<Object> &
         Local<Value> googDscp = option->Get(Nan::New("googDscp").ToLocalChecked());
         Local<Value> googIPv6 = option->Get(Nan::New("googIPv6").ToLocalChecked());
         Local<Value> googSuspendBelowMinBitrate = option->Get(Nan::New("googSuspendBelowMinBitrate").ToLocalChecked());
-        Local<Value> googNumUnsignalledRecvStreams = option->Get(Nan::New("googNumUnsignalledRecvStreams").ToLocalChecked());
         Local<Value> googCombinedAudioVideoBwe = option->Get(Nan::New("googCombinedAudioVideoBwe").ToLocalChecked());
         Local<Value> googScreencastMinBitrate = option->Get(Nan::New("googScreencastMinBitrate").ToLocalChecked());
         Local<Value> googCpuOveruseDetection = option->Get(Nan::New("googCpuOveruseDetection").ToLocalChecked());
-        Local<Value> googCpuUnderuseThreshold = option->Get(Nan::New("googCpuUnderuseThreshold").ToLocalChecked());
-        Local<Value> googCpuOveruseThreshold = option->Get(Nan::New("googCpuOveruseThreshold").ToLocalChecked());
-        Local<Value> googCpuOveruseEncodeUsage = option->Get(Nan::New("googCpuOveruseEncodeUsage").ToLocalChecked());
-        Local<Value> googHighStartBitrate = option->Get(Nan::New("googHighStartBitrate").ToLocalChecked());
-        Local<Value> googHighBitrate = option->Get(Nan::New("googHighBitrate").ToLocalChecked());
-        Local<Value> googVeryHighBitrate = option->Get(Nan::New("googVeryHighBitrate").ToLocalChecked());
         Local<Value> googPayloadPadding = option->Get(Nan::New("googPayloadPadding").ToLocalChecked());
 
         self->SetOptional(webrtc::MediaConstraintsInterface::kEnableDtlsSrtp, DtlsSrtpKeyAgreement);
@@ -88,16 +81,9 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(const Local<Object> &
         self->SetOptional(webrtc::MediaConstraintsInterface::kEnableDscp, googDscp);
         self->SetOptional(webrtc::MediaConstraintsInterface::kEnableIPv6, googIPv6);
         self->SetOptional(webrtc::MediaConstraintsInterface::kEnableVideoSuspendBelowMinBitrate, googSuspendBelowMinBitrate);
-        self->SetOptional(webrtc::MediaConstraintsInterface::kNumUnsignalledRecvStreams, googNumUnsignalledRecvStreams);
         self->SetOptional(webrtc::MediaConstraintsInterface::kCombinedAudioVideoBwe, googCombinedAudioVideoBwe);
         self->SetOptional(webrtc::MediaConstraintsInterface::kScreencastMinBitrate, googScreencastMinBitrate);
         self->SetOptional(webrtc::MediaConstraintsInterface::kCpuOveruseDetection, googCpuOveruseDetection);
-        self->SetOptional(webrtc::MediaConstraintsInterface::kCpuUnderuseThreshold, googCpuUnderuseThreshold);
-        self->SetOptional(webrtc::MediaConstraintsInterface::kCpuOveruseThreshold, googCpuOveruseThreshold);
-        self->SetOptional(webrtc::MediaConstraintsInterface::kCpuOveruseEncodeUsage, googCpuOveruseEncodeUsage);
-        self->SetOptional(webrtc::MediaConstraintsInterface::kHighStartBitrate, googHighStartBitrate);
-        self->SetOptional(webrtc::MediaConstraintsInterface::kHighBitrate, googHighBitrate);
-        self->SetOptional(webrtc::MediaConstraintsInterface::kVeryHighBitrate, googVeryHighBitrate);
         self->SetOptional(webrtc::MediaConstraintsInterface::kPayloadPadding, googPayloadPadding);
       }
     }
@@ -137,6 +123,7 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(const Local<Object> &
 
           if (!option_value.IsEmpty() && option_value->IsObject()) {
             Local<Object> option = Local<Object>::Cast(option_value);
+            Local<Value> EchoCancellation = option->Get(Nan::New("echoCancellation").ToLocalChecked());
             Local<Value> googEchoCancellation = option->Get(Nan::New("googEchoCancellation").ToLocalChecked());
             Local<Value> googEchoCancellation2 = option->Get(Nan::New("googEchoCancellation2").ToLocalChecked());
             Local<Value> googDAEchoCancellation = option->Get(Nan::New("googDAEchoCancellation").ToLocalChecked());
@@ -147,9 +134,11 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(const Local<Object> &
             Local<Value> googHighpassFilter = option->Get(Nan::New("googHighpassFilter").ToLocalChecked());
             Local<Value> googTypingNoiseDetection = option->Get(Nan::New("googTypingNoiseDetection").ToLocalChecked());
             Local<Value> googAudioMirroring = option->Get(Nan::New("googAudioMirroring").ToLocalChecked());
+            Local<Value> noiseReduction = option->Get(Nan::New("googNoiseReduction").ToLocalChecked());
             Local<Value> sourceId = option->Get(Nan::New("sourceId").ToLocalChecked());
 
-            self->SetOptional(webrtc::MediaConstraintsInterface::kEchoCancellation, googEchoCancellation);
+            self->SetOptional(webrtc::MediaConstraintsInterface::kEchoCancellation, EchoCancellation);
+            self->SetOptional(webrtc::MediaConstraintsInterface::kGoogEchoCancellation, googEchoCancellation);
             self->SetOptional(webrtc::MediaConstraintsInterface::kExtendedFilterEchoCancellation, googEchoCancellation2);
             self->SetOptional(webrtc::MediaConstraintsInterface::kDAEchoCancellation, googDAEchoCancellation);
             self->SetOptional(webrtc::MediaConstraintsInterface::kAutoGainControl, googAutoGainControl);
@@ -159,6 +148,7 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(const Local<Object> &
             self->SetOptional(webrtc::MediaConstraintsInterface::kHighpassFilter, googHighpassFilter);
             self->SetOptional(webrtc::MediaConstraintsInterface::kTypingNoiseDetection, googTypingNoiseDetection);
             self->SetOptional(webrtc::MediaConstraintsInterface::kAudioMirroring, googAudioMirroring);
+            self->SetOptional(webrtc::MediaConstraintsInterface::kNoiseReduction, noiseReduction);
 
             if (!sourceId.IsEmpty() && sourceId->IsString()) {
               String::Utf8Value sourceId_str(sourceId->ToString());
@@ -208,7 +198,7 @@ rtc::scoped_refptr<MediaConstraints> MediaConstraints::New(const Local<Object> &
             self->SetOptional(webrtc::MediaConstraintsInterface::kMinHeight, minHeight);
             self->SetOptional(webrtc::MediaConstraintsInterface::kMaxFrameRate, maxFrameRate);
             self->SetOptional(webrtc::MediaConstraintsInterface::kMinFrameRate, minFrameRate);
-
+            
             if (!sourceId.IsEmpty() && sourceId->IsString()) {
               String::Utf8Value sourceId_str(sourceId->ToString());
               self->_videoId = *sourceId_str;
