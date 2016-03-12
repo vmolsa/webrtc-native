@@ -1,7 +1,5 @@
 {
   'includes': [
-    '../third_party/webrtc/src/webrtc/supplement.gypi',
-    '../third_party/webrtc/src/webrtc/build/common.gypi',
     '../third_party/webrtc/src/talk/build/common.gypi',
     '../build/config.gypi',
     '../nodejs.gypi',
@@ -27,7 +25,7 @@
         'Stats.cc',
       ],
       'dependencies': [
-        '<(DEPTH)/talk/libjingle.gyp:libjingle_peerconnection',
+        '<(webrtc_root)/webrtc.gyp:webrtc_all',
       ],
       'include_dirs': [
         '<(DEPTH)/third_party/jsoncpp/source/include',
@@ -36,13 +34,10 @@
         "<!(node -e \"require('nan')\")",
       ],
       'conditions': [
-        ['include_tests==1', {
-          'dependencies': [
-            '<(DEPTH)/talk/libjingle_tests.gyp:libjingle_unittest_main',
-            '<(DEPTH)/talk/libjingle_tests.gyp:libjingle_media_unittest',
-          ],
-        }],
         ['OS=="linux"', {
+          'sources': [
+            'Platform-linux.cc'
+          ],
           'cflags': [
             '-Wno-deprecated-declarations',
             '-Wno-unused-variable',
@@ -61,6 +56,9 @@
           ],
         }],
         ['OS=="win"', {
+          'sources': [
+            'Platform-win32.cc'
+          ],
           'msvs_disabled_warnings': [
             4267,
             4005,
@@ -69,8 +67,12 @@
           ],
         }],
         ['OS=="mac"', {
+          'sources': [
+            'Platform-osx.mm'
+          ],
           'xcode_settings': {
             'OTHER_CFLAGS': [
+              '-Wno-nonnull',
               '-Wno-deprecated-declarations',
               '-Wno-newline-eof',
               '-Wno-unknown-pragmas',
