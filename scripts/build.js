@@ -14,7 +14,7 @@ if (!fs.existsSync(ROOT + path.sep + 'build' + path.sep + 'config.gypi')) {
   throw new Error('Run node-gyp rebuild instead of node build.js');
 }
 
-var CHROMIUM_BRANCH = 'branch-heads/47';
+var CHROMIUM_BRANCH = null; //'branch-heads/47';
 var USE_OPENSSL = false;
 var USE_GTK = false;
 var USE_X11 = false;
@@ -127,6 +127,10 @@ function build() {
 }
 
 function checkout() {
+  if (!CHROMIUM_BRANCH) {
+    return build();
+  }
+
   var res = spawn('git', [ 'checkout', CHROMIUM_BRANCH ], {
     cwd: WEBRTC_SRC,
     env: process.env,
@@ -189,19 +193,8 @@ function configure() {
   process.env['GYP_DEFINES'] += ' use_openssl=' + ((USE_OPENSSL) ? '1' : '0');
   process.env['GYP_DEFINES'] += ' use_gtk='+ ((USE_GTK) ? '1' : '0');
   process.env['GYP_DEFINES'] += ' use_x11=' + ((USE_X11) ? '1' : '0');
-  process.env['GYP_DEFINES'] += ' ConfigurationName=' + CONFIG;
-  
-  if (process.env['BUILD_WEBRTC_TESTS'] == 'true') {
-    process.env['GYP_DEFINES'] += ' include_tests=1';
-  } else {
-    if (os.platform() == 'win32') {
-      console.log('To enable native WebRTC tests. set BUILD_WEBRTC_TESTS=true and re-run npm install. Tests are located in third_party\\webrtc\\src\\out\\');
-    } else {
-      console.log('To enable native WebRTC tests. export BUILD_WEBRTC_TESTS=true and re-run npm install. Tests are located in third_party/webrtc/src/out/');
-    }
-    
-    process.env['GYP_DEFINES'] += ' include_tests=0';
-  }
+  process.env['GYP_DEFINES'] += ' ConfigurationName=' + CONFIG;  
+  process.env['GYP_DEFINES'] += ' include_tests=0';
   
   switch (os.platform()) {
     case 'darwin':
