@@ -46,12 +46,13 @@ void MediaStream::Init() {
   Nan::SetPrototypeMethod(tpl, "getAudioTracks", MediaStream::GetAudioTracks);
   Nan::SetPrototypeMethod(tpl, "getTrackById", MediaStream::GetTrackById);
   Nan::SetPrototypeMethod(tpl, "getVideoTracks", MediaStream::GetVideoTracks);
+  Nan::SetPrototypeMethod(tpl, "getTracks", MediaStream::GetTracks);
 
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("active").ToLocalChecked(), MediaStream::GetActive);
   Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("ended").ToLocalChecked(), MediaStream::GetEnded);
   Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("id").ToLocalChecked(), MediaStream::GetId);
   Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("onaddtrack").ToLocalChecked(), MediaStream::GetOnAddTrack, MediaStream::SetOnAddTrack);
   Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("onremovetrack").ToLocalChecked(), MediaStream::GetOnRemoveTrack, MediaStream::SetOnRemoveTrack);
-  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("onended").ToLocalChecked(), MediaStream::GetOnEnded, MediaStream::SetOnEnded);
 
   constructor.Reset(tpl->GetFunction());
 }
@@ -73,9 +74,13 @@ Local<Value> MediaStream::New(rtc::scoped_refptr<webrtc::MediaStreamInterface> m
   
   if (self) {   
     self->_stream = mediaStream;
+    self->_audio_tracks = self->_stream->GetAudioTracks();
+    self->_video_tracks = self->_stream->GetVideoTracks();
     self->_stream->RegisterObserver(self->_observer.get());
+    
+    self->SetReference(false);
     self->Emit(kMediaStreamChanged);
-
+    
     return scope.Escape(ret);
   }
 
@@ -83,6 +88,7 @@ Local<Value> MediaStream::New(rtc::scoped_refptr<webrtc::MediaStreamInterface> m
 }
 
 MediaStream::MediaStream() :
+  _active(false),
   _ended(true)
 {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
@@ -325,6 +331,54 @@ void MediaStream::GetVideoTracks(const Nan::FunctionCallbackInfo<Value> &info) {
   info.GetReturnValue().SetUndefined();
 }
 
+void MediaStream::GetTracks(const Nan::FunctionCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  rtc::scoped_refptr<webrtc::MediaStreamInterface> self = MediaStream::Unwrap(info.This());
+
+  if (self.get()) {
+    webrtc::AudioTrackVector audio_list = self->GetAudioTracks();
+    webrtc::VideoTrackVector video_list = self->GetVideoTracks();
+    
+    std::vector<rtc::scoped_refptr<webrtc::AudioTrackInterface> >::iterator audio_it;
+    std::vector<rtc::scoped_refptr<webrtc::VideoTrackInterface> >::iterator video_it;
+    
+    Local<Array> list = Nan::New<Array>();
+    uint32_t index = 0;
+
+    for (audio_it = audio_list.begin(); audio_it != audio_list.end(); audio_it++) {
+      rtc::scoped_refptr<webrtc::AudioTrackInterface> track(*audio_it);
+
+      if (track.get()) {
+        list->Set(index, MediaStreamTrack::New(track.get()));
+        index++;
+      }
+    }
+ 
+    for (video_it = video_list.begin(); video_it != video_list.end(); video_it++) {
+      rtc::scoped_refptr<webrtc::VideoTrackInterface> track(*video_it);
+
+      if (track.get()) {
+        list->Set(index, MediaStreamTrack::New(track.get()));
+        index++;
+      }
+    }
+
+    return info.GetReturnValue().Set(list);
+  } else {
+    Nan::ThrowError("Internal Error");
+  }
+  
+  info.GetReturnValue().SetUndefined();
+}
+
+void MediaStream::GetActive(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+
+  MediaStream *self = RTCWrap::Unwrap<MediaStream>(info.Holder(), "MediaStream");
+  return info.GetReturnValue().Set(Nan::New(self->_active));
+}
+
 void MediaStream::GetEnded(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
 
@@ -360,13 +414,6 @@ void MediaStream::GetOnRemoveTrack(Local<String> property, const Nan::PropertyCa
   return info.GetReturnValue().Set(Nan::New<Function>(self->_onremovetrack));
 }
 
-void MediaStream::GetOnEnded(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  MediaStream *self = RTCWrap::Unwrap<MediaStream>(info.Holder(), "MediaStream");
-  return info.GetReturnValue().Set(Nan::New<Function>(self->_onended));
-}
-
 void MediaStream::ReadOnly(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
 }
@@ -395,211 +442,92 @@ void MediaStream::SetOnRemoveTrack(Local<String> property, Local<Value> value, c
   }
 }
 
-void MediaStream::SetOnEnded(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-
-  MediaStream *self = RTCWrap::Unwrap<MediaStream>(info.Holder(), "MediaStream");
-
-  if (!value.IsEmpty() && value->IsFunction()) {
-    self->_onended.Reset<Function>(Local<Function>::Cast(value));
-  } else {
-    self->_onended.Reset();
-  }
-}
-
 void MediaStream::On(Event *event) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   Nan::HandleScope scope;
   MediaStreamEvent type = event->Type<MediaStreamEvent>();
-  Local<Function> onended;
-  Local<Value> onended_argv[1];
 
   if (type != kMediaStreamChanged) {
     Nan::ThrowError("Internal Error");
     return;
   }
+  
+  webrtc::AudioTrackVector new_audio_tracks = _stream->GetAudioTracks();
+  webrtc::VideoTrackVector new_video_tracks = _stream->GetVideoTracks();
 
-  if (_stream.get()) {
-    webrtc::AudioTrackVector audio_list = _stream->GetAudioTracks();
-    webrtc::VideoTrackVector video_list = _stream->GetVideoTracks();
+  for (const auto& cached_track : _audio_tracks) {
+    auto it = std::find_if(
+        new_audio_tracks.begin(), new_audio_tracks.end(),
+        [cached_track](const webrtc::AudioTrackVector::value_type& new_track) {
+          return new_track->id().compare(cached_track->id()) == 0;
+        });
+    if (it == new_audio_tracks.end()) {
+      Local<Function> callback = Nan::New<Function>(_onremovetrack);
+      Local<Value> argv[] = {
+        MediaStreamTrack::New(cached_track.get())
+      };
 
-    if (!audio_list.empty() || !video_list.empty()) {
-      _ended = false;
-    } else {
-      _ended = true;
-
-      if (!_audio_tracks.empty() || !_video_tracks.empty()) {
-        onended = Nan::New<Function>(_onended);
+      if (!callback.IsEmpty() && callback->IsFunction()) {
+        callback->Call(RTCWrap::This(), 1, argv);
       }
-    }
-
-    if (audio_list.size() != _audio_tracks.size()) {
-      std::vector<rtc::scoped_refptr<webrtc::AudioTrackInterface> >::iterator last_audio, cur_audio;
-
-      if (audio_list.size() > _audio_tracks.size()) {
-        for (cur_audio = audio_list.begin(); cur_audio != audio_list.end(); cur_audio++) {
-          rtc::scoped_refptr<webrtc::AudioTrackInterface> cur_track(*cur_audio);
-          std::string cur_id;
-          bool found = false;
-
-          if (cur_track.get()) {
-            cur_id = cur_track->id();
-          }
-
-          if (_audio_tracks.size()) {
-            for (last_audio = _audio_tracks.begin(); last_audio != _audio_tracks.end(); last_audio++) {
-              rtc::scoped_refptr<webrtc::AudioTrackInterface> last_track(*last_audio);
-              std::string last_id;
-
-              if (last_track.get()) {
-                last_id = last_track->id();
-              }
-
-              if (cur_id.compare(last_id) == 0) {
-                found = true;
-                break;
-              }
-            }
-          }
-
-          if (!found) {
-            Local<Function> callback = Nan::New<Function>(_onaddtrack);
-            Local<Value> argv[] = {
-              MediaStreamTrack::New(cur_track.get())
-            };
-
-            if (!callback.IsEmpty() && callback->IsFunction()) {
-              callback->Call(RTCWrap::This(), 1, argv);
-            }
-          }
-        }
-      } else {
-        for (cur_audio = _audio_tracks.begin(); cur_audio != _audio_tracks.end(); cur_audio++) {
-          rtc::scoped_refptr<webrtc::AudioTrackInterface> cur_track(*cur_audio);
-          std::string cur_id;
-          bool found = false;
-
-          if (cur_track.get()) {
-            cur_id = cur_track->id();
-          }
-
-          if (audio_list.size()) {
-            for (last_audio = audio_list.begin(); last_audio != audio_list.end(); last_audio++) {
-              rtc::scoped_refptr<webrtc::AudioTrackInterface> last_track(*last_audio);
-              std::string last_id;
-
-              if (last_track.get()) {
-                last_id = last_track->id();
-              }
-
-              if (cur_id.compare(last_id) == 0) {
-                found = true;
-                break;
-              }
-            }
-          }
-
-          if (!found) {
-            Local<Function> callback = Nan::New<Function>(_onremovetrack);
-            Local<Value> argv[] = {
-              MediaStreamTrack::New(cur_track.get())
-            };
-
-            if (!callback.IsEmpty() && callback->IsFunction()) {
-              callback->Call(RTCWrap::This(), 1, argv);
-            }
-          }
-        }
-      }
-
-      _audio_tracks = audio_list;
-    }
-
-    if (video_list.size() != _video_tracks.size()) {
-      std::vector<rtc::scoped_refptr<webrtc::VideoTrackInterface> >::iterator last_video, cur_video;
-
-      if (video_list.size() > _video_tracks.size()) {
-        for (cur_video = video_list.begin(); cur_video != video_list.end(); cur_video++) {
-          rtc::scoped_refptr<webrtc::VideoTrackInterface> cur_track(*cur_video);
-          std::string cur_id;
-          bool found = false;
-
-          if (cur_track.get()) {
-            cur_id = cur_track->id();
-          }
-
-          if (_video_tracks.size()) {
-            for (last_video = _video_tracks.begin(); last_video != _video_tracks.end(); last_video++) {
-              rtc::scoped_refptr<webrtc::VideoTrackInterface> last_track(*last_video);
-              std::string last_id;
-
-              if (last_track.get()) {
-                last_id = last_track->id();
-              }
-
-              if (cur_id.compare(last_id) == 0) {
-                found = true;
-                break;
-              }
-            }
-          }
-
-          if (!found) {
-            Local<Function> callback = Nan::New<Function>(_onaddtrack);
-            Local<Value> argv[] = {
-              MediaStreamTrack::New(cur_track.get())
-            };
-
-            if (!callback.IsEmpty() && callback->IsFunction()) {
-              callback->Call(RTCWrap::This(), 1, argv);
-            }
-          }
-        }
-      } else {
-        for (cur_video = _video_tracks.begin(); cur_video != _video_tracks.end(); cur_video++) {
-          rtc::scoped_refptr<webrtc::VideoTrackInterface> cur_track(*cur_video);
-          std::string cur_id;
-          bool found = false;
-
-          if (cur_track.get()) {
-            cur_id = cur_track->id();
-          }
-
-          if (video_list.size()) {
-            for (last_video = video_list.begin(); last_video != video_list.end(); last_video++) {
-              rtc::scoped_refptr<webrtc::VideoTrackInterface> last_track(*last_video);
-              std::string last_id;
-
-              if (last_track.get()) {
-                last_id = last_track->id();
-              }
-
-              if (cur_id.compare(last_id) == 0) {
-                found = true;
-                break;
-              }
-            }
-          }
-
-          if (!found) {
-            Local<Function> callback = Nan::New<Function>(_onremovetrack);
-            Local<Value> argv[] = {
-              MediaStreamTrack::New(cur_track.get())
-            };
-
-            if (!callback.IsEmpty() && callback->IsFunction()) {
-              callback->Call(RTCWrap::This(), 1, argv);
-            }
-          }
-        }
-      }
-
-      _video_tracks = video_list;
     }
   }
+  
+  for (const auto& new_track : new_audio_tracks) {
+    auto it = std::find_if(
+        _audio_tracks.begin(), _audio_tracks.end(),
+        [new_track](const webrtc::AudioTrackVector::value_type& cached_track) {
+          return new_track->id().compare(cached_track->id()) == 0;
+        });
+    if (it == _audio_tracks.end()) {
+      Local<Function> callback = Nan::New<Function>(_onaddtrack);
+      Local<Value> argv[] = {
+        MediaStreamTrack::New(new_track.get())
+      };
 
-  if (!onended.IsEmpty() && onended->IsFunction()) {
-    onended->Call(RTCWrap::This(), 0, onended_argv);
+      if (!callback.IsEmpty() && callback->IsFunction()) {
+        callback->Call(RTCWrap::This(), 1, argv);
+      }
+    }
   }
+  
+  for (const auto& cached_track : _video_tracks) {
+    auto it = std::find_if(
+        new_video_tracks.begin(), new_video_tracks.end(),
+        [cached_track](const webrtc::VideoTrackVector::value_type& new_track) {
+          return new_track->id().compare(cached_track->id()) == 0;
+        });
+    if (it == new_video_tracks.end()) {
+      Local<Function> callback = Nan::New<Function>(_onremovetrack);
+      Local<Value> argv[] = {
+        MediaStreamTrack::New(cached_track.get())
+      };
+
+      if (!callback.IsEmpty() && callback->IsFunction()) {
+        callback->Call(RTCWrap::This(), 1, argv);
+      }
+    }
+  }
+  
+  for (const auto& new_track : new_video_tracks) {
+    auto it = std::find_if(
+        _video_tracks.begin(), _video_tracks.end(),
+        [new_track](const webrtc::VideoTrackVector::value_type& cached_track) {
+          return new_track->id().compare(cached_track->id()) == 0;
+        });
+    if (it == _video_tracks.end()) {
+      Local<Function> callback = Nan::New<Function>(_onaddtrack);
+      Local<Value> argv[] = {
+        MediaStreamTrack::New(new_track.get())
+      };
+
+      if (!callback.IsEmpty() && callback->IsFunction()) {
+        callback->Call(RTCWrap::This(), 1, argv);
+      }
+    }
+  }
+  
+  _audio_tracks = new_audio_tracks;
+  _video_tracks = new_video_tracks;
 }
