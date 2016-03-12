@@ -37,7 +37,9 @@ class PlatformWorker : public rtc::Thread {
     virtual void Run();
 };
 
-PlatformWorker::PlatformWorker(rtc::SocketServer* ss) : rtc::Thread(ss) { }
+PlatformWorker::PlatformWorker(rtc::SocketServer* ss) : rtc::Thread(ss) {
+  SetAllowBlockingCalls(true);
+}
 
 void PlatformWorker::Run() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
