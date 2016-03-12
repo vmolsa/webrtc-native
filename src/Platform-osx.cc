@@ -38,12 +38,14 @@ class PlatformWorker : public rtc::Thread {
 };
 
 PlatformWorker::PlatformWorker(rtc::SocketServer* ss) : rtc::Thread(ss) {
-  SetAllowBlockingCalls(true);
+  
 }
 
 void PlatformWorker::Run() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   bool running = false;
+  
+  rtc::Thread::SetAllowBlockingCalls(true);
   
   do {
     running = rtc::Thread::ProcessMessages(1);
