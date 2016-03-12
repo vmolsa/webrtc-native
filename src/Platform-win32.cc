@@ -31,35 +31,19 @@
 
 using namespace WebRTC;
 
-class PlatformWorker : public rtc::Thread {
-  public:    
-    virtual void Run();
-};
-
-void PlatformWorker::Run() {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  bool running = false;
-  
-  rtc::Thread::SetAllowBlockingCalls(true);
-  
-  do {
-    running = rtc::Thread::ProcessMessages(1);
-  } while(running);
-}
-
-PlatformWorker *worker;
+rtc::Thread worker;
 
 void Platform::Init() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  worker = new PlatformWorker();
-  worker->Start();
-  
   rtc::EnsureWinsockInit();
-  rtc::InitializeSSL();
-  rtc::ThreadManager::Instance()->SetCurrentThread(worker);
   
-  if (rtc::ThreadManager::Instance()->CurrentThread() != worker) {
+  worker.Start();
+  
+  rtc::InitializeSSL();
+  rtc::ThreadManager::Instance()->SetCurrentThread(&worker);
+  
+  if (rtc::ThreadManager::Instance()->CurrentThread() != &worker) {
     LOG(LS_ERROR) << "Internal Thread Error!";
     abort();
   }
@@ -68,8 +52,11 @@ void Platform::Init() {
 void Platform::Dispose() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  worker->Stop();  
-  rtc::CleanupSSL();
+  worker.Stop();
+
+  if (rtc::ThreadManager::Instance()->CurrentThread() == &worker) {
+    rtc::ThreadManager::Instance()->SetCurrentThread(NULL);
+  }  
   
-  delete worker;
+  rtc::CleanupSSL();
 }
