@@ -31,7 +31,6 @@
 
 using namespace WebRTC;
 
-
 class PlatformWorker : public rtc::Thread {
   public:
     explicit PlatformWorker(rtc::SocketServer* ss = nullptr);    

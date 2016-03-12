@@ -68,7 +68,7 @@
         }],
         ['OS=="mac"', {
           'sources': [
-            'Platform-osx.mm'
+            'Platform-osx.cc'
           ],
           'xcode_settings': {
             'OTHER_CFLAGS': [
