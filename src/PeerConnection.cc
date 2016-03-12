@@ -112,7 +112,7 @@ PeerConnection::PeerConnection(const Local<Object> &configuration,
               entry.password = *credential;
             }
 
-            _servers.push_back(entry);
+            _config.servers.push_back(entry);
           }
         }        
       }
@@ -161,7 +161,7 @@ webrtc::PeerConnectionInterface *PeerConnection::GetSocket() {
   if (!_socket.get()) {
     if (_factory.get()) {
       EventEmitter::SetReference(true);
-      _socket = _factory->CreatePeerConnection(_servers, _constraints->ToConstraints(), NULL, NULL, _peer.get());
+      _socket = _factory->CreatePeerConnection(_config, _constraints->ToConstraints(), NULL, NULL, _peer.get());
     } else {
       Nan::ThrowError("Internal Factory Error");
     }

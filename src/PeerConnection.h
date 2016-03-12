@@ -145,7 +145,7 @@ namespace WebRTC {
     rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> _factory;
     
     rtc::scoped_refptr<MediaConstraints> _constraints;
-    webrtc::PeerConnectionInterface::IceServers _servers;
+    webrtc::PeerConnectionInterface::RTCConfiguration _config;
   };
 };
 
