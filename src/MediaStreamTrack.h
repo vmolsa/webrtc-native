@@ -39,8 +39,9 @@ namespace WebRTC {
   class MediaStreamTrack : public RTCWrap, public EventEmitter {
    public:
     static void Init();
-
-    static v8::Local<v8::Value> New(rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> mediaStreamTrack);
+    
+    static v8::Local<v8::Value> New(rtc::scoped_refptr<webrtc::AudioTrackInterface> audioTrack);
+    static v8::Local<v8::Value> New(rtc::scoped_refptr<webrtc::VideoTrackInterface> videoTrack);
 
     static rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> Unwrap(v8::Local<v8::Object> value);
     static rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> Unwrap(v8::Local<v8::Value> value);
@@ -79,11 +80,19 @@ namespace WebRTC {
     static void SetOnOverConstrained(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
     static void SetOnEnded(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
     
+    void CheckState();
     void On(Event *event) final;
 
    protected:
+    bool isAudioTrack;
+    bool isVideoTrack;
+    
     rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> _track;
+    rtc::scoped_refptr<webrtc::MediaSourceInterface> _source;
     rtc::scoped_refptr<MediaStreamTrackObserver> _observer;
+ 
+    webrtc::MediaStreamTrackInterface::TrackState _track_state;
+    webrtc::MediaSourceInterface::SourceState _source_state;
 
     Nan::Persistent<v8::Function> _onstarted;
     Nan::Persistent<v8::Function> _onmute;
