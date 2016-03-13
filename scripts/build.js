@@ -3,12 +3,8 @@ var os = require('os');
 var spawn = require('child_process').spawn;
 var path = require('path');
 var request = require('request');
-var ROOT = process.cwd();
 
-if (os.platform() == 'win32') {
-  process.chdir(path.resolve(ROOT, '..'));
-  ROOT = process.cwd();
-}
+var ROOT = path.resolve(__dirname, '..');
 
 if (!fs.existsSync(ROOT + path.sep + 'build' + path.sep + 'config.gypi')) {
   throw new Error('Run node-gyp rebuild instead of node build.js');

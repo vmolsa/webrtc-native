@@ -5,7 +5,7 @@ var path = require('path');
 var request = require('request');
 
 var PLATFORM = os.platform();
-var ROOT = process.cwd();
+var ROOT = path.resolve(__dirname, '..');
 var ARCH = os.arch();
 var URL = 'http://cide.cc:8080/webrtc/';
 var NODEVER = process.version.split('.');
