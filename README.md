@@ -42,6 +42,10 @@ npm install webrtc-native --save
 | Video Recording from MediaStream | Unimplemented | Unimplemented | Unimplemented |
 | Audio Recording from MediaStream | Unimplemented | Unimplemented | Unimplemented |
 
+### TODO
+
+- Add ARM support (BeagleBone, Raspberry Pi)
+
 # API
 ### Usage
 
