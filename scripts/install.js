@@ -56,29 +56,29 @@ function test() {
 }
 
 if (process.env['BUILD_WEBRTC'] == 'true') {
-  return build();
-}
+  build();
+} else {
+  console.log('Downloading module...');
 
-console.log('Downloading module...');
-
-if (!fs.existsSync(path.resolve(ROOT, 'build', 'Release'))) {
-  if (!fs.existsSync(path.resolve(ROOT, 'build'))) {
-    fs.mkdirSync(path.resolve(ROOT, 'build'));
-  }
-  
-  fs.mkdirSync(path.resolve(ROOT, 'build', 'Release'));
-}
-
-request.get(URL, function (error, response, body) {
-  if (!error && response.statusCode == 200) {
-    setTimeout(test, 200);
-  } else {
-    if (os.platform() == 'win32') {
-      throw new Error('prebuilt module not found. See the instructions from https://github.com/vmolsa/webrtc-native#build-from-source for building module from source.');
-    } else {
-      throw new Error('prebuilt module not found. See the instructions from https://github.com/vmolsa/webrtc-native#build-from-source for building module from source.');
+  if (!fs.existsSync(path.resolve(ROOT, 'build', 'Release'))) {
+    if (!fs.existsSync(path.resolve(ROOT, 'build'))) {
+      fs.mkdirSync(path.resolve(ROOT, 'build'));
     }
     
-    process.exit(1);
+    fs.mkdirSync(path.resolve(ROOT, 'build', 'Release'));
   }
-}).pipe(fs.createWriteStream(path.resolve(ROOT, 'build', 'Release', 'webrtc.node')));  
+
+  request.get(URL, function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+      setTimeout(test, 200);
+    } else {
+      if (os.platform() == 'win32') {
+        throw new Error('prebuilt module not found. See the instructions from https://github.com/vmolsa/webrtc-native#build-from-source for building module from source.');
+      } else {
+        throw new Error('prebuilt module not found. See the instructions from https://github.com/vmolsa/webrtc-native#build-from-source for building module from source.');
+      }
+      
+      process.exit(1);
+    }
+  }).pipe(fs.createWriteStream(path.resolve(ROOT, 'build', 'Release', 'webrtc.node')));
+}
