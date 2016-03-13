@@ -17,8 +17,16 @@ URL += 'webrtc-' + PLATFORM + '-' + ARCH + '-' + NODEVER + '.node';
 
 function build() {
   console.log('Building module...');
- 
+  
   var nodegyp = path.resolve(ROOT, 'node_modules', 'node-gyp', 'bin', 'node-gyp.js');
+  
+  if (!fs.existsSync(nodegyp)) {
+    nodegyp = path.resolve(ROOT, '..', 'node-gyp', 'bin', 'node-gyp.js');
+    
+    if (!fs.existsSync(nodegyp)) {
+      throw new Error('node-gyp not found!');
+    }
+  }
    
   var res = spawn('node', [ nodegyp, 'rebuild' ], {
     cwd: ROOT,
