@@ -67,6 +67,7 @@ namespace WebRTC {
     static void SetOnAddTrack(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
     static void SetOnRemoveTrack(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
 
+    void CheckState();
     void On(Event *event) final;
 
    protected:

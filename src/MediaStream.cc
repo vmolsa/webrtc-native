@@ -77,9 +77,7 @@ Local<Value> MediaStream::New(rtc::scoped_refptr<webrtc::MediaStreamInterface> m
     self->_audio_tracks = self->_stream->GetAudioTracks();
     self->_video_tracks = self->_stream->GetVideoTracks();
     self->_stream->RegisterObserver(self->_observer.get());
-    
-    self->SetReference(false);
-    self->Emit(kMediaStreamChanged);
+    self->CheckState();
     
     return scope.Escape(ret);
   }
@@ -442,16 +440,9 @@ void MediaStream::SetOnRemoveTrack(Local<String> property, Local<Value> value, c
   }
 }
 
-void MediaStream::On(Event *event) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  Nan::HandleScope scope;
-  MediaStreamEvent type = event->Type<MediaStreamEvent>();
-
-  if (type != kMediaStreamChanged) {
-    Nan::ThrowError("Internal Error");
-    return;
-  }
+void MediaStream::CheckState() {
+  _active = false;
+  _ended = true;
   
   webrtc::AudioTrackVector new_audio_tracks = _stream->GetAudioTracks();
   webrtc::VideoTrackVector new_video_tracks = _stream->GetVideoTracks();
@@ -475,6 +466,11 @@ void MediaStream::On(Event *event) {
   }
   
   for (const auto& new_track : new_audio_tracks) {
+    if (new_track->state() == webrtc::MediaStreamTrackInterface::kLive) {
+      _active = true;
+      _ended = false;
+    }
+    
     auto it = std::find_if(
         _audio_tracks.begin(), _audio_tracks.end(),
         [new_track](const webrtc::AudioTrackVector::value_type& cached_track) {
@@ -511,6 +507,11 @@ void MediaStream::On(Event *event) {
   }
   
   for (const auto& new_track : new_video_tracks) {
+    if (new_track->state() == webrtc::MediaStreamTrackInterface::kLive) {
+      _active = true;
+      _ended = false;
+    }
+    
     auto it = std::find_if(
         _video_tracks.begin(), _video_tracks.end(),
         [new_track](const webrtc::VideoTrackVector::value_type& cached_track) {
@@ -530,4 +531,18 @@ void MediaStream::On(Event *event) {
   
   _audio_tracks = new_audio_tracks;
   _video_tracks = new_video_tracks;
+}
+
+void MediaStream::On(Event *event) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  Nan::HandleScope scope;
+  MediaStreamEvent type = event->Type<MediaStreamEvent>();
+
+  if (type != kMediaStreamChanged) {
+    Nan::ThrowError("Internal Error");
+    return;
+  }
+  
+  MediaStream::CheckState();
 }
