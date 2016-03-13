@@ -2,7 +2,7 @@
 
 ### Chromium
 
-webrtc-native is using webrtc from chromium project. code is compiled with branch [47](https://chromium.googlesource.com/external/webrtc/+/branch-heads/47).
+webrtc-native is using [WebRTC](http://webrtc.org/) from chromium project. code is compiled with branch [master](https://chromium.googlesource.com/external/webrtc/+/master).
 
 # Install
 
@@ -12,13 +12,35 @@ npm install webrtc-native --save
 
 ### Compatibility x64
 
-| nodejs / io.js | Windows 8.1 | OSX | Ubuntu 14.04 |
-|----------------|-------------|-----|--------------|
-| nodejs-v0.10.x |      x      |  x  |      x       |
-| nodejs-v0.12.x |      x      |  x  |      x       |
-| iojs-v2.3.x    |      x      |  x  |      x       |
-| iojs-v3.3.x    |      x      |  x  |      x       |
-| iojs-v4.2.1    |      x      |  x  |      x       |
+|  NodeJS / Io.JS  | Windows 8.1 | OSX | Ubuntu 14.04 |
+|------------------|-------------|-----|--------------|
+| IoJS-v2.3.2      | Old Release |  x  | Old Release  |
+| IoJS-v3.3.1      | Old Release |  x  | Old Release  |
+| NodeJS-v0.10.38  | Old Release |  x  | Old Release  |
+| NodeJS-v0.12.5   | Old Release |  x  | Old Release  |
+| NodeJS-v4.2.1    |      -      |  x  |      -       |
+| NodeJS-v4.3.2    |      -      |  x  |      -       |
+| NodeJS-v4.4.0    |      -      |  x  |      -       |
+| NodeJS-v5.0.0    |      -      |  x  |      -       |
+| NodeJS-v5.1.1    |      -      |  x  |      -       |
+| NodeJS-v5.2.0    |      -      |  x  |      -       |
+| NodeJS-v5.3.0    |      -      |  x  |      -       |
+| NodeJS-v5.4.1    |      -      |  x  |      -       |
+| NodeJS-v5.5.0    |      -      |  x  |      -       |
+| NodeJS-v5.6.0    |      -      |  x  |      -       |
+| NodeJS-v5.7.1    |      -      |  x  |      -       |
+| NodeJS-v5.8.0    |      -      |  x  |      -       |
+
+|             Features             |  Windows 8.1  |      OSX      | Ubuntu 14.04  |
+|----------------------------------|---------------|---------------|---------------|
+| Audio Capture                    |   Untested    |       x       |   Untested    |
+| Camera Capture                   |   Untested    |       -       |   Untested    |
+| Dtls-Srtp DataChannels           |   Untested    |       x       |   Untested    |
+| RTP DataChannels                 |   Untested    |       x       |   Untested    |
+| Video Streaming                  |   Untested    |       -       |   Untested    |
+| Audio Streaming                  |   Untested    |       x       |   Untested    |
+| Video Recording from MediaStream | Unimplemented | Unimplemented | Unimplemented |
+| Audio Recording from MediaStream | Unimplemented | Unimplemented | Unimplemented |
 
 # API
 ### Usage
