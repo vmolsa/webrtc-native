@@ -12,7 +12,14 @@
     "url": "https://github.com/vmolsa/webrtc-native/issues"
   },
   "keywords": [
-    "webrtc"
+    "webrtc",
+    "p2p",
+    "streaming",
+    "dtls",
+    "srtp",
+    "rtp",
+    "capture",
+    "datachannel"
   ],
   "license": "MIT",
   "main": "index.js",
