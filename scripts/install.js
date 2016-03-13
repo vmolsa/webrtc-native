@@ -23,13 +23,11 @@ function build() {
   if (!fs.existsSync(nodegyp)) {
     nodegyp = path.resolve(ROOT, '..', 'node-gyp', 'bin', 'node-gyp.js');
     
-    if (!fs.existsSync(nodegyp)) {
-      console.log('Searching from path:', ROOT);
-      
-      throw new Error('node-gyp not found!');
+    if (!fs.existsSync(nodegyp)) {      
+      throw new Error('Build Failed. Please follow instructions from https://github.com/vmolsa/webrtc-native#build-from-source');
     }
   }
-   
+  
   var res = spawn('node', [ nodegyp, 'rebuild' ], {
     cwd: ROOT,
     env: process.env,
