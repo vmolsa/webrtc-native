@@ -24,6 +24,8 @@ function build() {
     nodegyp = path.resolve(ROOT, '..', 'node-gyp', 'bin', 'node-gyp.js');
     
     if (!fs.existsSync(nodegyp)) {
+      console.log('Searching from path:', ROOT);
+      
       throw new Error('node-gyp not found!');
     }
   }
