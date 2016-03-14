@@ -109,14 +109,6 @@ You must run "npm install" with administrator privileges.
 XCode 3.0 or higher
 ````
 
-## Ubuntu 14.04 LTS
-````
-sudo apt-get install --yes build-essential python2.7 git pkg-config libnss3-dev libasound2-dev libpulse-dev libjpeg62-dev libxv-dev libgtk2.0-dev libexpat1-dev default-jdk libxtst-dev libxss-dev libpci-dev libgconf2-dev libgnome-keyring-dev libudev-dev
-````
+## Linux (Ubuntu, Fedora, ...)
 
-## Fedora 22
-````
-sudo dnf update -y
-sudo dnf groupinstall -y "Development tools"
-sudo dnf install -y git gcc-c++ nss-devel SAASound-devel alsa-lib-devel systemd-devel pulseaudio-libs-devel turbojpeg-devel libXv-devel gtk+-devel expat-devel java-1.8.0-openjdk-devel gtk2-devel libXtst-devel libXScrnSaver-devel redhat-lsb pciutils-devel dbus-devel pkgconfig GConf2-devel libgnome-keyring-devel
-````
+Checkout [prerequisites](https://chromium.googlesource.com/chromium/src/+/master/docs/linux_build_instructions_prerequisites.md)
