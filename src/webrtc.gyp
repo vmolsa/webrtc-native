@@ -1,7 +1,5 @@
 {
   'includes': [
-    '../third_party/webrtc/src/talk/build/common.gypi',
-    '../third_party/webrtc/src/webrtc/build/common.gypi',
     '../build/config.gypi',
     '../nodejs.gypi',
     'addon.gypi',
@@ -39,19 +37,6 @@
           'sources': [
             'Platform-linux.cc'
           ],
-          'cflags': [
-            '-Wno-deprecated-declarations',
-            '-Wno-unused-variable',
-            '-Wno-unknown-pragmas',
-            '-Wno-unused-result',
-          ],
-          'cflags_cc': [
-            '-std=gnu++11',
-            '-Wno-overloaded-virtual',
-          ],
-          'ldflags': [
-            '-Wl,--unresolved-symbols=ignore-in-object-files',
-          ],
           'defines': [
             'USE_BACKTRACE',
           ],
@@ -71,15 +56,6 @@
           'sources': [
             'Platform-osx.cc'
           ],
-          'xcode_settings': {
-            'OTHER_CFLAGS': [
-              '-Wno-nonnull',
-              '-Wno-deprecated-declarations',
-              '-Wno-newline-eof',
-              '-Wno-unknown-pragmas',
-              '-Wno-unused-result',
-            ],
-          },
           'defines': [
             'USE_BACKTRACE',
           ],
