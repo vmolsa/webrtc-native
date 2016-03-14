@@ -1,5 +1,7 @@
 {
   'includes': [
+    '../third_party/webrtc/src/talk/build/common.gypi',
+    '../third_party/webrtc/src/webrtc/build/common.gypi',
     '../build/config.gypi',
     '../nodejs.gypi',
     'addon.gypi',
