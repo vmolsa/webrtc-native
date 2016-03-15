@@ -46,7 +46,8 @@
             '-Wno-unused-result',
           ],
           'cflags_cc': [
-            '-std=gnu++11',
+            '-Wno-non-virtual-dtor',
+            '-Wno-delete-non-virtual-dtor',
             '-Wno-overloaded-virtual',
           ],
           'ldflags': [
