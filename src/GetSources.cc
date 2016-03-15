@@ -88,16 +88,10 @@ rtc::scoped_refptr<webrtc::VideoTrackInterface> GetSources::GetVideoSource(const
     rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory = Core::CreateFactory();
 
     if (factory.get()) {
-      rtc::scoped_refptr<rtc::VideoSourceInterface<cricket::VideoFrame> > src = factory->CreateVideoSource(capturer, constraints->ToConstraints());
-      
-      if (src.get()) {
-        track = factory->CreateVideoTrack("video", src);
+      track = factory->CreateVideoTrack("video", factory->CreateVideoSource(capturer, constraints->ToConstraints()));
         
-        if (!track.get()) {
-          LOG(LS_ERROR) << "Can't create video track";
-        }
-      } else {
-        LOG(LS_ERROR) << "Can't create video source";
+      if (!track.get()) {
+        LOG(LS_ERROR) << "Can't create video track";
       }
     } else {
       LOG(LS_ERROR) << "Can't get Factory";
@@ -127,8 +121,7 @@ rtc::scoped_refptr<webrtc::VideoTrackInterface> GetSources::GetVideoSource(const
     rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory = Core::CreateFactory();
 
     if (factory.get()) {
-      rtc::scoped_refptr<rtc::VideoSourceInterface<cricket::VideoFrame> > src = factory->CreateVideoSource(cap, constraints->ToConstraints());
-      track = factory->CreateVideoTrack("video", src);
+      track = factory->CreateVideoTrack("video", factory->CreateVideoSource(cap, constraints->ToConstraints()));
     }
   }
 
