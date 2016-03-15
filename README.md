@@ -14,22 +14,22 @@ npm install webrtc-native --save
 
 |  NodeJS / Io.JS  | Windows 8.1 | OSX | Ubuntu 14.04 |
 |------------------|-------------|-----|--------------|
-| IoJS-v2.3.2      | Old Release |  x  | Old Release  |
-| IoJS-v3.3.1      | Old Release |  x  | Old Release  |
-| NodeJS-v0.10.38  | Old Release |  x  | Old Release  |
-| NodeJS-v0.12.5   | Old Release |  x  | Old Release  |
-| NodeJS-v4.2.1    |      -      |  x  |      -       |
-| NodeJS-v4.3.2    |      -      |  x  |      -       |
-| NodeJS-v4.4.0    |      -      |  x  |      -       |
-| NodeJS-v5.0.0    |      -      |  x  |      -       |
-| NodeJS-v5.1.1    |      -      |  x  |      -       |
-| NodeJS-v5.2.0    |      -      |  x  |      -       |
-| NodeJS-v5.3.0    |      -      |  x  |      -       |
-| NodeJS-v5.4.1    |      -      |  x  |      -       |
-| NodeJS-v5.5.0    |      -      |  x  |      -       |
-| NodeJS-v5.6.0    |      -      |  x  |      -       |
-| NodeJS-v5.7.1    |      -      |  x  |      -       |
-| NodeJS-v5.8.0    |      -      |  x  |      -       |
+| IoJS-v2.3.2      | Old Release |  x  |      x       |
+| IoJS-v3.3.1      | Old Release |  x  |      x       |
+| NodeJS-v0.10.38  | Old Release |  x  |      -       |
+| NodeJS-v0.12.5   | Old Release |  x  |      -       |
+| NodeJS-v4.2.1    |      -      |  x  |      x       |
+| NodeJS-v4.3.2    |      -      |  x  |      x       |
+| NodeJS-v4.4.0    |      -      |  x  |      x       |
+| NodeJS-v5.0.0    |      -      |  x  |      x       |
+| NodeJS-v5.1.1    |      -      |  x  |      x       |
+| NodeJS-v5.2.0    |      -      |  x  |      x       |
+| NodeJS-v5.3.0    |      -      |  x  |      x       |
+| NodeJS-v5.4.1    |      -      |  x  |      x       |
+| NodeJS-v5.5.0    |      -      |  x  |      x       |
+| NodeJS-v5.6.0    |      -      |  x  |      x       |
+| NodeJS-v5.7.1    |      -      |  x  |      x       |
+| NodeJS-v5.8.0    |      -      |  x  |      x       |
 
 |             Features             |  Windows 8.1  |      OSX      | Ubuntu 14.04  |
 |----------------------------------|---------------|---------------|---------------|
