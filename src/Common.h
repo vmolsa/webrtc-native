@@ -53,7 +53,6 @@
 #include "webrtc/api/peerconnectioninterface.h"
 #include "webrtc/api/test/fakeconstraints.h"
 #include "webrtc/api/datachannelinterface.h"
-#include "webrtc/api/videosourceinterface.h"
 #include "webrtc/api/videosource.h"
 
 #ifdef WIN32

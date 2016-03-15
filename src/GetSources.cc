@@ -88,7 +88,7 @@ rtc::scoped_refptr<webrtc::VideoTrackInterface> GetSources::GetVideoSource(const
     rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory = Core::CreateFactory();
 
     if (factory.get()) {
-      rtc::scoped_refptr<webrtc::VideoSourceInterface> src = factory->CreateVideoSource(capturer, constraints->ToConstraints());
+      rtc::scoped_refptr<rtc::VideoSourceInterface> src = factory->CreateVideoSource(capturer, constraints->ToConstraints());
       
       if (src.get()) {
         track = factory->CreateVideoTrack("video", src);
@@ -127,7 +127,7 @@ rtc::scoped_refptr<webrtc::VideoTrackInterface> GetSources::GetVideoSource(const
     rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory = Core::CreateFactory();
 
     if (factory.get()) {
-      rtc::scoped_refptr<webrtc::VideoSourceInterface> src = factory->CreateVideoSource(cap, constraints->ToConstraints());
+      rtc::scoped_refptr<rtc::VideoSourceInterface> src = factory->CreateVideoSource(cap, constraints->ToConstraints());
       track = factory->CreateVideoTrack("video", src);
     }
   }
