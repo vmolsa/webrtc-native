@@ -35,8 +35,8 @@ npm install webrtc-native --save
 |----------------------------------|---------------|---------------|---------------|
 | Audio Capture                    |   Untested    |       x       |   Untested    |
 | Camera Capture                   |   Untested    |       -       |   Untested    |
-| Dtls-Srtp DataChannels           |   Untested    |       x       |   Untested    |
-| RTP DataChannels                 |   Untested    |       x       |   Untested    |
+| Dtls-Srtp DataChannels           |   Untested    |       x       |      x        |
+| RTP DataChannels                 |   Untested    |       x       |      x        |
 | Video Streaming                  |   Untested    |       -       |   Untested    |
 | Audio Streaming                  |   Untested    |       x       |   Untested    |
 | Video Recording from MediaStream | Unimplemented | Unimplemented | Unimplemented |
