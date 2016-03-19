@@ -33,6 +33,7 @@ namespace WebRTC {
 	  public:
 	    static void Init();
 	    static void Dispose();
+      static webrtc::PeerConnectionFactoryInterface* GetFactory();
   };
 };
 
