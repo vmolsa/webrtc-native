@@ -52,53 +52,37 @@ rtc::scoped_refptr<webrtc::AudioTrackInterface> GetSources::GetAudioSource(const
 
 rtc::scoped_refptr<webrtc::AudioTrackInterface> GetSources::GetAudioSource(const std::string id, const rtc::scoped_refptr<MediaConstraints> &constraints) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-
-  // TODO(): CreateAudioSource(cricket::AudioCapturer*, MediaConstraintsInterface) Missing?
   return GetSources::GetAudioSource(constraints);
 }
 
 rtc::scoped_refptr<webrtc::VideoTrackInterface> GetSources::GetVideoSource(const rtc::scoped_refptr<MediaConstraints> &constraints) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  //cricket::VideoCapturer* capturer = NULL;
+  cricket::VideoCapturer* capturer = nullptr;
   rtc::scoped_refptr<webrtc::VideoTrackInterface> track;
-  /*
-  cricket::DeviceManagerInterface *manager = Core::GetManager();
-  
-  if (manager) {
-    std::vector<cricket::Device> video_devs;
-    
-    if (manager->GetVideoCaptureDevices(&video_devs)) {
-      std::vector<cricket::Device>::iterator video_it;
+  rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory = Platform::GetFactory();
+  std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> video_info(webrtc::VideoCaptureFactory::CreateDeviceInfo(0));
+
+  if (factory.get()) {
+    if (video_info) {
+      int num_devices = video_info->NumberOfDevices();
       
-      for (video_it = video_devs.begin(); video_it != video_devs.end(); ++video_it) {
-        capturer = manager->CreateVideoCapturer(*video_it);
+      for (int i = 0; i < num_devices; ++i) {
+        const uint32_t kSize = 256;
+        char name[kSize] = {0};
+        char id[kSize] = {0};
         
-        if (capturer != NULL) {
-          break;
+        if (video_info->GetDeviceName(i, name, kSize, id, kSize) != -1) {
+          capturer = factory.Create(cricket::Device(name, 0));
+          
+          if (capturer) {
+            track = factory->CreateAudioTrack("video", factory->CreateVideoSource(capturer, constraints->ToConstraints()));
+            return track;
+          }
         }
       }
-    } else {
-      LOG(LS_ERROR) << "Can't enumerate video devices";
-    }
-  } else {
-    LOG(LS_ERROR) << "Can't create device manager";
-  }
-  
-  if (capturer) {
-    rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory = Core::CreateFactory();
-
-    if (factory.get()) {
-      track = factory->CreateVideoTrack("video", factory->CreateVideoSource(capturer, constraints->ToConstraints()));
-        
-      if (!track.get()) {
-        LOG(LS_ERROR) << "Can't create video track";
-      }
-    } else {
-      LOG(LS_ERROR) << "Can't get Factory";
     }
   }
-  */
   
   return track;
 }
@@ -106,28 +90,33 @@ rtc::scoped_refptr<webrtc::VideoTrackInterface> GetSources::GetVideoSource(const
 rtc::scoped_refptr<webrtc::VideoTrackInterface> GetSources::GetVideoSource(const std::string id, const rtc::scoped_refptr<MediaConstraints> &constraints) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  //cricket::DeviceManagerInterface *manager = Core::GetManager();
+  cricket::VideoCapturer* capturer = nullptr;
   rtc::scoped_refptr<webrtc::VideoTrackInterface> track;
-  /*
-  cricket::VideoCapturer *cap = 0;
+  rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory = Platform::GetFactory();
+  std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> video_info(webrtc::VideoCaptureFactory::CreateDeviceInfo(0));
 
-  if (manager) {
-    cricket::Device video_dev;
-
-    if (!manager->GetVideoCaptureDevice(id, &video_dev)) {
-      cap = manager->CreateVideoCapturer(video_dev);
+  if (factory.get()) {
+    if (video_info) {
+      int num_devices = video_info->NumberOfDevices();
+      
+      for (int i = 0; i < num_devices; ++i) {
+        const uint32_t kSize = 256;
+        char name[kSize] = {0};
+        char id[kSize] = {0};
+        
+        if (video_info->GetDeviceName(i, name, kSize, id, kSize) != -1) {
+          if (id.empty() || id.compare(name) == 0) {
+            capturer = factory.Create(cricket::Device(name, 0));
+            
+            if (capturer) {
+              track = factory->CreateAudioTrack("video", factory->CreateVideoSource(capturer, constraints->ToConstraints()));
+              return track;
+            }
+          }
+        }
+      }
     }
   }
-
-  if (cap) {
-    //webrtc::PeerConnectionFactoryInterface *factory = Core::GetFactory();
-    rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory = Core::CreateFactory();
-
-    if (factory.get()) {
-      track = factory->CreateVideoTrack("video", factory->CreateVideoSource(cap, constraints->ToConstraints()));
-    }
-  }
-  */
 
   return track;
 }
@@ -161,47 +150,6 @@ Local<Value> GetSources::GetDevices() {
       }
     }
   }
-
-/*
-  cricket::DeviceManagerInterface *manager = Core::GetManager();
-
-  if (manager) {
-    std::vector<cricket::Device> audio_devs;
-    std::vector<cricket::Device> video_devs;
-
-    if (manager->GetAudioInputDevices(&audio_devs)) {
-      std::vector<cricket::Device>::iterator audio_it;
-
-      for (audio_it = audio_devs.begin(); audio_it != audio_devs.end(); audio_it++) {
-        const cricket::Device &dev = *audio_it;
-        Local<Object> dev_obj = Nan::New<Object>();
-
-        dev_obj->Set(Nan::New("kind").ToLocalChecked(), Nan::New("audio").ToLocalChecked());
-        dev_obj->Set(Nan::New("label").ToLocalChecked(), Nan::New(dev.name.c_str()).ToLocalChecked());
-        dev_obj->Set(Nan::New("id").ToLocalChecked(), Nan::New(dev.id.c_str()).ToLocalChecked());
-
-        list->Set(index, dev_obj);
-        index++;
-      }
-    }
-
-    if (manager->GetVideoCaptureDevices(&video_devs)) {
-      std::vector<cricket::Device>::iterator video_it = video_devs.begin();
-
-      for (video_it = video_devs.begin(); video_it != video_devs.end(); video_it++) {
-        const cricket::Device &dev = *video_it;
-        Local<Object> dev_obj = Nan::New<Object>();
-
-        dev_obj->Set(Nan::New("kind").ToLocalChecked(), Nan::New("video").ToLocalChecked());
-        dev_obj->Set(Nan::New("label").ToLocalChecked(), Nan::New(dev.name.c_str()).ToLocalChecked());
-        dev_obj->Set(Nan::New("id").ToLocalChecked(), Nan::New(dev.id.c_str()).ToLocalChecked());
-
-        list->Set(index, dev_obj);
-        index++;
-      }
-    }
-  }
-*/
 
   return scope.Escape(list);
 }
