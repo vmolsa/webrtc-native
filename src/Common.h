@@ -53,7 +53,10 @@
 #include "webrtc/api/peerconnectioninterface.h"
 #include "webrtc/api/test/fakeconstraints.h"
 #include "webrtc/api/datachannelinterface.h"
-#include "webrtc/api/videosource.h"
+
+#include "webrtc/media/base/videosourceinterface.h"
+#include "webrtc/media/engine/webrtcvideocapturerfactory.h"
+#include "webrtc/modules/video_capture/video_capture_factory.h"
 
 #ifdef WIN32
 #ifndef __PRETTY_FUNCTION__
