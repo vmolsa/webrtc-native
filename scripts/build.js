@@ -10,7 +10,7 @@ if (!fs.existsSync(ROOT + path.sep + 'build' + path.sep + 'config.gypi')) {
   throw new Error('Run node-gyp rebuild instead of node build.js');
 }
 
-var CHROMIUM_BRANCH = 'branch-heads/50';
+var CHROMIUM_BRANCH = null; //'branch-heads/50';
 var USE_OPENSSL = false;
 var USE_GTK = false;
 var USE_X11 = false;
@@ -230,7 +230,7 @@ function fetch(rerun) {
       fs.mkdirSync(WEBRTC);
     }
 
-    var res = spawn(FETCH, ['--nohooks', 'webrtc'], {
+    var res = spawn(FETCH, ['--nohooks', '--no-history', 'webrtc'], {
       cwd: WEBRTC,
       env: process.env,
       stdio: 'inherit',
