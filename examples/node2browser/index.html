@@ -25,7 +25,7 @@
     },
   };
    
-  var socket = io.connect('http://localhost');
+  var socket = io.connect();
   var peer = new window.webkitRTCPeerConnection(config, constraints);
   
   socket.on('disconnect', function() {
@@ -66,14 +66,36 @@
   };
   
   peer.onaddstream = function(event) {
-    console.log('Peer Add mediaStream:', event.stream);
+    if (event.stream && event.stream.active) {
+      console.log('Peer Add mediaStream:', event.stream);
     
-    var video = document.querySelector('video');
-    video.src = window.URL.createObjectURL(event.stream);
-    
-    video.onloadedmetadata = function(event) {
-      video.play();
-    };   
+      var video = document.querySelector('video');
+      video.src = window.URL.createObjectURL(event.stream);
+      
+      video.onloadedmetadata = function(event) {
+        video.play();
+      };
+          
+      event.stream.onaddtrack = function(track) {
+        console.log('Track Added!');
+      };
+
+      event.stream.onremovetrack = function (track) {
+        console.log('Track Removed!');
+      };
+
+      var audio_list = event.stream.getAudioTracks();
+      
+      audio_list.forEach(function (track) {
+        console.log(track);
+      });
+
+      var video_list = event.stream.getVideoTracks();
+      
+      video_list.forEach(function (track) {
+        console.log(track);
+      });
+    }    
   };
   
   peer.onremovestream = function(event) {
