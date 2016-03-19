@@ -23,7 +23,6 @@
 *
 */
 
-#include "Core.h"
 #include "Platform.h"
 #include "GetSources.h"
 
@@ -38,13 +37,12 @@ void GetSources::Init(Handle<Object> exports) {
 
 rtc::scoped_refptr<webrtc::AudioTrackInterface> GetSources::GetAudioSource(const rtc::scoped_refptr<MediaConstraints> &constraints) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  rtc::scoped_refptr<webrtc::AudioTrackInterface> track;
+
+  rtc::scoped_refptr<webrtc::AudioTrackInterface> track;  
   rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory = Platform::GetFactory();
   
   if (factory.get()) {
-    rtc::scoped_refptr<webrtc::AudioSourceInterface> src = factory->CreateAudioSource(constraints->ToConstraints());
-    track = factory->CreateAudioTrack("audio", src);
+    track = factory->CreateAudioTrack("audio", factory->CreateAudioSource(constraints->ToConstraints()));
   }
 
   return track;
@@ -62,6 +60,7 @@ rtc::scoped_refptr<webrtc::VideoTrackInterface> GetSources::GetVideoSource(const
   rtc::scoped_refptr<webrtc::VideoTrackInterface> track;
   rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory = Platform::GetFactory();
   std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> video_info(webrtc::VideoCaptureFactory::CreateDeviceInfo(0));
+  cricket::WebRtcVideoDeviceCapturerFactory device_factory;
 
   if (factory.get()) {
     if (video_info) {
@@ -73,10 +72,10 @@ rtc::scoped_refptr<webrtc::VideoTrackInterface> GetSources::GetVideoSource(const
         char id[kSize] = {0};
         
         if (video_info->GetDeviceName(i, name, kSize, id, kSize) != -1) {
-          capturer = factory.Create(cricket::Device(name, 0));
+          capturer = device_factory.Create(cricket::Device(name, 0));
           
           if (capturer) {
-            track = factory->CreateAudioTrack("video", factory->CreateVideoSource(capturer, constraints->ToConstraints()));
+            track = factory->CreateVideoTrack("video", factory->CreateVideoSource(capturer, constraints->ToConstraints()));
             return track;
           }
         }
@@ -87,13 +86,14 @@ rtc::scoped_refptr<webrtc::VideoTrackInterface> GetSources::GetVideoSource(const
   return track;
 }
 
-rtc::scoped_refptr<webrtc::VideoTrackInterface> GetSources::GetVideoSource(const std::string id, const rtc::scoped_refptr<MediaConstraints> &constraints) {
+rtc::scoped_refptr<webrtc::VideoTrackInterface> GetSources::GetVideoSource(const std::string id_name, const rtc::scoped_refptr<MediaConstraints> &constraints) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   cricket::VideoCapturer* capturer = nullptr;
   rtc::scoped_refptr<webrtc::VideoTrackInterface> track;
   rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory = Platform::GetFactory();
   std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> video_info(webrtc::VideoCaptureFactory::CreateDeviceInfo(0));
+  cricket::WebRtcVideoDeviceCapturerFactory device_factory;
 
   if (factory.get()) {
     if (video_info) {
@@ -105,11 +105,11 @@ rtc::scoped_refptr<webrtc::VideoTrackInterface> GetSources::GetVideoSource(const
         char id[kSize] = {0};
         
         if (video_info->GetDeviceName(i, name, kSize, id, kSize) != -1) {
-          if (id.empty() || id.compare(name) == 0) {
-            capturer = factory.Create(cricket::Device(name, 0));
+          if (id_name.empty() || id_name.compare(name) == 0) {
+            capturer = device_factory.Create(cricket::Device(name, 0));
             
             if (capturer) {
-              track = factory->CreateAudioTrack("video", factory->CreateVideoSource(capturer, constraints->ToConstraints()));
+              track = factory->CreateVideoTrack("video", factory->CreateVideoSource(capturer, constraints->ToConstraints()));
               return track;
             }
           }
