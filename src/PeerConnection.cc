@@ -30,7 +30,6 @@
 #include "DataChannel.h"
 #include "MediaStream.h"
 #include "Stats.h"
-#include "Core.h"
 
 using namespace v8;
 using namespace WebRTC;

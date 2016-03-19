@@ -23,7 +23,7 @@
 *
 */
 
-#include "Core.h"
+#include "Platform.h"
 #include "GetUserMedia.h"
 #include "GetSources.h"
 #include "MediaStream.h"
@@ -50,8 +50,7 @@ void GetUserMedia::GetMediaStream(const Nan::FunctionCallbackInfo<Value> &info) 
   std::string videoId = constraints->VideoId();
 
   if (constraints->UseAudio() || constraints->UseVideo()) {
-    //webrtc::PeerConnectionFactoryInterface *factory = Core::GetFactory();
-    rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory = Core::CreateFactory();
+    rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory = Platform::GetFactory();
 
     if (factory.get()) {
       stream = factory->CreateLocalMediaStream("stream");

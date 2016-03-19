@@ -27,7 +27,6 @@
 
 #include "Global.h"
 #include "Platform.h"
-#include "Core.h"
 #include "Stats.h"
 #include "PeerConnection.h"
 #include "DataChannel.h"
@@ -96,7 +95,6 @@ void RTCSessionDescription(const Nan::FunctionCallbackInfo<Value> &info) {
 void WebrtcModuleDispose(void *arg) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  WebRTC::Core::Dispose();
   WebRTC::Platform::Dispose();
 }
 
@@ -107,7 +105,6 @@ void WebrtcModuleInit(Handle<Object> exports) {
 
   WebRTC::Global::Init(exports);
   WebRTC::Platform::Init();
-  WebRTC::Core::Init();
   WebRTC::RTCStatsResponse::Init();
   WebRTC::RTCStatsReport::Init();
   WebRTC::PeerConnection::Init(exports);

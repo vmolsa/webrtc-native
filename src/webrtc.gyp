@@ -11,7 +11,6 @@
       'target_name': 'webrtc',
       'sources': [
         'Global.cc',
-        'Core.cc',
         'BackTrace.cc',
         'EventEmitter.cc',
         'Observers.cc',
