@@ -33,7 +33,9 @@
   });
   
   socket.on('icecandidate', function(data) {
-    peer.addIceCandidate(new RTCIceCandidate(data));
+    if (data && data.candidate && data.sdpMid && data.sdpMLineIndex) {
+      peer.addIceCandidate(new RTCIceCandidate(data));
+    }
   });
   
   socket.on('offer', function(data) {
