@@ -25,6 +25,7 @@
 
 #include <nan.h>
 #include "Global.h"
+#include "Platform.h"
 #include "PeerConnection.h"
 #include "DataChannel.h"
 #include "MediaStream.h"
@@ -133,7 +134,7 @@ PeerConnection::PeerConnection(const Local<Object> &configuration,
   _local = new rtc::RefCountedObject<LocalDescriptionObserver>(this);
   _remote = new rtc::RefCountedObject<RemoteDescriptionObserver>(this);
   _peer = new rtc::RefCountedObject<PeerConnectionObserver>(this);
-  _factory = Core::CreateFactory();
+  _factory = Platform::GetFactory();
 }
 
 PeerConnection::~PeerConnection() {
@@ -162,6 +163,10 @@ webrtc::PeerConnectionInterface *PeerConnection::GetSocket() {
     if (_factory.get()) {
       EventEmitter::SetReference(true);
       _socket = _factory->CreatePeerConnection(_config, _constraints->ToConstraints(), NULL, NULL, _peer.get());
+      
+      if (!_socket.get()) {
+        Nan::ThrowError("Internal Socket Error");
+      }
     } else {
       Nan::ThrowError("Internal Factory Error");
     }
