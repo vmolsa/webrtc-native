@@ -28,15 +28,19 @@
 
 using namespace WebRTC;
 
+#ifndef WEBRTC_THREAD_COUNT
+#define WEBRTC_THREAD_COUNT 4
+#endif
+
 rtc::Thread signal_thread;
-rtc::Thread worker_thread;
-rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory;
+rtc::Thread worker_thread[WEBRTC_THREAD_COUNT];
+rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory[WEBRTC_THREAD_COUNT];
+uint32_t counter = 0;
 
 void Platform::Init() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   signal_thread.Start();
-  worker_thread.Start();
   
   rtc::InitializeSSL();
   rtc::ThreadManager::Instance()->SetCurrentThread(&signal_thread);
@@ -45,10 +49,14 @@ void Platform::Init() {
     Nan::ThrowError("Internal Thread Error!");
   }
   
-  factory = webrtc::CreatePeerConnectionFactory(&signal_thread, &worker_thread, 0, 0, 0);
+  for (int index = 0; index < WEBRTC_THREAD_COUNT; index++) {
+    worker_thread[index].Start();
+    
+    factory[index] = webrtc::CreatePeerConnectionFactory(&signal_thread, &worker_thread[index], 0, 0, 0);
   
-  if (!factory.get()) {
-    Nan::ThrowError("Internal Factory Error");
+    if (!factory[index].get()) {
+      Nan::ThrowError("Internal Factory Error");
+    }
   }
 }
 
@@ -56,10 +64,12 @@ void Platform::Dispose() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   signal_thread.SetAllowBlockingCalls(true);
-  worker_thread.SetAllowBlockingCalls(true);
-  
   signal_thread.Stop();
-  worker_thread.Stop();
+  
+  for (int index = 0; index < WEBRTC_THREAD_COUNT; index++) {
+    worker_thread[index].SetAllowBlockingCalls(true);
+    worker_thread[index].Stop();
+  }
 
   if (rtc::ThreadManager::Instance()->CurrentThread() == &signal_thread) {
     rtc::ThreadManager::Instance()->SetCurrentThread(NULL);
@@ -69,5 +79,5 @@ void Platform::Dispose() {
 }
 
 webrtc::PeerConnectionFactoryInterface* Platform::GetFactory() {
-  return factory.get();
+  return factory[(counter++) % WEBRTC_THREAD_COUNT].get();
 }
