@@ -25,6 +25,7 @@ var NODEGYP = process.argv[5];
 var URL = 'http://cide.cc:8080/webrtc/';
 var NODEVER = process.version.split('.');
 var NODE_ZERO = (NODEVER[0] === 'v0');
+var CROSSCOMPILE = (ARCH !== process.arch);
 
 NODEVER[2] = 'x';
 NODEVER = NODEVER.join('.');
@@ -203,23 +204,24 @@ function configure() {
       
       break;
     case 'linux':
-      if (ARCH === 'arm') {
+      if (CROSSCOMPILE) {
         process.env['GYP_CROSSCOMPILE'] = 1;
-      }
-      
-      if (NODE_ZERO) {
         process.env['GYP_DEFINES'] += ' clang=0';
-        process.env['CXX'] = 'g++-4.8';
-        process.env['CPATH'] = '/usr/include/c++/4.8:/usr/include/x86_64-linux-gnu/c++/4.8:/usr/include/c++/4.8/backward';
       } else {
-        process.env['GYP_DEFINES'] += ' clang=1';
-      }
-
-      if (!process.env['JAVA_HOME']) {
-        if (fs.existsSync('/usr/lib/jvm/java')) {
-          process.env['JAVA_HOME'] = '/usr/lib/jvm/java';
+        if (NODE_ZERO) {
+          process.env['GYP_DEFINES'] += ' clang=0';
+          process.env['CXX'] = 'g++-4.8';
+          process.env['CPATH'] = '/usr/include/c++/4.8:/usr/include/x86_64-linux-gnu/c++/4.8:/usr/include/c++/4.8/backward';
         } else {
-          process.env['JAVA_HOME'] = '/usr/lib/jvm/default-java';
+          process.env['GYP_DEFINES'] += ' clang=1';
+        }
+
+        if (!process.env['JAVA_HOME']) {
+          if (fs.existsSync('/usr/lib/jvm/java')) {
+            process.env['JAVA_HOME'] = '/usr/lib/jvm/java';
+          } else {
+            process.env['JAVA_HOME'] = '/usr/lib/jvm/default-java';
+          }
         }
       }
 
