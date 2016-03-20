@@ -99,8 +99,9 @@ MediaStream::~MediaStream() {
   
   if (_stream.get()) {
     _stream->UnregisterObserver(_observer.get());
-    _observer->RemoveListener(this);
   }
+  
+  _observer->RemoveListener(this);
 }
 
 void MediaStream::New(const Nan::FunctionCallbackInfo<Value> &info) {

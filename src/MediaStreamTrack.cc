@@ -129,8 +129,9 @@ MediaStreamTrack::~MediaStreamTrack() {
   if (_track.get()) {
     _source->UnregisterObserver(_observer.get());
     _track->UnregisterObserver(_observer.get());
-    _observer->RemoveListener(this);
   }
+  
+  _observer->RemoveListener(this);
 }
 
 void MediaStreamTrack::New(const Nan::FunctionCallbackInfo<Value> &info) {
