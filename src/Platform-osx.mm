@@ -24,10 +24,8 @@
 *
 */
 
+#import <Cocoa/Cocoa.h>
 #include "Platform.h"
-#include <webrtc/base/ssladapter.h>
-#include <webrtc/base/macsocketserver.h>
-#include <webrtc/base/maccocoasocketserver.h>
 
 using namespace WebRTC;
 
@@ -35,13 +33,30 @@ using namespace WebRTC;
 #define WEBRTC_THREAD_COUNT 4
 #endif
 
+uv_check_t mainLoop;
 rtc::Thread signal_thread;
 rtc::Thread worker_thread[WEBRTC_THREAD_COUNT];
 rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory[WEBRTC_THREAD_COUNT];
 uint32_t counter = 0;
 
+void ProcessMessages(uv_check_t *handle) {
+  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+  
+  if (![[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]]) {
+    Nan::ThrowError("Internal RunLoop Error!");
+  }
+  
+  [pool release];
+}
+
 void Platform::Init() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+  [NSApplication sharedApplication];
+  
+  uv_check_init(uv_default_loop(), &mainLoop);
+  uv_check_start(&mainLoop, ProcessMessages);
   
   signal_thread.Start();
   
@@ -61,10 +76,14 @@ void Platform::Init() {
       Nan::ThrowError("Internal Factory Error");
     }
   }
+  
+  [pool release];
 }
 
 void Platform::Dispose() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  uv_check_stop(&mainLoop);
   
   signal_thread.SetAllowBlockingCalls(true);
   signal_thread.Stop();

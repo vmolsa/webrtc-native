@@ -25,7 +25,6 @@
 */
 
 #include "Platform.h"
-#include <webrtc/base/ssladapter.h>
 #include <webrtc/base/win32socketinit.h>
 #include <webrtc/base/win32socketserver.h>
 
