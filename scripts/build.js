@@ -203,6 +203,10 @@ function configure() {
       
       break;
     case 'linux':
+      if (ARCH === 'arm') {
+        process.env['GYP_CROSSCOMPILE'] = 1;
+      }
+      
       if (NODE_ZERO) {
         process.env['GYP_DEFINES'] += ' clang=0';
         process.env['CXX'] = 'g++-4.8';
