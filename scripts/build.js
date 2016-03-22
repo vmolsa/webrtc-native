@@ -207,6 +207,8 @@ function configure() {
       if (CROSSCOMPILE) {
         process.env['GYP_CROSSCOMPILE'] = 1;
         process.env['GYP_DEFINES'] += ' clang=0';
+        process.env['CXX'] = 'arm-linux-gnueabihf-g++-4.8';
+        process.env['CPATH'] = '/usr/arm-linux-gnueabihf/include/c++/4.8.2:/usr/arm-linux-gnueabihf/include/c++/4.8.2/arm-linux-gnueabihf:/usr/arm-linux-gnueabihf/include/c++/4.8.2/backward/';
       } else {
         if (NODE_ZERO) {
           process.env['GYP_DEFINES'] += ' clang=0';
