@@ -57,6 +57,7 @@ void Platform::Init() {
   
   uv_check_init(uv_default_loop(), &mainLoop);
   uv_check_start(&mainLoop, ProcessMessages);
+  uv_unref((uv_handle_t*) &mainLoop);
   
   signal_thread.Start();
   
