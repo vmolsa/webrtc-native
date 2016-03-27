@@ -170,6 +170,7 @@ function configure() {
       break;
     case 'win32':
       process.env['DEPOT_TOOLS_WIN_TOOLCHAIN'] = 0;
+      process.env['GYP_MSVS_VERSION'] = 2013;
       
       break;
     case 'linux':
