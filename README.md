@@ -100,7 +100,9 @@ You must run "npm install" with administrator privileges.
 
 - [Python 2.7.x](https://www.python.org/downloads/)
 
-- [Visual Studio Community](https://www.visualstudio.com/products/visual-studio-community-vs)
+- [Visual Studio Community 2013 with Update 5](https://www.visualstudio.com/downloads/download-visual-studio-vs)
+
+- [Windows 10 SDK](https://dev.windows.com/en-us/downloads/windows-10-sdk)
 
 - [DirectX SDK](https://www.microsoft.com/en-us/download/details.aspx?id=6812)
 
