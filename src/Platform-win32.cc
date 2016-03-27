@@ -37,7 +37,6 @@ using namespace WebRTC;
 
 rtc::Thread signal_thread;
 rtc::Thread worker_thread[WEBRTC_THREAD_COUNT];
-rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory[WEBRTC_THREAD_COUNT];
 uint32_t counter = 0;
 
 void Platform::Init() {
@@ -55,12 +54,6 @@ void Platform::Init() {
   
   for (int index = 0; index < WEBRTC_THREAD_COUNT; index++) {
     worker_thread[index].Start();
-    
-    factory[index] = webrtc::CreatePeerConnectionFactory(&signal_thread, &worker_thread[index], 0, 0, 0);
-  
-    if (!factory[index].get()) {
-      Nan::ThrowError("Internal Factory Error");
-    }
   }
 }
 
@@ -82,6 +75,6 @@ void Platform::Dispose() {
   rtc::CleanupSSL();
 }
 
-webrtc::PeerConnectionFactoryInterface* Platform::GetFactory() {
-  return factory[(counter++) % WEBRTC_THREAD_COUNT].get();
+rtc::Thread *Platform::GetWorker() {
+  return &worker_thread[(counter++) % WEBRTC_THREAD_COUNT];
 }

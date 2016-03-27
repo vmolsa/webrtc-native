@@ -50,8 +50,8 @@ void GetUserMedia::GetMediaStream(const Nan::FunctionCallbackInfo<Value> &info) 
   std::string videoId = constraints->VideoId();
 
   if (constraints->UseAudio() || constraints->UseVideo()) {
-    rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory = Platform::GetFactory();
-
+    rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory = webrtc::CreatePeerConnectionFactory(rtc::Thread::Current(), Platform::GetWorker(), 0, 0, 0);
+    
     if (factory.get()) {
       stream = factory->CreateLocalMediaStream("stream");
 
