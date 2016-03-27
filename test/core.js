@@ -1,5 +1,5 @@
 var WebRTC = require('../');
 
-console.log('WebRTC Core Loaded!');
+console.log('WebRTC Module Loaded!');
 
-WebRTC.setDebug(true);
+//WebRTC.setDebug(true);
