@@ -9,11 +9,12 @@ var ROOT = path.resolve(__dirname, '..');
 var ARCH = os.arch();
 var URL = 'http://cide.cc:8080/webrtc/';
 var NODEVER = process.version.split('.');
+var PACKAGE = require(path.resolve(ROOT, 'package.json'));
 
 NODEVER[2] = 'x';
 NODEVER = NODEVER.join('.');
 
-URL += 'webrtc-' + PLATFORM + '-' + ARCH + '-' + NODEVER + '.node';
+URL += 'webrtc-' + PACKAGE.version + '-' + PLATFORM + '-' + ARCH + '-' + NODEVER + '.node';
 
 function build() {
   console.log('Building module...');
@@ -58,8 +59,6 @@ function test() {
     } else {
       throw new Error('prebuilt module not working. See the instructions from https://github.com/vmolsa/webrtc-native#build-from-source for building module from source.');
     }
-    
-    console.log('Install Failed! :(');
   }
 }
 
@@ -85,8 +84,6 @@ if (process.env['BUILD_WEBRTC'] == 'true') {
       } else {
         throw new Error('prebuilt module not found. See the instructions from https://github.com/vmolsa/webrtc-native#build-from-source for building module from source.');
       }
-      
-      process.exit(1);
     }
   }).pipe(fs.createWriteStream(path.resolve(ROOT, 'build', 'Release', 'webrtc.node')));
 }
