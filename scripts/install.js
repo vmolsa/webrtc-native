@@ -65,7 +65,7 @@ function test() {
 if (process.env['BUILD_WEBRTC'] == 'true') {
   build();
 } else {
-  console.log('Downloading module...');
+  console.log('Downloading module: webrtc-' + PACKAGE.version + '-' + PLATFORM + '-' + ARCH + '-' + NODEVER + '.node');
 
   if (!fs.existsSync(path.resolve(ROOT, 'build', 'Release'))) {
     if (!fs.existsSync(path.resolve(ROOT, 'build'))) {
