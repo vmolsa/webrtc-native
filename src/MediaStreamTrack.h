@@ -88,11 +88,11 @@ namespace WebRTC {
     bool isVideoTrack;
     
     rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> _track;
-    //rtc::scoped_refptr<webrtc::MediaSourceInterface> _source;
+    rtc::scoped_refptr<webrtc::MediaSourceInterface> _source;
     rtc::scoped_refptr<MediaStreamTrackObserver> _observer;
  
     webrtc::MediaStreamTrackInterface::TrackState _track_state;
-    //webrtc::MediaSourceInterface::SourceState _source_state;
+    webrtc::MediaSourceInterface::SourceState _source_state;
 
     Nan::Persistent<v8::Function> _onstarted;
     Nan::Persistent<v8::Function> _onmute;
