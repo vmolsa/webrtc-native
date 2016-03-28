@@ -215,7 +215,7 @@ function config() {
       fs.mkdirSync(WEBRTC);
     }
     
-    var res = spawn(GCLIENT, ['--name=src', CHROMIUM], {
+    var res = spawn(GCLIENT, ['config', '--name=src', CHROMIUM], {
       cwd: WEBRTC,
       env: process.env,
       stdio: 'inherit',
