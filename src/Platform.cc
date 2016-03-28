@@ -26,6 +26,11 @@
 
 #include "Platform.h"
 
+#if defined(WEBRTC_WIN)
+#include <webrtc/base/win32socketinit.h>
+#include <webrtc/base/win32socketserver.h>
+#endif
+
 using namespace WebRTC;
 
 #ifndef WEBRTC_THREAD_COUNT
