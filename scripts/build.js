@@ -178,7 +178,7 @@ function configure() {
         process.env['GYP_CROSSCOMPILE'] = 1;
         process.env['GYP_DEFINES'] += ' clang=0 use_system_expat=0';
         process.env['CXX'] = 'arm-linux-gnueabihf-g++-5';
-        process.env['CPATH'] = '/usr/arm-linux-gnueabihf/include/c++/5:/usr/arm-linux-gnueabihf/include/c++/5/arm-linux-gnueabihf:/usr/arm-linux-gnueabihf/include/c++/5/backward/';
+        process.env['CPATH'] = '/usr/arm-linux-gnueabihf/include/c++/5:/usr/arm-linux-gnueabihf/include/c++/5/arm-linux-gnueabihf:/usr/arm-linux-gnueabihf/include/c++/5/backward/' + process.env['CPATH'] ? ':' + process.env['CPATH'] : '';
       } else {
         if (NODE_ZERO) {
           process.env['GYP_DEFINES'] += ' clang=0';
