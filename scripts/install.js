@@ -9,11 +9,12 @@ var ROOT = path.resolve(__dirname, '..');
 var ARCH = os.arch();
 var URL = 'http://cide.cc:8080/webrtc/';
 var NODEVER = process.version.split('.');
+var PACKAGE = require(path.resolve(ROOT, 'package.json'));
 
 NODEVER[2] = 'x';
 NODEVER = NODEVER.join('.');
 
-URL += 'webrtc-' + PLATFORM + '-' + ARCH + '-' + NODEVER + '.node';
+URL += 'webrtc-' + PACKAGE.version + '-' + PLATFORM + '-' + ARCH + '-' + NODEVER + '.node';
 
 function build() {
   console.log('Building module...');
@@ -24,7 +25,7 @@ function build() {
     nodegyp = path.resolve(ROOT, '..', 'node-gyp', 'bin', 'node-gyp.js');
     
     if (!fs.existsSync(nodegyp)) {      
-      throw new Error('Build Failed. Please follow instructions from https://github.com/vmolsa/webrtc-native#build-from-source');
+      throw new Error('Build Failed. Please follow instructions from https://github.com/vmolsa/webrtc-native/wiki/Getting-started#building-from-source');
     }
   }
   
@@ -53,20 +54,14 @@ function test() {
       console.log('Done! :)');
     }, 200);
   } catch (ignored) {
-    if (PLATFORM == 'win32') {
-      throw new Error('prebuilt module not working. See the instructions from https://github.com/vmolsa/webrtc-native#build-from-source for building module from source.');
-    } else {
-      throw new Error('prebuilt module not working. See the instructions from https://github.com/vmolsa/webrtc-native#build-from-source for building module from source.');
-    }
-    
-    console.log('Install Failed! :(');
+    throw new Error('prebuilt module not working. See the instructions from https://github.com/vmolsa/webrtc-native/wiki/Getting-started#building-from-source for building module from source.');
   }
 }
 
 if (process.env['BUILD_WEBRTC'] == 'true') {
   build();
 } else {
-  console.log('Downloading module...');
+  console.log('Downloading module: webrtc-' + PACKAGE.version + '-' + PLATFORM + '-' + ARCH + '-' + NODEVER + '.node');
 
   if (!fs.existsSync(path.resolve(ROOT, 'build', 'Release'))) {
     if (!fs.existsSync(path.resolve(ROOT, 'build'))) {
@@ -80,13 +75,7 @@ if (process.env['BUILD_WEBRTC'] == 'true') {
     if (!error && response.statusCode == 200) {
       setTimeout(test, 200);
     } else {
-      if (os.platform() == 'win32') {
-        throw new Error('prebuilt module not found. See the instructions from https://github.com/vmolsa/webrtc-native#build-from-source for building module from source.');
-      } else {
-        throw new Error('prebuilt module not found. See the instructions from https://github.com/vmolsa/webrtc-native#build-from-source for building module from source.');
-      }
-      
-      process.exit(1);
+      throw new Error('prebuilt module not found. See the instructions from https://github.com/vmolsa/webrtc-native/wiki/Getting-started#building-from-source for building module from source.');
     }
   }).pipe(fs.createWriteStream(path.resolve(ROOT, 'build', 'Release', 'webrtc.node')));
 }

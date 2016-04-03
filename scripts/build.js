@@ -10,11 +10,12 @@ if (!fs.existsSync(ROOT + path.sep + 'build' + path.sep + 'config.gypi')) {
   throw new Error('Run node-gyp rebuild instead of node build.js');
 }
 
-var CHROMIUM_BRANCH = null; //'branch-heads/50';
+var PACKAGE = require(path.resolve(ROOT, 'package.json'));
+
+var CHROMIUM = 'https://chromium.googlesource.com/external/webrtc.git@ca4ec2c3b9331e8f054facf400ebaeb9681831e2';
 var USE_OPENSSL = false;
 var USE_GTK = false;
 var USE_X11 = false;
-var SYNC = (process.env['WEBRTC_SYNC'] === 'true') ? true : false;
 
 var PLATFORM = os.platform();
 var SYSTEM = os.release();
@@ -30,7 +31,7 @@ var CROSSCOMPILE = (ARCH !== process.arch);
 NODEVER[2] = 'x';
 NODEVER = NODEVER.join('.');
   
-URL += 'webrtc-' + PLATFORM + '-' + ARCH + '-' + NODEVER + '.node';
+URL += 'webrtc-' + PACKAGE.version + '-' + PLATFORM + '-' + ARCH + '-' + NODEVER + '.node';
   
 if (fs.existsSync(ROOT + path.sep + 'nodejs.gypi')) {
   fs.unlinkSync(ROOT + path.sep + 'nodejs.gypi');
@@ -124,57 +125,25 @@ function build() {
   }
 }
 
-function checkout() {
-  if (!CHROMIUM_BRANCH) {
-    return build();
-  }
-
-  var res = spawn('git', [ 'checkout', CHROMIUM_BRANCH ], {
-    cwd: WEBRTC_SRC,
-    env: process.env,
-    stdio: 'inherit',
-  });
-
-  res.on('close', function (code) {
-    if (!code) {
-      return build();
-    }
-
-    process.exit(1);
-  });
-}
-
 function sync() {
-  if (!SYNC) {
-    if (fs.existsSync(THIRD_PARTY + path.sep + 'webrtc_sync')) {
-      var stat = fs.statSync(THIRD_PARTY + path.sep + 'webrtc_sync');
+  if (!fs.existsSync(THIRD_PARTY + path.sep + 'webrtc_sync')) {
+    var res = spawn(GCLIENT, ['sync', '--with_branch_heads'], {
+      cwd: WEBRTC,
+      env: process.env,
+      stdio: 'inherit',
+    });
 
-      if (((new Date().getTime()) - stat.mtime.getTime()) > 86400000) {
-        SYNC = true;
+    res.on('close', function (code) {
+      if (!code) {
+        fs.closeSync(fs.openSync(THIRD_PARTY + path.sep + 'webrtc_sync', 'w'));
+        return build();
       }
-    } else {
-      SYNC = true;
-    }
+
+      process.exit(1);
+    });
+  } else {
+    build();
   }
-
-  if (!SYNC) {
-    return build();
-  }
-
-  var res = spawn(GCLIENT, ['sync'], {
-    cwd: WEBRTC,
-    env: process.env,
-    stdio: 'inherit',
-  });
-
-  res.on('close', function (code) {
-    if (!code) {
-      fs.closeSync(fs.openSync(THIRD_PARTY + path.sep + 'webrtc_sync', 'w'));
-      return checkout();
-    }
-
-    process.exit(1);
-  });
 }
 
 function configure() {
@@ -201,12 +170,15 @@ function configure() {
       break;
     case 'win32':
       process.env['DEPOT_TOOLS_WIN_TOOLCHAIN'] = 0;
+      process.env['GYP_MSVS_VERSION'] = 2013;
       
       break;
     case 'linux':
       if (CROSSCOMPILE) {
         process.env['GYP_CROSSCOMPILE'] = 1;
         process.env['GYP_DEFINES'] += ' clang=0';
+        process.env['CXX'] = 'arm-linux-gnueabihf-g++-4.8';
+        process.env['CPATH'] = '/usr/arm-linux-gnueabihf/include/c++/4.8.2:/usr/arm-linux-gnueabihf/include/c++/4.8.2/arm-linux-gnueabihf:/usr/arm-linux-gnueabihf/include/c++/4.8.2/backward/';
       } else {
         if (NODE_ZERO) {
           process.env['GYP_DEFINES'] += ' clang=0';
@@ -237,13 +209,13 @@ function configure() {
   sync();
 }
 
-function fetch(rerun) {
-  if (!fs.existsSync(WEBRTC) || !fs.existsSync(WEBRTC_SRC)) {
+function config() {
+  if (!fs.existsSync(WEBRTC) || !fs.existsSync(path.resolve(WEBRTC, '.gclient')) || !fs.existsSync(WEBRTC_SRC)) {
     if (!fs.existsSync(WEBRTC)) {
       fs.mkdirSync(WEBRTC);
     }
-
-    var res = spawn(FETCH, ['--nohooks', '--no-history', 'webrtc'], {
+    
+    var res = spawn(GCLIENT, ['config', '--name=src', CHROMIUM], {
       cwd: WEBRTC,
       env: process.env,
       stdio: 'inherit',
@@ -252,10 +224,6 @@ function fetch(rerun) {
     res.on('close', function (code) {
       if (!code) {
         return configure();
-      }
-
-      if (os.platform() == 'win32' && !rerun) {
-        return fetch(true);
       }
 
       process.exit(1);
@@ -282,11 +250,11 @@ if (!fs.existsSync(DEPOT_TOOLS)) {
 
   res.on('close', function (code) {
     if (!code) {
-      return fetch(false);
+      return config();
     }
 
     process.exit(1);
   });
 } else {
-  fetch(false);
+  config();
 }

@@ -159,7 +159,8 @@ void DataChannel::Send(const Nan::FunctionCallbackInfo<Value> &info) {
       retval = socket->Send(buffer);
     } else {
       node::ArrayBuffer *container = node::ArrayBuffer::New(info[0]);
-      rtc::CopyOnWriteBuffer data(reinterpret_cast<uint8_t*>(container->Data()), container->Length());
+      rtc::Buffer data(reinterpret_cast<uint8_t*>(container->Data()), container->Length());
+      //rtc::CopyOnWriteBuffer data(reinterpret_cast<uint8_t*>(container->Data()), container->Length());
       webrtc::DataBuffer buffer(data, true);
       retval = socket->Send(buffer);
     }
@@ -449,7 +450,7 @@ void DataChannel::On(Event *event) {
     }
   } else {
     callback = Nan::New<Function>(_onmessage);
-    rtc::CopyOnWriteBuffer buffer = event->Unwrap<rtc::CopyOnWriteBuffer>();
+    rtc::Buffer buffer = event->Unwrap<rtc::Buffer>();
     Local<Object> container = Nan::New<Object>();
     argv[0] = container;
     argc = 1;
