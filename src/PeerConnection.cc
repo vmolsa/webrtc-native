@@ -133,7 +133,7 @@ PeerConnection::PeerConnection(const Local<Object> &configuration,
   _local = new rtc::RefCountedObject<LocalDescriptionObserver>(this);
   _remote = new rtc::RefCountedObject<RemoteDescriptionObserver>(this);
   _peer = new rtc::RefCountedObject<PeerConnectionObserver>(this);
-  _factory = Platform::GetFactory();
+  _factory = webrtc::CreatePeerConnectionFactory(rtc::Thread::Current(), Platform::GetWorker(), 0, 0, 0);
 }
 
 PeerConnection::~PeerConnection() {

@@ -10,6 +10,7 @@
     {
       'target_name': 'webrtc',
       'sources': [
+        'Platform.cc',
         'Global.cc',
         'BackTrace.cc',
         'EventEmitter.cc',
@@ -35,9 +36,6 @@
       ],
       'conditions': [
         ['OS=="linux"', {
-          'sources': [
-            'Platform-linux.cc'
-          ],
           'cflags': [
             '-Wno-deprecated-declarations',
             '-Wno-unused-variable',
@@ -57,9 +55,6 @@
           ],
         }],
         ['OS=="win"', {
-          'sources': [
-            'Platform-win32.cc'
-          ],
           'msvs_disabled_warnings': [
             4267,
             4005,
@@ -68,9 +63,6 @@
           ],
         }],
         ['OS=="mac"', {
-          'sources': [
-            'Platform-osx.mm'
-          ],
           'xcode_settings': {
             'OTHER_CFLAGS': [
               '-Wno-nonnull',

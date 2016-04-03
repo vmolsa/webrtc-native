@@ -25,11 +25,13 @@
 */
 
 #include "Platform.h"
+
+#if defined(WEBRTC_WIN)
 #include <webrtc/base/win32socketinit.h>
 #include <webrtc/base/win32socketserver.h>
+#endif
 
 using namespace WebRTC;
-
 
 #ifndef WEBRTC_THREAD_COUNT
 #define WEBRTC_THREAD_COUNT 4
@@ -37,16 +39,19 @@ using namespace WebRTC;
 
 rtc::Thread signal_thread;
 rtc::Thread worker_thread[WEBRTC_THREAD_COUNT];
-rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory[WEBRTC_THREAD_COUNT];
 uint32_t counter = 0;
 
 void Platform::Init() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
+#if defined(WEBRTC_WIN)
+  rtc::EnsureWinsockInit();
+#endif
+  
+  rtc::InitializeSSL();
+   
   signal_thread.Start();
   
-  rtc::EnsureWinsockInit();
-  rtc::InitializeSSL();
   rtc::ThreadManager::Instance()->SetCurrentThread(&signal_thread);
   
   if (rtc::ThreadManager::Instance()->CurrentThread() != &signal_thread) {
@@ -55,12 +60,6 @@ void Platform::Init() {
   
   for (int index = 0; index < WEBRTC_THREAD_COUNT; index++) {
     worker_thread[index].Start();
-    
-    factory[index] = webrtc::CreatePeerConnectionFactory(&signal_thread, &worker_thread[index], 0, 0, 0);
-  
-    if (!factory[index].get()) {
-      Nan::ThrowError("Internal Factory Error");
-    }
   }
 }
 
@@ -82,6 +81,6 @@ void Platform::Dispose() {
   rtc::CleanupSSL();
 }
 
-webrtc::PeerConnectionFactoryInterface* Platform::GetFactory() {
-  return factory[(counter++) % WEBRTC_THREAD_COUNT].get();
+rtc::Thread *Platform::GetWorker() {
+  return &worker_thread[(counter++) % WEBRTC_THREAD_COUNT];
 }

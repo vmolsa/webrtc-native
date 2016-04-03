@@ -127,8 +127,11 @@ MediaStreamTrack::~MediaStreamTrack() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   if (_track.get()) {
-    _source->UnregisterObserver(_observer.get());
     _track->UnregisterObserver(_observer.get());
+  }
+  
+  if (_source.get()) {
+    _source->UnregisterObserver(_observer.get());
   }
   
   _observer->RemoveListener(this);
@@ -414,7 +417,7 @@ void MediaStreamTrack::CheckState() {
       }
     }
   }
-  
+
   if (_source_state != new_source) {
     if (new_source == webrtc::MediaSourceInterface::kMuted) {
       Local<Function> callback = Nan::New<Function>(_onmute);
@@ -432,9 +435,9 @@ void MediaStreamTrack::CheckState() {
       }
     }
   }
-  
+ 
+  _source_state = new_source;  
   _track_state = new_state;
-  _source_state = new_source;
 }
 
 void MediaStreamTrack::On(Event *event) {
