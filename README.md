@@ -4,7 +4,9 @@
 
 webrtc-native is using [WebRTC](http://webrtc.org/) from chromium project. code is compiled with branch [50](https://chromium.googlesource.com/external/webrtc/+/branch-heads/50).
 
-### [Getting Started](https://github.com/vmolsa/webrtc-native/wiki/Getting-started)
+### Usage
+
+For installing or building module from source see page [Getting Started](https://github.com/vmolsa/webrtc-native/wiki/Getting-started)
 
 ### API
 
