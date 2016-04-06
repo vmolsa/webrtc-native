@@ -178,12 +178,24 @@ function configure() {
         process.env['GYP_CROSSCOMPILE'] = 1;
         process.env['GYP_DEFINES'] += ' clang=0 use_system_expat=0';
         process.env['CXX'] = 'arm-linux-gnueabihf-g++-5';
-        process.env['CPATH'] = '/usr/arm-linux-gnueabihf/include/c++/5:/usr/arm-linux-gnueabihf/include/c++/5/arm-linux-gnueabihf:/usr/arm-linux-gnueabihf/include/c++/5/backward/' + process.env['CPATH'] ? ':' + process.env['CPATH'] : '';
+        
+        var CPATH = process.env['CPATH'];
+        
+        process.env['CPATH'] = '/usr/arm-linux-gnueabihf/include/c++/5/';
+        process.env['CPATH'] += '/usr/arm-linux-gnueabihf/include/c++/5/arm-linux-gnueabihf/';
+        process.env['CPATH'] += '/usr/arm-linux-gnueabihf/include/c++/5/backward/';
+        process.env['CPATH'] += CPATH ? ':' + CPATH : '';
       } else {
         if (NODE_ZERO) {
           process.env['GYP_DEFINES'] += ' clang=0';
           process.env['CXX'] = 'g++-4.8';
-          process.env['CPATH'] = '/usr/include/c++/4.8:/usr/include/x86_64-linux-gnu/c++/4.8:/usr/include/c++/4.8/backward';
+          
+          var CPATH = process.env['CPATH'];
+          
+          process.env['CPATH'] = '/usr/include/c++/4.8/';
+          process.env['CPATH'] += '/usr/include/x86_64-linux-gnu/c++/4.8/';
+          process.env['CPATH'] += '/usr/include/c++/4.8/backward/';
+          process.env['CPATH'] += CPATH ? ':' + CPATH : '';
         } else {
           process.env['GYP_DEFINES'] += ' clang=1';
         }
