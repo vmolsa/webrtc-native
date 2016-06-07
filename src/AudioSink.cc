@@ -77,24 +77,24 @@ void AudioSink::New(const Nan::FunctionCallbackInfo<Value> &info) {
     
     if (track.get()) {
       if (info.IsConstructCall()) {
-        AudioSink* AudioSink = new AudioSink();
+        AudioSink* sink = new AudioSink();
         
         if (track->kind().compare(webrtc::MediaStreamTrackInterface::kAudioKind) == 0) {
           webrtc::AudioTrackInterface *audioTrack = static_cast<webrtc::AudioTrackInterface*>(track.get());
           
-          AudioSink->_audio = audioTrack->GetSource();
-          AudioSink->_source = audioTrack->GetSource();
-          AudioSink->_source->RegisterObserver(AudioSink->_observer.get());
-          AudioSink->_audio->AddSink(AudioSink);
+          sink->_audio = audioTrack->GetSource();
+          sink->_source = audioTrack->GetSource();
+          sink->_source->RegisterObserver(sink->_observer.get());
+          sink->_audio->AddSink(sink);
           
-          if (AudioSink->_audio->state() == webrtc::MediaSourceInterface::kLive) {
-            AudioSink->SetReference(true);
+          if (sink->_audio->state() == webrtc::MediaSourceInterface::kLive) {
+            sink->SetReference(true);
           }
         } else {
           Nan::ThrowError("Invalid MediaStreamTrack for AudioSink");
         }
         
-        AudioSink->Wrap(info.This(), "AudioSink");
+        sink->Wrap(info.This(), "AudioSink");
         return info.GetReturnValue().Set(info.This());
       } else {
         const int argc = 1;

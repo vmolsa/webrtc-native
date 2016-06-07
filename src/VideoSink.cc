@@ -77,24 +77,24 @@ void VideoSink::New(const Nan::FunctionCallbackInfo<Value> &info) {
     
     if (track.get()) {
       if (info.IsConstructCall()) {
-        VideoSink* VideoSink = new VideoSink();
+        VideoSink* sink = new VideoSink();
         
         if (track->kind().compare(webrtc::MediaStreamTrackInterface::kVideoKind) == 0) {
           webrtc::VideoTrackInterface *videoTrack = static_cast<webrtc::VideoTrackInterface*>(track.get());
           
-          VideoSink->_video = videoTrack->GetSource();
-          VideoSink->_source = videoTrack->GetSource();
-          VideoSink->_source->RegisterObserver(VideoSink->_observer.get());
-          VideoSink->_video->AddSink(VideoSink);
+          sink->_video = videoTrack->GetSource();
+          sink->_source = videoTrack->GetSource();
+          sink->_source->RegisterObserver(sink->_observer.get());
+          sink->_video->AddOrUpdateSink(sink, rtc::VideoSinkWants());
           
-          if (VideoSink->_video->state() == webrtc::MediaSourceInterface::kLive) {
-            VideoSink->SetReference(true);
+          if (sink->_video->state() == webrtc::MediaSourceInterface::kLive) {
+            sink->SetReference(true);
           }
         } else {
           Nan::ThrowError("Invalid MediaStreamTrack for AudioSink");
         }
         
-        VideoSink->Wrap(info.This(), "VideoSink");
+        sink->Wrap(info.This(), "VideoSink");
         return info.GetReturnValue().Set(info.This());
       } else {
         const int argc = 1;
