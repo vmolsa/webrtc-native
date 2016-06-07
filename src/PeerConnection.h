@@ -27,6 +27,7 @@
 #define WEBRTC_PEERCONNECTION_H
 
 #include "Common.h"
+#include "Configuration.h"
 #include "Observers.h" 
 #include "EventEmitter.h"
 #include "Wrap.h"
@@ -58,8 +59,7 @@ namespace WebRTC {
     static void Init(v8::Handle<v8::Object> exports);
     
    private:
-    PeerConnection(const v8::Local<v8::Object> &configuration);
-                      
+    PeerConnection(const Configuration &config);           
     ~PeerConnection() final;
    
     static void New(const Nan::FunctionCallbackInfo<v8::Value> &info);
@@ -69,6 +69,7 @@ namespace WebRTC {
     static void Close(const Nan::FunctionCallbackInfo<v8::Value> &info);
     static void CreateAnswer(const Nan::FunctionCallbackInfo<v8::Value> &info);
     static void CreateDataChannel(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void CreateOffer(const Nan::FunctionCallbackInfo<v8::Value> &info);
     static void GenerateCertificate(const Nan::FunctionCallbackInfo<v8::Value> &info);
     static void GetConfiguration(const Nan::FunctionCallbackInfo<v8::Value> &info);
     static void PeerIdentity(const Nan::FunctionCallbackInfo<v8::Value> &info);
@@ -81,6 +82,14 @@ namespace WebRTC {
     static void SetIdentityProvider(const Nan::FunctionCallbackInfo<v8::Value> &info);
     static void SetLocalDescription(const Nan::FunctionCallbackInfo<v8::Value> &info);
     static void SetRemoteDescription(const Nan::FunctionCallbackInfo<v8::Value> &info);
+
+    /* Supporting old API for now */
+    static void AddStream(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void RemoveStream(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void GetLocalStreams(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void GetRemoteStreams(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    static void GetStreamById(const Nan::FunctionCallbackInfo<v8::Value> &info);
+    /* <<>> */
 
     static void CanTrickleIceCandidates(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
     static void ConnectionState(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
@@ -171,7 +180,7 @@ namespace WebRTC {
     rtc::scoped_refptr<webrtc::PeerConnectionInterface> _socket;
     rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> _factory;
     
-    webrtc::PeerConnectionInterface::RTCConfiguration _config;
+    Configuration _config;
   };
 };
 

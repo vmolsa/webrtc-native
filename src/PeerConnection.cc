@@ -99,57 +99,8 @@ void PeerConnection::Init(Handle<Object> exports) {
 
 Nan::Persistent<Function> PeerConnection::constructor;
 
-PeerConnection::PeerConnection(const Local<Object> &configuration) { 
+PeerConnection::PeerConnection(const Configuration &config) : _config(config) { 
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-
-
-  if (!configuration.IsEmpty()) {
-    Local<Value> iceservers_value = configuration->Get(Nan::New("iceServers").ToLocalChecked());
-    
-    if (!iceservers_value.IsEmpty() && iceservers_value->IsArray()) {
-      Local<Array> list = Local<Array>::Cast(iceservers_value);
-
-      for (unsigned int index = 0; index < list->Length(); index++) {
-        Local<Value> server_value = list->Get(index);
-
-        if (!server_value.IsEmpty() && server_value->IsObject()) {
-          Local<Object> server = Local<Object>::Cast(server_value);
-          Local<Value> url_value = server->Get(Nan::New("url").ToLocalChecked());
-          Local<Value> username_value = server->Get(Nan::New("username").ToLocalChecked());
-          Local<Value> credential_value = server->Get(Nan::New("credential").ToLocalChecked());
-
-          if (!url_value.IsEmpty() && url_value->IsString()) {
-            v8::String::Utf8Value url(url_value->ToString());
-            webrtc::PeerConnectionInterface::IceServer entry;
-
-            entry.uri = *url;
-
-            if (!username_value.IsEmpty() && username_value->IsString()) {
-              String::Utf8Value username(username_value->ToString());
-              entry.username = *username;
-            }
-
-            if (!credential_value.IsEmpty() && credential_value->IsString()) {
-              String::Utf8Value credential(credential_value->ToString());
-              entry.password = *credential;
-            }
-
-            _config.servers.push_back(entry);
-          }
-        }        
-      }
-    }
-  }
-
-  /*
-  _constraints = MediaConstraints::New(constraints);
-
-  if (!_constraints->GetOptional("RtpDataChannels")) {
-    if (!_constraints->IsOptional("DtlsSrtpKeyAgreement")) {
-      _constraints->SetOptional("DtlsSrtpKeyAgreement", "true");
-    }
-  }
-  */  
 
   _stats = new rtc::RefCountedObject<StatsObserver>(this);
   _offer = new rtc::RefCountedObject<OfferObserver>(this);
@@ -201,21 +152,14 @@ webrtc::PeerConnectionInterface *PeerConnection::GetSocket() {
 void PeerConnection::New(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  Local<Object> configuration;
-  
-  if (info.Length() >= 1 && info[0]->IsObject()) {
-    configuration = Local<Object>::Cast(info[0]);
-  }
-
   if (info.IsConstructCall()) {
-    PeerConnection* peer = new PeerConnection(configuration);
+    PeerConnection* peer = new PeerConnection(Configuration(Local<Object>::Cast(info[0])));
     peer->Wrap(info.This(), "PeerConnection");
     return info.GetReturnValue().Set(info.This());
   } else {
     const int argc = 2;
     Local<Value> argv[argc] = {
-      configuration,
-      constraints
+      info[0]
     };
     
     Local<Function> instance = Nan::New(PeerConnection::constructor);
@@ -223,27 +167,86 @@ void PeerConnection::New(const Nan::FunctionCallbackInfo<Value> &info) {
   }
 }
 
-void PeerConnection::CreateOffer(const Nan::FunctionCallbackInfo<Value> &info) {
+void PeerConnection::AddIceCandidate(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.This(), "PeerConnection");
   webrtc::PeerConnectionInterface *socket = self->GetSocket();
   
-  if (!info[0].IsEmpty() && info[0]->IsFunction()) {
-    self->_offerCallback.Reset<Function>(Local<Function>::Cast(info[0]));
-  } else {
-    self->_offerCallback.Reset();
+  const char *error = 0;
+  Local<Value> argv[1];
+
+  if (!info[0].IsEmpty() && info[0]->IsObject()) {
+    Local<Object> desc = Local<Object>::Cast(info[0]);
+    Local<Value> sdpMid_value = desc->Get(Nan::New("sdpMid").ToLocalChecked());
+    Local<Value> sdpMLineIndex_value = desc->Get(Nan::New("sdpMLineIndex").ToLocalChecked());
+    Local<Value> sdp_value = desc->Get(Nan::New("candidate").ToLocalChecked());
+    
+    if (!sdpMid_value.IsEmpty() && sdpMid_value->IsString()) {
+      if (!sdpMLineIndex_value.IsEmpty() && sdpMLineIndex_value->IsInt32()) {
+        if (!sdp_value.IsEmpty() && sdp_value->IsString()) {
+          Local<Int32> sdpMLineIndex(sdpMLineIndex_value->ToInt32());
+          String::Utf8Value sdpMid(sdpMid_value->ToString());
+          String::Utf8Value sdp(sdp_value->ToString());
+          
+          std::unique_ptr<webrtc::IceCandidateInterface> candidate(webrtc::CreateIceCandidate(*sdpMid, sdpMLineIndex->Value(), *sdp, 0));
+  
+          if (candidate.get()) {
+            if (socket) {
+              if (socket->AddIceCandidate(candidate.get())) {
+                if (!info[1].IsEmpty() && info[1]->IsFunction()) {
+                  Local<Function> success = Local<Function>::Cast(info[1]);
+                  success->Call(info.This(), 0, argv);
+                }
+              } else {            
+                error = "Failed to add ICECandidate";
+              }
+            } else {
+              error = "Internal Error";
+            }
+          } else {
+            error = "Invalid ICECandidate";
+          }
+        } else {
+          error = "Invalid candidate";
+        }
+      } else {
+        error = "Invalid sdpMLineIndex";
+      }
+    } else {
+      error = "Invalid sdpMid";
+    }
   }
   
-  if (!info[1].IsEmpty() && info[1]->IsFunction()) {
-    self->_offerErrorCallback.Reset<Function>(Local<Function>::Cast(info[1]));
-  } else {
-    self->_offerErrorCallback.Reset();
+  if (error) {
+    if (!info[2].IsEmpty() && info[2]->IsFunction()) {
+      argv[0] = Nan::Error(error);
+      
+      Local<Function> onerror = Local<Function>::Cast(info[2]);
+      onerror->Call(info.This(), 1, argv);
+    } else {
+      Nan::ThrowError(error);
+    }
   }
+  
+  info.GetReturnValue().SetUndefined();
+}
+
+void PeerConnection::AddTrack(const Nan::FunctionCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  // TODO():
+  info.GetReturnValue().SetUndefined();
+}
+
+void PeerConnection::Close(const Nan::FunctionCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.This(), "PeerConnection"); 
+  webrtc::PeerConnectionInterface *socket = self->GetSocket();
   
   if (socket) {
-    // TODO(): RTCOfferAnswerOptions
-    socket->CreateOffer(self->_offer.get(), 0);
+    socket->Close();
   } else {
     Nan::ThrowError("Internal Error");
   }
@@ -276,6 +279,203 @@ void PeerConnection::CreateAnswer(const Nan::FunctionCallbackInfo<Value> &info) 
     Nan::ThrowError("Internal Error");
   }
   
+  info.GetReturnValue().SetUndefined();
+}
+
+void PeerConnection::CreateDataChannel(const Nan::FunctionCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.This(), "PeerConnection");
+  webrtc::PeerConnectionInterface *socket = self->GetSocket();
+
+  std::string label;
+  webrtc::DataChannelInit config;
+  
+  if (!info[0].IsEmpty() && info[0]->IsString()) {
+    String::Utf8Value label_utf8(info[0]->ToString());
+    label = *label_utf8;
+  }
+  
+  if (!info[1].IsEmpty() && info[1]->IsObject()) {
+    Local<Object> config_obj = Local<Object>::Cast(info[0]);
+    
+    Local<Value> reliable_value = config_obj->Get(Nan::New("reliable").ToLocalChecked());
+    Local<Value> ordered_value = config_obj->Get(Nan::New("ordered").ToLocalChecked());
+    Local<Value> maxRetransmitTime_value = config_obj->Get(Nan::New("maxRetransmitTime").ToLocalChecked());
+    Local<Value> maxRetransmits_value = config_obj->Get(Nan::New("maxRetransmits").ToLocalChecked());
+    Local<Value> protocol_value = config_obj->Get(Nan::New("protocol").ToLocalChecked());
+    Local<Value> id_value = config_obj->Get(Nan::New("id").ToLocalChecked());
+
+    if (!reliable_value.IsEmpty()) {
+      if (reliable_value->IsTrue()) {
+        config.reliable = true;
+      } else {
+        config.reliable = false;
+      }
+    }
+    
+    if (!ordered_value.IsEmpty()) {
+      if (ordered_value->IsTrue()) {
+        config.ordered = true;
+      } else {
+        config.ordered = false;
+      }
+    }
+    
+    if (!maxRetransmitTime_value.IsEmpty() && maxRetransmitTime_value->IsInt32()) {
+      Local<Int32> maxRetransmitTime(maxRetransmitTime_value->ToInt32());
+      config.maxRetransmitTime = maxRetransmitTime->Value();
+    }
+    
+    if (!maxRetransmits_value.IsEmpty() && maxRetransmits_value->IsInt32()) {
+      Local<Int32> maxRetransmits(maxRetransmits_value->ToInt32());
+      config.maxRetransmits = maxRetransmits->Value();
+    }
+    
+    if (!protocol_value.IsEmpty() && protocol_value->IsString()) {
+      String::Utf8Value protocol(protocol_value->ToString());
+      config.protocol = *protocol;
+    }
+    
+    if (!id_value.IsEmpty() && id_value->IsInt32()) {
+      Local<Int32> id(id_value->ToInt32());
+      config.id = id->Value();
+    }
+  }
+  
+  if (socket) {
+    rtc::scoped_refptr<webrtc::DataChannelInterface> dataChannel = socket->CreateDataChannel(label, &config);
+    
+    if (dataChannel.get()) {
+      return info.GetReturnValue().Set(DataChannel::New(dataChannel));
+    }
+  }
+  
+  Nan::ThrowError("Internal Error");
+  info.GetReturnValue().SetUndefined();
+}
+
+void PeerConnection::CreateOffer(const Nan::FunctionCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.This(), "PeerConnection");
+  webrtc::PeerConnectionInterface *socket = self->GetSocket();
+  
+  if (!info[0].IsEmpty() && info[0]->IsFunction()) {
+    self->_offerCallback.Reset<Function>(Local<Function>::Cast(info[0]));
+  } else {
+    self->_offerCallback.Reset();
+  }
+  
+  if (!info[1].IsEmpty() && info[1]->IsFunction()) {
+    self->_offerErrorCallback.Reset<Function>(Local<Function>::Cast(info[1]));
+  } else {
+    self->_offerErrorCallback.Reset();
+  }
+  
+  if (socket) {
+    // TODO(): RTCOfferAnswerOptions
+    socket->CreateOffer(self->_offer.get(), 0);
+  } else {
+    Nan::ThrowError("Internal Error");
+  }
+  
+  info.GetReturnValue().SetUndefined();
+}
+
+void PeerConnection::GenerateCertificate(const Nan::FunctionCallbackInfo<v8::Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  // TODO(): Implement This
+
+  info.GetReturnValue().SetUndefined();
+}
+
+void PeerConnection::GetConfiguration(const Nan::FunctionCallbackInfo<v8::Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.This(), "PeerConnection");
+
+  info.GetReturnValue().Set(self->_config.ToConfiguration());
+}
+
+void PeerConnection::PeerIdentity(const Nan::FunctionCallbackInfo<v8::Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  // TODO(): Implement This
+
+  info.GetReturnValue().SetUndefined();
+}
+
+void PeerConnection::GetReceivers(const Nan::FunctionCallbackInfo<v8::Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  // TODO(): Implement This
+
+  info.GetReturnValue().SetUndefined();
+}
+
+void PeerConnection::GetSenders(const Nan::FunctionCallbackInfo<v8::Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  // TODO(): Implement This
+
+  info.GetReturnValue().SetUndefined();
+}
+
+void PeerConnection::GetStats(const Nan::FunctionCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.This(), "PeerConnection");
+  webrtc::PeerConnectionInterface *socket = self->GetSocket();
+
+  if (!info[0].IsEmpty() && info[0]->IsFunction()) {
+    self->_onstats.Reset<Function>(Local<Function>::Cast(info[0]));
+
+    if (socket) {
+      if (!socket->GetStats(self->_stats.get(), 0, webrtc::PeerConnectionInterface::kStatsOutputLevelStandard)) {
+        Local<Function> callback = Nan::New<Function>(self->_onstats);
+        Local<Value> argv[1] = { Nan::Null() };
+
+        callback->Call(info.This(), 1, argv);
+        self->_onstats.Reset();
+      }
+    } else {
+      Nan::ThrowError("Internal Error");
+    }
+  } else {
+    Nan::ThrowError("Missing Callback");
+  }
+  
+  info.GetReturnValue().SetUndefined();
+}
+
+void PeerConnection::RemoveTrack(const Nan::FunctionCallbackInfo<v8::Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  // TODO(): Implement This
+
+  info.GetReturnValue().SetUndefined();
+}
+
+void PeerConnection::SetConfiguration(const Nan::FunctionCallbackInfo<v8::Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+
+  if (!info[0].IsEmpty()) {
+    PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.This(), "PeerConnection");
+    webrtc::PeerConnectionInterface *socket = self->GetSocket();
+    self->_config = Configuration(Local<Object>::Cast(info[0]));
+    socket->SetConfiguration(self->_config);
+  }
+
+  info.GetReturnValue().SetUndefined();
+}
+
+void PeerConnection::RemoveTrack(const Nan::FunctionCallbackInfo<v8::Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  // TODO(): Implement This
+
   info.GetReturnValue().SetUndefined();
 }
 
@@ -399,143 +599,7 @@ void PeerConnection::SetRemoteDescription(const Nan::FunctionCallbackInfo<Value>
   info.GetReturnValue().SetUndefined();
 }
 
-void PeerConnection::AddIceCandidate(const Nan::FunctionCallbackInfo<Value> &info) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.This(), "PeerConnection");
-  webrtc::PeerConnectionInterface *socket = self->GetSocket();
-  
-  const char *error = 0;
-  Local<Value> argv[1];
-
-  if (!info[0].IsEmpty() && info[0]->IsObject()) {
-    Local<Object> desc = Local<Object>::Cast(info[0]);
-    Local<Value> sdpMid_value = desc->Get(Nan::New("sdpMid").ToLocalChecked());
-    Local<Value> sdpMLineIndex_value = desc->Get(Nan::New("sdpMLineIndex").ToLocalChecked());
-    Local<Value> sdp_value = desc->Get(Nan::New("candidate").ToLocalChecked());
-    
-    if (!sdpMid_value.IsEmpty() && sdpMid_value->IsString()) {
-      if (!sdpMLineIndex_value.IsEmpty() && sdpMLineIndex_value->IsInt32()) {
-        if (!sdp_value.IsEmpty() && sdp_value->IsString()) {
-          Local<Int32> sdpMLineIndex(sdpMLineIndex_value->ToInt32());
-          String::Utf8Value sdpMid(sdpMid_value->ToString());
-          String::Utf8Value sdp(sdp_value->ToString());
-          
-          std::unique_ptr<webrtc::IceCandidateInterface> candidate(webrtc::CreateIceCandidate(*sdpMid, sdpMLineIndex->Value(), *sdp, 0));
-  
-          if (candidate.get()) {
-            if (socket) {
-              if (socket->AddIceCandidate(candidate.get())) {
-                if (!info[1].IsEmpty() && info[1]->IsFunction()) {
-                  Local<Function> success = Local<Function>::Cast(info[1]);
-                  success->Call(info.This(), 0, argv);
-                }
-              } else {            
-                error = "Failed to add ICECandidate";
-              }
-            } else {
-              error = "Internal Error";
-            }
-          } else {
-            error = "Invalid ICECandidate";
-          }
-        } else {
-          error = "Invalid candidate";
-        }
-      } else {
-        error = "Invalid sdpMLineIndex";
-      }
-    } else {
-      error = "Invalid sdpMid";
-    }
-  }
-  
-  if (error) {
-    if (!info[2].IsEmpty() && info[2]->IsFunction()) {
-      argv[0] = Nan::Error(error);
-      
-      Local<Function> onerror = Local<Function>::Cast(info[2]);
-      onerror->Call(info.This(), 1, argv);
-    } else {
-      Nan::ThrowError(error);
-    }
-  }
-  
-  info.GetReturnValue().SetUndefined();
-}
-
-void PeerConnection::CreateDataChannel(const Nan::FunctionCallbackInfo<Value> &info) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.This(), "PeerConnection");
-  webrtc::PeerConnectionInterface *socket = self->GetSocket();
-
-  std::string label;
-  webrtc::DataChannelInit config;
-  
-  if (!info[0].IsEmpty() && info[0]->IsString()) {
-    String::Utf8Value label_utf8(info[0]->ToString());
-    label = *label_utf8;
-  }
-  
-  if (!info[1].IsEmpty() && info[1]->IsObject()) {
-    Local<Object> config_obj = Local<Object>::Cast(info[0]);
-    
-    Local<Value> reliable_value = config_obj->Get(Nan::New("reliable").ToLocalChecked());
-    Local<Value> ordered_value = config_obj->Get(Nan::New("ordered").ToLocalChecked());
-    Local<Value> maxRetransmitTime_value = config_obj->Get(Nan::New("maxRetransmitTime").ToLocalChecked());
-    Local<Value> maxRetransmits_value = config_obj->Get(Nan::New("maxRetransmits").ToLocalChecked());
-    Local<Value> protocol_value = config_obj->Get(Nan::New("protocol").ToLocalChecked());
-    Local<Value> id_value = config_obj->Get(Nan::New("id").ToLocalChecked());
-
-    if (!reliable_value.IsEmpty()) {
-      if (reliable_value->IsTrue()) {
-        config.reliable = true;
-      } else {
-        config.reliable = false;
-      }
-    }
-    
-    if (!ordered_value.IsEmpty()) {
-      if (ordered_value->IsTrue()) {
-        config.ordered = true;
-      } else {
-        config.ordered = false;
-      }
-    }
-    
-    if (!maxRetransmitTime_value.IsEmpty() && maxRetransmitTime_value->IsInt32()) {
-      Local<Int32> maxRetransmitTime(maxRetransmitTime_value->ToInt32());
-      config.maxRetransmitTime = maxRetransmitTime->Value();
-    }
-    
-    if (!maxRetransmits_value.IsEmpty() && maxRetransmits_value->IsInt32()) {
-      Local<Int32> maxRetransmits(maxRetransmits_value->ToInt32());
-      config.maxRetransmits = maxRetransmits->Value();
-    }
-    
-    if (!protocol_value.IsEmpty() && protocol_value->IsString()) {
-      String::Utf8Value protocol(protocol_value->ToString());
-      config.protocol = *protocol;
-    }
-    
-    if (!id_value.IsEmpty() && id_value->IsInt32()) {
-      Local<Int32> id(id_value->ToInt32());
-      config.id = id->Value();
-    }
-  }
-  
-  if (socket) {
-    rtc::scoped_refptr<webrtc::DataChannelInterface> dataChannel = socket->CreateDataChannel(label, &config);
-    
-    if (dataChannel.get()) {
-      return info.GetReturnValue().Set(DataChannel::New(dataChannel));
-    }
-  }
-  
-  Nan::ThrowError("Internal Error");
-  info.GetReturnValue().SetUndefined();
-}
+/* Supporting old API for now */
 
 void PeerConnection::AddStream(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
@@ -670,81 +734,45 @@ void PeerConnection::GetStreamById(const Nan::FunctionCallbackInfo<Value> &info)
   info.GetReturnValue().SetUndefined();
 }
 
-void PeerConnection::GetStats(const Nan::FunctionCallbackInfo<Value> &info) {
+/* <<>> */
+
+void PeerConnection::CanTrickleIceCandidates(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.This(), "PeerConnection");
-  webrtc::PeerConnectionInterface *socket = self->GetSocket();
 
-  if (!info[0].IsEmpty() && info[0]->IsFunction()) {
-    self->_onstats.Reset<Function>(Local<Function>::Cast(info[0]));
+  // TODO(): Implement This
 
-    if (socket) {
-      if (!socket->GetStats(self->_stats.get(), 0, webrtc::PeerConnectionInterface::kStatsOutputLevelStandard)) {
-        Local<Function> callback = Nan::New<Function>(self->_onstats);
-        Local<Value> argv[1] = { Nan::Null() };
-
-        callback->Call(info.This(), 1, argv);
-        self->_onstats.Reset();
-      }
-    } else {
-      Nan::ThrowError("Internal Error");
-    }
-  } else {
-    Nan::ThrowError("Missing Callback");
-  }
-  
   info.GetReturnValue().SetUndefined();
 }
 
-void PeerConnection::Close(const Nan::FunctionCallbackInfo<Value> &info) {
+void PeerConnection::ConnectionState(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.This(), "PeerConnection"); 
-  webrtc::PeerConnectionInterface *socket = self->GetSocket();
-  
-  if (socket) {
-    socket->Close();
-  } else {
-    Nan::ThrowError("Internal Error");
-  }
-  
+
+  // TODO(): Implement This
+
   info.GetReturnValue().SetUndefined();
 }
 
-void PeerConnection::GetSignalingState(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+void PeerConnection::CurrentLocalDescription(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
-  webrtc::PeerConnectionInterface *socket = self->GetSocket();
 
-  if (socket) {
-    webrtc::PeerConnectionInterface::SignalingState state(socket->signaling_state());
-    
-    switch (state) {
-      case webrtc::PeerConnectionInterface::kStable:
-        return info.GetReturnValue().Set(Nan::New("stable").ToLocalChecked());
-        break;
-      case webrtc::PeerConnectionInterface::kHaveLocalOffer:
-        return info.GetReturnValue().Set(Nan::New("have-local-offer").ToLocalChecked());
-        break;
-      case webrtc::PeerConnectionInterface::kHaveLocalPrAnswer:
-        return info.GetReturnValue().Set(Nan::New("have-local-pranswer").ToLocalChecked());
-        break;
-      case webrtc::PeerConnectionInterface::kHaveRemoteOffer:
-        return info.GetReturnValue().Set(Nan::New("have-remote-offer").ToLocalChecked());
-        break;
-      case webrtc::PeerConnectionInterface::kHaveRemotePrAnswer:
-        return info.GetReturnValue().Set(Nan::New("have-remote-pranswer").ToLocalChecked());
-        break;
-      default: 
-        return info.GetReturnValue().Set(Nan::New("closed").ToLocalChecked());
-        break;
-    }
-  } else {
-    Nan::ThrowError("Internal Error");
-  }
-  
+  // TODO(): Implement This
+
+  info.GetReturnValue().SetUndefined();
+}
+
+void PeerConnection::CurrentRemoteDescription(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+
+  // TODO(): Implement This
+
+  info.GetReturnValue().SetUndefined();
+}
+
+void PeerConnection::DefaultIceServers(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+
+  // TODO(): Implement This
+
   info.GetReturnValue().SetUndefined();
 }
 
@@ -814,32 +842,35 @@ void PeerConnection::GetIceGatheringState(Local<String> property, const Nan::Pro
   info.GetReturnValue().SetUndefined();
 }
 
-void PeerConnection::GetOnSignalingStateChange(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
-  return info.GetReturnValue().Set(Nan::New<Function>(self->_onsignalingstatechange));
-}
-
-void PeerConnection::GetOnIceConnectionStateChange(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
-  return info.GetReturnValue().Set(Nan::New<Function>(self->_oniceconnectionstatechange));
-}
-
-void PeerConnection::GetOnIceCandidate(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
-  return info.GetReturnValue().Set(Nan::New<Function>(self->_onicecandidate));
-}
-
 void PeerConnection::GetLocalDescription(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
 
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
   return info.GetReturnValue().Set(Nan::New<Object>(self->_localsdp));
+}
+
+void PeerConnection::PeerIdentity(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+
+  // TODO(): Implement This
+
+  info.GetReturnValue().SetUndefined();
+}
+
+void PeerConnection::PendingLocalDescription(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+
+  // TODO(): Implement This
+
+  info.GetReturnValue().SetUndefined();
+}
+
+void PeerConnection::PendingRemoteDescription(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+
+  // TODO(): Implement This
+
+  info.GetReturnValue().SetUndefined();
 }
 
 void PeerConnection::GetRemoteDescription(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
@@ -849,68 +880,69 @@ void PeerConnection::GetRemoteDescription(Local<String> property, const Nan::Pro
   return info.GetReturnValue().Set(Nan::New<Object>(self->_remotesdp));
 }
 
+void PeerConnection::GetSctp(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+
+  // TODO(): Implement This
+
+  info.GetReturnValue().SetUndefined();
+}
+
+void PeerConnection::GetSignalingState(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
+  webrtc::PeerConnectionInterface *socket = self->GetSocket();
+
+  if (socket) {
+    webrtc::PeerConnectionInterface::SignalingState state(socket->signaling_state());
+    
+    switch (state) {
+      case webrtc::PeerConnectionInterface::kStable:
+        return info.GetReturnValue().Set(Nan::New("stable").ToLocalChecked());
+        break;
+      case webrtc::PeerConnectionInterface::kHaveLocalOffer:
+        return info.GetReturnValue().Set(Nan::New("have-local-offer").ToLocalChecked());
+        break;
+      case webrtc::PeerConnectionInterface::kHaveLocalPrAnswer:
+        return info.GetReturnValue().Set(Nan::New("have-local-pranswer").ToLocalChecked());
+        break;
+      case webrtc::PeerConnectionInterface::kHaveRemoteOffer:
+        return info.GetReturnValue().Set(Nan::New("have-remote-offer").ToLocalChecked());
+        break;
+      case webrtc::PeerConnectionInterface::kHaveRemotePrAnswer:
+        return info.GetReturnValue().Set(Nan::New("have-remote-pranswer").ToLocalChecked());
+        break;
+      default: 
+        return info.GetReturnValue().Set(Nan::New("closed").ToLocalChecked());
+        break;
+    }
+  } else {
+    Nan::ThrowError("Internal Error");
+  }
+  
+  info.GetReturnValue().SetUndefined();
+}
+
+void PeerConnection::GetOnConnectionStateChange(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+
+  // TODO(): Implement This
+
+  info.GetReturnValue().SetUndefined();
+}
+
+void PeerConnection::SetOnConnectionStateChange(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  // TODO(): Implement This
+}
+
 void PeerConnection::GetOnDataChannel(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
   return info.GetReturnValue().Set(Nan::New<Function>(self->_ondatachannel));
-}
-
-void PeerConnection::GetOnNegotiationNeeded(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
-  return info.GetReturnValue().Set(Nan::New<Function>(self->_onnegotiationneeded));
-}
-
-void PeerConnection::GetOnAddStream(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
-  return info.GetReturnValue().Set(Nan::New<Function>(self->_onaddstream));
-}
-
-void PeerConnection::GetOnRemoveStream(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
-  return info.GetReturnValue().Set(Nan::New<Function>(self->_onremovestream));
-}
-
-void PeerConnection::SetOnSignalingStateChange(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
-
-  if (!value.IsEmpty() && value->IsFunction()) {
-    self->_onsignalingstatechange.Reset<Function>(Local<Function>::Cast(value));
-  } else {
-    self->_onsignalingstatechange.Reset();
-  }
-}
-
-void PeerConnection::SetOnIceConnectionStateChange(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
-
-  if (!value.IsEmpty() && value->IsFunction()) {
-    self->_oniceconnectionstatechange.Reset<Function>(Local<Function>::Cast(value));
-  } else {
-    self->_oniceconnectionstatechange.Reset();
-  }
-}
-
-void PeerConnection::SetOnIceCandidate(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
-
-  if (!value.IsEmpty() && value->IsFunction()) {
-    self->_onicecandidate.Reset<Function>(Local<Function>::Cast(value));
-  } else {
-    self->_onicecandidate.Reset();
-  }
 }
 
 void PeerConnection::SetOnDataChannel(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
@@ -925,6 +957,13 @@ void PeerConnection::SetOnDataChannel(Local<String> property, Local<Value> value
   }
 }
 
+void PeerConnection::GetOnNegotiationNeeded(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
+  return info.GetReturnValue().Set(Nan::New<Function>(self->_onnegotiationneeded));
+}
+
 void PeerConnection::SetOnNegotiationNeeded(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
@@ -937,6 +976,112 @@ void PeerConnection::SetOnNegotiationNeeded(Local<String> property, Local<Value>
   }
 }
 
+void PeerConnection::GetOnIceCandidate(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
+  return info.GetReturnValue().Set(Nan::New<Function>(self->_onicecandidate));
+}
+
+void PeerConnection::SetOnIceCandidate(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
+
+  if (!value.IsEmpty() && value->IsFunction()) {
+    self->_onicecandidate.Reset<Function>(Local<Function>::Cast(value));
+  } else {
+    self->_onicecandidate.Reset();
+  }
+}
+
+void PeerConnection::GetOnIceCandidateError(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+
+  // TODO(): Implement This
+
+  info.GetReturnValue().SetUndefined();
+}
+
+void PeerConnection::SetOnIceCandidateError(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  // TODO(): Implement This
+}
+
+void PeerConnection::GetOnIceConnectionStateChange(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
+  return info.GetReturnValue().Set(Nan::New<Function>(self->_oniceconnectionstatechange));
+}
+
+void PeerConnection::SetOnIceConnectionStateChange(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
+
+  if (!value.IsEmpty() && value->IsFunction()) {
+    self->_oniceconnectionstatechange.Reset<Function>(Local<Function>::Cast(value));
+  } else {
+    self->_oniceconnectionstatechange.Reset();
+  }
+}
+
+void PeerConnection::GetOnIceGatheringStateChange(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+
+  // TODO(): Implement This
+
+  info.GetReturnValue().SetUndefined();
+}
+
+void PeerConnection::SetOnIceGatheringStateChange(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  // TODO(): Implement This
+}
+
+void PeerConnection::GetOnSignalingStateChange(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
+  return info.GetReturnValue().Set(Nan::New<Function>(self->_onsignalingstatechange));
+}
+
+void PeerConnection::SetOnSignalingStateChange(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
+
+  if (!value.IsEmpty() && value->IsFunction()) {
+    self->_onsignalingstatechange.Reset<Function>(Local<Function>::Cast(value));
+  } else {
+    self->_onsignalingstatechange.Reset();
+  }
+}
+
+void PeerConnection::GetOnTrack(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+
+  // TODO(): Implement This
+
+  info.GetReturnValue().SetUndefined();
+}
+
+void PeerConnection::SetOnTrack(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  // TODO(): Implement This
+}
+
+void PeerConnection::GetOnAddStream(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
+  return info.GetReturnValue().Set(Nan::New<Function>(self->_onaddstream));
+}
+
 void PeerConnection::SetOnAddStream(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
@@ -947,6 +1092,69 @@ void PeerConnection::SetOnAddStream(Local<String> property, Local<Value> value, 
   } else {
     self->_onaddstream.Reset();
   }
+}
+
+void PeerConnection::GetOnIdentityResult(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+
+  // TODO(): Implement This
+
+  info.GetReturnValue().SetUndefined();
+}
+
+void PeerConnection::SetOnIdentityResult(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  // TODO(): Implement This
+}
+
+void PeerConnection::GetOnIdpAssertionError(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+
+  // TODO(): Implement This
+
+  info.GetReturnValue().SetUndefined();
+}
+
+void PeerConnection::SetOnIdpAssertionError(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  // TODO(): Implement This
+}
+
+void PeerConnection::GetOnIdpValidationError(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+
+  // TODO(): Implement This
+
+  info.GetReturnValue().SetUndefined();
+}
+
+void PeerConnection::SetOnIdpValidationError(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  // TODO(): Implement This
+}
+
+void PeerConnection::GetOnPeerIdentity(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+
+  // TODO(): Implement This
+
+  info.GetReturnValue().SetUndefined();
+}
+
+void PeerConnection::SetOnPeerIdentity(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  // TODO(): Implement This
+}
+
+void PeerConnection::GetOnRemoveStream(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  PeerConnection *self = RTCWrap::Unwrap<PeerConnection>(info.Holder(), "PeerConnection");
+  return info.GetReturnValue().Set(Nan::New<Function>(self->_onremovestream));
 }
 
 void PeerConnection::SetOnRemoveStream(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
