@@ -450,6 +450,14 @@ void PeerConnection::GetStats(const Nan::FunctionCallbackInfo<Value> &info) {
   info.GetReturnValue().SetUndefined();
 }
 
+void PeerConnection::GetTransceivers(const Nan::FunctionCallbackInfo<v8::Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  // TODO(): Implement This
+
+  info.GetReturnValue().SetUndefined();
+}
+
 void PeerConnection::RemoveTrack(const Nan::FunctionCallbackInfo<v8::Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
@@ -471,7 +479,7 @@ void PeerConnection::SetConfiguration(const Nan::FunctionCallbackInfo<v8::Value>
   info.GetReturnValue().SetUndefined();
 }
 
-void PeerConnection::RemoveTrack(const Nan::FunctionCallbackInfo<v8::Value> &info) {
+void PeerConnection::SetIdentityProvider(const Nan::FunctionCallbackInfo<v8::Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   // TODO(): Implement This
