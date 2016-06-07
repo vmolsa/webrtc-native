@@ -18,12 +18,11 @@
         'Module.cc',
         'PeerConnection.cc',
         'DataChannel.cc',
-        'GetSources.cc',
-        'GetUserMedia.cc',
         'MediaStream.cc',
         'MediaStreamTrack.cc',
-        'MediaConstraints.cc',
         'Stats.cc',
+        'AudioSink.cc',
+        'VideoSink.cc',
       ],
       'dependencies': [
         '<(webrtc_root)/webrtc.gyp:webrtc_all',
@@ -71,6 +70,14 @@
               '-Wno-unknown-pragmas',
               '-Wno-unused-result',
             ],
+          },
+          'link_settings': {
+            'xcode_settings': {
+              'OTHER_LDFLAGS': [
+                '-F.',
+                '-framework WebRTC',
+              ],
+            },
           },
           'defines': [
             'USE_BACKTRACE',
