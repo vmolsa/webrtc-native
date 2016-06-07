@@ -2,7 +2,7 @@
 
 ### Chromium
 
-webrtc-native is using [WebRTC](http://webrtc.org/) from chromium project. code is compiled with branch [50](https://chromium.googlesource.com/external/webrtc/+/branch-heads/50).
+webrtc-native is using [WebRTC](http://webrtc.org/) from chromium project. code is compiled with branch [52](https://chromium.googlesource.com/external/webrtc/+/branch-heads/50).
 
 ### Usage
 
