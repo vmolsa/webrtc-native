@@ -31,10 +31,10 @@
 #include "PeerConnection.h"
 #include "DataChannel.h"
 #include "BackTrace.h"
-#include "GetSources.h"
-#include "GetUserMedia.h"
 #include "MediaStream.h"
 #include "MediaStreamTrack.h"
+#include "AudioSink.h"
+#include "VideoSink.h"
 
 using namespace v8;
 
@@ -109,10 +109,10 @@ void WebrtcModuleInit(Handle<Object> exports) {
   WebRTC::RTCStatsReport::Init();
   WebRTC::PeerConnection::Init(exports);
   WebRTC::DataChannel::Init();
-  WebRTC::GetSources::Init(exports);
-  WebRTC::GetUserMedia::Init(exports);
   WebRTC::MediaStream::Init();
   WebRTC::MediaStreamTrack::Init();
+  WebRTC::AudioSink::Init(exports);
+  WebRTC::VideoSink::Init(exports);
   
   exports->Set(Nan::New("RTCGarbageCollect").ToLocalChecked(), Nan::New<FunctionTemplate>(RTCGarbageCollect)->GetFunction()); 
   exports->Set(Nan::New("RTCIceCandidate").ToLocalChecked(), Nan::New<FunctionTemplate>(RTCIceCandidate)->GetFunction());
