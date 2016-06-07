@@ -66,7 +66,7 @@ void DataChannel::Init() {
   constructor.Reset<Function>(tpl->GetFunction());
 }
 
-DataChannel::DataChannel() {
+DataChannel::DataChannel() : _threshold(0) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   _observer = new rtc::RefCountedObject<DataChannelObserver>(this);
@@ -174,19 +174,6 @@ void DataChannel::Send(const Nan::FunctionCallbackInfo<Value> &info) {
   return info.GetReturnValue().Set(Nan::New(retval));
 }
 
-void DataChannel::GetId(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
-  webrtc::DataChannelInterface *socket = self->GetSocket();
-  
-  if (socket) {
-    return info.GetReturnValue().Set(Nan::New(socket->id()));
-  }
-
-  info.GetReturnValue().SetUndefined();
-}
-
 void DataChannel::GetLabel(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
 
@@ -223,6 +210,19 @@ void DataChannel::GetProtocol(Local<String> property, const Nan::PropertyCallbac
     return info.GetReturnValue().Set(Nan::New(socket->protocol().c_str()).ToLocalChecked());
   }
   
+  info.GetReturnValue().SetUndefined();
+}
+
+void DataChannel::GetId(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
+  webrtc::DataChannelInterface *socket = self->GetSocket();
+  
+  if (socket) {
+    return info.GetReturnValue().Set(Nan::New(socket->id()));
+  }
+
   info.GetReturnValue().SetUndefined();
 }
 
@@ -267,6 +267,24 @@ void DataChannel::GetBufferedAmount(Local<String> property, const Nan::PropertyC
   info.GetReturnValue().SetUndefined();
 }
 
+
+void DataChannel::GetBufferedAmountLowThreshold(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
+  return info.GetReturnValue().Set(Nan::New(static_cast<double>(self->_threshold)));
+}
+
+void DataChannel::SetBufferedAmountLowThreshold(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
+
+  if (!value.IsEmpty() && value->IsNumber()) {
+    self->_threshold = static_cast<uint64_t>(value->IntegerValue());
+  }
+}
+
 void DataChannel::GetBinaryType(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
@@ -274,7 +292,19 @@ void DataChannel::GetBinaryType(Local<String> property, const Nan::PropertyCallb
   return info.GetReturnValue().Set(Nan::New(self->_binaryType));
 }
 
-void DataChannel::GetMaxPacketLifeType(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+void DataChannel::SetBinaryType(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
+
+  if (!value.IsEmpty() && value->IsString()) {
+    self->_binaryType.Reset(value->ToString());
+  } else {
+    self->_binaryType.Reset(Nan::New("arraybuffer").ToLocalChecked());
+  }
+}
+
+void DataChannel::MaxPacketLifeTime(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
@@ -326,48 +356,24 @@ void DataChannel::GetReliable(Local<String> property, const Nan::PropertyCallbac
   return info.GetReturnValue().Set(Nan::False());
 }
 
+void DataChannel::Stream(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
+  webrtc::DataChannelInterface *socket = self->GetSocket();
+  
+  if (socket) {
+    return info.GetReturnValue().Set(Nan::New(socket->id()));
+  }
+
+  info.GetReturnValue().SetUndefined();
+}
+
 void DataChannel::GetOnOpen(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
 
   DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
   return info.GetReturnValue().Set(Nan::New<Function>(self->_onopen));
-}
-
-void DataChannel::GetOnMessage(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
-  return info.GetReturnValue().Set(Nan::New<Function>(self->_onmessage));
-}
-
-void DataChannel::GetOnClose(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
-  return info.GetReturnValue().Set(Nan::New<Function>(self->_onclose));
-}
-
-void DataChannel::GetOnError(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
-  return info.GetReturnValue().Set(Nan::New<Function>(self->_onerror));
-}  
-
-void DataChannel::ReadOnly(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-}
-
-void DataChannel::SetBinaryType(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
-  LOG(LS_INFO) << __PRETTY_FUNCTION__;
-  
-  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
-
-  if (!value.IsEmpty() && value->IsString()) {
-    self->_binaryType.Reset(value->ToString());
-  } else {
-    self->_binaryType.Reset(Nan::New("arraybuffer").ToLocalChecked());
-  }
 }
 
 void DataChannel::SetOnOpen(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
@@ -382,6 +388,14 @@ void DataChannel::SetOnOpen(Local<String> property, Local<Value> value, const Na
   }
 }
 
+void DataChannel::GetOnMessage(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
+  return info.GetReturnValue().Set(Nan::New<Function>(self->_onmessage));
+}
+
+
 void DataChannel::SetOnMessage(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
@@ -394,6 +408,32 @@ void DataChannel::SetOnMessage(Local<String> property, Local<Value> value, const
   }
 }
 
+void DataChannel::GetOnBufferedAmountLow(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
+  return info.GetReturnValue().Set(Nan::New<Function>(self->_amount));
+}
+
+void DataChannel::SetOnBufferedAmountLow(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
+
+  if (!value.IsEmpty() && value->IsFunction()) {
+    self->_amount.Reset<Function>(Local<Function>::Cast(value));
+  } else {
+    self->_amount.Reset();
+  }
+}
+
+void DataChannel::GetOnClose(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
+  return info.GetReturnValue().Set(Nan::New<Function>(self->_onclose));
+}
+
 void DataChannel::SetOnClose(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
 
@@ -404,6 +444,13 @@ void DataChannel::SetOnClose(Local<String> property, Local<Value> value, const N
   } else {
     self->_onclose.Reset();
   }
+}
+
+void DataChannel::GetOnError(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
+  LOG(LS_INFO) << __PRETTY_FUNCTION__;
+  
+  DataChannel *self = RTCWrap::Unwrap<DataChannel>(info.Holder(), "DataChannel");
+  return info.GetReturnValue().Set(Nan::New<Function>(self->_onerror));
 }
 
 void DataChannel::SetOnError(Local<String> property, Local<Value> value, const Nan::PropertyCallbackInfo<void> &info) {
@@ -430,7 +477,7 @@ void DataChannel::On(Event *event) {
   int argc = 0;
   
   if (type == kBufferedAmountChange) {
-    if (event->Unwrap<uint64_t>() >= _treshold && _socket->buffered_amount() < _treshold) {
+    if (event->Unwrap<uint64_t>() >= _threshold && _socket->buffered_amount() < _threshold) {
       callback = Nan::New<Function>(_amount);
     }    
   } else if (type == kDataChannelStateChange) {

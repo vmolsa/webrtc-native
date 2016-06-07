@@ -61,6 +61,8 @@ namespace WebRTC {
     static void GetBufferedAmount(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
     static void GetBufferedAmountLowThreshold(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
     static void SetBufferedAmountLowThreshold(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+    static void GetBinaryType(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void SetBinaryType(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
     static void MaxPacketLifeTime(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
     static void GetMaxRetransmits(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
     static void GetNegotiated(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
@@ -82,7 +84,7 @@ namespace WebRTC {
     webrtc::DataChannelInterface *GetSocket() const;
     
    protected:
-    uint64_t _treshold;
+    uint64_t _threshold;
     rtc::scoped_refptr<DataChannelObserver> _observer;
     rtc::scoped_refptr<webrtc::DataChannelInterface> _socket;
     
