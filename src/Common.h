@@ -35,7 +35,7 @@
 #include "webrtc/base/json.h"
 #include "webrtc/base/basictypes.h"
 #include "webrtc/base/common.h"
-#include "webrtc/base/scoped_ptr.h"
+//#include "webrtc/base/scoped_ptr.h"
 #include "webrtc/base/ssladapter.h"
 #include "webrtc/base/sslstreamadapter.h"
 #include "webrtc/base/stringutils.h"
@@ -54,7 +54,7 @@
 #include "webrtc/api/test/fakeconstraints.h"
 #include "webrtc/api/datachannelinterface.h"
 
-#include "webrtc/api/videosourceinterface.h"
+//#include "webrtc/api/videosourceinterface.h"
 #include "webrtc/media/base/videosourceinterface.h"
 #include "webrtc/media/engine/webrtcvideocapturerfactory.h"
 #include "webrtc/modules/video_capture/video_capture_factory.h"
