@@ -26,8 +26,6 @@ var WebRTC = require('webrtc-native');
 
 #### WebRTC.[MediaStreamTrack](https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack)
 
-- Returns array of available device inputs
-
 #### WebRTC.RTCGarbageCollect()
 
 - Notify V8 Engine to attempt to free memory.
