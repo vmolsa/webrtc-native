@@ -52,27 +52,28 @@ namespace WebRTC {
     static void Close(const Nan::FunctionCallbackInfo<v8::Value> &info);
     static void Send(const Nan::FunctionCallbackInfo<v8::Value> &info);
 
-    static void GetId(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
     static void GetLabel(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
     static void GetOrdered(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
     static void GetProtocol(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetId(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
     static void GetReadyState(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
     static void GetBufferedAmount(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
-    static void GetBinaryType(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
-    static void GetMaxPacketLifeType(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void GetBufferedAmountLowThreshold(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void SetBufferedAmountLowThreshold(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+    static void MaxPacketLifeTime(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
     static void GetMaxRetransmits(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
     static void GetNegotiated(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
     static void GetReliable(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void Stream(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
     static void GetOnOpen(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
-    static void GetOnMessage(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
-    static void GetOnClose(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
-    static void GetOnError(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
-
-    static void ReadOnly(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
-    static void SetBinaryType(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
     static void SetOnOpen(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+    static void GetOnMessage(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
     static void SetOnMessage(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+    static void GetOnBufferedAmountLow(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+    static void SetOnBufferedAmountLow(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+    static void GetOnClose(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
     static void SetOnClose(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+    static void GetOnError(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
     static void SetOnError(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
 
     void On(Event *event) final;

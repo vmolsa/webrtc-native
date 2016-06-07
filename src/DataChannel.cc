@@ -42,19 +42,24 @@ void DataChannel::Init() {
   Nan::SetPrototypeMethod(tpl, "close", DataChannel::Close);
   Nan::SetPrototypeMethod(tpl, "send", DataChannel::Send);
   
-  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("id").ToLocalChecked(), DataChannel::GetId);
   Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("label").ToLocalChecked(), DataChannel::GetLabel);
   Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("ordered").ToLocalChecked(), DataChannel::GetOrdered);
   Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("protocol").ToLocalChecked(), DataChannel::GetProtocol);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("id").ToLocalChecked(), DataChannel::GetId);  
   Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("readyState").ToLocalChecked(), DataChannel::GetReadyState);
   Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("bufferedAmount").ToLocalChecked(), DataChannel::GetBufferedAmount);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("bufferedAmount").ToLocalChecked(), DataChannel::GetBufferedAmount);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("bufferedAmountLowThreshold").ToLocalChecked(), DataChannel::GetBufferedAmountLowThreshold, DataChannel::SetBufferedAmountLowThreshold);
   Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("binaryType").ToLocalChecked(), DataChannel::GetBinaryType, DataChannel::SetBinaryType);
-  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("maxPacketLifeType").ToLocalChecked(), DataChannel::GetMaxPacketLifeType);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("maxPacketLifeTime").ToLocalChecked(), DataChannel::MaxPacketLifeTime);
   Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("maxRetransmits").ToLocalChecked(), DataChannel::GetMaxRetransmits);
   Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("negotiated").ToLocalChecked(), DataChannel::GetNegotiated);
   Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("reliable").ToLocalChecked(), DataChannel::GetReliable);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("stream").ToLocalChecked(), DataChannel::Stream); 
+
   Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("onopen").ToLocalChecked(), DataChannel::GetOnOpen, DataChannel::SetOnOpen);
   Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("onmessage").ToLocalChecked(), DataChannel::GetOnMessage, DataChannel::SetOnMessage);
+  Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("onbufferedamountlow").ToLocalChecked(), DataChannel::GetOnBufferedAmountLow, DataChannel::SetOnBufferedAmountLow);
   Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("onclose").ToLocalChecked(), DataChannel::GetOnClose, DataChannel::SetOnClose);
   Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("onerror").ToLocalChecked(), DataChannel::GetOnError, DataChannel::SetOnError);
   
@@ -159,8 +164,8 @@ void DataChannel::Send(const Nan::FunctionCallbackInfo<Value> &info) {
       retval = socket->Send(buffer);
     } else {
       node::ArrayBuffer *container = node::ArrayBuffer::New(info[0]);
-      rtc::Buffer data(reinterpret_cast<uint8_t*>(container->Data()), container->Length());
-      //rtc::CopyOnWriteBuffer data(reinterpret_cast<uint8_t*>(container->Data()), container->Length());
+      //rtc::Buffer data(reinterpret_cast<uint8_t*>(container->Data()), container->Length());
+      rtc::CopyOnWriteBuffer data(reinterpret_cast<uint8_t*>(container->Data()), container->Length());
       webrtc::DataBuffer buffer(data, true);
       retval = socket->Send(buffer);
     }
@@ -450,7 +455,7 @@ void DataChannel::On(Event *event) {
     }
   } else {
     callback = Nan::New<Function>(_onmessage);
-    rtc::Buffer buffer = event->Unwrap<rtc::Buffer>();
+    rtc::CopyOnWriteBuffer buffer = event->Unwrap<rtc::CopyOnWriteBuffer>();
     Local<Object> container = Nan::New<Object>();
     argv[0] = container;
     argc = 1;
