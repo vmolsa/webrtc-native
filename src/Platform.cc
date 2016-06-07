@@ -26,6 +26,8 @@
 
 #include "Platform.h"
 
+#include "webrtc/system_wrappers/include/cpu_info.h"
+
 #if defined(WEBRTC_WIN)
 #include <webrtc/base/win32socketinit.h>
 #include <webrtc/base/win32socketserver.h>
@@ -33,13 +35,9 @@
 
 using namespace WebRTC;
 
-#ifndef WEBRTC_THREAD_COUNT
-#define WEBRTC_THREAD_COUNT 4
-#endif
-
-rtc::Thread signal_thread;
-rtc::Thread worker_thread[WEBRTC_THREAD_COUNT];
-uint32_t counter = 0;
+uint32_t worker_count = 1, counter = 0;
+rtc::Thread *signal_thread;
+rtc::Thread *worker_thread;
 
 void Platform::Init() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
@@ -50,15 +48,25 @@ void Platform::Init() {
   
   rtc::InitializeSSL();
    
-  signal_thread.Start();
+  signal_thread = rtc::Thread::CreateWithSocketServer().release();
+  signal_thread->SetAllowBlockingCalls(true);
+  signal_thread->Start();
   
-  rtc::ThreadManager::Instance()->SetCurrentThread(&signal_thread);
+  rtc::ThreadManager::Instance()->SetCurrentThread(signal_thread);
   
-  if (rtc::ThreadManager::Instance()->CurrentThread() != &signal_thread) {
+  if (rtc::ThreadManager::Instance()->CurrentThread() != signal_thread) {
     Nan::ThrowError("Internal Thread Error!");
   }
   
-  for (int index = 0; index < WEBRTC_THREAD_COUNT; index++) {
+#ifdef WEBRTC_THREAD_COUNT
+  worker_count = WEBRTC_THREAD_COUNT;
+#else
+  worker_count = webrtc::CpuInfo::DetectNumberOfCores();
+#endif
+
+  worker_thread = new rtc::Thread[worker_count];
+  
+  for (uint32_t index = 0; index < worker_count; index++) {
     worker_thread[index].Start();
   }
 }
@@ -66,21 +74,24 @@ void Platform::Init() {
 void Platform::Dispose() {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
-  signal_thread.SetAllowBlockingCalls(true);
-  signal_thread.Stop();
+  signal_thread->SetAllowBlockingCalls(true);
+  signal_thread->Stop();
   
-  for (int index = 0; index < WEBRTC_THREAD_COUNT; index++) {
+  for (uint32_t index = 0; index < worker_count; index++) {
     worker_thread[index].SetAllowBlockingCalls(true);
     worker_thread[index].Stop();
   }
 
-  if (rtc::ThreadManager::Instance()->CurrentThread() == &signal_thread) {
+  if (rtc::ThreadManager::Instance()->CurrentThread() == signal_thread) {
     rtc::ThreadManager::Instance()->SetCurrentThread(NULL);
   }
+  
+  delete [] worker_thread;
+  delete signal_thread;
   
   rtc::CleanupSSL();
 }
 
 rtc::Thread *Platform::GetWorker() {
-  return &worker_thread[(counter++) % WEBRTC_THREAD_COUNT];
+  return &worker_thread[(counter++) % worker_count];
 }

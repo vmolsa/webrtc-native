@@ -27,6 +27,7 @@
 #define WEBRTC_PLATFORM_H
 
 #include "Common.h"
+#include "webrtc/modules/audio_device/include/audio_device.h"
 
 namespace WebRTC {
   class Platform {
