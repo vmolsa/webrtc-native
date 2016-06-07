@@ -1,0 +1,70 @@
+<html>
+<head>
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+  <video></video>
+<script>
+  var RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
+  var RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription;
+  navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+   
+  var socket = io.connect();
+  var peer = new RTCPeerConnection({
+    iceServers: [
+      {
+        urls: 'stun:stun.l.google.com:19302',
+      },
+    ],
+  });
+  
+  socket.on('disconnect', function() {
+    peer.close();
+  });
+  
+  socket.on('icecandidate', function(data) {
+    if (data && data.candidate && data.sdpMid && data.sdpMLineIndex) {
+      peer.addIceCandidate(new RTCIceCandidate(data));
+    }
+  });
+  
+  socket.on('offer', function(data) {
+    peer.setRemoteDescription(new RTCSessionDescription(data), function() {
+      peer.createAnswer(function(sdp) {
+        peer.setLocalDescription(sdp, function() {
+          socket.emit('answer', sdp);
+        });
+      }, function(error) {
+        throw error;
+      });
+    });
+  });
+  
+  socket.on('answer', function (data) {
+    peer.setRemoteDescription(new RTCSessionDescription(data));
+  });
+    
+  peer.onicecandidate = function(event) {
+    var candidate = event.candidate || event;
+    socket.emit('icecandidate', candidate);
+  };
+
+  peer.onnegotiationneeded = function() {
+    peer.createOffer(function(sdp) {
+      peer.setLocalDescription(sdp, function() {
+        socket.emit('offer', sdp);
+      });
+    }, function(error) {
+      throw error;
+    });
+  };
+    
+  navigator.getUserMedia({ audio: true, video: true }, function(stream) {
+    console.log('Sending Stream to Peer');
+    peer.addStream(stream);
+  }, function(error) {
+    throw error;
+  });
+</script>
+</body>
+</html>
