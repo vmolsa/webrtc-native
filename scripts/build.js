@@ -12,7 +12,7 @@ if (!fs.existsSync(ROOT + path.sep + 'build' + path.sep + 'config.gypi')) {
 
 var PACKAGE = require(path.resolve(ROOT, 'package.json'));
 
-var CHROMIUM = 'https://chromium.googlesource.com/external/webrtc.git@ca4ec2c3b9331e8f054facf400ebaeb9681831e2';
+var CHROMIUM = 'https://chromium.googlesource.com/external/webrtc.git@6fabd3d7de5cec8e39e3e6c68de61f9063503597';
 var USE_OPENSSL = false;
 var USE_GTK = false;
 var USE_X11 = false;
