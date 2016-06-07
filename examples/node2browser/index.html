@@ -44,6 +44,8 @@
         peer.setLocalDescription(sdp, function() {
           socket.emit('answer', sdp);
         });
+      }, function(error) {
+        throw error;
       });
     });
   });
@@ -62,6 +64,8 @@
       peer.setLocalDescription(sdp, function() {
         socket.emit('offer', sdp);
       });
+    }, function(error) {
+      throw error;
     });
   };
   
