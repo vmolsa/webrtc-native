@@ -50,7 +50,7 @@ namespace WebRTC {
     void On(Event *event) final;
 
    protected:
-     rtc::scoped_refptr<webrtc::VideoSourceInterface> _video;
+     rtc::scoped_refptr<rtc::VideoSourceInterface> _video;
      rtc::scoped_refptr<webrtc::MediaSourceInterface> _source;
      rtc::scoped_refptr<MediaStreamTrackObserver> _observer;
      
