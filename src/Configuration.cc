@@ -32,3 +32,9 @@ using namespace WebRTC;
 Configuration::Configuration(v8::Local<v8::Value> value) {
 
 }
+
+v8::Local<v8::Value> Configuration::ToConfiguration() {
+  Nan::EscapableHandleScope scope;
+
+  return scope.Escape(Nan::Undefined());
+}

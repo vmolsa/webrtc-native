@@ -29,9 +29,11 @@
 #include "Common.h"
 
 namespace WebRTC {  
-  class Configuration : public webrtc::RTCConfiguration {
+  class Configuration : public webrtc::PeerConnectionInterface::RTCConfiguration {
     public:
       explicit Configuration(v8::Local<v8::Value> value = v8::Local<v8::Value>());
+
+      v8::Local<v8::Value> ToConfiguration();
   };
 }; 
 
