@@ -82,7 +82,7 @@ namespace WebRTC {
     
     void CheckState();
     void On(Event *event) final;
-
+    
    protected:
     bool isAudioTrack;
     bool isVideoTrack;
