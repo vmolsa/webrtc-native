@@ -41,12 +41,12 @@ void MediaStream::Init() {
   tpl->SetClassName(Nan::New("MediaStream").ToLocalChecked());
 
   Nan::SetPrototypeMethod(tpl, "addTrack", MediaStream::AddTrack);
-  Nan::SetPrototypeMethod(tpl, "removeTrack", MediaStream::RemoveTrack);
   Nan::SetPrototypeMethod(tpl, "clone", MediaStream::Clone);
   Nan::SetPrototypeMethod(tpl, "getAudioTracks", MediaStream::GetAudioTracks);
   Nan::SetPrototypeMethod(tpl, "getTrackById", MediaStream::GetTrackById);
+  Nan::SetPrototypeMethod(tpl, "getTracks", MediaStream::GetTracks);  
   Nan::SetPrototypeMethod(tpl, "getVideoTracks", MediaStream::GetVideoTracks);
-  Nan::SetPrototypeMethod(tpl, "getTracks", MediaStream::GetTracks);
+  Nan::SetPrototypeMethod(tpl, "removeTrack", MediaStream::RemoveTrack);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("active").ToLocalChecked(), MediaStream::GetActive);
   Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New("ended").ToLocalChecked(), MediaStream::GetEnded);
