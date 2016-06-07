@@ -26,10 +26,6 @@ var WebRTC = require('webrtc-native');
 
 #### WebRTC.[MediaStreamTrack](https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack)
 
-#### WebRTC.[getUserMedia](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/getUserMedia)
-
-#### WebRTC.[getSources](http://simpl.info/getusermedia/sources/index.html)
-
 - Returns array of available device inputs
 
 #### WebRTC.RTCGarbageCollect()
