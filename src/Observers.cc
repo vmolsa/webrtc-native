@@ -213,6 +213,10 @@ void DataChannelObserver::OnMessage(const webrtc::DataBuffer& buffer) {
   }
 }
 
+void DataChannelObserver::OnBufferedAmountChange(uint64_t previous_amount) {
+  Emit(kBufferedAmountChange, previous_amount);
+}
+
 MediaStreamObserver::MediaStreamObserver(EventEmitter *listener) :
   NotifyEmitter(listener) { }
 

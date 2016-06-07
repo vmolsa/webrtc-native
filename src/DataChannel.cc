@@ -429,7 +429,11 @@ void DataChannel::On(Event *event) {
   bool isError = false;
   int argc = 0;
   
-  if (type == kDataChannelStateChange) {
+  if (type == kBufferedAmountChange) {
+    if (event->Unwrap<uint64_t>() >= _treshold && _socket->buffered_amount() < _treshold) {
+      callback = Nan::New<Function>(_amount);
+    }    
+  } else if (type == kDataChannelStateChange) {
     webrtc::DataChannelInterface *socket = DataChannel::GetSocket();
     
     if (socket) {

@@ -91,6 +91,7 @@ namespace WebRTC {
 
     void OnStateChange() final;
     void OnMessage(const webrtc::DataBuffer& buffer) final;
+    void OnBufferedAmountChange(uint64_t previous_amount) final;
   };
 
   class MediaStreamObserver :

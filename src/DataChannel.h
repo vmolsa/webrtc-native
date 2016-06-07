@@ -37,6 +37,7 @@ namespace WebRTC {
     kDataChannelStateChange,
     kDataChannelBinary,
     kDataChannelData,
+    kBufferedAmountChange,
   };  
   
   class DataChannel : public RTCWrap, public EventEmitter {    
@@ -81,6 +82,7 @@ namespace WebRTC {
     webrtc::DataChannelInterface *GetSocket() const;
     
    protected:
+    uint64_t _treshold;
     rtc::scoped_refptr<DataChannelObserver> _observer;
     rtc::scoped_refptr<webrtc::DataChannelInterface> _socket;
     
@@ -88,6 +90,7 @@ namespace WebRTC {
     
     Nan::Persistent<v8::Function> _onopen;
     Nan::Persistent<v8::Function> _onmessage;
+    Nan::Persistent<v8::Function> _amount;
     Nan::Persistent<v8::Function> _onclose;
     Nan::Persistent<v8::Function> _onerror;
     
