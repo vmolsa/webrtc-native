@@ -13,6 +13,7 @@
         'Platform.cc',
         'Global.cc',
         'BackTrace.cc',
+        'Configuration.cc',
         'EventEmitter.cc',
         'Observers.cc',
         'Module.cc',
