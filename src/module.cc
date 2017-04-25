@@ -23,6 +23,8 @@ void RunTest(const Nan::FunctionCallbackInfo<Value> &info) {
     Nan::Callback *callback = new Nan::Callback(info[0].As<Function>());
 
     crtc::SetTimeout([=]() {
+      Nan::HandleScope scope;
+      
       Local<Value> argv[] = {
         Nan::Null()
       };
