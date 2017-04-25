@@ -46,20 +46,19 @@
           '-std=c++11',
         ],
         'OTHER_LDFLAGS': [
-          '-stdlib=libc++',
           '-Llibcrtc/lib/',
-          '-Wl,-rpath,../libcrtc/lib/',
+          '-Wl,-rpath,./libcrtc/lib',
           '-lcrtc',
         ]
       },
+
       'link_settings': {
         'conditions': [
           ['OS=="linux"', {
             'libraries': [
-              '-stdlib=libc++',
-              '-L../libcrtc/lib/',
-              '-Wl,-rpath,../libcrtc/lib/',
+              '-L../libcrtc/lib',
               '-lcrtc',
+              '-Wl,-rpath,./libcrtc/lib'
             ],
           }],
         ],
