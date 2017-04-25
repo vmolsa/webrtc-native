@@ -2,4 +2,6 @@
 
 . ~/.nvm/nvm.sh
 
-nvm $1 $2
+nvm install $1
+nvm use $1
+npm install

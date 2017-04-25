@@ -1,1 +1,0 @@
-nvmw install %1 & nvmw use %1 && npm install

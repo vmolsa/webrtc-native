@@ -9,12 +9,61 @@
         {
           'action_name': 'run_build_script',
           'inputs': [],
-          'outputs': [''],
-          'action': [
-            'node', 'scripts/build.js', '-Dtarget-arch=<(target_arch)', '<(node_root_dir)', '<(node_lib_file)', '<(node_gyp_dir)'
+          'outputs': ['libcrtc'],
+          'conditions': [
+            ['OS=="win"', {
+              'action': [
+                'npm run install-libcrtc',
+              ],
+            }, {
+              'action': [
+                'npm', 'run', 'install-libcrtc',
+              ],
+            }],
           ],
         }
       ]
-    },
+    }, {
+      'target_name': 'webrtc',
+      'dependencies': [
+        'action_before_build',
+      ],
+      "include_dirs" : [
+        "<!(node -e \"require('nan')\")",
+        "libcrtc/include"
+      ],
+      'sources': [
+        'src/module.cc',
+        'src/rtcpeerconnection.cc',
+        'src/rtcdatachannel.cc',
+      ],
+      'cflags': [
+        '-std=c++11',
+      ],
+
+      'xcode_settings': {
+        'OTHER_CFLAGS': [
+          '-std=c++11',
+        ],
+        'OTHER_LDFLAGS': [
+          '-stdlib=libc++',
+          '-Llibcrtc/lib/',
+          '-Wl,-rpath,../libcrtc/lib/',
+          '-lcrtc',
+        ]
+      },
+      'link_settings': {
+        'conditions': [
+          ['OS=="linux"', {
+            'libraries': [
+              '-stdlib=libc++',
+              '-L../libcrtc/lib/',
+              '-Wl,-rpath,../libcrtc/lib/',
+              '-lcrtc',
+            ],
+          }],
+        ],
+      },
+    }
   ],
 }

@@ -8,63 +8,12 @@ app.use(express.static(__dirname));
 
 var io = require('socket.io')(server);
 
-var config = {
-  iceServers: [
-    {
-      url: 'stun:stun.l.google.com:19302',
-    },
-  ],
-};
-
-var constraints = {
-  audio: {
-    optional: [
-      {
-        googEchoCancellation: true,
-        googEchoCancellation2: true,
-        googDAEchoCancellation: true,
-        googAutoGainControl: true,
-        googAutoGainControl2: true,
-        googNoiseSuppression: true,
-        googNoiseSuppression2: true,
-        googHighpassFilter: true,
-        googTypingNoiseDetection: true,
-        googAudioMirroring: true,
-      },
-    ],
-  },
-  video: true,
-/*
-  video: {
-    optional: [
-      {
-        minAspectRatio: 1.333,
-        maxAspectRatio: 1.778,
-        maxWidth: 1920,
-        minWidth: 320,
-        maxHeight: 1080,
-        minHeight: 180,
-        maxFrameRate: 60,
-        minFrameRate: 30,
-      },
-    ],
-  },
-*/
-  optional: [
-    {
-      DtlsSrtpKeyAgreement: true,
-    },
-  ],
-  mandatory: {
-    OfferToReceiveAudio: true,
-    OfferToReceiveVideo: true,
-  },
-};
+var config = {};
 
 io.on('connection', function(socket) {
   console.log('Peer Connected');
   
-  var peer = new WebRTC.RTCPeerConnection(config, constraints);
+  var peer = new WebRTC.RTCPeerConnection(config);
   
   socket.on('disconnect', function () {
     console.log('Peer Disconnected');
@@ -137,11 +86,6 @@ io.on('connection', function(socket) {
   };
   
   peer.ondatachannel(peer.createDataChannel('echo'));
-  
-  WebRTC.getUserMedia(constraints, function(stream) {
-    console.log('Sending Stream to Peer');
-    peer.addStream(stream);
-  });
 });
 
 server.listen(8080, function() {
