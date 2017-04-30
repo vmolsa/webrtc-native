@@ -1,13 +1,18 @@
 const request = require('request');
-const targz = require('tar.gz');
 const path = require('path');
 const os = require('os');
 const fs = require('fs');
+const targz = require('tar.gz');
 const root_path = path.resolve(__dirname, '../');
 const pkg = require(path.resolve(root_path, 'package.json'));
 const base_url = 'https://github.com/vmolsa/libcrtc/releases/download'
 const target_cpu = os.arch();
-const libcrtc_path = path.resolve(root_path, 'libcrtc');
+
+if (!fs.existsSync(path.resolve(root_path, 'dist'))) {
+  fs.mkdirSync(path.resolve(root_path, 'dist'));
+}
+
+const libcrtc_path = path.resolve(root_path, 'dist', 'libcrtc');
 
 switch (target_cpu) {
   case 'ia32':
@@ -23,17 +28,25 @@ switch (target_cpu) {
 
 const pkg_name = 'libcrtc-' + pkg.libcrtc + '-' + os.platform()  + '-' + target_cpu + '.tar.gz'
 
+function extractPackage() {
+  console.log('Extracting to:', libcrtc_path);
+
+  fs.createReadStream(path.resolve(root_path, 'dist', pkg_name)).pipe(targz().createWriteStream(libcrtc_path));
+}
+
 if (!fs.existsSync(libcrtc_path) || !fs.existsSync(path.resolve(libcrtc_path, 'lib')) || !fs.existsSync(path.resolve(libcrtc_path, 'include'))) {
-  console.log('Downloading:', base_url + '/' + pkg.libcrtc + '/' + pkg_name);
-  console.log('Extracting package to', libcrtc_path);
+  console.log('Downloading:', base_url + '/' + pkg.libcrtc + '/' + pkg_name); 
+  
+  if (!fs.existsSync(libcrtc_path)) {
+    fs.mkdirSync(libcrtc_path);
+  }
 
-  let read = request.get(base_url + '/' + pkg.libcrtc + '/' + pkg_name);
-  let write = targz().createWriteStream(libcrtc_path);
-
-  read.on('error', (error) => {
-    throw error;
-  });
-
-  read.pipe(write);
+  if (!fs.existsSync(path.resolve(root_path, 'dist', pkg_name))) {
+    request.get(base_url + '/' + pkg.libcrtc + '/' + pkg_name).pipe(fs.createWriteStream(path.resolve(root_path, 'dist', pkg_name))).on('finish', () => {
+      extractPackage();
+    });
+  } else {
+    extractPackage();
+  }
 }
 

@@ -25,46 +25,18 @@
 
 #include <nan.h>
 #include <crtc.h>
-#include <iostream>
 
-#include "rtcpeerconnection.h"
-#include "rtcdatachannel.h"
-#include "mediastream.h"
-#include "mediastreamtrack.h"
+namespace WebRTC {
+  class MediaStreamTrack : public Nan::ObjectWrap {
+    public:
+      static void Init(v8::Local<v8::Object> exports);
+      static v8::Local<v8::Object> New(const crtc::Let<crtc::MediaStreamTrack> &mediaStreamTrack);
+      static crtc::Let<crtc::MediaStreamTrack> New(const v8::Local<v8::Object> &mediaStreamTrack);
 
-#include "v8-promise.h"
+    private:
+      explicit MediaStreamTrack();
+      ~MediaStreamTrack();
 
-using namespace v8;
-
-uv_timer_t timer;
-
-void WebRTCModuleDispose(void *arg) {
-  crtc::Module::Dispose();
-  uv_timer_stop(&timer);
-}
-
-void WebRTCDispatchEvents(uv_timer_t *handle) {
-  if (crtc::Module::DispatchEvents(false)) {
-    uv_ref((uv_handle_t*) &timer);
-  } else {
-    uv_unref((uv_handle_t*) &timer);
-  }
-}
-
-void WebRTCModuleInit(v8::Handle<v8::Object> exports) {
-  crtc::Module::Init();
-
-  uv_timer_init(uv_default_loop(), &timer);
-  uv_timer_start(&timer, WebRTCDispatchEvents, 10, 10);
-
-  Nan::HandleScope scope;
-
-  WebRTC::RTCPeerConnection::Init(exports);
-  WebRTC::RTCDataChannel::Init(exports);
-  WebRTC::MediaStream::Init(exports);
-  WebRTC::MediaStreamTrack::Init(exports);
-
-  node::AtExit(WebRTCModuleDispose);
-}
-
-NODE_MODULE(webrtc_native, WebRTCModuleInit)
+      static Nan::Persistent<v8::Function> constructor;
+  };
+};
