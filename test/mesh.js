@@ -201,5 +201,5 @@ setTimeout(() => {
     console.log('Pong send count:', send_pong, ' ( expected:', expected_count * 10 * 10, ')');
     console.log('Pong received count:', recv_pong, ' ( expected:', expected_count * 10 * 10, ')');
 
-  }, 5000);
-}, 30000);
+  }, 2000);
+}, 15000);
