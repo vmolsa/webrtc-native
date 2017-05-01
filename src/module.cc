@@ -36,26 +36,34 @@
 
 using namespace v8;
 
-uv_timer_t timer;
-
-void WebRTCModuleDispose(void *arg) {
-  crtc::Module::Dispose();
-  uv_timer_stop(&timer);
-}
-
-void WebRTCDispatchEvents(uv_timer_t *handle) {
-  if (crtc::Module::DispatchEvents(false)) {
-    uv_ref((uv_handle_t*) &timer);
-  } else {
-    uv_unref((uv_handle_t*) &timer);
-  }
-}
+uv_async_t async;
+uv_idle_t idle;
 
 void WebRTCModuleInit(v8::Handle<v8::Object> exports) {
   crtc::Module::Init();
 
-  uv_timer_init(uv_default_loop(), &timer);
-  uv_timer_start(&timer, WebRTCDispatchEvents, 10, 10);
+  uv_idle_init(uv_default_loop(), &idle);
+  uv_idle_start(&idle, [](uv_idle_t* handle) {
+    if (crtc::Module::DispatchEvents(false)) {
+      uv_ref((uv_handle_t*) &async);
+    } else {
+      uv_unref((uv_handle_t*) &async);
+    }
+  });
+
+  uv_async_init(uv_default_loop(), &async, [](uv_async_t* handle) {
+    if (crtc::Module::DispatchEvents(false)) {
+      uv_ref((uv_handle_t*) &async);
+    } else {
+      uv_unref((uv_handle_t*) &async);
+    }
+  });
+
+  uv_unref((uv_handle_t*) &idle);
+
+  crtc::Module::RegisterAsyncCallback([]() {
+    uv_async_send(&async);
+  });
 
   Nan::HandleScope scope;
 
@@ -64,7 +72,11 @@ void WebRTCModuleInit(v8::Handle<v8::Object> exports) {
   WebRTC::MediaStream::Init(exports);
   WebRTC::MediaStreamTrack::Init(exports);
 
-  node::AtExit(WebRTCModuleDispose);
+  node::AtExit([](void *arg) {
+    crtc::Module::Dispose();
+    uv_close((uv_handle_t*) &async, nullptr);
+    uv_idle_stop(&idle);
+  });
 }
 
 NODE_MODULE(webrtc_native, WebRTCModuleInit)
