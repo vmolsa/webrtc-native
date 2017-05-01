@@ -12,6 +12,10 @@ if (!fs.existsSync(path.resolve(root_path, 'dist'))) {
   fs.mkdirSync(path.resolve(root_path, 'dist'));
 }
 
+if (!fs.existsSync(path.resolve(root_path, 'dist', 'LICENSE'))) {
+  fs.createReadStream(path.resolve(root_path, 'LICENSE')).pipe(fs.createWriteStream(path.resolve(root_path, 'dist', 'LICENSE')));
+}
+
 const libcrtc_path = path.resolve(root_path, 'dist', 'libcrtc');
 
 switch (target_cpu) {
