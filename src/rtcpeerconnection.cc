@@ -565,6 +565,8 @@ Local<String> RTCPeerConnection::RTCSdpTypeToString(const crtc::RTCPeerConnectio
     case crtc::RTCPeerConnection::RTCSessionDescription::kRollback:
       return scope.Escape(Nan::New("rollback").ToLocalChecked());
   }
+
+  return scope.Escape(Nan::New("").ToLocalChecked());
 }
 
 Local<String> RTCPeerConnection::RTCSignalingStateToString(const crtc::RTCPeerConnection::RTCSignalingState &state) {
@@ -584,6 +586,8 @@ Local<String> RTCPeerConnection::RTCSignalingStateToString(const crtc::RTCPeerCo
     case crtc::RTCPeerConnection::kSignalingClosed:
       return scope.Escape(Nan::New("closed").ToLocalChecked());
   }
+
+  return scope.Escape(Nan::New("").ToLocalChecked());
 }
 
 Local<String> RTCPeerConnection::RTCIceGatheringStateToString(const crtc::RTCPeerConnection::RTCIceGatheringState &state) {
@@ -597,6 +601,8 @@ Local<String> RTCPeerConnection::RTCIceGatheringStateToString(const crtc::RTCPee
     case crtc::RTCPeerConnection::kComplete:
       return scope.Escape(Nan::New("complete").ToLocalChecked());
   }
+
+  return scope.Escape(Nan::New("").ToLocalChecked());
 }
 
 Local<String> RTCPeerConnection::RTCIceConnectionStateToString(const crtc::RTCPeerConnection::RTCIceConnectionState &state) {
@@ -618,6 +624,8 @@ Local<String> RTCPeerConnection::RTCIceConnectionStateToString(const crtc::RTCPe
     case crtc::RTCPeerConnection::kClosed:
       return scope.Escape(Nan::New("closed").ToLocalChecked());
   }
+
+  return scope.Escape(Nan::New("").ToLocalChecked());
 }
 
 crtc::RTCPeerConnection::RTCBundlePolicy RTCPeerConnection::RTCBundlePolicyFromValue(Local<Value> value) {
@@ -645,6 +653,8 @@ Local<String> RTCPeerConnection::RTCBundlePolicyToString(const crtc::RTCPeerConn
     case crtc::RTCPeerConnection::kMaxCompat:
       return scope.Escape(Nan::New("max-bundle").ToLocalChecked());
   }
+
+  return scope.Escape(Nan::New("").ToLocalChecked());
 }
 
 crtc::RTCPeerConnection::RTCIceTransportPolicy RTCPeerConnection::RTCIceTransportPolicyFromValue(Local<Value> value) {
@@ -672,6 +682,8 @@ Local<String> RTCPeerConnection::RTCIceTransportPolicyToString(const crtc::RTCPe
     case crtc::RTCPeerConnection::kAll:
       return scope.Escape(Nan::New("all").ToLocalChecked());
   }
+
+  return scope.Escape(Nan::New("").ToLocalChecked());
 }
 
 crtc::RTCPeerConnection::RTCRtcpMuxPolicy RTCPeerConnection::RTCRtcpMuxPolicyFromValue(Local<Value> value) {
@@ -695,6 +707,8 @@ Local<String> RTCPeerConnection::RTCRtcpMuxPolicyToString(const crtc::RTCPeerCon
     case crtc::RTCPeerConnection::kRequire:
       return scope.Escape(Nan::New("relay").ToLocalChecked());
   }
+
+  return scope.Escape(Nan::New("").ToLocalChecked());
 }
 
 void RTCPeerConnection::New(const Nan::FunctionCallbackInfo<Value> &info) {
