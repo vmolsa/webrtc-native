@@ -30,12 +30,41 @@ namespace WebRTC {
   class MediaStreamTrack : public Nan::ObjectWrap {
     public:
       static void Init(v8::Local<v8::Object> exports);
-      static v8::Local<v8::Object> New(const crtc::Let<crtc::MediaStreamTrack> &mediaStreamTrack);
+      static v8::Local<v8::Value> New(const crtc::Let<crtc::MediaStreamTrack> &mediaStreamTrack);
       static crtc::Let<crtc::MediaStreamTrack> New(const v8::Local<v8::Object> &mediaStreamTrack);
 
     private:
       explicit MediaStreamTrack();
       ~MediaStreamTrack();
+
+      void Init(const crtc::Let<crtc::MediaStreamTrack> &mediaStreamTrack);
+
+      static void New(const Nan::FunctionCallbackInfo<v8::Value> &info);
+
+      static void Clone(const Nan::FunctionCallbackInfo<v8::Value> &info);
+
+      static void Enabled(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+      static void Muted(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+      static void Remote(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+      static void Id(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+      static void Kind(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+      static void ReadyState(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+
+      static void onstarted(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+      static void onstarted(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+      static void onended(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+      static void onended(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+      static void onmute(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+      static void onmute(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);     
+      static void onunmute(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+      static void onunmute(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);     
+
+      crtc::Let<crtc::MediaStreamTrack> _track;
+
+      Nan::Persistent<v8::Function> _onstarted;
+      Nan::Persistent<v8::Function> _onended;
+      Nan::Persistent<v8::Function> _onmute;
+      Nan::Persistent<v8::Function> _onunmute;
 
       static Nan::Persistent<v8::Function> constructor;
   };
