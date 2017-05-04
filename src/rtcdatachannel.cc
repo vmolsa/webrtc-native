@@ -153,9 +153,18 @@ void RTCDataChannel::Init(const crtc::Let<crtc::RTCDataChannel> &dataChannel) {
     Local<Object> obj = Nan::New<Object>();
 
     if (!error.IsEmpty()) {
-      obj->Set(Nan::New("message").ToLocalChecked(), Nan::New<String>(error->Message()).ToLocalChecked());
-      obj->Set(Nan::New("filename").ToLocalChecked(), Nan::New<String>(error->FileName()).ToLocalChecked());
-      obj->Set(Nan::New("lineno").ToLocalChecked(), Nan::New(error->LineNumber()));
+      std::string message(error->Message()); 
+
+      if (!message.empty()) {
+        obj->Set(Nan::New("message").ToLocalChecked(), Nan::New<String>(message.c_str(), static_cast<int>(message.size())).ToLocalChecked());
+      }
+
+      std::string filename(error->FileName());
+
+      if (!filename.empty()) {
+        obj->Set(Nan::New("filename").ToLocalChecked(), Nan::New<String>(filename.c_str(), static_cast<int>(filename.size())).ToLocalChecked());  
+        obj->Set(Nan::New("lineno").ToLocalChecked(), Nan::New(error->LineNumber()));
+      }
     }
     
     const int argc = 1;
@@ -192,7 +201,11 @@ void RTCDataChannel::Init(const crtc::Let<crtc::RTCDataChannel> &dataChannel) {
 
         obj->Set(Nan::New("data").ToLocalChecked(), arrayBuffer);
       } else {
-        obj->Set(Nan::New("data").ToLocalChecked(), Nan::New(buffer->ToString().c_str()).ToLocalChecked());
+        std::string message(buffer->ToString());
+
+        if (!message.empty()) {
+          obj->Set(Nan::New("data").ToLocalChecked(), Nan::New<String>(message.c_str(), static_cast<int>(message.size())).ToLocalChecked());
+        }
       } 
     }
 
@@ -299,7 +312,13 @@ void RTCDataChannel::Id(Local<String> property, const Nan::PropertyCallbackInfo<
 
 void RTCDataChannel::Label(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   RTCDataChannel *self = Nan::ObjectWrap::Unwrap<RTCDataChannel>(info.Holder());
-  return info.GetReturnValue().Set(Nan::New<String>(self->_channel->Label()).ToLocalChecked());
+  std::string label = self->_channel->Label();
+
+  if (!label.empty()) {
+    return info.GetReturnValue().Set(Nan::New<String>(label.c_str(), static_cast<int>(label.size())).ToLocalChecked());
+  }
+
+  return info.GetReturnValue().Set(Nan::New("").ToLocalChecked());
 }
 
 void RTCDataChannel::BufferedAmount(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
@@ -329,7 +348,13 @@ void RTCDataChannel::Ordered(Local<String> property, const Nan::PropertyCallback
 
 void RTCDataChannel::Protocol(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
   RTCDataChannel *self = Nan::ObjectWrap::Unwrap<RTCDataChannel>(info.Holder());
-  return info.GetReturnValue().Set(Nan::New<String>(self->_channel->Protocol()).ToLocalChecked());
+    std::string protocol = self->_channel->Protocol();
+
+  if (!protocol.empty()) {
+    return info.GetReturnValue().Set(Nan::New<String>(protocol.c_str(), static_cast<int>(protocol.size())).ToLocalChecked());
+  }
+
+  return info.GetReturnValue().Set(Nan::New("").ToLocalChecked());
 }
 
 void RTCDataChannel::ReadyState(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
