@@ -31,12 +31,35 @@ namespace WebRTC {
     public:
       static void Init(v8::Local<v8::Object> exports);
 
-      static v8::Local<v8::Object> New(const crtc::Let<crtc::MediaStream> &mediaStream);
+      static v8::Local<v8::Value> New(const crtc::Let<crtc::MediaStream> &mediaStream);
       static crtc::Let<crtc::MediaStream> New(const v8::Local<v8::Object> &mediaStream);
 
     private:
       explicit MediaStream();
       ~MediaStream();
+
+      void Init(const crtc::Let<crtc::MediaStream> &mediaStream);
+
+      static void New(const Nan::FunctionCallbackInfo<v8::Value> &info);
+
+      static void Clone(const Nan::FunctionCallbackInfo<v8::Value> &info);
+      static void AddTrack(const Nan::FunctionCallbackInfo<v8::Value> &info);
+      static void RemoveTrack(const Nan::FunctionCallbackInfo<v8::Value> &info);
+      static void GetTrackById(const Nan::FunctionCallbackInfo<v8::Value> &info);
+      static void GetAudioTracks(const Nan::FunctionCallbackInfo<v8::Value> &info);
+      static void GetVideoTracks(const Nan::FunctionCallbackInfo<v8::Value> &info);
+
+      static void Id(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+
+      static void onaddtrack(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+      static void onaddtrack(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+      static void onremovetrack(v8::Local<v8::String> property, const Nan::PropertyCallbackInfo<v8::Value> &info);
+      static void onremovetrack(v8::Local<v8::String> property, v8::Local<v8::Value> value, const Nan::PropertyCallbackInfo<void> &info);
+
+      crtc::Let<crtc::MediaStream> _stream;
+
+      Nan::Persistent<v8::Function> _onaddtrack;
+      Nan::Persistent<v8::Function> _onremovetrack;
 
       static Nan::Persistent<v8::Function> constructor;
   };
