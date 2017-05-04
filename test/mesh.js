@@ -14,6 +14,50 @@ let recv_pong = 0;
 let messages_in = 0;
 let messages_out = 0;
 
+let names = [
+  'joshua',
+  'alec',
+  'kathy',
+  'kyle',
+  'mary',
+  'harry',
+  'candice',
+  'kelly',
+  'jesse',
+  'edward',
+  //'george',
+  //'albert',
+  //'alice',
+  //'bob',
+  //'stuart',
+];
+
+let peer_count = names.length;
+let expected_count = peer_count * peer_count - peer_count;
+
+function checkMessages() {
+  if (messages_in != expected_count * 10 * 10 * 2 && messages_out != expected_count) {
+    return false;
+  }
+
+  setTimeout(() => {
+    for (let peer in peers) {
+      peers[peer].close();
+    }
+
+    console.log('Peers created:', open_peers, ' ( expected:', expected_count, ')');
+    console.log('Peers closed:', closed_peers, ' ( expected:', expected_count, ')');
+    console.log('Datachannels opened:', open_channels, ' ( expected:', expected_count * 10, ')');
+    console.log('Datachannels closed:', closed_channels, ' ( expected:', expected_count * 10, ')');
+    console.log('Messages received:', messages_in, ' ( expected:', expected_count * 10 * 10 * 2, ')');
+    console.log('Messages sended:', messages_out, ' ( expected:', expected_count * 10 * 10 * 2, ')');
+    console.log('Ping send count:', send_ping, ' ( expected:', expected_count * 10 * 10, ')');
+    console.log('Ping received count:', recv_ping, ' ( expected:', expected_count * 10 * 10, ')');
+    console.log('Pong send count:', send_pong, ' ( expected:', expected_count * 10 * 10, ')');
+    console.log('Pong received count:', recv_pong, ' ( expected:', expected_count * 10 * 10, ')');
+  }, 2000);
+}
+
 function makePair(left, right, ls, rs) {
   ls.onnegotiationneeded = () => {
     console.log(left, ' <-> ', right, '[OnNegotiationNeeded]');
@@ -123,6 +167,7 @@ function makePair(left, right, ls, rs) {
       }
 
       channels.push(dataChannel);
+      checkMessages();
     };
     
     console.log(left, ' ==> ', right, '[DataChannel:', dataChannel.id, ', Label:', dataChannel.label, ']:', dataChannel.readyState);
@@ -156,50 +201,8 @@ function CreatePeerPair(left, right) {
   peers.push(rs);
 }
 
-let names = [
-  'joshua',
-  'alec',
-  'kathy',
-  'kyle',
-  'mary',
-  //'harry',
-  //'candice',
-  //'kelly',
-  //'jesse',
-  //'edward',
-  //'george',
-  //'albert',
-  //'alice',
-  //'bob',
-  //'stuart',
-];
-
-
-let peer_count = names.length;
-let expected_count = peer_count * peer_count - peer_count;
-
 for (let x = 0; x < peer_count; x++) {
   for (let y = x + 1; y < peer_count; y++) {
     CreatePeerPair(names[x], names[y]);
   }
 }
-
-setTimeout(() => {
-  for (let peer in peers) {
-    peers[peer].close();
-  }
-
-  setTimeout(() => {
-    console.log('Peers created:', open_peers, ' ( expected:', expected_count, ')');
-    console.log('Peers closed:', closed_peers, ' ( expected:', expected_count, ')');
-    console.log('Datachannels opened:', open_channels, ' ( expected:', expected_count * 10, ')');
-    console.log('Datachannels closed:', closed_channels, ' ( expected:', expected_count * 10, ')');
-    console.log('Messages received:', messages_in, ' ( expected:', expected_count * 10 * 10 * 2, ')');
-    console.log('Messages sended:', messages_out, ' ( expected:', expected_count * 10 * 10 * 2, ')');
-    console.log('Ping send count:', send_ping, ' ( expected:', expected_count * 10 * 10, ')');
-    console.log('Ping received count:', recv_ping, ' ( expected:', expected_count * 10 * 10, ')');
-    console.log('Pong send count:', send_pong, ' ( expected:', expected_count * 10 * 10, ')');
-    console.log('Pong received count:', recv_pong, ' ( expected:', expected_count * 10 * 10, ')');
-
-  }, 2000);
-}, 15000);
