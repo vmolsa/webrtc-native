@@ -110,7 +110,7 @@ RTCPeerConnection::RTCPeerConnection(const crtc::RTCPeerConnection::RTCConfigura
     Nan::HandleScope scope;
 
     Local<Object> obj = Nan::New<Object>();
-    obj->Set(Nan::New("stream").ToLocalChecked(), MediaStream::New(stream));
+    obj->Set(Nan::New<String>("stream").ToLocalChecked(), MediaStream::New(stream));
 
     const int argc = 1;
     Local<Value> argv[] = {
@@ -128,7 +128,7 @@ RTCPeerConnection::RTCPeerConnection(const crtc::RTCPeerConnection::RTCConfigura
     Nan::HandleScope scope;
 
     Local<Object> obj = Nan::New<Object>();
-    obj->Set(Nan::New("stream").ToLocalChecked(), MediaStream::New(stream));
+    obj->Set(Nan::New<String>("stream").ToLocalChecked(), MediaStream::New(stream));
 
     const int argc = 1;
     Local<Value> argv[] = {
@@ -146,7 +146,7 @@ RTCPeerConnection::RTCPeerConnection(const crtc::RTCPeerConnection::RTCConfigura
     Nan::HandleScope scope;
 
     Local<Object> obj = Nan::New<Object>();
-    obj->Set(Nan::New("channel").ToLocalChecked(), RTCDataChannel::New(dataChannel));
+    obj->Set(Nan::New<String>("channel").ToLocalChecked(), RTCDataChannel::New(dataChannel));
 
     const int argc = 1;
     Local<Value> argv[] = {
@@ -164,7 +164,7 @@ RTCPeerConnection::RTCPeerConnection(const crtc::RTCPeerConnection::RTCConfigura
     Nan::HandleScope scope;
 
     Local<Object> obj = Nan::New<Object>();
-    obj->Set(Nan::New("candidate").ToLocalChecked(), RTCIceCandidateToObject(iceCandidate));
+    obj->Set(Nan::New<String>("candidate").ToLocalChecked(), RTCIceCandidateToObject(iceCandidate));
     
     int argc = 1;
     Local<Value> argv[] = {
@@ -188,7 +188,7 @@ void RTCPeerConnection::Init(Local<Object> exports) {
   
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(RTCPeerConnection::New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
-  tpl->SetClassName(Nan::New("RTCPeerConnection").ToLocalChecked());
+  tpl->SetClassName(Nan::New<String>("RTCPeerConnection").ToLocalChecked());
 
   Nan::SetPrototypeMethod(tpl, "createDataChannel", RTCPeerConnection::CreateDataChannel);
   Nan::SetPrototypeMethod(tpl, "addIceCandidate", RTCPeerConnection::AddIceCandidate);
@@ -204,88 +204,88 @@ void RTCPeerConnection::Init(Local<Object> exports) {
   Nan::SetPrototypeMethod(tpl, "close", RTCPeerConnection::Close);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("currentLocalDescription").ToLocalChecked(), 
+                   Nan::New<String>("currentLocalDescription").ToLocalChecked(), 
                    RTCPeerConnection::CurrentLocalDescription);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("currentRemoteDescription").ToLocalChecked(), 
+                   Nan::New<String>("currentRemoteDescription").ToLocalChecked(), 
                    RTCPeerConnection::CurrentRemoteDescription);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("localDescription").ToLocalChecked(), 
+                   Nan::New<String>("localDescription").ToLocalChecked(), 
                    RTCPeerConnection::LocalDescription);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("pendingLocalDescription").ToLocalChecked(), 
+                   Nan::New<String>("pendingLocalDescription").ToLocalChecked(), 
                    RTCPeerConnection::PendingLocalDescription);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("pendingRemoteDescription").ToLocalChecked(), 
+                   Nan::New<String>("pendingRemoteDescription").ToLocalChecked(), 
                    RTCPeerConnection::PendingRemoteDescription);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("remoteDescription").ToLocalChecked(), 
+                   Nan::New<String>("remoteDescription").ToLocalChecked(), 
                    RTCPeerConnection::RemoteDescription);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("iceConnectionState").ToLocalChecked(), 
+                   Nan::New<String>("iceConnectionState").ToLocalChecked(), 
                    RTCPeerConnection::IceConnectionState);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("iceGatheringState").ToLocalChecked(), 
+                   Nan::New<String>("iceGatheringState").ToLocalChecked(), 
                    RTCPeerConnection::IceGatheringState);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("signalingState").ToLocalChecked(), 
+                   Nan::New<String>("signalingState").ToLocalChecked(), 
                    RTCPeerConnection::SignalingState);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("onnegotiationneeded").ToLocalChecked(),
+                   Nan::New<String>("onnegotiationneeded").ToLocalChecked(),
                    RTCPeerConnection::onnegotiationneeded,
                    RTCPeerConnection::onnegotiationneeded);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("onsignalingstatechange").ToLocalChecked(),
+                   Nan::New<String>("onsignalingstatechange").ToLocalChecked(),
                    RTCPeerConnection::onsignalingstatechange,
                    RTCPeerConnection::onsignalingstatechange);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("onicegatheringstatechange").ToLocalChecked(),
+                   Nan::New<String>("onicegatheringstatechange").ToLocalChecked(),
                    RTCPeerConnection::onicegatheringstatechange,
                    RTCPeerConnection::onicegatheringstatechange);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("oniceconnectionstatechange").ToLocalChecked(),
+                   Nan::New<String>("oniceconnectionstatechange").ToLocalChecked(),
                    RTCPeerConnection::oniceconnectionstatechange,
                    RTCPeerConnection::oniceconnectionstatechange);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("onicecandidatesremoved").ToLocalChecked(),
+                   Nan::New<String>("onicecandidatesremoved").ToLocalChecked(),
                    RTCPeerConnection::onicecandidatesremoved,
                    RTCPeerConnection::onicecandidatesremoved);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("onaddstream").ToLocalChecked(),
+                   Nan::New<String>("onaddstream").ToLocalChecked(),
                    RTCPeerConnection::onaddstream,
                    RTCPeerConnection::onaddstream);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("onremovestream").ToLocalChecked(),
+                   Nan::New<String>("onremovestream").ToLocalChecked(),
                    RTCPeerConnection::onremovestream,
                    RTCPeerConnection::onremovestream);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("ondatachannel").ToLocalChecked(),
+                   Nan::New<String>("ondatachannel").ToLocalChecked(),
                    RTCPeerConnection::ondatachannel,
                    RTCPeerConnection::ondatachannel);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("onicecandidate").ToLocalChecked(),
+                   Nan::New<String>("onicecandidate").ToLocalChecked(),
                    RTCPeerConnection::onicecandidate,
                    RTCPeerConnection::onicecandidate);
 
   constructor.Reset<Function>(tpl->GetFunction());
-  exports->Set(Nan::New("RTCPeerConnection").ToLocalChecked(), tpl->GetFunction());
+  exports->Set(Nan::New<String>("RTCPeerConnection").ToLocalChecked(), tpl->GetFunction());
 }
 
 void RTCPeerConnection::Dispose() {
@@ -297,8 +297,8 @@ crtc::RTCPeerConnection::RTCSessionDescription RTCPeerConnection::RTCSessionDesc
 
   if (!value.IsEmpty() && value->IsObject()) {
     Local<Object> obj = Local<Object>::Cast(value);
-    Local<Value> type = obj->Get(Nan::New("type").ToLocalChecked());
-    Local<Value> sdp = obj->Get(Nan::New("sdp").ToLocalChecked());
+    Local<Value> type = obj->Get(Nan::New<String>("type").ToLocalChecked());
+    Local<Value> sdp = obj->Get(Nan::New<String>("sdp").ToLocalChecked());
       
     if (!type.IsEmpty() && type->IsString()) {
       if (!sdp.IsEmpty() && sdp->IsString()) {
@@ -326,8 +326,8 @@ Local<Object> RTCPeerConnection::RTCSessionDescriptionToObject(const crtc::RTCPe
   Nan::EscapableHandleScope scope;
   Local<Object> obj = Nan::New<Object>();
 
-  obj->Set(Nan::New("type").ToLocalChecked(), RTCSdpTypeToString(sdp.type));
-  obj->Set(Nan::New("sdp").ToLocalChecked(), Nan::New<v8::String>(sdp.sdp).ToLocalChecked());
+  obj->Set(Nan::New<String>("type").ToLocalChecked(), RTCSdpTypeToString(sdp.type));
+  obj->Set(Nan::New<String>("sdp").ToLocalChecked(), Nan::New<v8::String>(sdp.sdp).ToLocalChecked());
 
   return scope.Escape(obj);
 }
@@ -337,9 +337,9 @@ crtc::RTCPeerConnection::RTCIceCandidate RTCPeerConnection::RTCIceCandidateFromV
 
   if (!value.IsEmpty() && value->IsObject()) {
     Local<Object> obj = Local<Object>::Cast(value);
-    Local<Value> sdpMid = obj->Get(Nan::New("sdpMid").ToLocalChecked());
-    Local<Value> sdpMLineIndex = obj->Get(Nan::New("sdpMLineIndex").ToLocalChecked());
-    Local<Value> candidate = obj->Get(Nan::New("candidate").ToLocalChecked());
+    Local<Value> sdpMid = obj->Get(Nan::New<String>("sdpMid").ToLocalChecked());
+    Local<Value> sdpMLineIndex = obj->Get(Nan::New<String>("sdpMLineIndex").ToLocalChecked());
+    Local<Value> candidate = obj->Get(Nan::New<String>("candidate").ToLocalChecked());
 
     if (!sdpMid.IsEmpty() && sdpMid->IsString()) {
       if (!sdpMLineIndex.IsEmpty() && sdpMLineIndex->IsUint32()) {
@@ -359,9 +359,9 @@ Local<Object> RTCPeerConnection::RTCIceCandidateToObject(const crtc::RTCPeerConn
   Nan::EscapableHandleScope scope;
   Local<Object> obj = Nan::New<Object>();
 
-  obj->Set(Nan::New("sdpMid").ToLocalChecked(), Nan::New<v8::String>(iceCandidate.sdpMid).ToLocalChecked());
-  obj->Set(Nan::New("sdpMLineIndex").ToLocalChecked(), Nan::New(iceCandidate.sdpMLineIndex));
-  obj->Set(Nan::New("candidate").ToLocalChecked(), Nan::New<v8::String>(iceCandidate.candidate).ToLocalChecked());
+  obj->Set(Nan::New<String>("sdpMid").ToLocalChecked(), Nan::New<v8::String>(iceCandidate.sdpMid).ToLocalChecked());
+  obj->Set(Nan::New<String>("sdpMLineIndex").ToLocalChecked(), Nan::New(iceCandidate.sdpMLineIndex));
+  obj->Set(Nan::New<String>("candidate").ToLocalChecked(), Nan::New<v8::String>(iceCandidate.candidate).ToLocalChecked());
 
   return scope.Escape(obj);
 }
@@ -371,10 +371,10 @@ crtc::RTCPeerConnection::RTCIceServer RTCPeerConnection::RTCIceServerFromValue(L
 
   if (!value.IsEmpty() && value->IsObject()) {
     Local<Object> obj = Local<Object>::Cast(value);
-    Local<Value> credential = obj->Get(Nan::New("credential").ToLocalChecked());
-    Local<Value> credentialType = obj->Get(Nan::New("credentialType").ToLocalChecked());
-    Local<Value> username = obj->Get(Nan::New("username").ToLocalChecked());
-    Local<Value> urls = obj->Get(Nan::New("urls").ToLocalChecked());
+    Local<Value> credential = obj->Get(Nan::New<String>("credential").ToLocalChecked());
+    Local<Value> credentialType = obj->Get(Nan::New<String>("credentialType").ToLocalChecked());
+    Local<Value> username = obj->Get(Nan::New<String>("username").ToLocalChecked());
+    Local<Value> urls = obj->Get(Nan::New<String>("urls").ToLocalChecked());
 
     if (!credential.IsEmpty() && credential->IsString()) {
       iceServer.credential = std::string(*v8::String::Utf8Value(credential));
@@ -417,15 +417,15 @@ Local<Object> RTCPeerConnection::RTCIceServerToObject(const crtc::RTCPeerConnect
   Local<Object> obj = Nan::New<Object>();
 
   if (!server.credential.empty()) {
-    obj->Set(Nan::New("credential").ToLocalChecked(), Nan::New<v8::String>(server.credential).ToLocalChecked());
+    obj->Set(Nan::New<String>("credential").ToLocalChecked(), Nan::New<v8::String>(server.credential).ToLocalChecked());
   }
 
   if (!server.credentialType.empty()) {
-    obj->Set(Nan::New("credentialType").ToLocalChecked(), Nan::New<v8::String>(server.credentialType).ToLocalChecked());
+    obj->Set(Nan::New<String>("credentialType").ToLocalChecked(), Nan::New<v8::String>(server.credentialType).ToLocalChecked());
   }
 
   if (!server.username.empty()) {
-    obj->Set(Nan::New("username").ToLocalChecked(), Nan::New<v8::String>(server.username).ToLocalChecked());
+    obj->Set(Nan::New<String>("username").ToLocalChecked(), Nan::New<v8::String>(server.username).ToLocalChecked());
   }
 
   if (!server.urls.empty()) {
@@ -435,7 +435,7 @@ Local<Object> RTCPeerConnection::RTCIceServerToObject(const crtc::RTCPeerConnect
       list->Set(index, Nan::New<v8::String>(server.urls[index]).ToLocalChecked());
     }
 
-    obj->Set(Nan::New("urls").ToLocalChecked(), list);
+    obj->Set(Nan::New<String>("urls").ToLocalChecked(), list);
   }
 
   return scope.Escape(obj);
@@ -446,11 +446,11 @@ crtc::RTCPeerConnection::RTCConfiguration RTCPeerConnection::RTCConfigurationFro
 
   if (!value.IsEmpty() && value->IsObject()) {
     Local<Object> obj = Local<Object>::Cast(value);
-    Local<Value> iceCandidatePoolSize = obj->Get(Nan::New("iceCandidatePoolSize").ToLocalChecked());
-    Local<Value> bundlePolicy = obj->Get(Nan::New("bundlePolicy").ToLocalChecked());
-    Local<Value> iceServers = obj->Get(Nan::New("iceServers").ToLocalChecked());
-    Local<Value> iceTransportPolicy = obj->Get(Nan::New("iceTransportPolicy").ToLocalChecked());
-    Local<Value> rtcpMuxPolicy = obj->Get(Nan::New("rtcpMuxPolicy").ToLocalChecked());
+    Local<Value> iceCandidatePoolSize = obj->Get(Nan::New<String>("iceCandidatePoolSize").ToLocalChecked());
+    Local<Value> bundlePolicy = obj->Get(Nan::New<String>("bundlePolicy").ToLocalChecked());
+    Local<Value> iceServers = obj->Get(Nan::New<String>("iceServers").ToLocalChecked());
+    Local<Value> iceTransportPolicy = obj->Get(Nan::New<String>("iceTransportPolicy").ToLocalChecked());
+    Local<Value> rtcpMuxPolicy = obj->Get(Nan::New<String>("rtcpMuxPolicy").ToLocalChecked());
 
     if (!iceCandidatePoolSize.IsEmpty() && iceCandidatePoolSize->IsUint32()) {
       config.iceCandidatePoolSize = static_cast<uint16_t>(Nan::To<uint32_t>(iceCandidatePoolSize).FromJust());
@@ -480,10 +480,10 @@ Local<Object> RTCPeerConnection::RTCConfigurationToObject(const crtc::RTCPeerCon
   Nan::EscapableHandleScope scope;
   Local<Object> obj = Nan::New<Object>();
 
-  obj->Set(Nan::New("iceCandidatePoolSize").ToLocalChecked(), Nan::New(config.iceCandidatePoolSize));
-  obj->Set(Nan::New("bundlePolicy").ToLocalChecked(), RTCBundlePolicyToString(config.bundlePolicy));
-  obj->Set(Nan::New("iceTransportPolicy").ToLocalChecked(), RTCIceTransportPolicyToString(config.iceTransportPolicy));
-  obj->Set(Nan::New("rtcpMuxPolicy").ToLocalChecked(), RTCRtcpMuxPolicyToString(config.rtcpMuxPolicy));
+  obj->Set(Nan::New<String>("iceCandidatePoolSize").ToLocalChecked(), Nan::New(config.iceCandidatePoolSize));
+  obj->Set(Nan::New<String>("bundlePolicy").ToLocalChecked(), RTCBundlePolicyToString(config.bundlePolicy));
+  obj->Set(Nan::New<String>("iceTransportPolicy").ToLocalChecked(), RTCIceTransportPolicyToString(config.iceTransportPolicy));
+  obj->Set(Nan::New<String>("rtcpMuxPolicy").ToLocalChecked(), RTCRtcpMuxPolicyToString(config.rtcpMuxPolicy));
 
   if (!config.iceServers.empty()) {
     Local<Array> list = Nan::New<Array>();
@@ -492,7 +492,7 @@ Local<Object> RTCPeerConnection::RTCConfigurationToObject(const crtc::RTCPeerCon
       list->Set(index, RTCIceServerToObject(config.iceServers[index]));
     }
 
-    obj->Set(Nan::New("iceServers").ToLocalChecked(), list);
+    obj->Set(Nan::New<String>("iceServers").ToLocalChecked(), list);
   }
 
   return scope.Escape(obj);
@@ -503,8 +503,8 @@ crtc::RTCPeerConnection::RTCOfferOptions RTCPeerConnection::RTCOfferOptionsFromV
 
   if (!value.IsEmpty() && value->IsObject()) {
     Local<Object> obj = Local<Object>::Cast(value);
-    Local<Value> voiceActivityDetection = obj->Get(Nan::New("voiceActivityDetection").ToLocalChecked());
-    Local<Value> iceRestart = obj->Get(Nan::New("iceRestart").ToLocalChecked());
+    Local<Value> voiceActivityDetection = obj->Get(Nan::New<String>("voiceActivityDetection").ToLocalChecked());
+    Local<Value> iceRestart = obj->Get(Nan::New<String>("iceRestart").ToLocalChecked());
     
     if (!voiceActivityDetection.IsEmpty() && voiceActivityDetection->IsBoolean()) {
       offer.voiceActivityDetection = Nan::To<bool>(voiceActivityDetection).FromJust();
@@ -522,8 +522,8 @@ Local<Object> RTCPeerConnection::RTCOfferOptionsToObject(const crtc::RTCPeerConn
   Nan::EscapableHandleScope scope;
   Local<Object> obj = Nan::New<Object>();
 
-  obj->Set(Nan::New("voiceActivityDetection").ToLocalChecked(), Nan::New(offer.voiceActivityDetection));
-  obj->Set(Nan::New("iceRestart").ToLocalChecked(), Nan::New(offer.iceRestart));
+  obj->Set(Nan::New<String>("voiceActivityDetection").ToLocalChecked(), Nan::New(offer.voiceActivityDetection));
+  obj->Set(Nan::New<String>("iceRestart").ToLocalChecked(), Nan::New(offer.iceRestart));
 
   return scope.Escape(obj);
 }
@@ -533,7 +533,7 @@ crtc::RTCPeerConnection::RTCAnswerOptions RTCPeerConnection::RTCAnswerOptionsFro
 
   if (!value.IsEmpty() && value->IsObject()) {
     Local<Object> obj = Local<Object>::Cast(value);
-    Local<Value> voiceActivityDetection = obj->Get(Nan::New("voiceActivityDetection").ToLocalChecked());
+    Local<Value> voiceActivityDetection = obj->Get(Nan::New<String>("voiceActivityDetection").ToLocalChecked());
 
     if (!voiceActivityDetection.IsEmpty() && voiceActivityDetection->IsBoolean()) {
       answer.voiceActivityDetection = Nan::To<bool>(voiceActivityDetection).FromJust();
@@ -547,7 +547,7 @@ Local<Object> RTCPeerConnection::RTCAnswerOptionsToObject(const crtc::RTCPeerCon
   Nan::EscapableHandleScope scope;
   Local<Object> obj = Nan::New<Object>();
 
-  obj->Set(Nan::New("voiceActivityDetection").ToLocalChecked(), Nan::New(answer.voiceActivityDetection));
+  obj->Set(Nan::New<String>("voiceActivityDetection").ToLocalChecked(), Nan::New(answer.voiceActivityDetection));
 
   return scope.Escape(obj);
 }
@@ -557,16 +557,16 @@ Local<String> RTCPeerConnection::RTCSdpTypeToString(const crtc::RTCPeerConnectio
 
   switch (type) {
     case crtc::RTCPeerConnection::RTCSessionDescription::kAnswer:
-      return scope.Escape(Nan::New("answer").ToLocalChecked());
+      return scope.Escape(Nan::New<String>("answer").ToLocalChecked());
     case crtc::RTCPeerConnection::RTCSessionDescription::kOffer:
-      return scope.Escape(Nan::New("offer").ToLocalChecked());
+      return scope.Escape(Nan::New<String>("offer").ToLocalChecked());
     case crtc::RTCPeerConnection::RTCSessionDescription::kPranswer:
-      return scope.Escape(Nan::New("pranswer").ToLocalChecked());
+      return scope.Escape(Nan::New<String>("pranswer").ToLocalChecked());
     case crtc::RTCPeerConnection::RTCSessionDescription::kRollback:
-      return scope.Escape(Nan::New("rollback").ToLocalChecked());
+      return scope.Escape(Nan::New<String>("rollback").ToLocalChecked());
   }
 
-  return scope.Escape(Nan::New("").ToLocalChecked());
+  return scope.Escape(Nan::New<String>("").ToLocalChecked());
 }
 
 Local<String> RTCPeerConnection::RTCSignalingStateToString(const crtc::RTCPeerConnection::RTCSignalingState &state) {
@@ -574,20 +574,20 @@ Local<String> RTCPeerConnection::RTCSignalingStateToString(const crtc::RTCPeerCo
 
   switch (state) {
     case crtc::RTCPeerConnection::kStable:
-      return scope.Escape(Nan::New("stable").ToLocalChecked());
+      return scope.Escape(Nan::New<String>("stable").ToLocalChecked());
     case crtc::RTCPeerConnection::kHaveLocalOffer:
-      return scope.Escape(Nan::New("have-local-offer").ToLocalChecked());
+      return scope.Escape(Nan::New<String>("have-local-offer").ToLocalChecked());
     case crtc::RTCPeerConnection::kHaveLocalPrAnswer:
-      return scope.Escape(Nan::New("have-local-pranswer").ToLocalChecked());
+      return scope.Escape(Nan::New<String>("have-local-pranswer").ToLocalChecked());
     case crtc::RTCPeerConnection::kHaveRemoteOffer:
-      return scope.Escape(Nan::New("have-remote-offer").ToLocalChecked());
+      return scope.Escape(Nan::New<String>("have-remote-offer").ToLocalChecked());
     case crtc::RTCPeerConnection::kHaveRemotePrAnswer:
-      return scope.Escape(Nan::New("have-remote-pranswer").ToLocalChecked());
+      return scope.Escape(Nan::New<String>("have-remote-pranswer").ToLocalChecked());
     case crtc::RTCPeerConnection::kSignalingClosed:
-      return scope.Escape(Nan::New("closed").ToLocalChecked());
+      return scope.Escape(Nan::New<String>("closed").ToLocalChecked());
   }
 
-  return scope.Escape(Nan::New("").ToLocalChecked());
+  return scope.Escape(Nan::New<String>("").ToLocalChecked());
 }
 
 Local<String> RTCPeerConnection::RTCIceGatheringStateToString(const crtc::RTCPeerConnection::RTCIceGatheringState &state) {
@@ -595,14 +595,14 @@ Local<String> RTCPeerConnection::RTCIceGatheringStateToString(const crtc::RTCPee
 
   switch (state) {
     case crtc::RTCPeerConnection::kNewGathering:
-      return scope.Escape(Nan::New("new").ToLocalChecked());
+      return scope.Escape(Nan::New<String>("new").ToLocalChecked());
     case crtc::RTCPeerConnection::kGathering:
-      return scope.Escape(Nan::New("gathering").ToLocalChecked());
+      return scope.Escape(Nan::New<String>("gathering").ToLocalChecked());
     case crtc::RTCPeerConnection::kComplete:
-      return scope.Escape(Nan::New("complete").ToLocalChecked());
+      return scope.Escape(Nan::New<String>("complete").ToLocalChecked());
   }
 
-  return scope.Escape(Nan::New("").ToLocalChecked());
+  return scope.Escape(Nan::New<String>("").ToLocalChecked());
 }
 
 Local<String> RTCPeerConnection::RTCIceConnectionStateToString(const crtc::RTCPeerConnection::RTCIceConnectionState &state) {
@@ -610,22 +610,22 @@ Local<String> RTCPeerConnection::RTCIceConnectionStateToString(const crtc::RTCPe
 
   switch (state) {
     case crtc::RTCPeerConnection::kNew:
-      return scope.Escape(Nan::New("new").ToLocalChecked());
+      return scope.Escape(Nan::New<String>("new").ToLocalChecked());
     case crtc::RTCPeerConnection::kChecking:
-      return scope.Escape(Nan::New("checking").ToLocalChecked());
+      return scope.Escape(Nan::New<String>("checking").ToLocalChecked());
     case crtc::RTCPeerConnection::kConnected:
-      return scope.Escape(Nan::New("connected").ToLocalChecked());
+      return scope.Escape(Nan::New<String>("connected").ToLocalChecked());
     case crtc::RTCPeerConnection::kCompleted:
-      return scope.Escape(Nan::New("completed").ToLocalChecked());
+      return scope.Escape(Nan::New<String>("completed").ToLocalChecked());
     case crtc::RTCPeerConnection::kFailed:
-      return scope.Escape(Nan::New("failed").ToLocalChecked());
+      return scope.Escape(Nan::New<String>("failed").ToLocalChecked());
     case crtc::RTCPeerConnection::kDisconnected:
-      return scope.Escape(Nan::New("disconnected").ToLocalChecked());
+      return scope.Escape(Nan::New<String>("disconnected").ToLocalChecked());
     case crtc::RTCPeerConnection::kClosed:
-      return scope.Escape(Nan::New("closed").ToLocalChecked());
+      return scope.Escape(Nan::New<String>("closed").ToLocalChecked());
   }
 
-  return scope.Escape(Nan::New("").ToLocalChecked());
+  return scope.Escape(Nan::New<String>("").ToLocalChecked());
 }
 
 crtc::RTCPeerConnection::RTCBundlePolicy RTCPeerConnection::RTCBundlePolicyFromValue(Local<Value> value) {
@@ -647,14 +647,14 @@ Local<String> RTCPeerConnection::RTCBundlePolicyToString(const crtc::RTCPeerConn
 
   switch (policy) {
     case crtc::RTCPeerConnection::kBalanced:
-      return scope.Escape(Nan::New("balanced").ToLocalChecked());
+      return scope.Escape(Nan::New<String>("balanced").ToLocalChecked());
     case crtc::RTCPeerConnection::kMaxBundle:
-      return scope.Escape(Nan::New("max-compat").ToLocalChecked());
+      return scope.Escape(Nan::New<String>("max-compat").ToLocalChecked());
     case crtc::RTCPeerConnection::kMaxCompat:
-      return scope.Escape(Nan::New("max-bundle").ToLocalChecked());
+      return scope.Escape(Nan::New<String>("max-bundle").ToLocalChecked());
   }
 
-  return scope.Escape(Nan::New("").ToLocalChecked());
+  return scope.Escape(Nan::New<String>("").ToLocalChecked());
 }
 
 crtc::RTCPeerConnection::RTCIceTransportPolicy RTCPeerConnection::RTCIceTransportPolicyFromValue(Local<Value> value) {
@@ -676,14 +676,14 @@ Local<String> RTCPeerConnection::RTCIceTransportPolicyToString(const crtc::RTCPe
 
   switch (policy) {
     case crtc::RTCPeerConnection::kRelay:
-      return scope.Escape(Nan::New("relay").ToLocalChecked());
+      return scope.Escape(Nan::New<String>("relay").ToLocalChecked());
     case crtc::RTCPeerConnection::kPublic:
-      return scope.Escape(Nan::New("public").ToLocalChecked());
+      return scope.Escape(Nan::New<String>("public").ToLocalChecked());
     case crtc::RTCPeerConnection::kAll:
-      return scope.Escape(Nan::New("all").ToLocalChecked());
+      return scope.Escape(Nan::New<String>("all").ToLocalChecked());
   }
 
-  return scope.Escape(Nan::New("").ToLocalChecked());
+  return scope.Escape(Nan::New<String>("").ToLocalChecked());
 }
 
 crtc::RTCPeerConnection::RTCRtcpMuxPolicy RTCPeerConnection::RTCRtcpMuxPolicyFromValue(Local<Value> value) {
@@ -703,12 +703,12 @@ Local<String> RTCPeerConnection::RTCRtcpMuxPolicyToString(const crtc::RTCPeerCon
   
   switch (policy) {
     case crtc::RTCPeerConnection::kNegotiate:
-      return scope.Escape(Nan::New("negotiate").ToLocalChecked());
+      return scope.Escape(Nan::New<String>("negotiate").ToLocalChecked());
     case crtc::RTCPeerConnection::kRequire:
-      return scope.Escape(Nan::New("relay").ToLocalChecked());
+      return scope.Escape(Nan::New<String>("relay").ToLocalChecked());
   }
 
-  return scope.Escape(Nan::New("").ToLocalChecked());
+  return scope.Escape(Nan::New<String>("").ToLocalChecked());
 }
 
 void RTCPeerConnection::New(const Nan::FunctionCallbackInfo<Value> &info) {

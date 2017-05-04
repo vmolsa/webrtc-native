@@ -43,7 +43,7 @@ void MediaStream::Init(Local<Object> exports) {
   
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(MediaStream::New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
-  tpl->SetClassName(Nan::New("MediaStream").ToLocalChecked());
+  tpl->SetClassName(Nan::New<String>("MediaStream").ToLocalChecked());
 
   Nan::SetPrototypeMethod(tpl, "clone", MediaStream::Clone);
   Nan::SetPrototypeMethod(tpl, "addTrack", MediaStream::AddTrack);
@@ -53,16 +53,16 @@ void MediaStream::Init(Local<Object> exports) {
   Nan::SetPrototypeMethod(tpl, "getVideoTracks", MediaStream::GetVideoTracks);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                  Nan::New("id").ToLocalChecked(), 
+                  Nan::New<String>("id").ToLocalChecked(), 
                   MediaStream::Id);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("onaddtrack").ToLocalChecked(),
+                   Nan::New<String>("onaddtrack").ToLocalChecked(),
                    MediaStream::onaddtrack,
                    MediaStream::onaddtrack);
   
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("onremovetrack").ToLocalChecked(),
+                   Nan::New<String>("onremovetrack").ToLocalChecked(),
                    MediaStream::onremovetrack,
                    MediaStream::onremovetrack);
 

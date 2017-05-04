@@ -43,51 +43,51 @@ void MediaStreamTrack::Init(Local<Object> exports) {
   
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(MediaStreamTrack::New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
-  tpl->SetClassName(Nan::New("MediaStreamTrack").ToLocalChecked());
+  tpl->SetClassName(Nan::New<String>("MediaStreamTrack").ToLocalChecked());
 
   Nan::SetPrototypeMethod(tpl, "clone", MediaStreamTrack::Clone);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                  Nan::New("enabled").ToLocalChecked(), 
+                  Nan::New<String>("enabled").ToLocalChecked(), 
                   MediaStreamTrack::Enabled);
   
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                  Nan::New("muted").ToLocalChecked(), 
+                  Nan::New<String>("muted").ToLocalChecked(), 
                   MediaStreamTrack::Muted);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                  Nan::New("remote").ToLocalChecked(), 
+                  Nan::New<String>("remote").ToLocalChecked(), 
                   MediaStreamTrack::Remote);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                  Nan::New("id").ToLocalChecked(), 
+                  Nan::New<String>("id").ToLocalChecked(), 
                   MediaStreamTrack::Id);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                  Nan::New("kind").ToLocalChecked(), 
+                  Nan::New<String>("kind").ToLocalChecked(), 
                   MediaStreamTrack::Kind);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                  Nan::New("readyState").ToLocalChecked(), 
+                  Nan::New<String>("readyState").ToLocalChecked(), 
                   MediaStreamTrack::ReadyState);
   
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("onstarted").ToLocalChecked(),
+                   Nan::New<String>("onstarted").ToLocalChecked(),
                    MediaStreamTrack::onstarted,
                    MediaStreamTrack::onstarted);
   
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("onended").ToLocalChecked(),
+                   Nan::New<String>("onended").ToLocalChecked(),
                    MediaStreamTrack::onended,
                    MediaStreamTrack::onended);
   
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("onmute").ToLocalChecked(),
+                   Nan::New<String>("onmute").ToLocalChecked(),
                    MediaStreamTrack::onmute,
                    MediaStreamTrack::onmute);
   
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("onunmute").ToLocalChecked(),
+                   Nan::New<String>("onunmute").ToLocalChecked(),
                    MediaStreamTrack::onunmute,
                    MediaStreamTrack::onunmute);
 

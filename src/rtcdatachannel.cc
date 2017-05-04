@@ -45,74 +45,74 @@ void RTCDataChannel::Init(Local<Object> exports) {
   
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(RTCDataChannel::New);
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
-  tpl->SetClassName(Nan::New("RTCDataChannel").ToLocalChecked());
+  tpl->SetClassName(Nan::New<String>("RTCDataChannel").ToLocalChecked());
 
   Nan::SetPrototypeMethod(tpl, "close", RTCDataChannel::Close);
   Nan::SetPrototypeMethod(tpl, "send", RTCDataChannel::Send);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("id").ToLocalChecked(), 
+                   Nan::New<String>("id").ToLocalChecked(), 
                    RTCDataChannel::Id);
   
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("label").ToLocalChecked(), 
+                   Nan::New<String>("label").ToLocalChecked(), 
                    RTCDataChannel::Label);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("bufferedAmount").ToLocalChecked(), 
+                   Nan::New<String>("bufferedAmount").ToLocalChecked(), 
                    RTCDataChannel::BufferedAmount);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("maxPacketLifeTime").ToLocalChecked(), 
+                   Nan::New<String>("maxPacketLifeTime").ToLocalChecked(), 
                    RTCDataChannel::MaxPacketLifeTime);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("MaxRetransmits").ToLocalChecked(), 
+                   Nan::New<String>("MaxRetransmits").ToLocalChecked(), 
                    RTCDataChannel::MaxRetransmits);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("negotiated").ToLocalChecked(), 
+                   Nan::New<String>("negotiated").ToLocalChecked(), 
                    RTCDataChannel::Negotiated);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("ordered").ToLocalChecked(), 
+                   Nan::New<String>("ordered").ToLocalChecked(), 
                    RTCDataChannel::Ordered);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("protocol").ToLocalChecked(), 
+                   Nan::New<String>("protocol").ToLocalChecked(), 
                    RTCDataChannel::Protocol);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("readyState").ToLocalChecked(), 
+                   Nan::New<String>("readyState").ToLocalChecked(), 
                    RTCDataChannel::ReadyState);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("bufferedAmountLowThreshold").ToLocalChecked(),
+                   Nan::New<String>("bufferedAmountLowThreshold").ToLocalChecked(),
                    RTCDataChannel::BufferedAmountLowThreshold,
                    RTCDataChannel::BufferedAmountLowThreshold);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("onbufferedamountlow").ToLocalChecked(),
+                   Nan::New<String>("onbufferedamountlow").ToLocalChecked(),
                    RTCDataChannel::onbufferedamountlow,
                    RTCDataChannel::onbufferedamountlow);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("onclose").ToLocalChecked(),
+                   Nan::New<String>("onclose").ToLocalChecked(),
                    RTCDataChannel::onclose,
                    RTCDataChannel::onclose);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("onerror").ToLocalChecked(),
+                   Nan::New<String>("onerror").ToLocalChecked(),
                    RTCDataChannel::onerror,
                    RTCDataChannel::onerror);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("onmessage").ToLocalChecked(),
+                   Nan::New<String>("onmessage").ToLocalChecked(),
                    RTCDataChannel::onmessage,
                    RTCDataChannel::onmessage);
 
   Nan::SetAccessor(tpl->InstanceTemplate(), 
-                   Nan::New("onopen").ToLocalChecked(),
+                   Nan::New<String>("onopen").ToLocalChecked(),
                    RTCDataChannel::onopen,
                    RTCDataChannel::onopen);
 
@@ -156,14 +156,14 @@ void RTCDataChannel::Init(const crtc::Let<crtc::RTCDataChannel> &dataChannel) {
       std::string message(error->Message()); 
 
       if (!message.empty()) {
-        obj->Set(Nan::New("message").ToLocalChecked(), Nan::New<String>(message.c_str(), static_cast<int>(message.size())).ToLocalChecked());
+        obj->Set(Nan::New<String>("message").ToLocalChecked(), Nan::New<String>(message.c_str(), static_cast<int>(message.size())).ToLocalChecked());
       }
 
       std::string filename(error->FileName());
 
       if (!filename.empty()) {
-        obj->Set(Nan::New("filename").ToLocalChecked(), Nan::New<String>(filename.c_str(), static_cast<int>(filename.size())).ToLocalChecked());  
-        obj->Set(Nan::New("lineno").ToLocalChecked(), Nan::New(error->LineNumber()));
+        obj->Set(Nan::New<String>("filename").ToLocalChecked(), Nan::New<String>(filename.c_str(), static_cast<int>(filename.size())).ToLocalChecked());  
+        obj->Set(Nan::New<String>("lineno").ToLocalChecked(), Nan::New(error->LineNumber()));
       }
     }
     
@@ -199,12 +199,12 @@ void RTCDataChannel::Init(const crtc::Let<crtc::RTCDataChannel> &dataChannel) {
           dst[index] = src[index];
         }
 
-        obj->Set(Nan::New("data").ToLocalChecked(), arrayBuffer);
+        obj->Set(Nan::New<String>("data").ToLocalChecked(), arrayBuffer);
       } else {
         std::string message(buffer->ToString());
 
         if (!message.empty()) {
-          obj->Set(Nan::New("data").ToLocalChecked(), Nan::New<String>(message.c_str(), static_cast<int>(message.size())).ToLocalChecked());
+          obj->Set(Nan::New<String>("data").ToLocalChecked(), Nan::New<String>(message.c_str(), static_cast<int>(message.size())).ToLocalChecked());
         }
       } 
     }
@@ -318,7 +318,7 @@ void RTCDataChannel::Label(Local<String> property, const Nan::PropertyCallbackIn
     return info.GetReturnValue().Set(Nan::New<String>(label.c_str(), static_cast<int>(label.size())).ToLocalChecked());
   }
 
-  return info.GetReturnValue().Set(Nan::New("").ToLocalChecked());
+  return info.GetReturnValue().Set(Nan::New<String>("").ToLocalChecked());
 }
 
 void RTCDataChannel::BufferedAmount(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
@@ -354,7 +354,7 @@ void RTCDataChannel::Protocol(Local<String> property, const Nan::PropertyCallbac
     return info.GetReturnValue().Set(Nan::New<String>(protocol.c_str(), static_cast<int>(protocol.size())).ToLocalChecked());
   }
 
-  return info.GetReturnValue().Set(Nan::New("").ToLocalChecked());
+  return info.GetReturnValue().Set(Nan::New<String>("").ToLocalChecked());
 }
 
 void RTCDataChannel::ReadyState(Local<String> property, const Nan::PropertyCallbackInfo<Value> &info) {
@@ -362,13 +362,13 @@ void RTCDataChannel::ReadyState(Local<String> property, const Nan::PropertyCallb
 
   switch (self->_channel->ReadyState()) {
     case crtc::RTCDataChannel::kConnecting:
-      return info.GetReturnValue().Set(Nan::New("connecting").ToLocalChecked());
+      return info.GetReturnValue().Set(Nan::New<String>("connecting").ToLocalChecked());
     case crtc::RTCDataChannel::kOpen:
-      return info.GetReturnValue().Set(Nan::New("open").ToLocalChecked());
+      return info.GetReturnValue().Set(Nan::New<String>("open").ToLocalChecked());
     case crtc::RTCDataChannel::kClosing:
-      return info.GetReturnValue().Set(Nan::New("closing").ToLocalChecked());
+      return info.GetReturnValue().Set(Nan::New<String>("closing").ToLocalChecked());
     case crtc::RTCDataChannel::kClosed:
-      return info.GetReturnValue().Set(Nan::New("closed").ToLocalChecked());
+      return info.GetReturnValue().Set(Nan::New<String>("closed").ToLocalChecked());
   }
 }
 
