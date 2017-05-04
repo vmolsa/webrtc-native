@@ -23,6 +23,9 @@
 *
 */
 
+#ifndef WEBRTC_MEDIASTREAM_H
+#define WEBRTC_MEDIASTREAM_H
+
 #include <nan.h>
 #include <crtc.h>
 
@@ -64,3 +67,5 @@ namespace WebRTC {
       static Nan::Persistent<v8::Function> constructor;
   };
 };
+
+#endif

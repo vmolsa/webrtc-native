@@ -23,6 +23,9 @@
 *
 */
 
+#ifndef WEBRTC_RTCPEERCONNECTION_H
+#define WEBRTC_RTCPEERCONNECTION_H
+
 #include <nan.h>
 #include <crtc.h>
 
@@ -127,3 +130,5 @@ namespace WebRTC {
       static Nan::Persistent<v8::Function> constructor;
   };
 };
+
+#endif

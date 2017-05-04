@@ -23,19 +23,14 @@
 *
 */
 
-#ifndef WEBRTC_V8_PROMISE_H
-#define WEBRTC_V8_PROMISE_H
+#ifndef WEBRTC_V8_HELPER_H
+#define WEBRTC_V8_HELPER_H
 
 #include <nan.h>
 #include <crtc.h>
 
 namespace WebRTC {
-  typedef crtc::Functor<void(const v8::Local<v8::Value> &result)> V8ResolveCallback;
-  typedef crtc::Functor<void(const V8ResolveCallback &resolve, const crtc::ErrorCallback &reject)> V8ExecutorCallback;
 
-  v8::Local<v8::Promise> CreatePromise(v8::Isolate *isolate, 
-                                       const V8ExecutorCallback &callback, 
-                                       v8::Local<v8::Object> This = v8::Local<v8::Object>());
 };
 
 #endif
