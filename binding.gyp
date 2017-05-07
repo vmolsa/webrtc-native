@@ -1,4 +1,12 @@
 {
+  'conditions': [
+    ['OS=="linux"', {
+      'make_global_settings': [
+        ['CXX','/usr/bin/clang++'],
+        ['LINK','/usr/bin/clang++'],
+      ],
+    }],
+  ],
   'targets': [
     {
       'target_name': 'action_before_build',
@@ -39,10 +47,14 @@
         'src/mediastreamtrack.cc',
         'src/v8-promise.cc',
       ],
-      'cflags': [
-        '-std=c++11',
+      'conditions': [
+        ['OS=="linux"', {
+          'cflags_cc': [
+            '-std=c++11',
+            '-fno-exceptions',
+          ],
+        }],
       ],
-
       'xcode_settings': {
         'OTHER_CFLAGS': [
           '-std=c++11',
@@ -52,7 +64,6 @@
           '-lcrtc',
         ]
       },
-
       'link_settings': {
         'conditions': [
           ['OS=="linux"', {
