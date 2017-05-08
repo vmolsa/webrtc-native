@@ -1,12 +1,6 @@
 [WebRTC](http://en.wikipedia.org/wiki/WebRTC) for NodeJS
 
-### Chromium
-
-webrtc-native is using [WebRTC](http://webrtc.org/) from chromium project. code is compiled with branch [52](https://chromium.googlesource.com/external/webrtc/+/branch-heads/52).
-
-### Usage
-
-For installing or building module from source go to page [Getting Started](https://github.com/vmolsa/webrtc-native/wiki/Getting-started)
+[![Build Status](https://travis-ci.org/vmolsa/webrtc-native.svg?branch=v2.x)](https://travis-ci.org/vmolsa/webrtc-native)
 
 ### API
 
@@ -25,11 +19,3 @@ var WebRTC = require('webrtc-native');
 #### WebRTC.[MediaStream](https://developer.mozilla.org/en-US/docs/Web/API/MediaStream)
 
 #### WebRTC.[MediaStreamTrack](https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack)
-
-#### WebRTC.RTCGarbageCollect()
-
-- Notify V8 Engine to attempt to free memory.
-
-#### WebRTC.setDebug(boolean)
-
-- Enable / Disable WebRTC log messages
