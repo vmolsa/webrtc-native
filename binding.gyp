@@ -2,8 +2,8 @@
   'conditions': [
     ['OS=="linux"', {
       'make_global_settings': [
-        ['CXX','/usr/bin/clang++'],
-        ['LINK','/usr/bin/clang++'],
+        #['CXX','/usr/bin/clang++'],
+        #['LINK','/usr/bin/clang++'],
       ],
     }],
   ],
@@ -49,8 +49,10 @@
       ],
       'conditions': [
         ['OS=="linux"', {
+          'cflags_cc!': ['-std=gnu++0x'],
           'cflags_cc': [
-            '-std=c++11',
+            #'-std=c++11',
+            '-std=gnu++11',
             '-fno-exceptions',
           ],
         }],
@@ -70,7 +72,8 @@
             'libraries': [
               '-L../dist/libcrtc/lib',
               '-lcrtc',
-              '-Wl,-rpath,\'$$ORIGIN/libcrtc/lib\''
+              '-Wl,-rpath,\'$$ORIGIN/libcrtc/lib\'',
+              '../dist/libcrtc/lib/libcrtc.so',
             ],
           }],
         ],
