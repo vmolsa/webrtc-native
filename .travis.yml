@@ -1,0 +1,11 @@
+language: node_js
+
+node_js:
+  - "7"
+  - "6"
+
+install:
+  - npm install --build-from-source
+
+script:
+  - npm test
