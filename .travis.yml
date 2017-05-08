@@ -1,5 +1,13 @@
 language: node_js
 
+before_install:
+  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+  - sudo apt-get update -qq
+
+install: 
+  - sudo apt-get install -qq g++-6
+  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 90
+
 node_js:
   - "7"
   - "6"
@@ -9,4 +17,3 @@ install:
 
 script:
   - node test/mesh.js
-  
