@@ -1,5 +1,3 @@
-[WebRTC](http://en.wikipedia.org/wiki/WebRTC) for NodeJS
-
 [![Build Status](https://travis-ci.org/vmolsa/webrtc-native.svg?branch=v2.x)](https://travis-ci.org/vmolsa/webrtc-native)
 
 ### API
