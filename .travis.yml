@@ -5,7 +5,7 @@ node_js:
   - "6"
 
 install:
-  - npm install
+  - npm install --build-from-source
 
 script:
   - npm test
