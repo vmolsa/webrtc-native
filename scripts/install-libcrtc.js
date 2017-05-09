@@ -6,7 +6,12 @@ const targz = require('node-tar.gz');
 const root_path = path.resolve(__dirname, '../');
 const pkg = require(path.resolve(root_path, 'package.json'));
 const base_url = 'https://github.com/vmolsa/libcrtc/releases/download'
-const target_cpu = os.arch();
+
+let target_cpu = os.arch();
+
+if (process.env['npm_config_arch']) {
+  target_cpu = process.env['npm_config_arch']
+}
 
 if (!fs.existsSync(path.resolve(root_path, 'dist'))) {
   fs.mkdirSync(path.resolve(root_path, 'dist'));
@@ -32,25 +37,44 @@ switch (target_cpu) {
 
 const pkg_name = 'libcrtc-' + pkg.libcrtc + '-' + os.platform()  + '-' + target_cpu + '.tar.gz'
 
+
+function removePackageExit(error) {
+  fs.unlinkSync(path.resolve(root_path, 'dist', pkg_name));
+  throw error;
+}
+
 function extractPackage() {
   console.log('Extracting to:', libcrtc_path);
 
-  fs.createReadStream(path.resolve(root_path, 'dist', pkg_name)).pipe(targz().createWriteStream(libcrtc_path));
+  if (fs.existsSync(path.resolve(root_path, 'dist', pkg_name))) {
+    fs.createReadStream(path.resolve(root_path, 'dist', pkg_name)).pipe(targz().createWriteStream(libcrtc_path)).on('error', (error) => {
+      removePackageExit(new Error('Invalid Package.'));
+    }).on('finish', () => {
+      fs.unlinkSync(path.resolve(root_path, 'dist', pkg_name));
+    });
+  } else {
+    removePackageExit(new Error('Package not found.'));
+  }
 }
 
-if (!fs.existsSync(libcrtc_path) || !fs.existsSync(path.resolve(libcrtc_path, 'lib')) || !fs.existsSync(path.resolve(libcrtc_path, 'include'))) {
-  console.log('Downloading:', base_url + '/' + pkg.libcrtc + '/' + pkg_name); 
-  
+if (!fs.existsSync(libcrtc_path) || !fs.existsSync(path.resolve(libcrtc_path, 'lib')) || !fs.existsSync(path.resolve(libcrtc_path, 'include'))) {  
   if (!fs.existsSync(libcrtc_path)) {
     fs.mkdirSync(libcrtc_path);
   }
 
   if (!fs.existsSync(path.resolve(root_path, 'dist', pkg_name))) {
-    request.get(base_url + '/' + pkg.libcrtc + '/' + pkg_name).pipe(fs.createWriteStream(path.resolve(root_path, 'dist', pkg_name))).on('finish', () => {
+    console.log('Downloading:', base_url + '/' + pkg.libcrtc + '/' + pkg_name); 
+
+    request.get(base_url + '/' + pkg.libcrtc + '/' + pkg_name).on('response', (res) => {
+      if (res.statusCode != 200 || res.headers['content-type'] == 'text/html') {
+        removePackageExit(new Error('Package not found.'));
+      }
+    }).pipe(fs.createWriteStream(path.resolve(root_path, 'dist', pkg_name))).on('error', (error) => {
+      removePackageExit(error);
+    }).on('finish', () => {
       extractPackage();
     });
   } else {
     extractPackage();
   }
 }
-
