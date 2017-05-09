@@ -43,6 +43,7 @@
     "node-gyp": "^3.6.0",
     "node-tar.gz": "^1.0.0",
     "request": "^2.81.0",
+    "rimraf": "^2.6.1",
     "typedoc": "^0.5.10",
     "typescript": "^2.2.2"
   }
