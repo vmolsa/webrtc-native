@@ -4,7 +4,6 @@ language: node_js
 
 node_js:
   - "7"
-  - "6"
 
 env: CXX=clang++-3.8 CC=clang-3.8
 addons:
@@ -18,4 +17,4 @@ install:
   - npm install --build-from-source
 
 script:
-  - node test/mesh.js
+  - npm test

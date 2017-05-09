@@ -27,7 +27,8 @@
   "scripts": {
     "install": "node-pre-gyp install",
     "install-libcrtc": "node scripts/install-libcrtc.js",
-    "crosscompile": "node scripts/crosscompile.js"
+    "crosscompile": "node scripts/crosscompile.js",
+    "test": "node test/mesh.js"
   },
   "dependencies": {
     "node-pre-gyp": "^0.6.34"

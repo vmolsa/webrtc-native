@@ -35,6 +35,16 @@ let names = [
 let peer_count = names.length;
 let expected_count = peer_count * peer_count - peer_count;
 
+function checkExpected(msg, value, expected) {
+  if (value != expected) {
+    setImmediate(() => {
+      throw new Error(msg + ': ' + value + ', expected: ' + expected);
+    });
+  }
+
+  console.log(msg + ':', value, ' ( expected:', expected, ')');
+}
+
 function checkMessages() {
   if (messages_in != expected_count * 10 * 10 * 2 && messages_out != expected_count) {
     return false;
@@ -45,16 +55,18 @@ function checkMessages() {
       peers[peer].close();
     }
 
-    console.log('Peers created:', open_peers, ' ( expected:', expected_count, ')');
-    console.log('Peers closed:', closed_peers, ' ( expected:', expected_count, ')');
-    console.log('Datachannels opened:', open_channels, ' ( expected:', expected_count * 10, ')');
-    console.log('Datachannels closed:', closed_channels, ' ( expected:', expected_count * 10, ')');
-    console.log('Messages received:', messages_in, ' ( expected:', expected_count * 10 * 10 * 2, ')');
-    console.log('Messages sended:', messages_out, ' ( expected:', expected_count * 10 * 10 * 2, ')');
-    console.log('Ping send count:', send_ping, ' ( expected:', expected_count * 10 * 10, ')');
-    console.log('Ping received count:', recv_ping, ' ( expected:', expected_count * 10 * 10, ')');
-    console.log('Pong send count:', send_pong, ' ( expected:', expected_count * 10 * 10, ')');
-    console.log('Pong received count:', recv_pong, ' ( expected:', expected_count * 10 * 10, ')');
+    setTimeout(() => {
+      checkExpected('Peers created', open_peers, expected_count);
+      checkExpected('Peers closed', closed_peers, expected_count);
+      checkExpected('Datachannels opened', open_channels, expected_count * 10);
+      checkExpected('Datachannels closed', closed_channels, expected_count * 10);
+      checkExpected('Messages received', messages_in, expected_count * 10 * 10 * 2);
+      checkExpected('Messages sended', messages_out, expected_count * 10 * 10 * 2);
+      checkExpected('Ping send count', send_ping, expected_count * 10 * 10);
+      checkExpected('Ping received count', recv_ping, expected_count * 10 * 10);
+      checkExpected('Pong send count', send_pong, expected_count * 10 * 10);
+      checkExpected('Pong received count', recv_pong, expected_count * 10 * 10);
+    }, 1000);
   }, 2000);
 }
 
