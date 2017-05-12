@@ -25,6 +25,7 @@
   "main": "dist/src/webrtc.js",
   "typings": "dist/src/webrtc.d.ts",
   "scripts": {
+    "postinstall": "node scripts/postinstall.js",
     "install": "node-pre-gyp install",
     "install-libcrtc": "node scripts/install-libcrtc.js",
     "crosscompile": "node scripts/crosscompile.js",
