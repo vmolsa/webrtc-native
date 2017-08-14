@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+ </head>
+
+<script language="javascript">
+
+
+window.onload  = function(e){ 
+
+  var config = {
+    iceServers: [
+      {
+        url: 'stun:stun.l.google.com:19302',
+      },
+    ],
+  };
+  
+  var constraints = {
+     optional: [
+      {
+        DtlsSrtpKeyAgreement: true,
+      },
+    ],
+    mandatory: {
+      OfferToReceiveAudio: true,
+      OfferToReceiveVideo: true,
+    },
+  };
+  navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+  window.RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
+  window.RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate || window.webkitRTCIceCandidate;
+  window.RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription || window.webkitRTCSessionDescription;
+  
+      
+
+
+
+  var peer = new RTCPeerConnection (config, constraints);
+
+  var connection = new WebSocket('ws://127.0.0.1:8181');
+
+  function peer_onConnect(connection)
+  {
+    peer.onicecandidate = function(event) {
+    var data = event.candidate || event;
+      if (event.candidate && peer.signalingState !== 'closed') {
+      connection.send(JSON.stringify(data));
+      }
+    };
+    
+    peer.onnegotiationneeded = function() {
+      console.log ("onnegotiationneeded");
+
+    };
+    
+    peer.onaddstream = function(event) {
+      if (event.stream && event.stream.active) {
+        console.log('Peer Add mediaStream:', event.stream);
+      
+        var video = document.querySelector('video');
+        video.src = window.URL.createObjectURL(event.stream);
+        video.setAttribute( 'autoplay', 'autoplay' );
+        
+
+        video.onloadedmetadata = function(event) {
+          video.play();
+        };
+            
+        event.stream.onaddtrack = function(track) {
+          console.log('Track Added!');
+        };
+        event.stream.onremovetrack = function (track) {
+          console.log('Track Removed!');
+        };
+        var audio_list = event.stream.getAudioTracks();
+        
+        audio_list.forEach(function (track) {
+          console.log(track);
+        });
+        var video_list = event.stream.getVideoTracks();
+        
+        video_list.forEach(function (track) {
+          console.log(track);
+        });
+      }    
+    };
+    
+    peer.onremovestream = function(event) {
+      console.log('Peer Remove mediaStream:', event.stream);
+    };
+    peer.ondatachannel = function(event) {
+      var channel = event ? event.channel || event : null;
+      var pingpong = null;
+      channel.onopen = function() {
+        console.log('Peer Channel opened!');
+        
+        pingpong = setInterval(function() {
+          console.log('Peer: Sending PING');
+          channel.send('PING');
+        }, 5000);
+      };
+      
+      channel.onclose = function() {
+        console.log('Peer Channel closed!');
+        
+        if (pingpong) {
+          clearInterval(pingpong);
+        }
+      };
+      
+      channel.onmessage = function(event) {
+        var data = event.data;
+        console.log('Peer Message:', data);
+      };
+    };
+  }
+  
+  // When the connection is open, send some data to the server
+  connection.onopen = function () {
+    connection.send('Ping'); // Send the message 'Ping' to the server
+    peer_onConnect(connection);
+  };
+
+  // Log errors
+  connection.onerror = function (error) {
+    console.log('WebSocket Error ' + error);
+  };
+
+  // Log messages from the server
+  connection.onmessage = function (e) {
+    console.log('Server: ' + e.data);
+
+    var jmsg = JSON.parse(e.data);
+    if (jmsg.hasOwnProperty('type') == false)
+    {
+      return ;
+    }
+    
+    if (jmsg.type == 'offer')
+    {
+      
+       peer.setRemoteDescription(new RTCSessionDescription(jmsg), function() {
+       peer.createAnswer(function(answer) {
+        peer.setLocalDescription(answer, function(s) {
+          
+           connection.send(JSON.stringify(answer));
+           console.log('Send Answer: %s',JSON.stringify(answer));
+        });
+      }, function (err)
+    {
+      console.log (err);
+    })
+    });
+    
+    }
+    if (jmsg.type == 'answer')
+    {
+      peer.setRemoteDescription(new RTCSessionDescription(data));
+    }
+
+    if (jmsg.type == 'icecandidate')
+    {
+      if (jmsg.data && jmsg.candidate ) {
+      peer.addIceCandidate(new RTCIceCandidate(jmsg.data));
+      }
+    }
+  };
+
+
+
+};
+
+
+
+</script>
+
+<body>
+  <video autoplay controls></video>
+</body>
+</html>
