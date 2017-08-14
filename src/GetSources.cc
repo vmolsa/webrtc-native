@@ -23,9 +23,10 @@
 *
 */
 
+#include <ctype.h>
 #include "Platform.h"
+#include "MediaStreamTrack.h"
 #include "GetSources.h"
-
 using namespace v8;
 using namespace WebRTC;
 
@@ -33,6 +34,7 @@ void GetSources::Init(Handle<Object> exports) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
   
   exports->Set(Nan::New("getSources").ToLocalChecked(), Nan::New<FunctionTemplate>(GetSources::GetDevices)->GetFunction());
+  exports->Set(Nan::New("getVideoSource").ToLocalChecked(), Nan::New<FunctionTemplate>(GetSources::GetVideoSource2)->GetFunction());
 }
 
 rtc::scoped_refptr<webrtc::AudioTrackInterface> GetSources::GetAudioSource(const rtc::scoped_refptr<MediaConstraints> &constraints) {
@@ -75,7 +77,12 @@ rtc::scoped_refptr<webrtc::VideoTrackInterface> GetSources::GetVideoSource(const
           capturer = device_factory.Create(cricket::Device(name, 0));
           
           if (capturer) {
-            track = factory->CreateVideoTrack("video", factory->CreateVideoSource(capturer, constraints->ToConstraints()));
+            
+            for(int i = 0; name[i]; i++){
+              if (name[i]==' ') name[i] = '_';
+              name[i] = tolower(name[i]);
+            }
+            track = factory->CreateVideoTrack(name, factory->CreateVideoSource(capturer, constraints->ToConstraints()));
             return track;
           }
         }
@@ -109,7 +116,11 @@ rtc::scoped_refptr<webrtc::VideoTrackInterface> GetSources::GetVideoSource(const
             capturer = device_factory.Create(cricket::Device(name, 0));
             
             if (capturer) {
-              track = factory->CreateVideoTrack("video", factory->CreateVideoSource(capturer, constraints->ToConstraints()));
+              for(int i = 0; name[i]; i++){
+                if (name[i]==' ') name[i] = '_';
+                name[i] = tolower(name[i]);
+              }
+              track = factory->CreateVideoTrack(name, factory->CreateVideoSource(capturer, constraints->ToConstraints()));
               return track;
             }
           }
@@ -153,6 +164,19 @@ Local<Value> GetSources::GetDevices() {
 
   return scope.Escape(list);
 }
+
+
+void GetSources::GetVideoSource2(const Nan::FunctionCallbackInfo<Value> &info) {
+  Nan::Utf8String  name_id(info[0]->ToString());
+  
+  
+  rtc::scoped_refptr<MediaConstraints> constraints = MediaConstraints::New(info[1]);
+  rtc::scoped_refptr<webrtc::VideoTrackInterface> track = GetSources::GetVideoSource(*name_id,constraints);
+  
+  
+  info.GetReturnValue().Set(MediaStreamTrack::New(track));
+}
+
 
 void GetSources::GetDevices(const Nan::FunctionCallbackInfo<Value> &info) {
   LOG(LS_INFO) << __PRETTY_FUNCTION__;
