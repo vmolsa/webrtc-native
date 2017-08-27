@@ -1,17 +1,7 @@
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
-var Stream = require("stream");
-var Events = require("events");
+const Stream = require("stream");
+const Events = require("events");
 /**
  * References:
  *
@@ -359,8 +349,7 @@ var RTCIceTransportState;
  * as well as enabling the retrieval of local Interactive Connectivity Establishment (ICE) parameters which can be exchanged in signaling.
  * By enabling an endpoint to use a set of local candidates to construct multiple RTCIceTransport objects, the RTCIceGatherer enables support for scenarios such as parallel forking
  */
-var RTCIceGatherer = (function (_super) {
-    __extends(RTCIceGatherer, _super);
+class RTCIceGatherer extends Events.EventEmitter {
     /*
      * onstatechange() => emit('statechange');
      * onerror(event: RTCIceGathererIceErrorEvent) => emit('error');
@@ -371,70 +360,62 @@ var RTCIceGatherer = (function (_super) {
      *
      * An RTCIceGatherer object in the closed state can be garbage-collected when it is no longer referenced.
      */
-    function RTCIceGatherer(options) {
-        return _super.call(this) || this;
+    constructor(options) {
+        super();
     }
-    Object.defineProperty(RTCIceGatherer.prototype, "component", {
-        /**
-         * The component-id of the RTCIceGatherer object.
-         * In RTCIceGatherer objects returned by createAssociatedGatherer() the value of the component attribute is rtcp.
-         * In all other RTCIceGatherer objects, the value of the component attribute is rtp.
-         */
-        get: function () {
-            return this._component;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(RTCIceGatherer.prototype, "state", {
-        /**
-         * The current state of the ICE gatherer.
-         */
-        get: function () {
-            return this._state;
-        },
-        enumerable: true,
-        configurable: true
-    });
+    /**
+     * The component-id of the RTCIceGatherer object.
+     * In RTCIceGatherer objects returned by createAssociatedGatherer() the value of the component attribute is rtcp.
+     * In all other RTCIceGatherer objects, the value of the component attribute is rtp.
+     */
+    get component() {
+        return this._component;
+    }
+    /**
+     * The current state of the ICE gatherer.
+     */
+    get state() {
+        return this._state;
+    }
     /**
      * Prunes all local candidates, and closes the port.
      * Associated RTCIceTransport objects transition to the disconnected state (unless they were in the failed state).
      * Calling close() when state is closed has no effect.
      */
-    RTCIceGatherer.prototype.close = function () {
+    close() {
         this._state = RTCIceGathererState.closed;
         this.emit('statechange');
-    };
+    }
     /**
      * Gather ICE candidates.
      * If options is omitted, utilize the value of options passed in the constructor.
      * If state is closed, throw an InvalidStateError exception.
      */
-    RTCIceGatherer.prototype.gather = function (options) {
-    };
+    gather(options) {
+    }
     /**
      * getLocalParameters() obtains the ICE parameters of the RTCIceGatherer. If state is closed, throw an InvalidStateError exception.
      */
-    RTCIceGatherer.prototype.getLocalParameters = function () {
+    getLocalParameters() {
         return undefined;
-    };
+    }
     /**
      * Retrieve the sequence of valid local candidates associated with the RTCIceGatherer.
      * This retrieves all unpruned local candidates currently known (except for peer reflexive candidates),
      * even if an onlocalcandidate event hasn't been processed yet.
      * Prior to calling gather() an empty list will be returned. If state is closed, throw an InvalidStateError exception.
      */
-    RTCIceGatherer.prototype.getLocalCandidates = function () {
+    getLocalCandidates() {
         return undefined;
-    };
+    }
     /**
      * Create an associated RTCIceGatherer for RTCP, with the same RTCIceParameters and RTCIceGatherOptions.
      * If state is closed, throw an InvalidStateError exception.
      * If an RTCIceGatherer calls the method more than once, or if component is rtcp, throw an InvalidStateError exception.
      */
-    RTCIceGatherer.prototype.createAssociatedGatherer = function () {
+    createAssociatedGatherer() {
         return undefined;
-    };
+    }
     /**
      * Gathers stats for the given object and reports the result asynchronously.
      * If the object has not yet begun to send or receive data,
@@ -449,11 +430,10 @@ var RTCIceGatherer = (function (_super) {
      * - When the relevant stats have been gathered, return a new RTCStatsReport object,
      *   representing the gathered stats.
      */
-    RTCIceGatherer.prototype.getStats = function () {
+    getStats() {
         return undefined;
-    };
-    return RTCIceGatherer;
-}(Events.EventEmitter));
+    }
+}
 exports.RTCIceGatherer = RTCIceGatherer;
 ;
 /**
@@ -461,8 +441,7 @@ exports.RTCIceGatherer = RTCIceGatherer;
  * transport over which packets are sent and received. In particular,
  * ICE manages peer-to-peer connections which involve state which the application may want to access.
  */
-var RTCIceTransport = (function (_super) {
-    __extends(RTCIceTransport, _super);
+class RTCIceTransport extends Stream.Duplex {
     /*
      * onstatechange() => emit('statechange')
      * oncandidatepairchange(event: RTCIceCandidatePairChangedEvent) => emit('candidatepairchange')
@@ -473,65 +452,49 @@ var RTCIceTransport = (function (_super) {
      *
      * An RTCIceTransport object in the closed state can be garbage-collected when it is no longer referenced.
      */
-    function RTCIceTransport(gatherer) {
-        return _super.call(this) || this;
+    constructor(gatherer) {
+        super();
     }
-    Object.defineProperty(RTCIceTransport.prototype, "iceGatherer", {
-        /**
-         * The iceGatherer attribute is set to the value of gatherer if passed in the constructor or in the latest call to start().
-         */
-        get: function () {
-            return this._iceGatherer;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(RTCIceTransport.prototype, "role", {
-        /**
-         * The current role of the ICE transport.
-         */
-        get: function () {
-            return this._role;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(RTCIceTransport.prototype, "component", {
-        /**
-         * The component-id of the RTCIceTransport object. In RTCIceTransport objects returned by createAssociatedTransport(),
-         * the value of component is rtcp. In all other RTCIceTransport objects, the value of component is rtp.
-         */
-        get: function () {
-            return this._component;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(RTCIceTransport.prototype, "state", {
-        /**
-         * The current state of the ICE transport.
-         */
-        get: function () {
-            return this._state;
-        },
-        enumerable: true,
-        configurable: true
-    });
+    /**
+     * The iceGatherer attribute is set to the value of gatherer if passed in the constructor or in the latest call to start().
+     */
+    get iceGatherer() {
+        return this._iceGatherer;
+    }
+    /**
+     * The current role of the ICE transport.
+     */
+    get role() {
+        return this._role;
+    }
+    /**
+     * The component-id of the RTCIceTransport object. In RTCIceTransport objects returned by createAssociatedTransport(),
+     * the value of component is rtcp. In all other RTCIceTransport objects, the value of component is rtp.
+     */
+    get component() {
+        return this._component;
+    }
+    /**
+     * The current state of the ICE transport.
+     */
+    get state() {
+        return this._state;
+    }
     /**
      * Retrieve the sequence of candidates associated with the remote RTCIceTransport.
      * Only returns the candidates previously added using setRemoteCandidates() or addRemoteCandidate().
      * If there are no remote candidates, an empty list is returned.
      */
-    RTCIceTransport.prototype.getRemoteCandidates = function () {
+    getRemoteCandidates() {
         return undefined;
-    };
+    }
     /**
      * Retrieves the selected candidate pair on which packets are sent.
      * If there is no selected pair yet, or consent [RFC7675] is lost on the selected pair, NULL is returned.
      */
-    RTCIceTransport.prototype.getSelectedCandidatePair = function () {
+    getSelectedCandidatePair() {
         return undefined;
-    };
+    }
     /**
      *
      * As noted in [RFC5245] Section 7.1.2.3, an incoming connectivity check utilizes the local/remote username fragment and the local password,
@@ -560,9 +523,8 @@ var RTCIceTransport = (function (_super) {
      * - If start() is called again with new values of gatherer and remoteParameters, local candidates are flushed,
      *   remote candidates are flushed, candidate pairs are flushed and state transitions to new.
      */
-    RTCIceTransport.prototype.start = function (gatherer, remoteParameters, role) {
-        if (role === void 0) { role = RTCIceRole.controlled; }
-    };
+    start(gatherer, remoteParameters, role = RTCIceRole.controlled) {
+    }
     /**
      * Irreversibly stops the RTCIceTransport. When stop is called, the following steps must be run:
      *
@@ -573,35 +535,35 @@ var RTCIceTransport = (function (_super) {
      * - Remove iceTransport from controller.
      * - Fire a simple event statechange at iceTransport.
      */
-    RTCIceTransport.prototype.stop = function () {
-    };
+    stop() {
+    }
     /**
      * getRemoteParameters() obtains the current ICE parameters of the remote RTCIceTransport.
      */
-    RTCIceTransport.prototype.getRemoteParameters = function () {
+    getRemoteParameters() {
         return undefined;
-    };
+    }
     /**
      * Create an associated RTCIceTransport for RTCP. If called more than once for the same component,
      * or if state is closed, throw an InvalidStateError exception. If called when component is rtcp,
      * throw an InvalidStateError exception.
      */
-    RTCIceTransport.prototype.createAssociatedTransport = function () {
+    createAssociatedTransport() {
         return undefined;
-    };
+    }
     /**
      * Add a remote candidate associated with the remote RTCIceTransport.
      * If state is closed, throw an InvalidStateError exception. When the remote RTCIceGatherer emits its final candidate,
      * addRemoteCandidate() should be called with an RTCIceCandidateComplete dictionary as an argument,
      * so that the local RTCIceTransport can know there are no more remote candidates expected, and can enter the completed state.
      */
-    RTCIceTransport.prototype.addRemoteCandidate = function (remoteCandidate) {
-    };
+    addRemoteCandidate(remoteCandidate) {
+    }
     /**
      * Set the sequence of candidates associated with the remote RTCIceTransport. If state is closed, throw an InvalidStateError exception.
      */
-    RTCIceTransport.prototype.setRemoteCandidates = function (remoteCandidates) {
-    };
+    setRemoteCandidates(remoteCandidates) {
+    }
     /**
      * Gathers stats for the given object and reports the result asynchronously.
      * If the object has not yet begun to send or receive data,
@@ -616,11 +578,10 @@ var RTCIceTransport = (function (_super) {
      * - When the relevant stats have been gathered, return a new RTCStatsReport object,
      *   representing the gathered stats.
      */
-    RTCIceTransport.prototype.getStats = function () {
+    getStats() {
         return undefined;
-    };
-    return RTCIceTransport;
-}(Stream.Duplex));
+    }
+}
 exports.RTCIceTransport = RTCIceTransport;
 ;
 ;
@@ -631,40 +592,30 @@ exports.RTCIceTransport = RTCIceTransport;
  * This makes it possible to support forking, where the offerer will create multiple RTCDtlsTransport objects
  * using the same local certificate and fingerprint.
  */
-var RTCCertificate = (function () {
-    function RTCCertificate() {
+class RTCCertificate {
+    /**
+     * The expires attribute indicates the date and time in milliseconds relative to 1970-01-01T00:00:00Z
+     * after which the certificate will be considered invalid by the browser.
+     * After this time, attempts to construct an RTCDtlsTransport object using this certificate will fail.
+     *
+     * Note that this value might not be reflected in a notAfter parameter in the certificate itself.
+     */
+    get expires() {
+        return this._expires;
     }
-    Object.defineProperty(RTCCertificate.prototype, "expires", {
-        /**
-         * The expires attribute indicates the date and time in milliseconds relative to 1970-01-01T00:00:00Z
-         * after which the certificate will be considered invalid by the browser.
-         * After this time, attempts to construct an RTCDtlsTransport object using this certificate will fail.
-         *
-         * Note that this value might not be reflected in a notAfter parameter in the certificate itself.
-         */
-        get: function () {
-            return this._expires;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(RTCCertificate.prototype, "fingerprint", {
-        /**
-         * The fingerprint of the certificate.
-         * As noted in [JSEP] Section 5.2.1, the digest algorithm used for the fingerprint matches that used in the certificate signature.
-         */
-        get: function () {
-            return this._fingerprint;
-        },
-        enumerable: true,
-        configurable: true
-    });
+    /**
+     * The fingerprint of the certificate.
+     * As noted in [JSEP] Section 5.2.1, the digest algorithm used for the fingerprint matches that used in the certificate signature.
+     */
+    get fingerprint() {
+        return this._fingerprint;
+    }
     /**
      * Returns the value of keygenAlgorithm passed in the call to generateCertificate().
      */
-    RTCCertificate.prototype.getAlgorithm = function () {
+    getAlgorithm() {
         return this._algorithm;
-    };
+    }
     /**
      * The generateCertificate method causes the user agent to create and store an X.509 certificate [X509V3] and corresponding private key.
      * A handle to information is provided in the form of the RTCCertificate interface.
@@ -707,11 +658,10 @@ var RTCCertificate = (function () {
      *
      * It is expected that a user agent will have a small or even fixed set of values that it will accept.
      */
-    RTCCertificate.generateCertificate = function (keygenAlgorithm) {
+    static generateCertificate(keygenAlgorithm) {
         return undefined;
-    };
-    return RTCCertificate;
-}());
+    }
+}
 exports.RTCCertificate = RTCCertificate;
 ;
 /**
@@ -809,8 +759,7 @@ var RTCDtlsRole;
  * incoming media packets may be received. A modest buffer must be provided to avoid loss of media
  * prior to remote fingerprint validation (which can begin after start() is called).
  */
-var RTCDtlsTransport = (function (_super) {
-    __extends(RTCDtlsTransport, _super);
+class RTCDtlsTransport extends Stream.Transform {
     /*
      * onstatechange() => emit('statechange')
      * onerror(event: Error) => emit('error')
@@ -818,59 +767,51 @@ var RTCDtlsTransport = (function (_super) {
     /**
      * An RTCDtlsTransport instance is associated to an RTCRtpSender, an RTCRtpReceiver, or an RTCSctpTransport instance.
      */
-    function RTCDtlsTransport(transport, certficates) {
-        return _super.call(this) || this;
+    constructor(transport, certficates) {
+        super();
     }
-    Object.defineProperty(RTCDtlsTransport.prototype, "transport", {
-        /**
-         * The associated RTCIceTransport instance.
-         */
-        get: function () {
-            return this._transport;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(RTCDtlsTransport.prototype, "state", {
-        /**
-         * The current state of the DTLS transport.
-         */
-        get: function () {
-            return this._state;
-        },
-        enumerable: true,
-        configurable: true
-    });
+    /**
+     * The associated RTCIceTransport instance.
+     */
+    get transport() {
+        return this._transport;
+    }
+    /**
+     * The current state of the DTLS transport.
+     */
+    get state() {
+        return this._state;
+    }
     /**
      * getCertificates() returns the certificates provided in the constructor.
      */
-    RTCDtlsTransport.prototype.getCertificates = function () {
+    getCertificates() {
         return undefined;
-    };
+    }
     /**
      * getLocalParameters() obtains the DTLS parameters of the local RTCDtlsTransport upon construction.
      * If multiple certificates were provided in the constructor, then multiple fingerprints will be returned,
      * one for each certificate. getLocalParameters().role always returns the default role of a newly constructed RTCDtlsTransport;
      * for a browser this will be auto.
      */
-    RTCDtlsTransport.prototype.getLocalParameters = function () {
+    getLocalParameters() {
         return undefined;
-    };
+    }
     /**
      * getRemoteParameters() obtains the remote DTLS parameters passed in the start() method. Prior to calling start(), null is returned.
      */
-    RTCDtlsTransport.prototype.getRemoteParameters = function () {
+    getRemoteParameters() {
         return undefined;
-    };
+    }
     /**
      * getRemoteCertificates() returns the certificate chain in use by the remote side,
      * with each certificate encoded in binary Distinguished Encoding Rules (DER) [X690].
      * getRemoteCertificates() returns an empty list prior to selection of the remote certificate,
      * which is completed once state transitions to connected.
      */
-    RTCDtlsTransport.prototype.getRemoteCertificates = function () {
+    getRemoteCertificates() {
         return undefined;
-    };
+    }
     /**
      * Start DTLS transport negotiation with the parameters of the remote DTLS transport,
      * including verification of the remote fingerprint,
@@ -886,13 +827,13 @@ var RTCDtlsTransport = (function (_super) {
      * then if dtlsTransportB.start() is called prior to having called dtlsTransportA.stop(),
      * then throw an InvalidStateError exception.
      */
-    RTCDtlsTransport.prototype.start = function (remoteParameters) {
-    };
+    start(remoteParameters) {
+    }
     /**
      * Stops and closes the RTCDtlsTransport object. Calling stop() when state is closed has no effect.
      */
-    RTCDtlsTransport.prototype.stop = function () {
-    };
+    stop() {
+    }
     /**
      * Gathers stats for the given object and reports the result asynchronously.
      * If the object has not yet begun to send or receive data,
@@ -907,11 +848,10 @@ var RTCDtlsTransport = (function (_super) {
      * - When the relevant stats have been gathered, return a new RTCStatsReport object,
      *   representing the gathered stats.
      */
-    RTCDtlsTransport.prototype.getStats = function () {
+    getStats() {
         return undefined;
-    };
-    return RTCDtlsTransport;
-}(Stream.Transform));
+    }
+}
 exports.RTCDtlsTransport = RTCDtlsTransport;
 ;
 ;
@@ -928,27 +868,22 @@ exports.RTCDtlsTransport = RTCDtlsTransport;
  * Therefore an application attempting to create additional RTCRtpReceiver objects to handle the incoming RTP stream may find
  * that portions of the incoming RTP stream were lost due to insufficient buffers, and therefore could not be rendered.
  */
-var RTCRtpListener = (function () {
+class RTCRtpListener {
     /*
      * onunhandledrtp(event: RTCRtpUnhandledEvent) => emit('unhandledrtp')
      */
     /**
      * An RTCRtpListener instance is associated to an RTCDtlsTransport.
      */
-    function RTCRtpListener(transport) {
+    constructor(transport) {
     }
-    Object.defineProperty(RTCRtpListener.prototype, "transport", {
-        /**
-         * The RTP RTCDtlsTransport instance.
-         */
-        get: function () {
-            return this._transport;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return RTCRtpListener;
-}());
+    /**
+     * The RTP RTCDtlsTransport instance.
+     */
+    get transport() {
+        return this._transport;
+    }
+}
 exports.RTCRtpListener = RTCRtpListener;
 ;
 ;
@@ -1020,8 +955,7 @@ var RTCDegradationPreference;
  *
  * An RTCRtpSender object can be garbage-collected once stop() is called and it is no longer referenced.
  */
-var RTCRtpSender = (function (_super) {
-    __extends(RTCRtpSender, _super);
+class RTCRtpSender extends Stream.Duplex {
     /*
      * onssrcconflict() => emit('ssrcconflict')
      */
@@ -1036,56 +970,40 @@ var RTCRtpSender = (function (_super) {
      * - If the first argument is a NodeStream, let it be track and let kind be track.kind.
      * - Create an RTCRtpSender with track, transport (if provided) and rtcpTransport (if provided) and let sender be the result.
      */
-    function RTCRtpSender(trackOrKind, transport, rtcpTransport) {
-        return _super.call(this) || this;
+    constructor(trackOrKind, transport, rtcpTransport) {
+        super();
     }
-    Object.defineProperty(RTCRtpSender.prototype, "track", {
-        /**
-         * The associated MediaStreamTrack instance. If track is ended,
-         * or if track.muted is set to true,
-         * the RTCRtpSender sends silence (audio) or a black frame (video).
-         * If track is set to null then the RTCRtpSender does not send RTP.
-         */
-        get: function () {
-            return this._track;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(RTCRtpSender.prototype, "transport", {
-        /**
-         * The RTCDtlsTransport instance over which RTCP is sent and received (if provided).
-         * When BUNDLE is used,
-         * many RTCRtpSender objects will share one rtcpTransport and will all send and receive RTCP over the same RTCDtlsTransport.
-         * When RTCP mux is used, rtcpTransport will be null, and both RTP and RTCP traffic will flow over the RTCDtlsTransport transport.
-         */
-        get: function () {
-            return this._transport;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(RTCRtpSender.prototype, "rtcpTransport", {
-        /**
-         * The associated RTCP RTCDtlsTransport instance if one was provided in the constructor.
-         * When RTCP mux is used, rtcpTransport will be null, and both RTP and RTCP traffic will flow over the RTCDtlsTransport transport.
-         */
-        get: function () {
-            return this._rtcpTransport;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(RTCRtpSender.prototype, "kind", {
-        /**
-         * The value of kind or track.kind passed in the constructor.
-         */
-        get: function () {
-            return this._kind;
-        },
-        enumerable: true,
-        configurable: true
-    });
+    /**
+     * The associated MediaStreamTrack instance. If track is ended,
+     * or if track.muted is set to true,
+     * the RTCRtpSender sends silence (audio) or a black frame (video).
+     * If track is set to null then the RTCRtpSender does not send RTP.
+     */
+    get track() {
+        return this._track;
+    }
+    /**
+     * The RTCDtlsTransport instance over which RTCP is sent and received (if provided).
+     * When BUNDLE is used,
+     * many RTCRtpSender objects will share one rtcpTransport and will all send and receive RTCP over the same RTCDtlsTransport.
+     * When RTCP mux is used, rtcpTransport will be null, and both RTP and RTCP traffic will flow over the RTCDtlsTransport transport.
+     */
+    get transport() {
+        return this._transport;
+    }
+    /**
+     * The associated RTCP RTCDtlsTransport instance if one was provided in the constructor.
+     * When RTCP mux is used, rtcpTransport will be null, and both RTP and RTCP traffic will flow over the RTCDtlsTransport transport.
+     */
+    get rtcpTransport() {
+        return this._rtcpTransport;
+    }
+    /**
+     * The value of kind or track.kind passed in the constructor.
+     */
+    get kind() {
+        return this._kind;
+    }
     /**
      * setTransport() attempts to replace the the RTP RTCDtlsTransport transport (if set)
      * and RTCP RTCDtlsTransport rtcpTransport (if used) with the transport(s) provided.
@@ -1102,15 +1020,15 @@ var RTCRtpSender = (function (_super) {
      * - If withRtcpTransport is set and withRtcpTransport.state is closed, throw an InvalidStateError exception.
      * - Set transport to withTransport and rtcpTransport to withRtcpTransport (if provided) and seamlessly send over the new transport(s).
      */
-    RTCRtpSender.prototype.setTransport = function (transport, rtcpTransport) {
-    };
+    setTransport(transport, rtcpTransport) {
+    }
     /**
      * setTrack Attempts to replace the track being sent with another track provided (or with a null track).
      * The deprecated setTrack method operates identically to the replaceTrack method.
      */
-    RTCRtpSender.prototype.setTrack = function (trackOrKind) {
+    setTrack(trackOrKind) {
         return undefined;
-    };
+    }
     /**
      * Attempts to replace the track being sent with another track provided (or with a null track).
      *
@@ -1124,9 +1042,9 @@ var RTCRtpSender = (function (_super) {
      * -  - Set the track attribute to withTrack. If withTrack is null, the sender stops sending. Otherwise, have the sender seamlessly switch to transmitting withTrack in place of what it is sending.
      * -  - Resolve p with undefined.
      */
-    RTCRtpSender.prototype.replaceTrack = function (trackOrKind) {
+    replaceTrack(trackOrKind) {
         return undefined;
-    };
+    }
     /**
      * getCapabilities() obtains the sender capabilities, based on kind.
      * Browsers must support kind values of "audio" and "video".
@@ -1135,9 +1053,9 @@ var RTCRtpSender = (function (_super) {
      * redundancy [RFC2198] and Forward Error Correction) have RTCRtpCapabilities.RTCRtpCodecCapability[i].kind
      * set to the value of the kind argument.
      */
-    RTCRtpSender.getCapabilities = function (kind) {
+    static getCapabilities(kind) {
         return undefined;
-    };
+    }
     /**
      * Attempts to set the parameters controlling the sending of media.
      *
@@ -1157,9 +1075,9 @@ var RTCRtpSender = (function (_super) {
      * - - If send() is called for the first time, start sending. If send() was called previously, have the sender switch to sending using withParameters.
      * - - Resolve p with undefined.
      */
-    RTCRtpSender.prototype.send = function (parameters) {
+    send(parameters) {
         return undefined;
-    };
+    }
     /**
      * The stop method irreversibly stops the RTCRtpSender. When stop called, the following steps must be run:
      * - Let sender be the RTCRtpSender on which stop is invoked.
@@ -1168,8 +1086,8 @@ var RTCRtpSender = (function (_super) {
      * - Stop sending media with sender.
      * - Send an RTCP BYE for each SSRC in parameters.encodings[i].ssrc, parameters.encodings[i].fec.ssrc and parameters.encodings[i].rtx.ssrc where i goes from 0 to encodings.length-1.
      */
-    RTCRtpSender.prototype.stop = function () {
-    };
+    stop() {
+    }
     /**
      * Gathers stats for the given object and reports the result asynchronously.
      * If the object has not yet begun to send or receive data,
@@ -1184,11 +1102,10 @@ var RTCRtpSender = (function (_super) {
      * - When the relevant stats have been gathered, return a new RTCStatsReport object,
      *   representing the gathered stats.
      */
-    RTCRtpSender.prototype.getStats = function () {
+    getStats() {
         return undefined;
-    };
-    return RTCRtpSender;
-}(Stream.Duplex));
+    }
+}
 exports.RTCRtpSender = RTCRtpSender;
 ;
 ;
@@ -1203,57 +1120,44 @@ exports.RTCRtpSender = RTCRtpSender;
  *
  * An RTCRtpReceiver object can be garbage-collected once stop() is called and it is no longer referenced.
  */
-var RTCRtpReceiver = (function (_super) {
-    __extends(RTCRtpReceiver, _super);
+class RTCRtpReceiver extends Stream.Duplex {
     /**
      * An RTCRtpReceiver instance produces an associated receiving MediaStreamTrack and provides RTC related methods to it.
      */
-    function RTCRtpReceiver(kind, transport, rtcpTransport) {
-        return _super.call(this) || this;
+    constructor(kind, transport, rtcpTransport) {
+        super();
     }
-    Object.defineProperty(RTCRtpReceiver.prototype, "track", {
-        /**
-         * The track attribute is the MediaStreamTrack instance that is associated with this RTCRtpReceiver object receiver.
-         * Upon construction, track is set. The value of track.kind is set to the value of kind passed in the constructor.
-         *
-         * When one of the SSRCs in parameters.encodings[i].ssrc
-         * (where i goes from 0 to encodings.length-1) is removed from the source identifier table described in [RFC3550]
-         * Section 8.2 (either due to BYE reception or timeout) the mute event is fired at track.
-         * If and when media packets are received again for receiver, the unmute event is fired at track.
-         *
-         * NOTE:
-         * - Prior to verification of the remote DTLS fingerprint within the RTCDtlsTransport transport, and (if set) rtcpTransport,
-         * track must not emit media for rendering.
-         */
-        get: function () {
-            return this._track;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(RTCRtpReceiver.prototype, "transport", {
-        /**
-         * The associated RTP RTCDtlsTransport instance.
-         */
-        get: function () {
-            return this._transport;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(RTCRtpReceiver.prototype, "rtcpTransport", {
-        /**
-         * The RTCDtlsTransport instance over which RTCP is sent and received.
-         * When BUNDLE is used,
-         * multiple RTCRtpReceiver objects will share one rtcpTransport and will send and receive RTCP over the same RTCDtlsTransport.
-         * When RTCP mux is used, rtcpTransport will be null, and both RTP and RTCP traffic will flow over the RTCDtlsTransport transport.
-         */
-        get: function () {
-            return this._rtcpTransport;
-        },
-        enumerable: true,
-        configurable: true
-    });
+    /**
+     * The track attribute is the MediaStreamTrack instance that is associated with this RTCRtpReceiver object receiver.
+     * Upon construction, track is set. The value of track.kind is set to the value of kind passed in the constructor.
+     *
+     * When one of the SSRCs in parameters.encodings[i].ssrc
+     * (where i goes from 0 to encodings.length-1) is removed from the source identifier table described in [RFC3550]
+     * Section 8.2 (either due to BYE reception or timeout) the mute event is fired at track.
+     * If and when media packets are received again for receiver, the unmute event is fired at track.
+     *
+     * NOTE:
+     * - Prior to verification of the remote DTLS fingerprint within the RTCDtlsTransport transport, and (if set) rtcpTransport,
+     * track must not emit media for rendering.
+     */
+    get track() {
+        return this._track;
+    }
+    /**
+     * The associated RTP RTCDtlsTransport instance.
+     */
+    get transport() {
+        return this._transport;
+    }
+    /**
+     * The RTCDtlsTransport instance over which RTCP is sent and received.
+     * When BUNDLE is used,
+     * multiple RTCRtpReceiver objects will share one rtcpTransport and will send and receive RTCP over the same RTCDtlsTransport.
+     * When RTCP mux is used, rtcpTransport will be null, and both RTP and RTCP traffic will flow over the RTCDtlsTransport transport.
+     */
+    get rtcpTransport() {
+        return this._rtcpTransport;
+    }
     /**
      * The setTransport() method attempts to replace the the RTP RTCDtlsTransport transport (and if used) RTCP RTCDtlsTransport
      * rtcpTransport with the transport(s) provided.
@@ -1269,8 +1173,8 @@ var RTCRtpReceiver = (function (_super) {
      * - If withRtcpTransport is set and withRtcpTransport.state is closed, throw an InvalidStateError exception.
      * - Replace transport with withTransport and rtcpTransport (if set) with withRtcpTransport and seamlessly receive over the new transport(s).
      */
-    RTCRtpReceiver.prototype.setTransport = function (transport, rtcpTransport) {
-    };
+    setTransport(transport, rtcpTransport) {
+    }
     /**
      * getCapabilities() obtains the receiver capabilities, based on kind.
      * Browsers must support kind values of "audio" and "video".
@@ -1279,9 +1183,9 @@ var RTCRtpReceiver = (function (_super) {
      * redundancy [RFC2198] and Forward Error Correction) have RTCRtpCapabilities.RTCRtpCodecCapability[i].kind set to the value
      * of the kind argument.
      */
-    RTCRtpReceiver.getCapabilities = function (kind) {
+    static getCapabilities(kind) {
         return undefined;
-    };
+    }
     /**
      * Attempts to set the parameters controlling the receiving of media.
      *
@@ -1299,30 +1203,30 @@ var RTCRtpReceiver = (function (_super) {
      * - - If receive() is called for the first time, start receiving. If receive() was called previously, have the receiver switch to receiving using withParameters.
      * - - Resolve p with undefined.
      */
-    RTCRtpReceiver.prototype.receive = function (parameters) {
+    receive(parameters) {
         return undefined;
-    };
+    }
     /**
      * Returns an RTCRtpContributingSource for each unique CSRC identifier received by this RTCRtpReceiver.
      * The browser must keep information from RTP packets received in the last 10 seconds.
      * If no contributing sources are available, an empty list is returned.
      */
-    RTCRtpReceiver.prototype.getContributingSources = function () {
+    getContributingSources() {
         return undefined;
-    };
+    }
     /**
      * Returns an RTCRtpSynchronizationSource for each unique SSRC identifier received by this RTCRtpReceiver in the last 10 seconds.
      */
-    RTCRtpReceiver.prototype.getSynchronizationSources = function () {
+    getSynchronizationSources() {
         return undefined;
-    };
+    }
     /**
      * Stops the RTCRtpReceiver receiver. receiver.stop() is final like receiver.track.stop().
      * receiver.track.stop() does not affect track clones and also does not stop receiver so that Receiver Reports continue to be sent.
      * Calling receiver.stop() does not cause the "onended" event to fire for track.
      */
-    RTCRtpReceiver.prototype.stop = function () {
-    };
+    stop() {
+    }
     /**
      * Gathers stats for the given object and reports the result asynchronously.
      * If the object has not yet begun to send or receive data,
@@ -1337,11 +1241,10 @@ var RTCRtpReceiver = (function (_super) {
      * - When the relevant stats have been gathered, return a new RTCStatsReport object,
      *   representing the gathered stats.
      */
-    RTCRtpReceiver.prototype.getStats = function () {
+    getStats() {
         return undefined;
-    };
-    return RTCRtpReceiver;
-}(Stream.Duplex));
+    }
+}
 exports.RTCRtpReceiver = RTCRtpReceiver;
 ;
 ;
@@ -1388,8 +1291,7 @@ var RTCDataChannelState;
  * such as in order delivery settings and reliability mode, are configured by the peer as the channel is created.
  * The properties of a channel cannot change after the channel has been created.
  */
-var RTCDataChannel = (function (_super) {
-    __extends(RTCDataChannel, _super);
+class RTCDataChannel extends Stream.Duplex {
     /*
      * onopen() => emit('open')
      * onbufferedamountlow() => emit('bufferedamountlow')
@@ -1404,52 +1306,40 @@ var RTCDataChannel = (function (_super) {
      *
      * An RTCDataChannel object can be garbage-collected once readyState is closed and it is no longer referenced.
      */
-    function RTCDataChannel(transport, parameters) {
-        return _super.call(this) || this;
+    constructor(transport, parameters) {
+        super();
     }
-    Object.defineProperty(RTCDataChannel.prototype, "readyState", {
-        /**
-         * The readyState attribute represents the state of the RTCDataChannel object.
-         * It must return the value to which the user agent last set it (as defined by the processing model algorithms).
-         */
-        get: function () {
-            return this._state;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(RTCDataChannel.prototype, "transport", {
-        /**
-         * The readonly attribute referring to the related transport object.
-         */
-        get: function () {
-            return this._transport;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(RTCDataChannel.prototype, "bufferedAmount", {
-        /**
-         * The bufferedAmount attribute must return the number of bytes of application data (UTF-8 text and binary data)
-         * that have been queued using send() but that, as of the last time the event loop started executing a task,
-         * had not yet been transmitted to the network. This includes any text sent during the execution of the current task,
-         * regardless of whether the user agent is able to transmit text asynchronously with script execution.
-         * This does not include framing overhead incurred by the protocol, or buffering done by the operating system or network hardware.
-         * If the channel is closed, this attribute's value will only increase with each call to the send()
-         * method (the attribute does not reset to zero once the channel closes).
-         */
-        get: function () {
-            return this._bufferedAmount;
-        },
-        enumerable: true,
-        configurable: true
-    });
+    /**
+     * The readyState attribute represents the state of the RTCDataChannel object.
+     * It must return the value to which the user agent last set it (as defined by the processing model algorithms).
+     */
+    get readyState() {
+        return this._state;
+    }
+    /**
+     * The readonly attribute referring to the related transport object.
+     */
+    get transport() {
+        return this._transport;
+    }
+    /**
+     * The bufferedAmount attribute must return the number of bytes of application data (UTF-8 text and binary data)
+     * that have been queued using send() but that, as of the last time the event loop started executing a task,
+     * had not yet been transmitted to the network. This includes any text sent during the execution of the current task,
+     * regardless of whether the user agent is able to transmit text asynchronously with script execution.
+     * This does not include framing overhead incurred by the protocol, or buffering done by the operating system or network hardware.
+     * If the channel is closed, this attribute's value will only increase with each call to the send()
+     * method (the attribute does not reset to zero once the channel closes).
+     */
+    get bufferedAmount() {
+        return this._bufferedAmount;
+    }
     /**
      * Returns the parameters applying to this data channel.
      */
-    RTCDataChannel.prototype.getParameters = function () {
+    getParameters() {
         return undefined;
-    };
+    }
     /**
      * Closes the RTCDataChannel.
      * It may be called regardless of whether the RTCDataChannel object was created by this peer or the remote peer.
@@ -1459,15 +1349,14 @@ var RTCDataChannel = (function (_super) {
      * - Set channel's readyState attribute to closing.
      * - If the closing procedure has not started yet, start it.
      */
-    RTCDataChannel.prototype.close = function () {
-    };
+    close() {
+    }
     /**
      * Run the steps described by the send() algorithm with argument type string object.
      */
-    RTCDataChannel.prototype.send = function (data) {
-    };
-    return RTCDataChannel;
-}(Stream.Duplex));
+    send(data) {
+    }
+}
 exports.RTCDataChannel = RTCDataChannel;
 ;
 /**
@@ -1497,8 +1386,7 @@ var RTCSctpTransportState;
 /**
  * The RTCSctpTransport includes information relating to Stream Control Transmission Protocol (SCTP) transport.
  */
-var RTCSctpTransport = (function (_super) {
-    __extends(RTCSctpTransport, _super);
+class RTCSctpTransport extends Stream.Transform {
     /*
      * ondatachannel() => emit('datachannel')
      * onstatechange() => emit('statechange')
@@ -1511,45 +1399,33 @@ var RTCSctpTransport = (function (_super) {
      * If a port already in use is provided in the constructor, throw an InvalidParameters exception.
      * An RTCSctpTransport object can be garbage-collected once stop() is called and it is no longer referenced.
      */
-    function RTCSctpTransport(transport, port) {
-        return _super.call(this) || this;
+    constructor(transport, port) {
+        super();
     }
-    Object.defineProperty(RTCSctpTransport.prototype, "transport", {
-        /**
-         * The RTCDtlsTransport instance the RTCSctpTransport object is sending over.
-         */
-        get: function () {
-            return this._transport;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(RTCSctpTransport.prototype, "state", {
-        /**
-         * The current state of the SCTP transport.
-         */
-        get: function () {
-            return this._state;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(RTCSctpTransport.prototype, "port", {
-        /**
-         * The local SCTP port number used by the data channel.
-         */
-        get: function () {
-            return this._port;
-        },
-        enumerable: true,
-        configurable: true
-    });
+    /**
+     * The RTCDtlsTransport instance the RTCSctpTransport object is sending over.
+     */
+    get transport() {
+        return this._transport;
+    }
+    /**
+     * The current state of the SCTP transport.
+     */
+    get state() {
+        return this._state;
+    }
+    /**
+     * The local SCTP port number used by the data channel.
+     */
+    get port() {
+        return this._port;
+    }
     /**
      * getCapabilities() retrieves the RTCSctpCapabilities of the RTCSctpTransport.
      */
-    RTCSctpTransport.getCapabilities = function () {
+    static getCapabilities() {
         return undefined;
-    };
+    }
     /**
      * Starts the RTCSctpTransport instance and causes an SCTP INIT request to be issued over the RTCDtlsTransport
      * from the local RTCSctpTransport to the remote RTCSctpTransport
@@ -1560,13 +1436,13 @@ var RTCSctpTransport = (function (_super) {
      * If RTCSctpTransportState is not new throw an InvalidStateError exception.
      * If remotePort is not provided, a default value of port is assumed. If the remote port is in use, throw an InvalidParameters exception.
      */
-    RTCSctpTransport.prototype.start = function (remoteCaps, remotePort) {
-    };
+    start(remoteCaps, remotePort) {
+    }
     /**
      * Stops the RTCSctpTransport instance.
      */
-    RTCSctpTransport.prototype.stop = function () {
-    };
+    stop() {
+    }
     /**
      * Gathers stats for the given object and reports the result asynchronously.
      * If the object has not yet begun to send or receive data,
@@ -1581,11 +1457,10 @@ var RTCSctpTransport = (function (_super) {
      * - When the relevant stats have been gathered, return a new RTCStatsReport object,
      *   representing the gathered stats.
      */
-    RTCSctpTransport.prototype.getStats = function () {
+    getStats() {
         return undefined;
-    };
-    return RTCSctpTransport;
-}(Stream.Transform));
+    }
+}
 exports.RTCSctpTransport = RTCSctpTransport;
 ;
 //# sourceMappingURL=ortc.js.map
