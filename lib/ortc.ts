@@ -2,19 +2,6 @@ import Stream = require('stream');
 import Events = require('events');
 
 /**
- * References:
- * 
- * http://draft.ortc.org/
- * https://tools.ietf.org/html/rfc5245 - Interactive Connectivity Establishment (ICE)
- * https://tools.ietf.org/html/rfc3489 - STUN - Simple Traversal of User Datagram Protocol (UDP)
- * https://tools.ietf.org/html/rfc5389 - Session Traversal Utilities for NAT (STUN)
- * https://tools.ietf.org/html/rfc5766 - Traversal Using Relays around NAT (TURN)
- * https://tools.ietf.org/html/rfc1889 - RTP: A Transport Protocol for Real-Time Applications
- * https://tools.ietf.org/html/rfc4960 - Stream Control Transmission Protocol
- * https://tools.ietf.org/html/draft-jesup-rtcweb-data-protocol-04#page-3 - WebRTC Data Channel Protocol
- */
-
-/**
  * For ORTC, RTCStatsType is equal to one of the following strings
  */
 
@@ -557,7 +544,7 @@ export interface RTCIceGatherOptions {
    * The ICE gather policy.
    */
 
-  gatherPolicy: RTCIceGatherPolicy;
+  gatherPolicy: string | RTCIceGatherPolicy;
 
   /** 
    * Additional ICE servers to be configured. 
@@ -565,7 +552,7 @@ export interface RTCIceGatherOptions {
    * and applications can desire to restrict communications to the local LAN, iceServers need not be set.
    */
 
-  iceservers: RTCIceServer[];
+  iceServers: RTCIceServer[];
 }
 
 /**
@@ -781,308 +768,8 @@ export interface RTCIceCandidatePairChangedEvent {
   readonly pair: RTCIceCandidatePair;
 };
 
-/** 
- * The RTCIceGatherer gathers local host, 
- * server reflexive and relay candidates, 
- * as well as enabling the retrieval of local Interactive Connectivity Establishment (ICE) parameters which can be exchanged in signaling. 
- * By enabling an endpoint to use a set of local candidates to construct multiple RTCIceTransport objects, the RTCIceGatherer enables support for scenarios such as parallel forking 
- */
-
-export class RTCIceGatherer extends Events.EventEmitter implements RTCStatsProvider {
- /*
-  * onstatechange() => emit('statechange');
-  * onerror(event: RTCIceGathererIceErrorEvent) => emit('error');
-  * onlocalcandidate(event: RTCIceGathererEvent) => emit('localcandidate');
-  */
-
-  /**
-   * An RTCIceGatherer instance is constructed from an RTCIceGatherOptions object.
-   * 
-   * An RTCIceGatherer object in the closed state can be garbage-collected when it is no longer referenced.
-   */
-
-  constructor(options: RTCIceGatherOptions) {
-    super();
-  }
-
-  private _component: RTCIceComponent;
-  private _state: RTCIceGathererState;
-
-  /**
-   * The component-id of the RTCIceGatherer object. 
-   * In RTCIceGatherer objects returned by createAssociatedGatherer() the value of the component attribute is rtcp. 
-   * In all other RTCIceGatherer objects, the value of the component attribute is rtp.
-   */
-
-  public get component(): RTCIceComponent {
-    return this._component;
-  }
-
-  /**
-   * The current state of the ICE gatherer.
-   */
-
-  public get state(): RTCIceGathererState {
-    return this._state;
-  }
-
-  /**
-   * Prunes all local candidates, and closes the port. 
-   * Associated RTCIceTransport objects transition to the disconnected state (unless they were in the failed state). 
-   * Calling close() when state is closed has no effect.
-   */
-
-  public close(): void {
-    this._state = RTCIceGathererState.closed;
-    this.emit('statechange');
-  }
-
-  /**
-   * Gather ICE candidates. 
-   * If options is omitted, utilize the value of options passed in the constructor. 
-   * If state is closed, throw an InvalidStateError exception.
-   */
-
-  public gather(options?: RTCIceGatherOptions): void {
-
-  }
-
-  /**
-   * getLocalParameters() obtains the ICE parameters of the RTCIceGatherer. If state is closed, throw an InvalidStateError exception.
-   */
-
-  public getLocalParameters(): RTCIceParameters {
-    return undefined;
-  }
-
-  /**
-   * Retrieve the sequence of valid local candidates associated with the RTCIceGatherer. 
-   * This retrieves all unpruned local candidates currently known (except for peer reflexive candidates), 
-   * even if an onlocalcandidate event hasn't been processed yet. 
-   * Prior to calling gather() an empty list will be returned. If state is closed, throw an InvalidStateError exception.
-   */
-
-  public getLocalCandidates(): RTCIceCandidate[] {
-    return undefined;
-  }
-
-  /**
-   * Create an associated RTCIceGatherer for RTCP, with the same RTCIceParameters and RTCIceGatherOptions. 
-   * If state is closed, throw an InvalidStateError exception. 
-   * If an RTCIceGatherer calls the method more than once, or if component is rtcp, throw an InvalidStateError exception.
-   */
-
-  public createAssociatedGatherer(): RTCIceGatherer {
-    return undefined;
-  }
-
-  /**
-   * Gathers stats for the given object and reports the result asynchronously. 
-   * If the object has not yet begun to send or receive data, 
-   * the returned stats will reflect this. 
-   * If the object is in the closed state, 
-   * the returned stats will reflect the stats at the time the object transitioned to the closed state.
-   * 
-   * When the getStats method is invoked, the user agent must queue a task to run the following steps:
-   * - Let p be a new promise.
-   * - Return, but continue the following steps in the background.
-   * - Start gathering the stats.
-   * - When the relevant stats have been gathered, return a new RTCStatsReport object, 
-   *   representing the gathered stats.
-   */
-
-  public getStats(): Promise<RTCStatsReport> {
-    return undefined;
-  }
-};
-
-/**
- * The RTCIceTransport allows an application access to information about the Interactive Connectivity Establishment (ICE) 
- * transport over which packets are sent and received. In particular, 
- * ICE manages peer-to-peer connections which involve state which the application may want to access.
- */
-
-export class RTCIceTransport extends Stream.Duplex implements RTCStatsProvider {
-  /*
-   * onstatechange() => emit('statechange')
-   * oncandidatepairchange(event: RTCIceCandidatePairChangedEvent) => emit('candidatepairchange')
-   */
-
-  /**
-   * An RTCIceTransport instance is constructed (optionally) from an RTCIceGatherer. 
-   * If gatherer.state is closed or gatherer.component is rtcp, then throw an InvalidStateError exception.
-   * 
-   * An RTCIceTransport object in the closed state can be garbage-collected when it is no longer referenced.
-   */
-
-  constructor(gatherer?: RTCIceGatherer) {
-    super();
-  }
-
-  private _iceGatherer: RTCIceGatherer;
-  private _role: RTCIceRole;
-  private _component: RTCIceComponent;
-  private _state: RTCIceTransportState;
-
-  /**
-   * The iceGatherer attribute is set to the value of gatherer if passed in the constructor or in the latest call to start().
-   */
-
-  public get iceGatherer(): RTCIceGatherer {
-    return this._iceGatherer;
-  }
-
-  /**
-   * The current role of the ICE transport.
-   */
-
-  public get role(): RTCIceRole {
-    return this._role;
-  }
-
-  /**
-   * The component-id of the RTCIceTransport object. In RTCIceTransport objects returned by createAssociatedTransport(), 
-   * the value of component is rtcp. In all other RTCIceTransport objects, the value of component is rtp.
-   */
-
-  public get component(): RTCIceComponent {
-    return this._component;
-  }
-
-  /**
-   * The current state of the ICE transport.
-   */
-
-  public get state(): RTCIceTransportState {
-    return this._state;
-  }
-
-  /**
-   * Retrieve the sequence of candidates associated with the remote RTCIceTransport. 
-   * Only returns the candidates previously added using setRemoteCandidates() or addRemoteCandidate(). 
-   * If there are no remote candidates, an empty list is returned.
-   */
-
-  public getRemoteCandidates(): RTCIceCandidate[] {
-    return undefined;
-  }
-
-  /**
-   * Retrieves the selected candidate pair on which packets are sent. 
-   * If there is no selected pair yet, or consent [RFC7675] is lost on the selected pair, NULL is returned.
-   */
-
-  public getSelectedCandidatePair(): RTCIceCandidatePair {
-    return undefined;
-  }
-
-  /**
-   * 
-   * As noted in [RFC5245] Section 7.1.2.3, an incoming connectivity check utilizes the local/remote username fragment and the local password, 
-   * whereas an outgoing connectivity check utilizes the local/remote username fragment and the remote password. 
-   * Since start() provides role information, as well as the remote username fragment and password, 
-   * once start() is called an RTCIceTransport object can respond to incoming connectivity checks based on its configured role. 
-   * Since start() enables candidate pairs to be formed, it also enables initiating connectivity checks.
-   * 
-   * When start() is called, the following steps must be run:
-   * - If gatherer.component has a value different from component, throw an InvalidParameters exception.
-   * - If state or gatherer.state is closed, throw an InvalidStateError exception.
-   * - If remoteParameters.usernameFragment or remoteParameters.password is unset, throw an InvalidParameters exception.
-   * - If start() is called again and role is changed, throw an InvalidParameters exception.
-   * - If start() is called again with the same values of gatherer and remoteParameters, this has no effect.
-   * - If start() is called for the first time and either gatherer was not passed in 
-   *   the constructor or the value of gatherer is unchanged, if there are remote candidates, 
-   *   set state to checking and start connectivity checks. If there are no remote candidates, state remains new.
-   * - If start() is called for the first time and the value of gatherer passed as an argument 
-   *   is different from that passed in the constructor, flush local candidates. 
-   *   If there are remote candidates, set state to checking and start connectivity checks. 
-   *   If there are no remote candidates, state remains new.
-   * - If start() is called again with the same value of gatherer but the value of remoteParameters has changed, 
-   *   local candidates are kept, remote candidates are flushed, candidate pairs are flushed and state transitions to new.
-   * - If start() is called again with a new value of gatherer but the value of remoteParameters is unchanged, 
-   *   local candidates are flushed, candidate pairs are flushed, new candidate pairs are formed with existing remote candidates, and state transitions to checking.
-   * - If start() is called again with new values of gatherer and remoteParameters, local candidates are flushed, 
-   *   remote candidates are flushed, candidate pairs are flushed and state transitions to new.
-   */
-
-  public start(gatherer: RTCIceGatherer, 
-               remoteParameters: RTCIceParameters, 
-               role: RTCIceRole = RTCIceRole.controlled): void
-  {
-    
-  }
-  
-  /**
-   * Irreversibly stops the RTCIceTransport. When stop is called, the following steps must be run:
-   * 
-   * - Let iceTransport be the RTCIceTransport object on which the stop method is invoked.
-   * - If iceTransport.state is closed, abort these steps.
-   * - Set iceTransport.state to closed.
-   * - Let controller be the RTCIceTransportController object that iceTransport has been added to.
-   * - Remove iceTransport from controller.
-   * - Fire a simple event statechange at iceTransport.
-   */
-
-  public stop(): void {
-
-  }
-
-  /**
-   * getRemoteParameters() obtains the current ICE parameters of the remote RTCIceTransport.
-   */
-
-  public getRemoteParameters(): RTCIceParameters {
-    return undefined;
-  }
-
-  /**
-   * Create an associated RTCIceTransport for RTCP. If called more than once for the same component, 
-   * or if state is closed, throw an InvalidStateError exception. If called when component is rtcp, 
-   * throw an InvalidStateError exception.
-   */
-
-  public createAssociatedTransport(): RTCIceTransport {
-    return undefined;
-  } 
-
-  /**
-   * Add a remote candidate associated with the remote RTCIceTransport. 
-   * If state is closed, throw an InvalidStateError exception. When the remote RTCIceGatherer emits its final candidate, 
-   * addRemoteCandidate() should be called with an RTCIceCandidateComplete dictionary as an argument, 
-   * so that the local RTCIceTransport can know there are no more remote candidates expected, and can enter the completed state.
-   */
-  
-  public addRemoteCandidate(remoteCandidate: RTCIceGatherCandidate): void {
-
-  }
-
-  /**
-   * Set the sequence of candidates associated with the remote RTCIceTransport. If state is closed, throw an InvalidStateError exception.
-   */
-
-  public setRemoteCandidates(remoteCandidates: RTCIceCandidate[]): void {
-
-  }
-
-  /**
-   * Gathers stats for the given object and reports the result asynchronously. 
-   * If the object has not yet begun to send or receive data, 
-   * the returned stats will reflect this. 
-   * If the object is in the closed state, 
-   * the returned stats will reflect the stats at the time the object transitioned to the closed state.
-   * 
-   * When the getStats method is invoked, the user agent must queue a task to run the following steps:
-   * - Let p be a new promise.
-   * - Return, but continue the following steps in the background.
-   * - Start gathering the stats.
-   * - When the relevant stats have been gathered, return a new RTCStatsReport object, 
-   *   representing the gathered stats.
-   */
-
-  public getStats(): Promise<RTCStatsReport> {
-    return undefined;
-  }
-};
+export { RTCIceGatherer } from './rtcicegatherer';
+export { RTCIceTransport } from './rtcicetransport';
 
 /** 
  * The Algorithm object is a inteface object which is used to specify an algorithm and any additional 
@@ -1878,6 +1565,23 @@ export enum RTCPriorityType {
    */
 
   "high"
+};
+
+/**
+ * The ssrcconflict event of the RTCRtpSender object uses the RTCSsrcConflictEvent interface.
+ * 
+ * Firing an RTCSsrcConflictEvent event named e with an ssrc means that an event with the name e, 
+ * which does not bubble (except where otherwise stated) and is not cancelable 
+ * (except where otherwise stated), and which uses the RTCSsrcConflictEvent interface with 
+ * the ssrc attribute set to the conflicting SSRC must be created and dispatched at the given target.
+ */
+
+export interface RTCSsrcConflictEvent {
+  /**
+   * The ssrc attribute represents the conflicting SSRC that caused the event.
+   */
+
+  readonly ssrc: number;
 };
 
 /**
@@ -2748,6 +2452,24 @@ export interface RTCDataChannelParameters {
 };
 
 /**
+ * The datachannel event uses the RTCDataChannelEvent interface.
+ * 
+ * Firing a datachannel event named e with a RTCDataChannel channel means that 
+ * an event with the name e, which does not bubble (except where otherwise stated) 
+ * and is not cancelable (except where otherwise stated), 
+ * and which uses the RTCDataChannelEvent interface with the channel attribute set to channel, 
+ * must be created and dispatched at the given target.
+ */
+
+export interface RTCDataChannelEvent {
+  /**
+   * The channel attribute represents the RTCDataChannel object associated with the event.
+   */
+  
+  readonly channel: RTCDataChannel;
+};
+
+/**
  * An RTCDataChannel object allows sending data messages to/from the remote peer.
  * 
  * The RTCDataChannel interface represents a bi-directional data channel between two peers. 
@@ -2766,7 +2488,6 @@ export interface RTCDataChannelParameters {
  * such as in order delivery settings and reliability mode, are configured by the peer as the channel is created. 
  * The properties of a channel cannot change after the channel has been created.
  */
-
 
 export class RTCDataChannel extends Stream.Duplex {
   /*
