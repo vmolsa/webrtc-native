@@ -97,8 +97,6 @@
 								<li class="tsd-kind-class tsd-parent-kind-external-module"><a href="../classes/_ortc_.rtccertificate.html" class="tsd-kind-icon">RTCCertificate</a></li>
 								<li class="tsd-kind-class tsd-parent-kind-external-module"><a href="../classes/_ortc_.rtcdatachannel.html" class="tsd-kind-icon">RTCData<wbr>Channel</a></li>
 								<li class="tsd-kind-class tsd-parent-kind-external-module"><a href="../classes/_ortc_.rtcdtlstransport.html" class="tsd-kind-icon">RTCDtls<wbr>Transport</a></li>
-								<li class="tsd-kind-class tsd-parent-kind-external-module"><a href="../classes/_ortc_.rtcicegatherer.html" class="tsd-kind-icon">RTCIce<wbr>Gatherer</a></li>
-								<li class="tsd-kind-class tsd-parent-kind-external-module"><a href="../classes/_ortc_.rtcicetransport.html" class="tsd-kind-icon">RTCIce<wbr>Transport</a></li>
 								<li class="tsd-kind-class tsd-parent-kind-external-module"><a href="../classes/_ortc_.rtcrtplistener.html" class="tsd-kind-icon">RTCRtp<wbr>Listener</a></li>
 								<li class="tsd-kind-class tsd-parent-kind-external-module"><a href="../classes/_ortc_.rtcrtpreceiver.html" class="tsd-kind-icon">RTCRtp<wbr>Receiver</a></li>
 								<li class="tsd-kind-class tsd-parent-kind-external-module"><a href="../classes/_ortc_.rtcrtpsender.html" class="tsd-kind-icon">RTCRtp<wbr>Sender</a></li>
@@ -110,6 +108,7 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-interface tsd-parent-kind-external-module"><a href="../interfaces/_ortc_.algorithm.html" class="tsd-kind-icon">Algorithm</a></li>
 								<li class="tsd-kind-interface tsd-parent-kind-external-module"><a href="../interfaces/_ortc_.eckeygenparams.html" class="tsd-kind-icon">Ec<wbr>Key<wbr>Gen<wbr>Params</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-external-module"><a href="../interfaces/_ortc_.rtcdatachannelevent.html" class="tsd-kind-icon">RTCData<wbr>Channel<wbr>Event</a></li>
 								<li class="tsd-kind-interface tsd-parent-kind-external-module"><a href="../interfaces/_ortc_.rtcdatachannelparameters.html" class="tsd-kind-icon">RTCData<wbr>Channel<wbr>Parameters</a></li>
 								<li class="tsd-kind-interface tsd-parent-kind-external-module"><a href="../interfaces/_ortc_.rtcdatatransport.html" class="tsd-kind-icon">RTCData<wbr>Transport</a></li>
 								<li class="tsd-kind-interface tsd-parent-kind-external-module"><a href="../interfaces/_ortc_.rtcdtlsfingerprint.html" class="tsd-kind-icon">RTCDtls<wbr>Fingerprint</a></li>
@@ -139,6 +138,7 @@
 								<li class="tsd-kind-interface tsd-parent-kind-external-module"><a href="../interfaces/_ortc_.rtcrtpsynchronizationsource.html" class="tsd-kind-icon">RTCRtp<wbr>Synchronization<wbr>Source</a></li>
 								<li class="tsd-kind-interface tsd-parent-kind-external-module"><a href="../interfaces/_ortc_.rtcrtpunhandledevent.html" class="tsd-kind-icon">RTCRtp<wbr>Unhandled<wbr>Event</a></li>
 								<li class="tsd-kind-interface tsd-parent-kind-external-module"><a href="../interfaces/_ortc_.rtcsctpcapabilities.html" class="tsd-kind-icon">RTCSctp<wbr>Capabilities</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-external-module"><a href="../interfaces/_ortc_.rtcssrcconflictevent.html" class="tsd-kind-icon">RTCSsrc<wbr>Conflict<wbr>Event</a></li>
 								<li class="tsd-kind-interface tsd-parent-kind-external-module"><a href="../interfaces/_ortc_.rtcstats.html" class="tsd-kind-icon">RTCStats</a></li>
 								<li class="tsd-kind-interface tsd-parent-kind-external-module"><a href="../interfaces/_ortc_.rtcstatsprovider.html" class="tsd-kind-icon">RTCStats<wbr>Provider</a></li>
 								<li class="tsd-kind-interface tsd-parent-kind-external-module tsd-is-not-exported"><a href="../interfaces/_ortc_.rsakeygenparams.html" class="tsd-kind-icon">Rsa<wbr>Key<wbr>Gen<wbr>Params</a></li>
@@ -165,7 +165,7 @@
 					<div class="tsd-signature tsd-kind-icon">Algorithm<wbr>Identifier<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><a href="../interfaces/_ortc_.algorithm.html" class="tsd-signature-type">Algorithm</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/vmolsa/webrtc-native/blob/e6cc2a0/lib/ortc.ts#L1100">ortc.ts:1100</a></li>
+							<li>Defined in <a href="https://github.com/vmolsa/webrtc-native/blob/6bfd3fd/lib/ortc.ts#L787">ortc.ts:787</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -175,7 +175,7 @@
 					<div class="tsd-signature tsd-kind-icon">Node<wbr>Stream<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Stream.Duplex</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Stream.Readable</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Stream.Writable</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Stream.Transform</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Stream.PassThrough</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/vmolsa/webrtc-native/blob/e6cc2a0/lib/ortc.ts#L1581">ortc.ts:1581</a></li>
+							<li>Defined in <a href="https://github.com/vmolsa/webrtc-native/blob/6bfd3fd/lib/ortc.ts#L1268">ortc.ts:1268</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -190,7 +190,7 @@
 					<div class="tsd-signature tsd-kind-icon">RTCIce<wbr>Gather<wbr>Candidate<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_ortc_.rtcicecandidate.html" class="tsd-signature-type">RTCIceCandidate</a><span class="tsd-signature-symbol"> | </span><a href="../interfaces/_ortc_.rtcicecandidatecomplete.html" class="tsd-signature-type">RTCIceCandidateComplete</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/vmolsa/webrtc-native/blob/e6cc2a0/lib/ortc.ts#L654">ortc.ts:654</a></li>
+							<li>Defined in <a href="https://github.com/vmolsa/webrtc-native/blob/6bfd3fd/lib/ortc.ts#L641">ortc.ts:641</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -206,7 +206,7 @@
 					<div class="tsd-signature tsd-kind-icon">RTCStats<wbr>Report<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/vmolsa/webrtc-native/blob/e6cc2a0/lib/ortc.ts#L460">ortc.ts:460</a></li>
+							<li>Defined in <a href="https://github.com/vmolsa/webrtc-native/blob/6bfd3fd/lib/ortc.ts#L447">ortc.ts:447</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -237,7 +237,7 @@
 					<div class="tsd-signature tsd-kind-icon">payloadtype<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/vmolsa/webrtc-native/blob/e6cc2a0/lib/ortc.ts#L1501">ortc.ts:1501</a></li>
+							<li>Defined in <a href="https://github.com/vmolsa/webrtc-native/blob/6bfd3fd/lib/ortc.ts#L1188">ortc.ts:1188</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -256,6 +256,12 @@
 					</li>
 					<li class="current tsd-kind-external-module">
 						<a href="_ortc_.html">"ortc"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_rtcicegatherer_.html">"rtcicegatherer"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_rtcicetransport_.html">"rtcicetransport"</a>
 					</li>
 				</ul>
 			</nav>
@@ -319,12 +325,6 @@
 						<a href="../classes/_ortc_.rtcdtlstransport.html" class="tsd-kind-icon">RTCDtls<wbr>Transport</a>
 					</li>
 					<li class=" tsd-kind-class tsd-parent-kind-external-module">
-						<a href="../classes/_ortc_.rtcicegatherer.html" class="tsd-kind-icon">RTCIce<wbr>Gatherer</a>
-					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-external-module">
-						<a href="../classes/_ortc_.rtcicetransport.html" class="tsd-kind-icon">RTCIce<wbr>Transport</a>
-					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-external-module">
 						<a href="../classes/_ortc_.rtcrtplistener.html" class="tsd-kind-icon">RTCRtp<wbr>Listener</a>
 					</li>
 					<li class=" tsd-kind-class tsd-parent-kind-external-module">
@@ -341,6 +341,9 @@
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
 						<a href="../interfaces/_ortc_.eckeygenparams.html" class="tsd-kind-icon">Ec<wbr>Key<wbr>Gen<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="../interfaces/_ortc_.rtcdatachannelevent.html" class="tsd-kind-icon">RTCData<wbr>Channel<wbr>Event</a>
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
 						<a href="../interfaces/_ortc_.rtcdatachannelparameters.html" class="tsd-kind-icon">RTCData<wbr>Channel<wbr>Parameters</a>
@@ -428,6 +431,9 @@
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
 						<a href="../interfaces/_ortc_.rtcsctpcapabilities.html" class="tsd-kind-icon">RTCSctp<wbr>Capabilities</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="../interfaces/_ortc_.rtcssrcconflictevent.html" class="tsd-kind-icon">RTCSsrc<wbr>Conflict<wbr>Event</a>
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
 						<a href="../interfaces/_ortc_.rtcstats.html" class="tsd-kind-icon">RTCStats</a>

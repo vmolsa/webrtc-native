@@ -3,17 +3,17 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>webrtc-native</title>
+	<title>RTCSsrcConflictEvent | webrtc-native</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" href="assets/css/main.css">
+	<link rel="stylesheet" href="../assets/css/main.css">
 </head>
 <body>
 <header>
 	<div class="tsd-page-toolbar">
 		<div class="container">
 			<div class="table-wrap">
-				<div class="table-cell" id="tsd-search" data-index="assets/js/search.js" data-base=".">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.js" data-base="..">
 					<div class="field">
 						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
 						<input id="tsd-search-field" type="text" />
@@ -22,7 +22,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="index.html" class="title">webrtc-native</a>
+					<a href="../index.html" class="title">webrtc-native</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -53,82 +53,104 @@
 		<div class="container">
 			<ul class="tsd-breadcrumb">
 				<li>
-					<a href="globals.html">Globals</a>
+					<a href="../globals.html">Globals</a>
+				</li>
+				<li>
+					<a href="../modules/_ortc_.html">&quot;ortc&quot;</a>
+				</li>
+				<li>
+					<a href="_ortc_.rtcssrcconflictevent.html">RTCSsrcConflictEvent</a>
 				</li>
 			</ul>
-			<h1> webrtc-native</h1>
+			<h1>Interface RTCSsrcConflictEvent</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
-			<div class="tsd-panel tsd-typography">
-				<h2 id="object-rtc-ortc-api-for-webrtc">Object RTC (ORTC) API for WebRTC</h2>
-				<p>Object Real-Time Communications (ORTC) provides a powerful API for the development of WebRTC based applications. ORTC does not utilize Session Description Protocol (SDP) in the API, nor does it mandate support for the Offer/Answer state machine (though an application is free to choose SDP and Offer/Answer as an on-the-wire signaling mechanism). Instead, ORTC uses &quot;sender&quot;, &quot;receiver&quot; and &quot;transport&quot; objects, which have &quot;capabilities&quot; describing what they are capable of doing, as well as &quot;parameters&quot; which define what they are configured to do. &quot;Tracks&quot; are encoded by senders and sent over transports, then decoded by receivers while &quot;data channels&quot; are sent over transports directly.</p>
-				<p>In a Javascript application utilizing the ORTC API, the relationship between the application and the objects, as well as between the objects themselves is shown below. Horizontal or slanted arrows denote the flow of media or data, whereas vertical arrows denote interactions via methods and events.</p>
-				<p><img src="http://draft.ortc.org/images/quic.svg" alt="ORTC"></p>
-				<h3 id="api">API</h3>
-				<p><a href="https://rawgit.com/vmolsa/webrtc-native/ortc/doc/modules/_ortc_.html">Documentation</a></p>
-				<h3 id="references">References</h3>
-				<ul>
-					<li><a href="http://draft.ortc.org/">ORTC</a></li>
-					<li><a href="https://tools.ietf.org/html/rfc5245">Interactive Connectivity Establishment (ICE)</a></li>
-					<li><a href="https://tools.ietf.org/html/rfc3489">STUN - Simple Traversal of User Datagram Protocol (UDP)</a></li>
-					<li><a href="https://tools.ietf.org/html/rfc5389">Session Traversal Utilities for NAT (STUN)</a></li>
-					<li><a href="https://tools.ietf.org/html/rfc5766">Traversal Using Relays around NAT (TURN)</a></li>
-					<li><a href="https://tools.ietf.org/html/rfc1889">RTP: A Transport Protocol for Real-Time Applications</a></li>
-					<li><a href="https://tools.ietf.org/html/rfc4960">Stream Control Transmission Protocol</a></li>
-					<li><a href="https://tools.ietf.org/html/draft-jesup-rtcweb-data-protocol-04#page-3">WebRTC Data Channel Protocol</a></li>
-					<li><a href="https://tools.ietf.org/html/rfc5780">NAT Behavior Discovery Using Session Traversal Utilities for NAT (STUN)</a></li>
-					<li><a href="https://tools.ietf.org/html/rfc5764">Datagram Transport Layer Security (DTLS) Extension to Establish Keys for the Secure Real-time Transport Protocol (SRTP)</a></li>
-					<li><a href="https://tools.ietf.org/html/rfc6544">TCP Candidates with Interactive Connectivity Establishment (ICE)</a></li>
-					<li><a href="https://tools.ietf.org/html/rfc3484">Default Address Selection for Internet Protocol version 6 (IPv6)</a></li>
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>The ssrcconflict event of the RTCRtpSender object uses the RTCSsrcConflictEvent interface.</p>
+					</div>
+					<p>Firing an RTCSsrcConflictEvent event named e with an ssrc means that an event with the name e,
+						which does not bubble (except where otherwise stated) and is not cancelable
+						(except where otherwise stated), and which uses the RTCSsrcConflictEvent interface with
+					the ssrc attribute set to the conflicting SSRC must be created and dispatched at the given target.</p>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<span class="target">RTCSsrcConflictEvent</span>
+					</li>
 				</ul>
-				<h3 id="wip">WIP</h3>
-				<ul>
-					<li><a href="http://draft.ortc.org/#rtcicegatherer*">RTCICEGatherer</a> </li>
-					<li><a href="http://draft.ortc.org/#rtcicetransport*">RTCIceTransport</a> </li>
-					<li><a href="http://draft.ortc.org/#rtcdtlstransport*">RTCDtlsTransport</a> </li>
-					<li><a href="http://draft.ortc.org/#rtcrtpsender*">RTCRtpSender</a> </li>
-					<li><a href="http://draft.ortc.org/#rtcrtpreceiver*">RTCRtpReceiver</a> </li>
-					<li><a href="http://draft.ortc.org/#rtcicetransportcontroller*">RTCIceTransportController</a> </li>
-					<li><a href="http://draft.ortc.org/#rtcrtplistener*">RTCRtpListener</a> </li>
-					<li><a href="http://draft.ortc.org/#rtcdtmfsender*">RTCDtmfSender</a> </li>
-					<li><a href="http://draft.ortc.org/#rtcdtmftonechangeevent">RTCDTMFToneChangeEvent</a> </li>
-					<li><a href="http://draft.ortc.org/#rtcdtmfsender2*">RTCDTMFSender</a> </li>
-					<li><a href="http://draft.ortc.org/#rtcdatachannel*">RTCDataChannel</a> </li>
-					<li><a href="http://draft.ortc.org/#sctp-transport*">RTCSctpTransport</a> </li>
-					<li><a href="http://draft.ortc.org/#quic-transport*">RTCQuicTransport</a> </li>
-					<li><a href="http://draft.ortc.org/#rtcquicparameters*">RTCQuicParameters</a> </li>
-					<li><a href="http://draft.ortc.org/#rtcquicrole*">RTCQuicRole</a> </li>
-					<li><a href="http://draft.ortc.org/#rtcquictransportstate*">RTCQuicTransportState</a> </li>
-					<li><a href="http://draft.ortc.org/#rtcidentity-interface">RTCIdentity</a> </li>
-					<li><a href="http://draft.ortc.org/#rtcidentityerror-dictionary">RTCIdentityError</a> </li>
-					<li><a href="http://draft.ortc.org/#rtcidentityassertion-dictionary">RTCIdentityAssertion</a> </li>
-					<li><a href="http://draft.ortc.org/#rtccertificate-interface">RTCCertificate</a> </li>
-				</ul>
-			</div>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_ortc_.rtcssrcconflictevent.html#ssrc" class="tsd-kind-icon">ssrc</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="ssrc" class="tsd-anchor"></a>
+					<h3>ssrc</h3>
+					<div class="tsd-signature tsd-kind-icon">ssrc<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/vmolsa/webrtc-native/blob/6bfd3fd/lib/ortc.ts#L1584">ortc.ts:1584</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The ssrc attribute represents the conflicting SSRC that caused the event.</p>
+						</div>
+					</div>
+				</section>
+			</section>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 			<nav class="tsd-navigation primary">
 				<ul>
 					<li class="globals  ">
-						<a href="globals.html"><em>Globals</em></a>
+						<a href="../globals.html"><em>Globals</em></a>
+					</li>
+					<li class="current tsd-kind-external-module">
+						<a href="../modules/_ortc_.html">"ortc"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_ortc_.html">"ortc"</a>
+						<a href="../modules/_rtcicegatherer_.html">"rtcicegatherer"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_rtcicegatherer_.html">"rtcicegatherer"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_rtcicetransport_.html">"rtcicetransport"</a>
+						<a href="../modules/_rtcicetransport_.html">"rtcicetransport"</a>
 					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="_ortc_.rtcssrcconflictevent.html" class="tsd-kind-icon">RTCSsrc<wbr>Conflict<wbr>Event</a>
+						<ul>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="_ortc_.rtcssrcconflictevent.html#ssrc" class="tsd-kind-icon">ssrc</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
 				</ul>
 			</nav>
 		</div>
@@ -197,7 +219,7 @@
 	<p>Generated using <a href="http://typedoc.org/" target="_blank">TypeDoc</a></p>
 </div>
 <div class="overlay"></div>
-<script src="assets/js/main.js"></script>
-<script>if (location.protocol == 'file:') document.write('<script src="assets/js/search.js"><' + '/script>');</script>
+<script src="../assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="../assets/js/search.js"><' + '/script>');</script>
 </body>
 </html>
