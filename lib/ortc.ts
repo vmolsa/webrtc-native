@@ -1,6 +1,8 @@
 import Stream = require('stream');
 import Events = require('events');
 
+export * from './stun';
+
 /**
  * For ORTC, RTCStatsType is equal to one of the following strings
  */
@@ -549,10 +551,10 @@ export interface RTCIceGatherOptions {
   /** 
    * Additional ICE servers to be configured. 
    * Since implementations may provide default ICE servers, 
-   * and applications can desire to restrict communications to the local LAN, iceServers need not be set.
+   * and applications can desire to restrict communications to the local LAN.
    */
 
-  iceServers: RTCIceServer[];
+  iceServers?: RTCIceServer[];
 }
 
 /**
