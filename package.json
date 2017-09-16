@@ -23,16 +23,21 @@
     "certificate",
     "datachannel"
   ],
+  "scripts": {
+    "test": "node_modules/.bin/mocha"
+  },
   "license": "MIT",
   "main": "dist/ortc.js",
   "typings": "dist/ortc.d.ts",
   "devDependencies": {
-    "@types/node": "^8.0.22",
+    "@types/node": "*",
+    "mocha": "^3.5.0",
     "nan": "^2.6.2",
+    "source-map-support": "^0.4.17",
     "typescript": "^2.4.2"
   },
   "dependencies": {
-    "ipaddr.js": "^1.5.2",
-    "stun": "^1.0.1"
+    "crc": "^3.4.4",
+    "ipaddr.js": "^1.5.2"
   }
 }
