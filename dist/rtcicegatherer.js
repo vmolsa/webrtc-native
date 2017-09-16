@@ -97,10 +97,10 @@ function getFoundation(ip, type, protocol, relay_protocol) {
 }
 function RTCIceCandidateFrom(socket, component, type, protocol) {
     const info = socket.address();
-    let preference = getLocalPreference(info.family, info.address);
-    let priority = getPriority(type, protocol, preference, component);
-    let foundation = '' + getFoundation(info.address, type, protocol);
-    let candidate = {
+    const preference = getLocalPreference(info.family, info.address);
+    const priority = getPriority(type, protocol, preference, component);
+    const foundation = '' + getFoundation(info.address, type, protocol);
+    const candidate = {
         foundation: foundation,
         ip: info.address,
         port: info.port,
@@ -147,11 +147,67 @@ class RTCIceGatherer extends Events.EventEmitter {
         }
     }
     gatherStunCandidate(validatedServer, callback) {
-        console.log('Gathering Stun Candidate');
-        callback(false);
+        const socket = Dgram.createSocket('udp4');
+        const timeout = setTimeout(() => {
+            socket.close();
+        }, 5000);
+        let removeListeners;
+        const onerror = (error) => {
+            removeListeners();
+            socket.close();
+            callback(false);
+        };
+        const onmessage = (msg, rinfo) => {
+            const packet = ortc_1.Stun.Packet.decode(msg);
+            if (packet) {
+                let info = packet.getAttribute(ortc_1.Stun.Attributes.XOR_MAPPED_ADDRESS);
+                if (!info) {
+                    info = packet.getAttribute(ortc_1.Stun.Attributes.MAPPED_ADDRESS);
+                    if (!info) {
+                        return socket.close();
+                    }
+                }
+                const preference = getLocalPreference(info.family, info.address);
+                const priority = getPriority(ortc_1.RTCIceCandidateType.srflx, ortc_1.RTCIceProtocol.udp, preference, this._component);
+                const foundation = '' + getFoundation(info.address, ortc_1.RTCIceCandidateType.srflx, ortc_1.RTCIceProtocol.udp);
+                const event = {
+                    candidate: {
+                        foundation: foundation,
+                        ip: info.address,
+                        port: info.port,
+                        priority: priority,
+                        protocol: ortc_1.RTCIceProtocol.udp,
+                        type: ortc_1.RTCIceCandidateType.srflx,
+                    },
+                    url: validatedServer.url,
+                };
+                socket.unref();
+                removeListeners();
+                callback(true);
+                if (!this.emit('localcandidate', event)) {
+                    socket.close();
+                }
+            }
+        };
+        const onclose = () => {
+            removeListeners();
+            callback(false);
+        };
+        removeListeners = () => {
+            clearTimeout(timeout);
+            socket.removeListener('error', onerror);
+            socket.removeListener('close', onclose);
+            socket.removeListener('message', onmessage);
+        };
+        socket.on('error', onerror);
+        socket.on('close', onclose);
+        socket.on('message', onmessage);
+        socket.bind(() => {
+            const packet = new ortc_1.Stun.Packet(ortc_1.Stun.MessageType.BINDING_REQUEST, true);
+            socket.send(ortc_1.Stun.Packet.encode(packet), validatedServer.port, validatedServer.address);
+        });
     }
     gatherTurnCandidate(validatedServer, callback) {
-        console.log('Gathering Turn Candidate');
         callback(false);
     }
     gatherCandidateFrom(validatedServers, index) {

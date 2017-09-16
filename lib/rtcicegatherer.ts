@@ -23,6 +23,7 @@ import {
   RTCIceCandidateType,
   RTCIceGathererEvent,
   RTCIceCandidateComplete,
+  Stun,
 } from './ortc'
 
 function once(callback: () => void): () => void {
@@ -198,11 +199,11 @@ export function RTCIceCandidateFrom(socket: Dgram.Socket | Net.Server | Net.Soc
   protocol: RTCIceProtocol): RTCIceCandidate
 {
   const info = socket.address(); 
-  let preference = getLocalPreference(info.family, info.address);    
-  let priority = getPriority(type, protocol, preference, component);
-  let foundation: string = '' + getFoundation(info.address, type, protocol);
+  const preference = getLocalPreference(info.family, info.address);    
+  const priority = getPriority(type, protocol, preference, component);
+  const foundation: string = '' + getFoundation(info.address, type, protocol);
 
-  let candidate: RTCIceCandidate = {
+  const candidate: RTCIceCandidate = {
     foundation: foundation,
     ip: info.address,
     port: info.port,
@@ -296,12 +297,91 @@ export class RTCIceGatherer extends Events.EventEmitter implements RTCStatsProvi
   }
 
   private gatherStunCandidate(validatedServer: ValidatedServers, callback: (complete: boolean) => void) {
-    console.log('Gathering Stun Candidate');    
-    callback(false);
+    const socket = Dgram.createSocket('udp4');
+    
+    const timeout = setTimeout(() => {
+      socket.close();
+    }, 5000);
+
+    let removeListeners: () => void;
+
+    const onerror = (error: Error) => {
+      removeListeners();
+      socket.close();
+      callback(false);
+    };
+
+    const onmessage = (msg: Buffer, rinfo: Dgram.AddressInfo) => {
+      const packet = Stun.Packet.decode(msg);
+
+      if (packet) {
+        let info = packet.getAttribute(Stun.Attributes.XOR_MAPPED_ADDRESS);
+        
+        if (!info) {
+          info = packet.getAttribute(Stun.Attributes.MAPPED_ADDRESS);
+  
+          if (!info) {
+            // TODO(): Check ERROR_CODE from STUN attributes and fire event RTCIceGathererIceErrorEvent
+            return socket.close();
+          }
+        }
+
+        const preference = getLocalPreference(info.family, info.address);  
+
+        const priority = getPriority(RTCIceCandidateType.srflx, 
+                                    RTCIceProtocol.udp, 
+                                    preference, 
+                                    this._component);
+                                    
+        const foundation: string = '' + getFoundation(info.address, 
+                                                      RTCIceCandidateType.srflx, 
+                                                      RTCIceProtocol.udp);
+
+        const event: RTCIceGathererEvent = {
+          candidate: {
+            foundation: foundation,
+            ip: info.address,
+            port: info.port,
+            priority: priority,
+            protocol: RTCIceProtocol.udp,
+            type: RTCIceCandidateType.srflx,
+          },
+          url: validatedServer.url,
+        };
+      
+        socket.unref();
+        removeListeners();
+        callback(true);
+  
+        if (!this.emit('localcandidate', event)) {
+          socket.close();
+        }
+      }
+    };
+
+    const onclose = () => {
+      removeListeners();
+      callback(false);
+    };
+
+    removeListeners = () => {
+      clearTimeout(timeout);
+      socket.removeListener('error', onerror);
+      socket.removeListener('close', onclose);
+      socket.removeListener('message', onmessage);
+    };
+
+    socket.on('error', onerror);
+    socket.on('close', onclose);
+    socket.on('message', onmessage);
+
+    socket.bind(() => {
+      const packet: Stun.Packet = new Stun.Packet(Stun.MessageType.BINDING_REQUEST, true);
+      socket.send(Stun.Packet.encode(packet), validatedServer.port, validatedServer.address);
+    });
   }
 
   private gatherTurnCandidate(validatedServer: ValidatedServers, callback: (complete: boolean) => void) {
-    console.log('Gathering Turn Candidate'); 
     callback(false);
   }
 

@@ -14,6 +14,9 @@ var gatherOptions = {
         "stun:stun4.example.net",
       ]
     },
+    {
+      urls: "stun:stun.l.google.com:19302"
+    },
     { 
       urls: "turn:turn.example.org", 
       username: "user", 
