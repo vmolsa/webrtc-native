@@ -1,5 +1,4 @@
 import Events = require('events');
-import Stun = require('stun');
 import OS = require('os');
 import CRC = require('crc');
 import IpAddr = require('ipaddr.js');
@@ -18,13 +17,24 @@ import {
   RTCIceGatherOptions,
   RTCIceCredentialType,
   RTCIceParameters,
-  RTCIceCandidate as IceCandidate,
+  RTCIceCandidate,
   RTCIceProtocol,
   RTCIceTcpCandidateType,
   RTCIceCandidateType,
   RTCIceGathererEvent,
   RTCIceCandidateComplete,
 } from './ortc'
+
+function once(callback: () => void): () => void {
+  let done: boolean = false;
+
+  return () => {
+    if (!done) {
+      done = true;
+      callback();
+    }
+  };
+}
 
 function getRandomString(len: number): string {
   const iceChars = [
@@ -182,64 +192,33 @@ function getFoundation(ip: string,
   return CRC.crc32(Buffer.from(str));
 }
 
-export class RTCIceCandidate implements IceCandidate {
-  constructor(foundation: string | number,
-              ip: string,
-              port: number,
-              priority: number,
-              protocol: RTCIceProtocol,
-              type?: RTCIceCandidateType,
-              relatedAddress?: string, 
-              relatedPort?: number,
-              tcpType?: RTCIceTcpCandidateType)
-  {
-    this.foundation = (typeof foundation == 'string') ? foundation : '' + foundation;
-    this.ip = ip;
-    this.port = port;
-    this.priority = priority;
-    this.protocol = protocol;
-    this.type = type;
-    this.relatedAddress = relatedAddress;
-    this.relatedPort = relatedPort;
-    this.tcpType = tcpType;
+export function RTCIceCandidateFrom(socket: Dgram.Socket | Net.Server | Net.Socket,  
+  component: RTCIceComponent,
+  type: RTCIceCandidateType,
+  protocol: RTCIceProtocol): RTCIceCandidate
+{
+  const info = socket.address(); 
+  let preference = getLocalPreference(info.family, info.address);    
+  let priority = getPriority(type, protocol, preference, component);
+  let foundation: string = '' + getFoundation(info.address, type, protocol);
+
+  let candidate: RTCIceCandidate = {
+    foundation: foundation,
+    ip: info.address,
+    port: info.port,
+    priority: priority,
+    protocol: protocol,
+    type: type,
+  };
+
+  if (socket instanceof Net.Server) {
+    candidate.tcpType = RTCIceTcpCandidateType.passive;
+  } else if (socket instanceof Net.Socket) {
+    candidate.tcpType = RTCIceTcpCandidateType.active;
   }
 
-  public static from(socket: Dgram.Socket | Net.Server | Net.Socket,  
-                     component: RTCIceComponent,
-                     type: RTCIceCandidateType,
-                     protocol: RTCIceProtocol): RTCIceCandidate
-  {
-    const info = socket.address(); 
-    let preference = getLocalPreference(info.family, info.address);    
-    let priority = getPriority(type, protocol, preference, component);
-    let foundation = getFoundation(info.address, type, protocol);
-
-    let candidate: RTCIceCandidate = new RTCIceCandidate(foundation, 
-                                                        info.address, 
-                                                        info.port, 
-                                                        priority, 
-                                                        protocol, 
-                                                        type);
-
-    if (socket instanceof Net.Server) {
-      candidate.tcpType = RTCIceTcpCandidateType.passive;
-    } else if (socket instanceof Net.Socket) {
-      candidate.tcpType = RTCIceTcpCandidateType.active;
-    }
-
-    return candidate;
-  }
-
-  public foundation: string;
-  public ip: string;
-  public port: number;  
-  public priority: number;  
-  public protocol: RTCIceProtocol;
-  public relatedAddress?: string;  
-  public relatedPort?: number;
-  public tcpType?: RTCIceTcpCandidateType;  
-  public type?: RTCIceCandidateType;
-};
+  return candidate;
+}
 
 /** 
  * The RTCIceGatherer gathers local host, 
@@ -269,8 +248,6 @@ export class RTCIceGatherer extends Events.EventEmitter implements RTCStatsProvi
   * An RTCIceGatherer instance is constructed from an RTCIceGatherOptions object.
   * 
   * An RTCIceGatherer object in the closed state can be garbage-collected when it is no longer referenced.
-  *
-  * To force enable iceLite option, set RTCIceServers length to zero.
   */
 
   constructor(options: RTCIceGatherOptions) {
@@ -311,41 +288,59 @@ export class RTCIceGatherer extends Events.EventEmitter implements RTCStatsProvi
     if (this._state != RTCIceGathererState.closed) {
       setImmediate(() => {
         this._state = RTCIceGathererState.closed;
-        this.emit('statechange', this);
+        this.emit('statechange', {
+          state: RTCIceGathererState.closed
+        });
       });
-    } 
+    }
   }
 
-  private gatherCandidate(validatedServer: ValidatedServers, callback: (complete: boolean) => void) {
-    console.log('Gathering from:', validatedServer.url);
+  private gatherStunCandidate(validatedServer: ValidatedServers, callback: (complete: boolean) => void) {
+    console.log('Gathering Stun Candidate');    
+    callback(false);
+  }
+
+  private gatherTurnCandidate(validatedServer: ValidatedServers, callback: (complete: boolean) => void) {
+    console.log('Gathering Turn Candidate'); 
     callback(false);
   }
 
   private gatherCandidateFrom(validatedServers: ValidatedServers[], 
-                              index: number, 
-                              callback: () => void): void 
+                              index: number): Promise<void>
   {
-    const policy = this._policy;
+    return new Promise<void>((resolve, reject) => {
+      const policy = this._policy;
 
-    if (index < validatedServers.length) {
-      const validatedServer: ValidatedServers = validatedServers[index];
+      if (index < validatedServers.length) {
+        const validatedServer: ValidatedServers = validatedServers[index];
 
-      if (policy == RTCIceGatherPolicy.relay && 
-         (validatedServer.protocol != 'turn' && validatedServer.protocol != 'turns')) 
-      {
-        return this.gatherCandidateFrom(validatedServers, index + 1, callback);
-      }
-
-      this.gatherCandidate(validatedServer, (complete: boolean) => {
-        if (!complete) {
-          return this.gatherCandidateFrom(validatedServers, index + 1, callback);
+        if (policy == RTCIceGatherPolicy.relay && 
+          (validatedServer.protocol != 'turn' && validatedServer.protocol != 'turns')) 
+        {
+          return resolve(this.gatherCandidateFrom(validatedServers, index + 1));
         }
 
-        callback();
-      });      
-    } else {
-      callback();
-    }
+        if (validatedServer.protocol == 'stun' || validatedServer.protocol == 'stuns') {
+          return this.gatherStunCandidate(validatedServer, (complete: boolean) => {
+            if (!complete) {
+              return resolve(this.gatherCandidateFrom(validatedServers, index + 1));
+            }
+    
+            resolve();
+          });
+        }
+
+        return this.gatherTurnCandidate(validatedServer, (complete: boolean) => {
+          if (!complete) {
+            return resolve(this.gatherCandidateFrom(validatedServers, index + 1));
+          }
+
+          resolve();
+        });  
+      } else {
+        resolve();
+      }
+    });
   }
 
   private gatherHostUdpCandidate(address: string): Promise<void> {
@@ -354,31 +349,26 @@ export class RTCIceGatherer extends Events.EventEmitter implements RTCStatsProvi
       
       socket.on('error', (error: any) => {
         socket.close();
-
-        if (error.errno != 'EINVAL') {
-          return reject(error);
-        }
-
         resolve();
       });
-
+  
       socket.bind(0, address, () => {
         let event: RTCIceGathererEvent = {
-          candidate: RTCIceCandidate.from(socket, 
-                                          this._component, 
-                                          RTCIceCandidateType.host,
-                                          RTCIceProtocol.udp),
+          candidate: RTCIceCandidateFrom(socket, 
+                                         this._component, 
+                                         RTCIceCandidateType.host,
+                                         RTCIceProtocol.udp),
           url: 'host',
         };
       
+        socket.unref();
+  
         if (!this.emit('localcandidate', event)) {
           socket.close();
         }
-
+  
         resolve();
       });
-
-      socket.unref();
     });
   }
 
@@ -388,31 +378,26 @@ export class RTCIceGatherer extends Events.EventEmitter implements RTCStatsProvi
 
       socket.on('error', (error: any) => {
         socket.close();
-
-        if (error.errno != 'EADDRNOTAVAIL') {
-          return reject(error);
-        }
-
         resolve();
       });
       
       socket.listen(0, address, () => {
         let event: RTCIceGathererEvent = {
-          candidate: RTCIceCandidate.from(socket, 
-                                          this._component, 
-                                          RTCIceCandidateType.host,
-                                          RTCIceProtocol.tcp),
+          candidate: RTCIceCandidateFrom(socket, 
+                                        this._component, 
+                                        RTCIceCandidateType.host,
+                                        RTCIceProtocol.tcp),
           url: 'host',
         };
       
+        socket.unref();
+
         if (!this.emit('localcandidate', event)) {
           socket.close();
         }
 
         resolve();
       });
-
-      socket.unref();
     });
   }
 
@@ -420,8 +405,6 @@ export class RTCIceGatherer extends Events.EventEmitter implements RTCStatsProvi
     * Gather ICE candidates. 
     * If options is omitted, utilize the value of options passed in the constructor. 
     * If state is closed, throw an InvalidStateError exception.
-    *
-    * To force enable iceLite option, set RTCIceServers length to zero.
     */
 
   public gather(options?: RTCIceGatherOptions): void {
@@ -434,143 +417,143 @@ export class RTCIceGatherer extends Events.EventEmitter implements RTCStatsProvi
       this._policy = RTCIceGatherPolicyFrom(options.gatherPolicy);
     }
 
-    this._state = RTCIceGathererState.gathering;
-    this.emit('statechange', this);
+    let promises: Promise<void>[] = [];
 
-    let validatedServers: ValidatedServers[] = [];
-    this._iceServers = (this._iceServers) ? this._iceServers : [];
+    if (!this._iceLite) {
+      let validatedServers: ValidatedServers[] = [];
+      this._iceServers = (this._iceServers) ? this._iceServers : [];
 
-    for (let iceServerIndex = 0; iceServerIndex < this._iceServers.length; iceServerIndex++) {
-      const iceServer = this._iceServers[iceServerIndex];
+      for (let iceServerIndex = 0; iceServerIndex < this._iceServers.length; iceServerIndex++) {
+        const iceServer = this._iceServers[iceServerIndex];
 
-      iceServer.urls = (iceServer.urls) ? 
-                       (typeof iceServer.urls === 'string') ? 
-                       [ iceServer.urls ] : iceServer.urls : 
-                       [];
+        iceServer.urls = (iceServer.urls) ? 
+                         (typeof iceServer.urls === 'string') ? 
+                         [ iceServer.urls ] : iceServer.urls : 
+                         [];
 
-      for (let iceUrlIndex = 0; iceUrlIndex < iceServer.urls.length; iceUrlIndex++) {
-        const iceUrl = iceServer.urls[iceUrlIndex];
-        const url = iceUrl.split(':');
+        for (let iceUrlIndex = 0; iceUrlIndex < iceServer.urls.length; iceUrlIndex++) {
+          const iceUrl = iceServer.urls[iceUrlIndex];
+          const url = iceUrl.split(':');
 
-        if (!url || url.length < 2) {
-          throw new Error('SyntaxError');
-        }
+          if (!url || url.length < 2) {
+            throw new Error('SyntaxError');
+          }
 
-        const scheme: string = url[0];
-        const address: string = url[1];
+          const scheme: string = url[0];
+          const address: string = url[1];
 
-        // The default port for STUN requests is 3478, for both TCP and UDP.
-        // By default, TURN runs on the same ports as STUN: 3478 for TURN over
-        // UDP and TCP, and 5349 for TURN over TLS.  However, TURN has its own
-        // set of Service Record (SRV) names: "turn" for UDP and TCP, and
-        // "turns" for TLS.
+          // The default port for STUN requests is 3478, for both TCP and UDP.
+          // By default, TURN runs on the same ports as STUN: 3478 for TURN over
+          // UDP and TCP, and 5349 for TURN over TLS.  However, TURN has its own
+          // set of Service Record (SRV) names: "turn" for UDP and TCP, and
+          // "turns" for TLS.
 
-        let port: number = (url.length == 3) ? parseInt(url[2]) : 0;
-        let cred: RTCOAuthCredential;
+          let port: number = (url.length == 3) ? parseInt(url[2]) : 0;
+          let cred: RTCOAuthCredential;
 
-        switch (scheme) {
-          case 'stun':
-          case 'stuns':
-            port = port ? port : 3478;
-            break;
-          case 'turn':
-            port = port ? port : 3478;
-          case 'turns':
-            if (!port) { 
-              port = 5349; 
-            }
-  
-            if (iceServer.credentialType == RTCIceCredentialType.password) {
-              if (!iceServer.username || 
-                  !iceServer.credential || 
-                  typeof iceServer.credential !== 'string') 
-              {
-                throw new Error('InvalidAccessError');
+          switch (scheme) {
+            case 'stun':
+            case 'stuns':
+              port = port ? port : 3478;
+              break;
+            case 'turn':
+              port = port ? port : 3478;
+            case 'turns':
+              if (!port) { 
+                port = 5349; 
               }
-            } else if (iceServer.credentialType == RTCIceCredentialType.oauth) {
-              if (typeof iceServer.credential !== 'string') {
-                cred = iceServer.credential;
-  
-                if (!cred.macKey || !cred.accessToken) {
+    
+              if (iceServer.credentialType == RTCIceCredentialType.password) {
+                if (!iceServer.username || 
+                    !iceServer.credential || 
+                    typeof iceServer.credential !== 'string') 
+                {
                   throw new Error('InvalidAccessError');
                 }
-              } else {
-                throw new Error('SyntaxError');
+              } else if (iceServer.credentialType == RTCIceCredentialType.oauth) {
+                if (typeof iceServer.credential !== 'string') {
+                  cred = iceServer.credential;
+    
+                  if (!cred.macKey || !cred.accessToken) {
+                    throw new Error('InvalidAccessError');
+                  }
+                } else {
+                  throw new Error('SyntaxError');
+                }
               }
-            }
 
-            break;
-          default:
-            throw new Error('NotSupportedError');
+              break;
+            default:
+              throw new Error('NotSupportedError');
+          }
+
+          validatedServers.push({
+            url: iceUrl,
+            protocol: scheme,
+            address: address,
+            port: port,
+            iceServer: iceServer,
+          });
         }
-
-        validatedServers.push({
-          url: iceUrl,
-          protocol: scheme,
-          address: address,
-          port: port,
-          iceServer: iceServer,
-        });
       }
-    }
 
-    let gatherers: Promise<void>[] = [];
+      if (validatedServers.length) {
+        validatedServers.sort((src: ValidatedServers, dst: ValidatedServers): number => {
+          let srcScore = (src.protocol == 'stun') ? 4 :
+                         (src.protocol == 'stuns') ? 3 :
+                         (src.protocol == 'turns') ? 2 : 1;
 
-    if (validatedServers.length) {
-      validatedServers.sort((src: ValidatedServers, dst: ValidatedServers): number => {
-        let srcScore = (src.protocol == 'stun') ? 4 :
-                       (src.protocol == 'stuns') ? 3 :
-                       (src.protocol == 'turns') ? 2 : 1;
-
-        let dstScore = (dst.protocol == 'stun') ? 4 :
-                       (dst.protocol == 'stuns') ? 3 :
-                       (dst.protocol == 'turns') ? 2 : 1;
-        
-        return dstScore - srcScore;
-      });
-     
-      gatherers.push(new Promise<void>((resolve, reject) => {   
-        this.gatherCandidateFrom(validatedServers, 0, () => {
-          resolve();
+          let dstScore = (dst.protocol == 'stun') ? 4 :
+                         (dst.protocol == 'stuns') ? 3 :
+                         (dst.protocol == 'turns') ? 2 : 1;
+          
+          return dstScore - srcScore;
         });
-      }));
-    } else if (this._policy == RTCIceGatherPolicy.nohost || this._policy == RTCIceGatherPolicy.relay) {
-      throw new Error(`RTCIceServers[]: can't be empty for policy "${RTCIceGatherPolicyToString(this._policy)}"`);
-    } else {
-      this._iceLite = true;
+
+        promises.push(this.gatherCandidateFrom(validatedServers, 0));
+      } else if (this._policy == RTCIceGatherPolicy.nohost || this._policy == RTCIceGatherPolicy.relay) {
+        throw new Error(`RTCIceServers[]: can't be empty for policy "${RTCIceGatherPolicyToString(this._policy)}"`);
+      } else {
+        this._iceLite = true;
+      }
     }
 
     if (this._policy == RTCIceGatherPolicy.all) {
-      let ifaces = OS.networkInterfaces();
+      const ifaces = OS.networkInterfaces();
+      
+      for (const dev in ifaces) {
+        const iface = ifaces[dev];
 
-      for (const name in ifaces) {
-        const iface: OS.NetworkInterfaceInfo[] = ifaces[name];
-
-        for (let index = 0; index < iface.length; index++) {
-          const info = iface[index];
-
-          if (info.internal) {
-            continue;
+        iface.forEach((address) => {
+          if ((address.family == 'IPv4' || address.family == 'IPv6') && !address.internal) {
+            // TODO(): Enable Tcp candidates
+            //promises.push(this.gatherHostTcpCandidate(address.address));
+            promises.push(this.gatherHostUdpCandidate(address.address));
           }
-
-          gatherers.push(this.gatherHostTcpCandidate(info.address));
-          gatherers.push(this.gatherHostUdpCandidate(info.address));
-        }
-      }
+        });
+      }      
     }
 
-    Promise.all(gatherers).then(() => {
+    if (promises.length) {
+      this._state == RTCIceGathererState.gathering;
+      this.emit('statechange', {
+        state: RTCIceGathererState.gathering
+      });
+    }
+
+    Promise.all(promises).then(() => {
       let event: RTCIceCandidateComplete = {
         complete: true,
       };
 
-      this._state = RTCIceGathererState.complete;
+      this._state == RTCIceGathererState.complete;
 
       this.emit('localcandidate', event);
-      this.emit('statechange', this);
-    }, (error: any) => {
-      // TODO(): This should never happen!
-      assert.ifError(error);
+      this.emit('statechange', {
+        state: RTCIceGathererState.complete
+      });
+    }, (error: Error) => {
+      error = undefined; // ignore;
     });
   }
 
