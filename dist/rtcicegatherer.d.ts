@@ -2,20 +2,8 @@
 import Events = require('events');
 import Dgram = require('dgram');
 import Net = require('net');
-import { RTCStatsProvider, RTCStatsReport, RTCIceComponent, RTCIceGathererState, RTCIceGatherOptions, RTCIceParameters, RTCIceCandidate as IceCandidate, RTCIceProtocol, RTCIceTcpCandidateType, RTCIceCandidateType } from './ortc';
-export declare class RTCIceCandidate implements IceCandidate {
-    constructor(foundation: string | number, ip: string, port: number, priority: number, protocol: RTCIceProtocol, type?: RTCIceCandidateType, relatedAddress?: string, relatedPort?: number, tcpType?: RTCIceTcpCandidateType);
-    static from(socket: Dgram.Socket | Net.Server | Net.Socket, component: RTCIceComponent, type: RTCIceCandidateType, protocol: RTCIceProtocol): RTCIceCandidate;
-    foundation: string;
-    ip: string;
-    port: number;
-    priority: number;
-    protocol: RTCIceProtocol;
-    relatedAddress?: string;
-    relatedPort?: number;
-    tcpType?: RTCIceTcpCandidateType;
-    type?: RTCIceCandidateType;
-}
+import { RTCStatsProvider, RTCStatsReport, RTCIceComponent, RTCIceGathererState, RTCIceGatherOptions, RTCIceParameters, RTCIceCandidate, RTCIceProtocol, RTCIceCandidateType } from './ortc';
+export declare function RTCIceCandidateFrom(socket: Dgram.Socket | Net.Server | Net.Socket, component: RTCIceComponent, type: RTCIceCandidateType, protocol: RTCIceProtocol): RTCIceCandidate;
 export declare class RTCIceGatherer extends Events.EventEmitter implements RTCStatsProvider {
     private _iceLite;
     private _icePwd;
@@ -30,8 +18,9 @@ export declare class RTCIceGatherer extends Events.EventEmitter implements RTCSt
     readonly component: RTCIceComponent;
     readonly state: RTCIceGathererState;
     close(): void;
-    private gatherCandidate(validatedServer, callback);
-    private gatherCandidateFrom(validatedServers, index, callback);
+    private gatherStunCandidate(validatedServer, callback);
+    private gatherTurnCandidate(validatedServer, callback);
+    private gatherCandidateFrom(validatedServers, index);
     private gatherHostUdpCandidate(address);
     private gatherHostTcpCandidate(address);
     gather(options?: RTCIceGatherOptions): void;

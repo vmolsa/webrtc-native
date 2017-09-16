@@ -1,5 +1,6 @@
 /// <reference types="node" />
 import Stream = require('stream');
+export * from './stun';
 export declare enum RTCStatsType {
     "inboundrtp" = 0,
     "outboundrtp" = 1,
@@ -82,7 +83,7 @@ export interface RTCIceCandidate {
 }
 export interface RTCIceGatherOptions {
     gatherPolicy: string | RTCIceGatherPolicy;
-    iceServers: RTCIceServer[];
+    iceServers?: RTCIceServer[];
 }
 export interface RTCIceCandidateComplete {
     readonly complete: boolean;

@@ -4,9 +4,17 @@ const Events = require("events");
 const OS = require("os");
 const CRC = require("crc");
 const Dgram = require("dgram");
-const assert = require("assert");
 const Net = require("net");
 const ortc_1 = require("./ortc");
+function once(callback) {
+    let done = false;
+    return () => {
+        if (!done) {
+            done = true;
+            callback();
+        }
+    };
+}
 function getRandomString(len) {
     const iceChars = [
         'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
@@ -87,35 +95,28 @@ function getFoundation(ip, type, protocol, relay_protocol) {
         (relay_protocol == ortc_1.RTCIceProtocol.udp) ? 'udp' : '';
     return CRC.crc32(Buffer.from(str));
 }
-class RTCIceCandidate {
-    constructor(foundation, ip, port, priority, protocol, type, relatedAddress, relatedPort, tcpType) {
-        this.foundation = (typeof foundation == 'string') ? foundation : '' + foundation;
-        this.ip = ip;
-        this.port = port;
-        this.priority = priority;
-        this.protocol = protocol;
-        this.type = type;
-        this.relatedAddress = relatedAddress;
-        this.relatedPort = relatedPort;
-        this.tcpType = tcpType;
+function RTCIceCandidateFrom(socket, component, type, protocol) {
+    const info = socket.address();
+    let preference = getLocalPreference(info.family, info.address);
+    let priority = getPriority(type, protocol, preference, component);
+    let foundation = '' + getFoundation(info.address, type, protocol);
+    let candidate = {
+        foundation: foundation,
+        ip: info.address,
+        port: info.port,
+        priority: priority,
+        protocol: protocol,
+        type: type,
+    };
+    if (socket instanceof Net.Server) {
+        candidate.tcpType = ortc_1.RTCIceTcpCandidateType.passive;
     }
-    static from(socket, component, type, protocol) {
-        const info = socket.address();
-        let preference = getLocalPreference(info.family, info.address);
-        let priority = getPriority(type, protocol, preference, component);
-        let foundation = getFoundation(info.address, type, protocol);
-        let candidate = new RTCIceCandidate(foundation, info.address, info.port, priority, protocol, type);
-        if (socket instanceof Net.Server) {
-            candidate.tcpType = ortc_1.RTCIceTcpCandidateType.passive;
-        }
-        else if (socket instanceof Net.Socket) {
-            candidate.tcpType = ortc_1.RTCIceTcpCandidateType.active;
-        }
-        return candidate;
+    else if (socket instanceof Net.Socket) {
+        candidate.tcpType = ortc_1.RTCIceTcpCandidateType.active;
     }
+    return candidate;
 }
-exports.RTCIceCandidate = RTCIceCandidate;
-;
+exports.RTCIceCandidateFrom = RTCIceCandidateFrom;
 class RTCIceGatherer extends Events.EventEmitter {
     constructor(options) {
         super();
@@ -139,54 +140,67 @@ class RTCIceGatherer extends Events.EventEmitter {
         if (this._state != ortc_1.RTCIceGathererState.closed) {
             setImmediate(() => {
                 this._state = ortc_1.RTCIceGathererState.closed;
-                this.emit('statechange', this);
+                this.emit('statechange', {
+                    state: ortc_1.RTCIceGathererState.closed
+                });
             });
         }
     }
-    gatherCandidate(validatedServer, callback) {
-        console.log('Gathering from:', validatedServer.url);
+    gatherStunCandidate(validatedServer, callback) {
+        console.log('Gathering Stun Candidate');
         callback(false);
     }
-    gatherCandidateFrom(validatedServers, index, callback) {
-        const policy = this._policy;
-        if (index < validatedServers.length) {
-            const validatedServer = validatedServers[index];
-            if (policy == ortc_1.RTCIceGatherPolicy.relay &&
-                (validatedServer.protocol != 'turn' && validatedServer.protocol != 'turns')) {
-                return this.gatherCandidateFrom(validatedServers, index + 1, callback);
-            }
-            this.gatherCandidate(validatedServer, (complete) => {
-                if (!complete) {
-                    return this.gatherCandidateFrom(validatedServers, index + 1, callback);
+    gatherTurnCandidate(validatedServer, callback) {
+        console.log('Gathering Turn Candidate');
+        callback(false);
+    }
+    gatherCandidateFrom(validatedServers, index) {
+        return new Promise((resolve, reject) => {
+            const policy = this._policy;
+            if (index < validatedServers.length) {
+                const validatedServer = validatedServers[index];
+                if (policy == ortc_1.RTCIceGatherPolicy.relay &&
+                    (validatedServer.protocol != 'turn' && validatedServer.protocol != 'turns')) {
+                    return resolve(this.gatherCandidateFrom(validatedServers, index + 1));
                 }
-                callback();
-            });
-        }
-        else {
-            callback();
-        }
+                if (validatedServer.protocol == 'stun' || validatedServer.protocol == 'stuns') {
+                    return this.gatherStunCandidate(validatedServer, (complete) => {
+                        if (!complete) {
+                            return resolve(this.gatherCandidateFrom(validatedServers, index + 1));
+                        }
+                        resolve();
+                    });
+                }
+                return this.gatherTurnCandidate(validatedServer, (complete) => {
+                    if (!complete) {
+                        return resolve(this.gatherCandidateFrom(validatedServers, index + 1));
+                    }
+                    resolve();
+                });
+            }
+            else {
+                resolve();
+            }
+        });
     }
     gatherHostUdpCandidate(address) {
         return new Promise((resolve, reject) => {
             const socket = Dgram.createSocket('udp4');
             socket.on('error', (error) => {
                 socket.close();
-                if (error.errno != 'EINVAL') {
-                    return reject(error);
-                }
                 resolve();
             });
             socket.bind(0, address, () => {
                 let event = {
-                    candidate: RTCIceCandidate.from(socket, this._component, ortc_1.RTCIceCandidateType.host, ortc_1.RTCIceProtocol.udp),
+                    candidate: RTCIceCandidateFrom(socket, this._component, ortc_1.RTCIceCandidateType.host, ortc_1.RTCIceProtocol.udp),
                     url: 'host',
                 };
+                socket.unref();
                 if (!this.emit('localcandidate', event)) {
                     socket.close();
                 }
                 resolve();
             });
-            socket.unref();
         });
     }
     gatherHostTcpCandidate(address) {
@@ -194,22 +208,19 @@ class RTCIceGatherer extends Events.EventEmitter {
             const socket = Net.createServer();
             socket.on('error', (error) => {
                 socket.close();
-                if (error.errno != 'EADDRNOTAVAIL') {
-                    return reject(error);
-                }
                 resolve();
             });
             socket.listen(0, address, () => {
                 let event = {
-                    candidate: RTCIceCandidate.from(socket, this._component, ortc_1.RTCIceCandidateType.host, ortc_1.RTCIceProtocol.tcp),
+                    candidate: RTCIceCandidateFrom(socket, this._component, ortc_1.RTCIceCandidateType.host, ortc_1.RTCIceProtocol.tcp),
                     url: 'host',
                 };
+                socket.unref();
                 if (!this.emit('localcandidate', event)) {
                     socket.close();
                 }
                 resolve();
             });
-            socket.unref();
         });
     }
     gather(options) {
@@ -220,114 +231,115 @@ class RTCIceGatherer extends Events.EventEmitter {
             this._iceServers = options.iceServers;
             this._policy = RTCIceGatherPolicyFrom(options.gatherPolicy);
         }
-        this._state = ortc_1.RTCIceGathererState.gathering;
-        this.emit('statechange', this);
-        let validatedServers = [];
-        this._iceServers = (this._iceServers) ? this._iceServers : [];
-        for (let iceServerIndex = 0; iceServerIndex < this._iceServers.length; iceServerIndex++) {
-            const iceServer = this._iceServers[iceServerIndex];
-            iceServer.urls = (iceServer.urls) ?
-                (typeof iceServer.urls === 'string') ?
-                    [iceServer.urls] : iceServer.urls :
-                [];
-            for (let iceUrlIndex = 0; iceUrlIndex < iceServer.urls.length; iceUrlIndex++) {
-                const iceUrl = iceServer.urls[iceUrlIndex];
-                const url = iceUrl.split(':');
-                if (!url || url.length < 2) {
-                    throw new Error('SyntaxError');
-                }
-                const scheme = url[0];
-                const address = url[1];
-                let port = (url.length == 3) ? parseInt(url[2]) : 0;
-                let cred;
-                switch (scheme) {
-                    case 'stun':
-                    case 'stuns':
-                        port = port ? port : 3478;
-                        break;
-                    case 'turn':
-                        port = port ? port : 3478;
-                    case 'turns':
-                        if (!port) {
-                            port = 5349;
-                        }
-                        if (iceServer.credentialType == ortc_1.RTCIceCredentialType.password) {
-                            if (!iceServer.username ||
-                                !iceServer.credential ||
-                                typeof iceServer.credential !== 'string') {
-                                throw new Error('InvalidAccessError');
+        let promises = [];
+        if (!this._iceLite) {
+            let validatedServers = [];
+            this._iceServers = (this._iceServers) ? this._iceServers : [];
+            for (let iceServerIndex = 0; iceServerIndex < this._iceServers.length; iceServerIndex++) {
+                const iceServer = this._iceServers[iceServerIndex];
+                iceServer.urls = (iceServer.urls) ?
+                    (typeof iceServer.urls === 'string') ?
+                        [iceServer.urls] : iceServer.urls :
+                    [];
+                for (let iceUrlIndex = 0; iceUrlIndex < iceServer.urls.length; iceUrlIndex++) {
+                    const iceUrl = iceServer.urls[iceUrlIndex];
+                    const url = iceUrl.split(':');
+                    if (!url || url.length < 2) {
+                        throw new Error('SyntaxError');
+                    }
+                    const scheme = url[0];
+                    const address = url[1];
+                    let port = (url.length == 3) ? parseInt(url[2]) : 0;
+                    let cred;
+                    switch (scheme) {
+                        case 'stun':
+                        case 'stuns':
+                            port = port ? port : 3478;
+                            break;
+                        case 'turn':
+                            port = port ? port : 3478;
+                        case 'turns':
+                            if (!port) {
+                                port = 5349;
                             }
-                        }
-                        else if (iceServer.credentialType == ortc_1.RTCIceCredentialType.oauth) {
-                            if (typeof iceServer.credential !== 'string') {
-                                cred = iceServer.credential;
-                                if (!cred.macKey || !cred.accessToken) {
+                            if (iceServer.credentialType == ortc_1.RTCIceCredentialType.password) {
+                                if (!iceServer.username ||
+                                    !iceServer.credential ||
+                                    typeof iceServer.credential !== 'string') {
                                     throw new Error('InvalidAccessError');
                                 }
                             }
-                            else {
-                                throw new Error('SyntaxError');
+                            else if (iceServer.credentialType == ortc_1.RTCIceCredentialType.oauth) {
+                                if (typeof iceServer.credential !== 'string') {
+                                    cred = iceServer.credential;
+                                    if (!cred.macKey || !cred.accessToken) {
+                                        throw new Error('InvalidAccessError');
+                                    }
+                                }
+                                else {
+                                    throw new Error('SyntaxError');
+                                }
                             }
-                        }
-                        break;
-                    default:
-                        throw new Error('NotSupportedError');
+                            break;
+                        default:
+                            throw new Error('NotSupportedError');
+                    }
+                    validatedServers.push({
+                        url: iceUrl,
+                        protocol: scheme,
+                        address: address,
+                        port: port,
+                        iceServer: iceServer,
+                    });
                 }
-                validatedServers.push({
-                    url: iceUrl,
-                    protocol: scheme,
-                    address: address,
-                    port: port,
-                    iceServer: iceServer,
-                });
             }
-        }
-        let gatherers = [];
-        if (validatedServers.length) {
-            validatedServers.sort((src, dst) => {
-                let srcScore = (src.protocol == 'stun') ? 4 :
-                    (src.protocol == 'stuns') ? 3 :
-                        (src.protocol == 'turns') ? 2 : 1;
-                let dstScore = (dst.protocol == 'stun') ? 4 :
-                    (dst.protocol == 'stuns') ? 3 :
-                        (dst.protocol == 'turns') ? 2 : 1;
-                return dstScore - srcScore;
-            });
-            gatherers.push(new Promise((resolve, reject) => {
-                this.gatherCandidateFrom(validatedServers, 0, () => {
-                    resolve();
+            if (validatedServers.length) {
+                validatedServers.sort((src, dst) => {
+                    let srcScore = (src.protocol == 'stun') ? 4 :
+                        (src.protocol == 'stuns') ? 3 :
+                            (src.protocol == 'turns') ? 2 : 1;
+                    let dstScore = (dst.protocol == 'stun') ? 4 :
+                        (dst.protocol == 'stuns') ? 3 :
+                            (dst.protocol == 'turns') ? 2 : 1;
+                    return dstScore - srcScore;
                 });
-            }));
-        }
-        else if (this._policy == ortc_1.RTCIceGatherPolicy.nohost || this._policy == ortc_1.RTCIceGatherPolicy.relay) {
-            throw new Error(`RTCIceServers[]: can't be empty for policy "${RTCIceGatherPolicyToString(this._policy)}"`);
-        }
-        else {
-            this._iceLite = true;
+                promises.push(this.gatherCandidateFrom(validatedServers, 0));
+            }
+            else if (this._policy == ortc_1.RTCIceGatherPolicy.nohost || this._policy == ortc_1.RTCIceGatherPolicy.relay) {
+                throw new Error(`RTCIceServers[]: can't be empty for policy "${RTCIceGatherPolicyToString(this._policy)}"`);
+            }
+            else {
+                this._iceLite = true;
+            }
         }
         if (this._policy == ortc_1.RTCIceGatherPolicy.all) {
-            let ifaces = OS.networkInterfaces();
-            for (const name in ifaces) {
-                const iface = ifaces[name];
-                for (let index = 0; index < iface.length; index++) {
-                    const info = iface[index];
-                    if (info.internal) {
-                        continue;
+            const ifaces = OS.networkInterfaces();
+            for (const dev in ifaces) {
+                const iface = ifaces[dev];
+                iface.forEach((address) => {
+                    if ((address.family == 'IPv4' || address.family == 'IPv6') && !address.internal) {
+                        promises.push(this.gatherHostUdpCandidate(address.address));
                     }
-                    gatherers.push(this.gatherHostTcpCandidate(info.address));
-                    gatherers.push(this.gatherHostUdpCandidate(info.address));
-                }
+                });
             }
         }
-        Promise.all(gatherers).then(() => {
+        if (promises.length) {
+            this._state == ortc_1.RTCIceGathererState.gathering;
+            this.emit('statechange', {
+                state: ortc_1.RTCIceGathererState.gathering
+            });
+        }
+        Promise.all(promises).then(() => {
             let event = {
                 complete: true,
             };
-            this._state = ortc_1.RTCIceGathererState.complete;
+            this._state == ortc_1.RTCIceGathererState.complete;
             this.emit('localcandidate', event);
-            this.emit('statechange', this);
+            this.emit('statechange', {
+                state: ortc_1.RTCIceGathererState.complete
+            });
         }, (error) => {
-            assert.ifError(error);
+            error = undefined;
         });
     }
     getLocalParameters() {
