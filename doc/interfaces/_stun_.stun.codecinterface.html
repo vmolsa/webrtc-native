@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Algorithm | webrtc-native</title>
+	<title>CodecInterface | webrtc-native</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -56,40 +56,27 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="../modules/_ortc_.html">&quot;ortc&quot;</a>
+					<a href="../modules/_stun_.html">&quot;stun&quot;</a>
 				</li>
 				<li>
-					<a href="_ortc_.algorithm.html">Algorithm</a>
+					<a href="../modules/_stun_.stun.html">Stun</a>
+				</li>
+				<li>
+					<a href="_stun_.stun.codecinterface.html">CodecInterface</a>
 				</li>
 			</ul>
-			<h1>Interface Algorithm</h1>
+			<h1>Interface CodecInterface</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
-			<section class="tsd-panel tsd-comment">
-				<div class="tsd-comment tsd-typography">
-					<div class="lead">
-						<p>The Algorithm object is a inteface object which is used to specify an algorithm and any additional
-						parameters required to fully specify the desired operation.</p>
-					</div>
-				</div>
-			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">Algorithm</span>
-						<ul class="tsd-hierarchy">
-							<li>
-								<a href="_ortc_.eckeygenparams.html" class="tsd-signature-type">EcKeyGenParams</a>
-							</li>
-							<li>
-								<a href="_ortc_.rsakeygenparams.html" class="tsd-signature-type">RsaKeyGenParams</a>
-							</li>
-						</ul>
+						<span class="target">CodecInterface</span>
 					</li>
 				</ul>
 			</section>
@@ -100,7 +87,10 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_ortc_.algorithm.html#name" class="tsd-kind-icon">name</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_stun_.stun.codecinterface.html#attribute" class="tsd-kind-icon">attribute</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_stun_.stun.codecinterface.html#decode" class="tsd-kind-icon">decode</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_stun_.stun.codecinterface.html#encode" class="tsd-kind-icon">encode</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_stun_.stun.codecinterface.html#name" class="tsd-kind-icon">name</a></li>
 							</ul>
 						</section>
 					</div>
@@ -109,19 +99,104 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="attribute" class="tsd-anchor"></a>
+					<h3>attribute</h3>
+					<div class="tsd-signature tsd-kind-icon">attribute<span class="tsd-signature-symbol">:</span> <a href="../enums/_stun_.stun.attributes.html" class="tsd-signature-type">Attributes</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in stun.ts:596</li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="decode" class="tsd-anchor"></a>
+					<h3>decode</h3>
+					<div class="tsd-signature tsd-kind-icon">decode<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in stun.ts:597</li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-siganture">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>buffer<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Buffer</span>, offset<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, length<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, tid<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>buffer: <span class="tsd-signature-type">Buffer</span></h5>
+											</li>
+											<li>
+												<h5>offset: <span class="tsd-signature-type">number</span></h5>
+											</li>
+											<li>
+												<h5>length: <span class="tsd-signature-type">number</span></h5>
+											</li>
+											<li>
+												<h5>tid: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="encode" class="tsd-anchor"></a>
+					<h3>encode</h3>
+					<div class="tsd-signature tsd-kind-icon">encode<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in stun.ts:598</li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-siganture">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>buffer<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Buffer</span>, offset<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, tid<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>buffer: <span class="tsd-signature-type">Buffer</span></h5>
+											</li>
+											<li>
+												<h5>offset: <span class="tsd-signature-type">number</span></h5>
+											</li>
+											<li>
+												<h5>value: <span class="tsd-signature-type">any</span></h5>
+											</li>
+											<li>
+												<h5>tid: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="name" class="tsd-anchor"></a>
 					<h3>name</h3>
 					<div class="tsd-signature tsd-kind-icon">name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/vmolsa/webrtc-native/blob/e17d607/lib/ortc.ts#L786">ortc.ts:786</a></li>
+							<li>Defined in stun.ts:595</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>The name of the registered algorithm to use.</p>
-						</div>
-					</div>
 				</section>
 			</section>
 		</div>
@@ -131,37 +206,58 @@
 					<li class="globals  ">
 						<a href="../globals.html"><em>Globals</em></a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/_3dparty_.html">"3dparty"</a>
-					</li>
-					<li class="current tsd-kind-external-module">
-						<a href="../modules/_ortc_.html">"ortc"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/_rtcicegatherer_.html">"rtcicegatherer"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/_rtcicetransport_.html">"rtcicetransport"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/_stun_.html">"stun"</a>
-					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
+					<li class=" tsd-kind-enum tsd-parent-kind-module">
+						<a href="../enums/_stun_.stun.addressfamily.html" class="tsd-kind-icon">Address<wbr>Family</a>
+					</li>
+					<li class=" tsd-kind-enum tsd-parent-kind-module">
+						<a href="../enums/_stun_.stun.attributes.html" class="tsd-kind-icon">Attributes</a>
+					</li>
+					<li class=" tsd-kind-enum tsd-parent-kind-module">
+						<a href="../enums/_stun_.stun.messagetype.html" class="tsd-kind-icon">Message<wbr>Type</a>
+					</li>
+					<li class=" tsd-kind-enum tsd-parent-kind-module">
+						<a href="../enums/_stun_.stun.type.html" class="tsd-kind-icon">Type</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_stun_.stun.packet.html" class="tsd-kind-icon">Packet</a>
+					</li>
 				</ul>
 				<ul class="current">
-					<li class="current tsd-kind-interface tsd-parent-kind-external-module">
-						<a href="_ortc_.algorithm.html" class="tsd-kind-icon">Algorithm</a>
+					<li class="current tsd-kind-interface tsd-parent-kind-module">
+						<a href="_stun_.stun.codecinterface.html" class="tsd-kind-icon">Codec<wbr>Interface</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="_ortc_.algorithm.html#name" class="tsd-kind-icon">name</a>
+								<a href="_stun_.stun.codecinterface.html#attribute" class="tsd-kind-icon">attribute</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="_stun_.stun.codecinterface.html#decode" class="tsd-kind-icon">decode</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="_stun_.stun.codecinterface.html#encode" class="tsd-kind-icon">encode</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="_stun_.stun.codecinterface.html#name" class="tsd-kind-icon">name</a>
 							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
+					<li class=" tsd-kind-variable tsd-parent-kind-module">
+						<a href="../modules/_stun_.stun.html#fingerprint" class="tsd-kind-icon">Finger<wbr>Print</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-parent-kind-module">
+						<a href="../modules/_stun_.stun.html#magiccookie" class="tsd-kind-icon">Magic<wbr>Cookie</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-parent-kind-module">
+						<a href="../modules/_stun_.stun.html#packetsize" class="tsd-kind-icon">Packet<wbr>Size</a>
+					</li>
+					<li class=" tsd-kind-object-literal tsd-parent-kind-module">
+						<a href="../modules/_stun_.stun.html#errorcode" class="tsd-kind-icon">Error<wbr>Code</a>
+					</li>
 				</ul>
 			</nav>
 		</div>
