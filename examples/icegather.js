@@ -26,12 +26,7 @@ var gatherOptions = {
       credential: "myPassword", 
       credentialType: "password" 
     }
-  ]
-};
-
-var gatherLiteOptions = {
-  gatherPolicy: "relay",
-  iceServers: [],
+  ],
 };
 
 var iceGatherer = new RTCIceGatherer(gatherOptions);
@@ -65,3 +60,4 @@ iceGatherer.on('localcandidate', (event) => {
 console.log('LocalParameters:', iceGatherer.getLocalParameters());
 
 iceGatherer.gather();
+
