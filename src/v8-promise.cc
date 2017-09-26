@@ -46,7 +46,7 @@ Local<Promise> WebRTC::CreatePromise(Isolate *isolate,
     Nan::HandleScope scope;
     Local<Promise::Resolver> resolver = Nan::New(*persistent);
 
-    resolver->Resolve(Nan::GetCurrentContext(), result);
+    (void)resolver->Resolve(Nan::GetCurrentContext(), result);
     Isolate::GetCurrent()->RunMicrotasks();
     
     if (reflock) {
@@ -61,9 +61,9 @@ Local<Promise> WebRTC::CreatePromise(Isolate *isolate,
     Local<Promise::Resolver> resolver = Nan::New(*persistent);
 
     if (!error.IsEmpty()) {
-      resolver->Reject(Nan::GetCurrentContext(), Nan::Error(error->Message().c_str()));
+      (void)resolver->Reject(Nan::GetCurrentContext(), Nan::Error(error->Message().c_str()));
     } else {
-      resolver->Reject(Nan::GetCurrentContext(), Nan::Undefined());
+      (void)resolver->Reject(Nan::GetCurrentContext(), Nan::Undefined());
     }
 
     Isolate::GetCurrent()->RunMicrotasks();
